@@ -54,3 +54,12 @@ func Test2進数の任意ビットの1での編集(t *testing.T) {
 	}
 	assert.Equal(t, [8]byte{0, 1, 0, 1, 0, 1, 0, 1}, actual)
 }
+
+func TestNbitの2進数の全列挙(t *testing.T) {
+	actual := []string{}
+	// 2の3乗通りの全列挙のforループ
+	for i := 0; i < (1 << 3); i++ {
+		actual = append(actual, strconv.FormatInt(int64(i), 2))
+	}
+	assert.Equal(t, []string{"0", "1", "10", "11", "100", "101", "110", "111"}, actual)
+}
