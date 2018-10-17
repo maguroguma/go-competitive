@@ -1,5 +1,7 @@
 package permutation
 
+// GeneratePermutation returns n! in a [][]int style.
+// Each pattern consists of 1 to n integers.
 func GeneratePermutation(n int) [][]int {
 	interim, residual := []int{}, []int{}
 	for i := 1; i < n+1; i++ {
@@ -9,7 +11,7 @@ func GeneratePermutation(n int) [][]int {
 	return recursion(interim, residual)
 }
 
-// 樹形図の葉ノード列のみを取得する
+// recursion finally returns only leaf node of a tree diagram
 func recursion(interim, residual []int) [][]int {
 	if len(residual) == 0 {
 		return [][]int{interim}
@@ -29,12 +31,12 @@ func recursion(interim, residual []int) [][]int {
 }
 
 func deleteElement(s []int, i int) []int {
-	new_s := []int{}
+	newS := []int{}
 	for j, e := range s {
 		if j == i {
 			continue
 		}
-		new_s = append(new_s, e)
+		newS = append(newS, e)
 	}
-	return new_s
+	return newS
 }
