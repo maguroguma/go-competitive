@@ -44,3 +44,9 @@ func Test文字列とruneの変換(t *testing.T) {
 	assert.Equal(t, 17, len(exampleStr))
 	assert.Equal(t, 13, len(exampleRunes))
 }
+
+func Test数値をruneスライスとして扱う(t *testing.T) {
+	runesInt := []rune{'1', '2', '3', '0'}
+	assert.Equal(t, 51, int(runesInt[2]))      // intに変換するだけではダメ
+	assert.Equal(t, int32(3), runesInt[2]-'0') // *runeの実体はint32のエイリアス* であるため、このようにrune同士の演算で正しく扱える
+}
