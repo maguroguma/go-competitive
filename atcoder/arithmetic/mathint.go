@@ -15,3 +15,10 @@ func PowInt(a, e int) int {
 	fanswer := math.Pow(fa, fe)
 	return int(fanswer)
 }
+
+// AbsInt is integer version of math.Abs
+func AbsInt(a int) int {
+	fa := float64(a)
+	fanswer := math.Abs(fa)
+	return int(fanswer)
+}

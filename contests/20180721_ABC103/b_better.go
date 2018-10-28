@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -84,39 +85,29 @@ func AbsInt(a int) int {
 	return int(fanswer)
 }
 
-// DeleteElement returns a *NEW* slice, that have the same and minimum length and capacity.
-// DeleteElement makes a new slice by using easy slice literal.
-func DeleteElement(s []int, i int) []int {
-	if i < 0 || len(s) <= i {
-		panic(errors.New("[index error]"))
-	}
-	// appendのみの実装
-	n := make([]int, 0, len(s)-1)
-	n = append(n, s[:i]...)
-	n = append(n, s[i+1:]...)
-	return n
-}
-
-// Concat returns a *NEW* slice, that have the same and minimum length and capacity.
-func Concat(s, t []rune) []rune {
-	n := make([]rune, 0, len(s)+len(t))
-	n = append(n, s...)
-	n = append(n, t...)
-	return n
-}
-
 // sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
 
-// copy function
-//a = []int{0, 1, 2}
-//b = make([]int, len(a))
-//copy(b, a)
-
 /*******************************************************************/
 
+var s, t []rune
+
 func main() {
+	s = NextRunesLine()
+	t = NextRunesLine()
+	for i := 0; i < len(s); i++ {
+		before := s[len(s)-1-i : len(s)]
+		after := s[0 : len(s)-1-i]
+		rots := []rune{}
+		rots = append(rots, before...)
+		rots = append(rots, after...)
+		if string(t) == string(rots) {
+			fmt.Println("Yes")
+			return
+		}
+	}
+	fmt.Println("No")
 }
