@@ -3,14 +3,15 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
 	"strings"
 )
 
-/*
 var rdr = bufio.NewReaderSize(os.Stdin, 1000000)
+
 // readLine can read long line string (at least 10^5)
 func readLine() string {
 	buf := make([]byte, 0, 1000000)
@@ -26,19 +27,19 @@ func readLine() string {
 	}
 	return string(buf)
 }
+
 // NextLine reads a line text from stdin, and then returns its string.
 func NextLine() string {
 	return readLine()
 }
-*/
 
-var sc = bufio.NewScanner(os.Stdin)
-
-// NextLine reads a line text from stdin, and then returns its string.
-func NextLine() string {
-	sc.Scan()
-	return sc.Text()
-}
+//var sc = bufio.NewScanner(os.Stdin)
+//
+//// NextLine reads a line text from stdin, and then returns its string.
+//func NextLine() string {
+//	sc.Scan()
+//	return sc.Text()
+//}
 
 // NextIntsLine reads a line text, that consists of **ONLY INTEGERS DELIMITED BY SPACES**, from stdin.
 // And then returns intergers slice.
@@ -193,5 +194,26 @@ func Strtoi(s string) int {
 
 /*******************************************************************/
 
+var n, m int
+var A, B []int
+
 func main() {
+	tmp := NextIntsLine()
+	n, m = tmp[0], tmp[1]
+	for i := 0; i < m; i++ {
+		tmp = NextIntsLine()
+		A = append(A, tmp[0])
+		B = append(B, tmp[1])
+	}
+	for tid := 1; tid <= n; tid++ {
+		count := 0
+		for i := 0; i < m; i++ {
+			s := A[i]
+			e := B[i]
+			if s == tid || e == tid {
+				count++
+			}
+		}
+		fmt.Println(count)
+	}
 }

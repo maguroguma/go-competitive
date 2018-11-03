@@ -3,14 +3,15 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
 	"strings"
 )
 
-/*
 var rdr = bufio.NewReaderSize(os.Stdin, 1000000)
+
 // readLine can read long line string (at least 10^5)
 func readLine() string {
 	buf := make([]byte, 0, 1000000)
@@ -26,19 +27,19 @@ func readLine() string {
 	}
 	return string(buf)
 }
+
 // NextLine reads a line text from stdin, and then returns its string.
 func NextLine() string {
 	return readLine()
 }
-*/
 
-var sc = bufio.NewScanner(os.Stdin)
-
-// NextLine reads a line text from stdin, and then returns its string.
-func NextLine() string {
-	sc.Scan()
-	return sc.Text()
-}
+//var sc = bufio.NewScanner(os.Stdin)
+//
+//// NextLine reads a line text from stdin, and then returns its string.
+//func NextLine() string {
+//	sc.Scan()
+//	return sc.Text()
+//}
 
 // NextIntsLine reads a line text, that consists of **ONLY INTEGERS DELIMITED BY SPACES**, from stdin.
 // And then returns intergers slice.
@@ -193,5 +194,14 @@ func Strtoi(s string) int {
 
 /*******************************************************************/
 
+var a, b, c int
+
 func main() {
+	tmp := NextIntsLine()
+	a, b, c = tmp[0], tmp[1], tmp[2]
+	if a <= c && c <= b {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }

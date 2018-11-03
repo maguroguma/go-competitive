@@ -3,14 +3,16 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-/*
 var rdr = bufio.NewReaderSize(os.Stdin, 1000000)
+
 // readLine can read long line string (at least 10^5)
 func readLine() string {
 	buf := make([]byte, 0, 1000000)
@@ -26,19 +28,19 @@ func readLine() string {
 	}
 	return string(buf)
 }
+
 // NextLine reads a line text from stdin, and then returns its string.
 func NextLine() string {
 	return readLine()
 }
-*/
 
-var sc = bufio.NewScanner(os.Stdin)
-
-// NextLine reads a line text from stdin, and then returns its string.
-func NextLine() string {
-	sc.Scan()
-	return sc.Text()
-}
+//var sc = bufio.NewScanner(os.Stdin)
+//
+//// NextLine reads a line text from stdin, and then returns its string.
+//func NextLine() string {
+//	sc.Scan()
+//	return sc.Text()
+//}
 
 // NextIntsLine reads a line text, that consists of **ONLY INTEGERS DELIMITED BY SPACES**, from stdin.
 // And then returns intergers slice.
@@ -193,5 +195,37 @@ func Strtoi(s string) int {
 
 /*******************************************************************/
 
+var n, k int
+var A, B []int
+
+// mapで各要素の個数を管理する
+// 各要素の先頭の順位を、mapを利用して求める
+
 func main() {
+	tmp := NextIntsLine()
+	n, k = tmp[0], tmp[1]
+	memo := make(map[int]int)
+	for i := 0; i < n; i++ {
+		tmp = NextIntsLine()
+		A = append(A, tmp[0])
+		B = append(B, tmp[1])
+		memo[tmp[0]] = tmp[1]
+	}
+
+	sortedA := make([]int, len(A))
+	copy(sortedA, A)
+	sort.Sort(sort.IntSlice(sortedA))
+
+	sum := 0
+	for i := 0; i < n; i++ {
+		currentElement := sortedA[i]
+		currentNumber := memo[currentElement]
+		s := sum + 1
+		e := sum + currentNumber
+		if s <= k && k <= e {
+			fmt.Println(currentElement)
+			return
+		}
+		sum += currentNumber
+	}
 }
