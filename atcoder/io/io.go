@@ -10,6 +10,7 @@ import (
 var sc = bufio.NewScanner(os.Stdin)
 
 // NextLine reads a line text from stdin, and then returns its string.
+// MAX LIMIT?: 64*1024 (per line)
 func NextLine() string {
 	sc.Scan()
 	return sc.Text()

@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -32,14 +33,6 @@ func NextLine() string {
 	return readLine()
 }
 
-//var sc = bufio.NewScanner(os.Stdin)
-//
-//// NextLine reads a line text from stdin, and then returns its string.
-//func NextLine() string {
-//	sc.Scan()
-//	return sc.Text()
-//}
-
 // NextIntsLine reads a line text, that consists of **ONLY INTEGERS DELIMITED BY SPACES**, from stdin.
 // And then returns intergers slice.
 func NextIntsLine() []int {
@@ -51,13 +44,6 @@ func NextIntsLine() []int {
 		ints = append(ints, integer)
 	}
 	return ints
-}
-
-// NextStringsLine reads a line text, that consists of **STRINGS DELIMITED BY SPACES**, from stdin.
-// And then returns strings slice.
-func NextStringsLine() []string {
-	str := NextLine()
-	return strings.Split(str, " ")
 }
 
 // NextRunesLine reads a line text, that consists of **ONLY CHARACTERS ARRANGED CONTINUOUSLY**, from stdin.
@@ -135,51 +121,6 @@ func Concat(s, t []rune) []rune {
 	return n
 }
 
-// UpperRune is rune version of `strings.ToUpper()`.
-func UpperRune(r rune) rune {
-	str := strings.ToUpper(string(r))
-	return []rune(str)[0]
-}
-
-// LowerRune is rune version of `strings.ToLower()`.
-func LowerRune(r rune) rune {
-	str := strings.ToLower(string(r))
-	return []rune(str)[0]
-}
-
-// ToggleRune returns a upper case if an input is a lower case, v.v.
-func ToggleRune(r rune) rune {
-	var str string
-	if 'a' <= r && r <= 'z' {
-		str = strings.ToUpper(string(r))
-	} else if 'A' <= r && r <= 'Z' {
-		str = strings.ToLower(string(r))
-	} else {
-		str = string(r)
-	}
-	return []rune(str)[0]
-}
-
-// ToggleString iteratively calls ToggleRune, and returns the toggled string.
-func ToggleString(s string) string {
-	inputRunes := []rune(s)
-	outputRunes := make([]rune, 0, len(inputRunes))
-	for _, r := range inputRunes {
-		outputRunes = append(outputRunes, ToggleRune(r))
-	}
-	return string(outputRunes)
-}
-
-// Strtoi is a wrapper of `strconv.Atoi()`.
-// If `strconv.Atoi()` returns an error, Strtoi calls panic.
-func Strtoi(s string) int {
-	if i, err := strconv.Atoi(s); err != nil {
-		panic(errors.New("[argument error]: Strtoi only accepts integer string"))
-	} else {
-		return i
-	}
-}
-
 // sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
@@ -193,5 +134,45 @@ func Strtoi(s string) int {
 
 /*******************************************************************/
 
+var n int
+var A []int
+
 func main() {
+	tmp := NextIntsLine()
+	n = tmp[0]
+	A = NextIntsLine()
+
+	S := make([]int, len(A))
+	S[0] = A[0]
+	for i := 1; i < len(A); i++ {
+		sum := S[i-1]
+		S[i] = sum + A[i]
+	}
+	// 最初を正とする場合と負とする場合の両方を試す
+	answers := []int{}
+	for _, firstSign := range []int{1, -1} {
+		comp, answer := 0, 0
+		if (firstSign == 1 && S[0] <= 0) || (firstSign == -1 && S[0] >= 0) {
+			comp = firstSign - S[0]
+			answer = AbsInt(comp)
+		}
+
+		for i := 1; i < len(S); i++ {
+			var befSign int
+			if S[i-1]+comp < 0 {
+				befSign = -1
+			} else {
+				befSign = 1
+			}
+			if (befSign == -1 && S[i]+comp > 0) || (befSign == 1 && S[i]+comp < 0) {
+				continue
+			}
+			x := -befSign - (S[i] + comp)
+			answer += AbsInt(x)
+			comp += x
+		}
+		answers = append(answers, answer)
+	}
+
+	fmt.Println(Min(answers...))
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -51,13 +52,6 @@ func NextIntsLine() []int {
 		ints = append(ints, integer)
 	}
 	return ints
-}
-
-// NextStringsLine reads a line text, that consists of **STRINGS DELIMITED BY SPACES**, from stdin.
-// And then returns strings slice.
-func NextStringsLine() []string {
-	str := NextLine()
-	return strings.Split(str, " ")
 }
 
 // NextRunesLine reads a line text, that consists of **ONLY CHARACTERS ARRANGED CONTINUOUSLY**, from stdin.
@@ -135,51 +129,6 @@ func Concat(s, t []rune) []rune {
 	return n
 }
 
-// UpperRune is rune version of `strings.ToUpper()`.
-func UpperRune(r rune) rune {
-	str := strings.ToUpper(string(r))
-	return []rune(str)[0]
-}
-
-// LowerRune is rune version of `strings.ToLower()`.
-func LowerRune(r rune) rune {
-	str := strings.ToLower(string(r))
-	return []rune(str)[0]
-}
-
-// ToggleRune returns a upper case if an input is a lower case, v.v.
-func ToggleRune(r rune) rune {
-	var str string
-	if 'a' <= r && r <= 'z' {
-		str = strings.ToUpper(string(r))
-	} else if 'A' <= r && r <= 'Z' {
-		str = strings.ToLower(string(r))
-	} else {
-		str = string(r)
-	}
-	return []rune(str)[0]
-}
-
-// ToggleString iteratively calls ToggleRune, and returns the toggled string.
-func ToggleString(s string) string {
-	inputRunes := []rune(s)
-	outputRunes := make([]rune, 0, len(inputRunes))
-	for _, r := range inputRunes {
-		outputRunes = append(outputRunes, ToggleRune(r))
-	}
-	return string(outputRunes)
-}
-
-// Strtoi is a wrapper of `strconv.Atoi()`.
-// If `strconv.Atoi()` returns an error, Strtoi calls panic.
-func Strtoi(s string) int {
-	if i, err := strconv.Atoi(s); err != nil {
-		panic(errors.New("[argument error]: Strtoi only accepts integer string"))
-	} else {
-		return i
-	}
-}
-
 // sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
@@ -193,5 +142,24 @@ func Strtoi(s string) int {
 
 /*******************************************************************/
 
+var n, t int
+var T []int
+
 func main() {
+	tmp := NextIntsLine()
+	n, t = tmp[0], tmp[1]
+	T = NextIntsLine()
+	time := 0
+	for i := 1; i < len(T); i++ {
+		// i番目の人が押すときに、お湯は出ているか止まっているか
+		diff := T[i] - T[i-1]
+		if diff <= t {
+			// お湯は出ている
+			time += diff
+		} else {
+			// お湯はとまっている
+			time += t
+		}
+	}
+	fmt.Println(time + t)
 }

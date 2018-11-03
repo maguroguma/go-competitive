@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -135,51 +136,6 @@ func Concat(s, t []rune) []rune {
 	return n
 }
 
-// UpperRune is rune version of `strings.ToUpper()`.
-func UpperRune(r rune) rune {
-	str := strings.ToUpper(string(r))
-	return []rune(str)[0]
-}
-
-// LowerRune is rune version of `strings.ToLower()`.
-func LowerRune(r rune) rune {
-	str := strings.ToLower(string(r))
-	return []rune(str)[0]
-}
-
-// ToggleRune returns a upper case if an input is a lower case, v.v.
-func ToggleRune(r rune) rune {
-	var str string
-	if 'a' <= r && r <= 'z' {
-		str = strings.ToUpper(string(r))
-	} else if 'A' <= r && r <= 'Z' {
-		str = strings.ToLower(string(r))
-	} else {
-		str = string(r)
-	}
-	return []rune(str)[0]
-}
-
-// ToggleString iteratively calls ToggleRune, and returns the toggled string.
-func ToggleString(s string) string {
-	inputRunes := []rune(s)
-	outputRunes := make([]rune, 0, len(inputRunes))
-	for _, r := range inputRunes {
-		outputRunes = append(outputRunes, ToggleRune(r))
-	}
-	return string(outputRunes)
-}
-
-// Strtoi is a wrapper of `strconv.Atoi()`.
-// If `strconv.Atoi()` returns an error, Strtoi calls panic.
-func Strtoi(s string) int {
-	if i, err := strconv.Atoi(s); err != nil {
-		panic(errors.New("[argument error]: Strtoi only accepts integer string"))
-	} else {
-		return i
-	}
-}
-
 // sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
@@ -193,5 +149,15 @@ func Strtoi(s string) int {
 
 /*******************************************************************/
 
+var a, b, c string
+
 func main() {
+	strSlice := NextStringsLine()
+	a, b, c = strSlice[0], strSlice[1], strSlice[2]
+	arune, brune, crune := []rune(a), []rune(b), []rune(c)
+	if arune[len(arune)-1] == brune[0] && brune[len(brune)-1] == crune[0] {
+		fmt.Println("YES")
+	} else {
+		fmt.Println("NO")
+	}
 }
