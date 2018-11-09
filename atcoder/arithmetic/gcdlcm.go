@@ -36,5 +36,7 @@ func Lcm(a, b int) int {
 	// a' and b' are relatively prime numbers
 	// gcd consists of prime numbers, that are included in a and b
 	gcd := Gcd(a, b)
-	return a * b / gcd
+
+	// not (a * b / gcd), because of reducing a probability of overflow
+	return (a / gcd) * b
 }
