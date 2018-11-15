@@ -167,3 +167,15 @@ func Test組み込みのcopy関数(t *testing.T) {
 	assert.Equal(t, []int{10, 11, 12, 13, 14, 15, 16}, s2)
 	assert.NotEqual(t, &s1, &s2)
 }
+
+func TestAppend関数(t *testing.T) {
+	a := []int{0}
+	b := []int{1}
+	c := append(a, b...)
+	d := append(c, c...)
+	d[0] = 100
+	assert.Equal(t, []int{0}, a)
+	assert.Equal(t, []int{1}, b)
+	assert.Equal(t, []int{0, 1}, c)
+	assert.Equal(t, []int{100, 1, 0, 1}, d)
+}
