@@ -7,6 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// https://golang.org/pkg/container/heap/
+// https://golang.org/src/container/heap/heap.go
+
 type Item struct {
 	value    string // The value of the item; arbitrary.
 	priority int    // The priority of the item in the queue.
