@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"math"
@@ -10,8 +11,8 @@ import (
 	"strings"
 )
 
-/*
 var rdr = bufio.NewReaderSize(os.Stdin, 1000000)
+
 // readLine can read long line string (at least 10^5)
 func readLine() string {
 	buf := make([]byte, 0, 1000000)
@@ -27,12 +28,13 @@ func readLine() string {
 	}
 	return string(buf)
 }
+
 // NextLine reads a line text from stdin, and then returns its string.
 func NextLine() string {
 	return readLine()
 }
-*/
 
+/*
 var sc = bufio.NewScanner(os.Stdin)
 
 // NextLine reads a line text from stdin, and then returns its string.
@@ -40,6 +42,7 @@ func NextLine() string {
 	sc.Scan()
 	return sc.Text()
 }
+*/
 
 // NextIntsLine reads a line text, that consists of **ONLY INTEGERS DELIMITED BY SPACES**, from stdin.
 // And then returns intergers slice.
@@ -192,51 +195,92 @@ func Strtoi(s string) int {
 //b = make([]int, len(a))
 //copy(b, a)
 
+type IntHeap []int
+
+// 5つのメソッドを実装する
+func (h IntHeap) Len() int           { return len(h) }
+func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
+func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// Push and Pop use pointer receivers because they modify the slice's LENGTH, NOT JUST ITS CONTENTS.
+func (h *IntHeap) Push(x interface{}) {
+	*h = append(*h, x.(int))
+}
+func (h *IntHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+type IntReverseHeap []int
+
+// 5つのメソッドを実装する
+func (h IntReverseHeap) Len() int           { return len(h) }
+func (h IntReverseHeap) Less(i, j int) bool { return h[i] > h[j] }
+func (h IntReverseHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+// Push and Pop use pointer receivers because they modify the slice's LENGTH, NOT JUST ITS CONTENTS.
+func (h *IntReverseHeap) Push(x interface{}) {
+	*h = append(*h, x.(int))
+}
+func (h *IntReverseHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
 /*******************************************************************/
 
-var n, m int
-var A, B, C []int
+var n int
+var A []int
 
 func main() {
 	tmp := NextIntsLine()
-	n, m = tmp[0], tmp[1]
-	for i := 0; i < m; i++ {
-		tmp = NextIntsLine()
-		A = append(A, tmp[0])
-		B = append(B, tmp[1])
-		C = append(C, -1*tmp[2])
+	n = tmp[0]
+	A = NextIntsLine()
+
+	First, Last := &IntHeap{}, &IntReverseHeap{}
+	for i := 0; i < n; i++ {
+		heap.Push(First, A[i])
+	}
+	for i := 2 * n; i < 3*n; i++ {
+		heap.Push(Last, A[i])
 	}
 
-	nodes := [1001]int{}
-	for i := 1; i <= n; i++ {
-		if i == 1 {
-			nodes[i] = 0
-		} else {
-			nodes[i] = 2000 * 1000000000
-		}
+	var firstSums, lasSums [100001]int
+	sum := 0
+	for i := 0; i < n; i++ {
+		sum += (*First)[i]
+	}
+	firstSums[0] = sum
+	for i := n; i < 2*n; i++ {
+		pushed := A[i]
+		heap.Push(First, pushed)
+		popped := heap.Pop(First).(int)
+		sum += (pushed - popped)
+		firstSums[i-n+1] = sum
 	}
 
-	for counter := 0; counter < n-1; counter++ {
-		for i := 0; i < m; i++ {
-			source, destination, cost := A[i], B[i], C[i]
-			if nodes[destination] > nodes[source]+cost {
-				nodes[destination] = nodes[source] + cost
-			}
-		}
+	sum = 0
+	for i := 0; i < n; i++ {
+		sum += (*Last)[i]
+	}
+	lasSums[n] = sum
+	for i := 2*n - 1; i >= n; i-- {
+		pushed := A[i]
+		heap.Push(Last, pushed)
+		popped := heap.Pop(Last).(int)
+		sum += (pushed - popped)
+		lasSums[i-n] = sum
 	}
 
-	roops := [1001]bool{}
-	for counter := 0; counter < n; counter++ { // 負の閉路の長さは最大NであるためN回繰り返す（始点のinfをN回伝搬できるようにする）
-		for i := 0; i < m; i++ {
-			source, destination, cost := A[i], B[i], C[i]
-			if nodes[destination] > nodes[source]+cost || roops[source] {
-				roops[destination] = true
-			}
-		}
+	ans := -math.MaxInt64
+	for i := 0; i <= n; i++ {
+		ans = Max(ans, firstSums[i]-lasSums[i])
 	}
-	if roops[n] {
-		fmt.Println("inf")
-	} else {
-		fmt.Println(-nodes[n])
-	}
+	fmt.Println(ans)
 }

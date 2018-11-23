@@ -31,6 +31,8 @@ func NextIntsLine() []int {
 
 /*******************************************************************/
 
+// https://atc001.contest.atcoder.jp/tasks/unionfind_a
+
 var n, q int
 var P, A, B []int
 
