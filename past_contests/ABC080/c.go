@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
+/*
 var rdr = bufio.NewReaderSize(os.Stdin, 1000000)
-
 // readLine can read long line string (at least 10^5)
 func readLine() string {
 	buf := make([]byte, 0, 1000000)
@@ -27,13 +27,12 @@ func readLine() string {
 	}
 	return string(buf)
 }
-
 // NextLine reads a line text from stdin, and then returns its string.
 func NextLine() string {
 	return readLine()
 }
+*/
 
-/*
 var sc = bufio.NewScanner(os.Stdin)
 
 // NextLine reads a line text from stdin, and then returns its string.
@@ -41,7 +40,6 @@ func NextLine() string {
 	sc.Scan()
 	return sc.Text()
 }
-*/
 
 // NextIntsLine reads a line text, that consists of **ONLY INTEGERS DELIMITED BY SPACES**, from stdin.
 // And then returns intergers slice.
@@ -197,66 +195,62 @@ func Strtoi(s string) int {
 /*******************************************************************/
 
 var n int
+var F [][]int
+var P [][]int
 
 func main() {
 	tmp := NextIntsLine()
 	n = tmp[0]
+	for i := 0; i < n; i++ {
+		tmp = NextIntsLine()
+		F = append(F, tmp)
+	}
+	for i := 0; i < n; i++ {
+		tmp = NextIntsLine()
+		P = append(P, tmp)
+	}
 
-	primes := [101]int{}
-	for i := 2; i <= n; i++ {
-		num := i
+	patterns := sub()
+	ans := -math.MaxInt32
+	for idx, p := range patterns {
+		if idx == 0 {
+			continue
+		}
 
-		p := 2
-		for PowInt(p, 2) <= i {
-			for num%p == 0 {
-				primes[p]++
-				num /= p
+		profit := 0
+		// 店ごと
+		for i := 0; i < n; i++ {
+			// 時間帯ごと
+			c := 0
+			for j := 0; j < 10; j++ {
+				if p[j] == 1 && F[i][j] == 1 {
+					c++
+				}
 			}
-			p++
+			profit += P[i][c]
 		}
-		primes[num]++
+		ans = Max(ans, profit)
 	}
-	//	fmt.Println(primes)
-	//	test := 1
-	//	for i := 2; i <= n; i++ {
-	//		test *= PowInt(i, primes[i])
-	//	}
-	//	fmt.Println(test)
-
-	num74, num24, num14, num4, num2 := 0, 0, 0, 0, 0
-	for i := 2; i <= n; i++ {
-		if primes[i] >= 74 {
-			num74++
-			num24++
-			num14++
-			num4++
-			num2++
-		} else if 24 <= primes[i] && primes[i] < 74 {
-			num24++
-			num14++
-			num4++
-			num2++
-		} else if 14 <= primes[i] && primes[i] < 24 {
-			num14++
-			num4++
-			num2++
-		} else if 4 <= primes[i] && primes[i] < 14 {
-			num4++
-			num2++
-		} else if 2 <= primes[i] && primes[i] < 4 {
-			num2++
-		}
-	}
-
-	//	ans := 0
-	//	if num4 >= 2 {
-	//		ans += num2 * num4 * (num4 - 1) / 2
-	//	}
-	//	if num4 >= 3 {
-	//		ans += num4 * (num4 - 1) * (num4 - 2) / 2
-	//	}
-
-	ans := num74 + num24*(num2-1) + num14*(num4-1) + num4*(num4-1)*(num2-2)/2
 
 	fmt.Println(ans)
+}
+
+func sub() [][]int {
+	return recursion([]int{})
+}
+
+func recursion(interim []int) [][]int {
+	if len(interim) == 10 {
+		return [][]int{interim}
+	}
+
+	res := [][]int{}
+	for i := 0; i <= 1; i++ {
+		copiedInterim := make([]int, len(interim))
+		copy(copiedInterim, interim)
+		copiedInterim = append(copiedInterim, i)
+		res = append(res, recursion(copiedInterim)...)
+	}
+
+	return res
 }
