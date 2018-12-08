@@ -202,50 +202,31 @@ func main() {
 	h, w, k = tmp[0], tmp[1], tmp[2]
 	mod := 1000000007
 
-	if w == 1 {
-		fmt.Println(1)
-		return
-	}
-
-	patterns := sub(w - 1)
+	patterns := sub(w)
 	dp[1][0] = 1
 	for i := 1; i <= h; i++ {
 		for j := 0; j < w; j++ {
-			left, straight, right := 0, 0, 0
+			X, Y, Z := 0, 0, 0
 			for _, p := range patterns {
 				if isOKAsAmida(p) {
-					if j == 0 {
-						if p[j] == 0 {
-							straight++
-						} else {
-							right++
-						}
-					} else if j == w-1 {
-						if p[j-1] == 1 {
-							left++
-						} else {
-							straight++
-						}
-					} else {
-						if p[j] == 1 {
-							right++
-						} else if p[j-1] == 1 {
-							left++
-						} else if p[j-1] == 0 {
-							straight++
-						}
+					if p[j] == 0 {
+						Y++
+					} else if j < w-1 && p[j] == 1 && p[j+1] == 1 {
+						Z++
+					} else if j > 0 && p[j] == 1 && p[j-1] == 1 {
+						X++
 					}
 				}
 			}
 
 			if j-1 >= 0 {
-				dp[i+1][j-1] += left * dp[i][j] % mod
+				dp[i+1][j-1] += X * dp[i][j] % mod
 				dp[i+1][j-1] %= mod
 			}
-			dp[i+1][j] += straight * dp[i][j] % mod
+			dp[i+1][j] += Y * dp[i][j] % mod
 			dp[i+1][j] %= mod
 			if j+1 < w {
-				dp[i+1][j+1] += right * dp[i][j] % mod
+				dp[i+1][j+1] += Z * dp[i][j] % mod
 				dp[i+1][j+1] %= mod
 			}
 		}
@@ -254,10 +235,17 @@ func main() {
 	fmt.Println(dp[h+1][k-1])
 }
 
-// 1ならば右に進める
 func isOKAsAmida(bits []int) bool {
+	copiedBits := make([]int, len(bits))
+	copy(copiedBits, bits)
 	for i := 0; i < len(bits)-1; i++ {
-		if bits[i] == 1 && bits[i+1] == 1 {
+		if copiedBits[i] == 1 {
+			copiedBits[i]--
+			copiedBits[i+1]--
+		}
+	}
+	for _, b := range copiedBits {
+		if b != 0 {
 			return false
 		}
 	}
