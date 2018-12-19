@@ -195,65 +195,73 @@ func Strtoi(s string) int {
 /*******************************************************************/
 
 var n, m int
+var L, R, D []int
 
-// key: 遷移先ノードID, value: 遷移コスト
-var edges [100001]map[int]int
-
-type Node struct {
-	coord     int
-	isVisited bool
+type Info struct {
+	origin, dist int
 }
 
-var nodes [100001]Node
+type WidthInfo struct {
+	origin, plus, minus int
+}
 
 func main() {
 	tmp := NextIntsLine()
 	n, m = tmp[0], tmp[1]
-	for i := 1; i <= n; i++ {
-		edges[i] = make(map[int]int)
-		nodes[i] = Node{-1, false}
-	}
 	for i := 0; i < m; i++ {
 		tmp = NextIntsLine()
 		l, r, d := tmp[0], tmp[1], tmp[2]
-		edges[l][r] = d
-		edges[r][l] = -d
+		L = append(L, l)
+		R = append(R, r)
+		D = append(D, d)
 	}
 
-	for i := 1; i <= n; i++ {
-		if nodes[i].isVisited {
-			continue
-		} else {
-			nodes[i].isVisited = true
-			nodes[i].coord = 0
-			isOK := dfs(i)
-			if !isOK {
+	memo := make(map[int]Info)
+	for i := 0; i < m; i++ {
+		l, r, d := L[i], R[i], D[i]
+		xl, lok := memo[l]
+		xr, rok := memo[r]
+		if lok && rok {
+			if xr.dist != xl.dist+d {
 				fmt.Println("No")
 				return
 			}
+		} else if lok && !rok {
+			info := Info{l, xl.dist + d}
+			//memo[r] = xl + d
+			memo[r] = info
+		} else if !lok && rok {
+			info := Info{r, xr.dist - d}
+			//memo[l] = xr - d
+			memo[l] = info
+		} else {
+			info := Info{l, 0}
+			//			memo[l] = 0
+			//			memo[r] = d
+			memo[l] = info
+			info = Info{l, d}
+			memo[r] = info
+		}
+	}
+
+	widths := make(map[int]WidthInfo)
+	for _, v := range memo {
+		if info, ok := widths[v.origin]; ok {
+			info.plus = Max(info.plus, v.dist)
+			info.minus = Min(info.minus, v.dist)
+		} else {
+			info := WidthInfo{v.origin, 0, 0}
+			info.plus = Max(info.plus, v.dist)
+			info.minus = Min(info.minus, v.dist)
+		}
+	}
+	for _, v := range widths {
+		w := v.plus - v.minus
+		if w > 1000000000 {
+			fmt.Println("No")
+			return
 		}
 	}
 
 	fmt.Println("Yes")
-}
-
-func dfs(nodeId int) bool {
-	res := true
-
-	for k, v := range edges[nodeId] {
-		if nodes[k].isVisited {
-			if nodes[k].coord != nodes[nodeId].coord+v {
-				return false
-			}
-		} else {
-			nodes[k].isVisited = true
-			nodes[k].coord = nodes[nodeId].coord + v
-			res = dfs(k)
-			if !res {
-				return res
-			}
-		}
-	}
-
-	return res
 }

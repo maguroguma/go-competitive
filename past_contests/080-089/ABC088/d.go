@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -193,5 +194,70 @@ func Strtoi(s string) int {
 
 /*******************************************************************/
 
+var h, w int
+var S [][]rune
+
+type coord struct {
+	y, x, step int
+}
+
+var flags [][]int
+
 func main() {
+	tmp := NextIntsLine()
+	h, w = tmp[0], tmp[1]
+	for i := 0; i < h; i++ {
+		R := NextRunesLine()
+		S = append(S, R)
+	}
+
+	flags = make([][]int, h)
+	for i := 0; i < h; i++ {
+		flags[i] = make([]int, w)
+	}
+
+	bnum := 0
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			if S[i][j] == '#' {
+				bnum++
+			}
+			flags[i][j] = -1
+		}
+	}
+
+	queue := []coord{}
+	queue = append(queue, coord{0, 0, 0})
+	flags[0][0] = 0
+	steps := [][]int{
+		[]int{1, 0},
+		[]int{0, 1},
+		[]int{-1, 0},
+		[]int{0, -1},
+	}
+	for len(queue) > 0 {
+		now := queue[0]
+		queue = queue[1:]
+
+		//		if now.y == h-1 && now.x == w-1 {
+		//			break
+		//		}
+
+		for _, ss := range steps {
+			dy, dx := ss[0], ss[1]
+			y := now.y + dy
+			x := now.x + dx
+			if 0 <= y && y < h && 0 <= x && x < w && flags[y][x] == -1 && S[y][x] == '.' {
+				queue = append(queue, coord{y, x, now.step + 1})
+				flags[y][x] = now.step + 1
+			}
+		}
+	}
+
+	if flags[h-1][w-1] == -1 {
+		fmt.Println(-1)
+	} else {
+		ans := h*w - (1 + flags[h-1][w-1]) - bnum
+		fmt.Println(ans)
+	}
 }
