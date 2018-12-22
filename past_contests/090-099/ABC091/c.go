@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -180,54 +182,6 @@ func Strtoi(s string) int {
 	}
 }
 
-// LowerBound returns an index of a slice whose value is EQUAL TO AND LARGER THAN A KEY VALUE.
-func LowerBound(s []int, key int) int {
-	isLarger := func(index, key int) bool {
-		if s[index] >= key {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	left, right := -1, len(s)
-
-	for right-left > 1 {
-		mid := left + (right-left)/2
-		if isLarger(mid, key) {
-			right = mid
-		} else {
-			left = mid
-		}
-	}
-
-	return right
-}
-
-// UpperBound returns an index of a slice whose value is EQUAL TO AND SMALLER THAN A KEY VALUE.
-func UpperBound(s []int, key int) int {
-	isSmaller := func(index, key int) bool {
-		if s[index] <= key {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	left, right := -1, len(s)
-
-	for right-left > 1 {
-		mid := left + (right-left)/2
-		if isSmaller(mid, key) {
-			left = mid
-		} else {
-			right = mid
-		}
-	}
-
-	return left
-}
-
 // sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
@@ -241,5 +195,74 @@ func UpperBound(s []int, key int) int {
 
 /*******************************************************************/
 
+var n int
+
+//var A, B, C, D []int
+
+type coord struct {
+	id, x, y int
+}
+
+type coordList []coord
+
+func (C coordList) Len() int {
+	return len(C)
+}
+func (C coordList) Swap(i, j int) {
+	C[i], C[j] = C[j], C[i]
+}
+
+func (C coordList) Less(i, j int) bool {
+	return C[i].x < C[j].x
+}
+
 func main() {
+	n := NextIntsLine()[0]
+	rflags := [101]bool{}
+	reds := coordList{}
+	blues := coordList{}
+	for i := 0; i < n; i++ {
+		tmp := NextIntsLine()
+		reds = append(reds, coord{id: i + 1, x: tmp[0], y: tmp[1]})
+	}
+	for i := 0; i < n; i++ {
+		tmp := NextIntsLine()
+		blues = append(blues, coord{id: i + 1, x: tmp[0], y: tmp[1]})
+	}
+
+	sort.Sort(blues)
+
+	pairs := [101][]int{}
+	for i := 0; i < len(blues); i++ {
+		bp := blues[i]
+		pairs[bp.id] = []int{}
+		for j := 0; j < len(reds); j++ {
+			rp := reds[j]
+			if rp.x < bp.x && rp.y < bp.y {
+				pairs[bp.id] = append(pairs[bp.id], rp.id)
+			}
+		}
+	}
+
+	ans := 0
+	for i := 0; i < len(blues); i++ {
+		bp := blues[i]
+		RID := -1
+		for _, rid := range pairs[bp.id] {
+			rp := reds[rid-1]
+			if !rflags[rid] && rp.x < bp.x && rp.y < bp.y {
+				if RID == -1 {
+					RID = rid
+				} else if reds[RID-1].y < rp.y {
+					RID = rid
+				}
+			}
+		}
+		if RID != -1 {
+			rflags[RID] = true
+			ans++
+		}
+	}
+
+	fmt.Println(ans)
 }

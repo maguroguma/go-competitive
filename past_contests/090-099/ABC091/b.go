@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
 	"strconv"
@@ -180,54 +181,6 @@ func Strtoi(s string) int {
 	}
 }
 
-// LowerBound returns an index of a slice whose value is EQUAL TO AND LARGER THAN A KEY VALUE.
-func LowerBound(s []int, key int) int {
-	isLarger := func(index, key int) bool {
-		if s[index] >= key {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	left, right := -1, len(s)
-
-	for right-left > 1 {
-		mid := left + (right-left)/2
-		if isLarger(mid, key) {
-			right = mid
-		} else {
-			left = mid
-		}
-	}
-
-	return right
-}
-
-// UpperBound returns an index of a slice whose value is EQUAL TO AND SMALLER THAN A KEY VALUE.
-func UpperBound(s []int, key int) int {
-	isSmaller := func(index, key int) bool {
-		if s[index] <= key {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	left, right := -1, len(s)
-
-	for right-left > 1 {
-		mid := left + (right-left)/2
-		if isSmaller(mid, key) {
-			left = mid
-		} else {
-			right = mid
-		}
-	}
-
-	return left
-}
-
 // sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
@@ -241,5 +194,32 @@ func UpperBound(s []int, key int) int {
 
 /*******************************************************************/
 
+var n, m int
+var S, T []string
+
 func main() {
+	n = NextIntsLine()[0]
+	memo := make(map[string]int)
+	for i := 0; i < n; i++ {
+		tmp := NextRunesLine()
+		str := string(tmp)
+		memo[str]++
+	}
+	m = NextIntsLine()[0]
+	for i := 0; i < m; i++ {
+		tmp := NextRunesLine()
+		str := string(tmp)
+		memo[str]--
+	}
+
+	ans := -200
+	for _, v := range memo {
+		ans = Max(ans, v)
+	}
+
+	if ans > 0 {
+		fmt.Println(ans)
+	} else {
+		fmt.Println(0)
+	}
 }

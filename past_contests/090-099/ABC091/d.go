@@ -3,14 +3,16 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-/*
 var rdr = bufio.NewReaderSize(os.Stdin, 1000000)
+
 // readLine can read long line string (at least 10^5)
 func readLine() string {
 	buf := make([]byte, 0, 1000000)
@@ -26,12 +28,13 @@ func readLine() string {
 	}
 	return string(buf)
 }
+
 // NextLine reads a line text from stdin, and then returns its string.
 func NextLine() string {
 	return readLine()
 }
-*/
 
+/*
 var sc = bufio.NewScanner(os.Stdin)
 
 // NextLine reads a line text from stdin, and then returns its string.
@@ -39,6 +42,7 @@ func NextLine() string {
 	sc.Scan()
 	return sc.Text()
 }
+*/
 
 // NextIntsLine reads a line text, that consists of **ONLY INTEGERS DELIMITED BY SPACES**, from stdin.
 // And then returns intergers slice.
@@ -241,5 +245,42 @@ func UpperBound(s []int, key int) int {
 
 /*******************************************************************/
 
+var n int
+var A, B []int
+
 func main() {
+	n = NextIntsLine()[0]
+	A = NextIntsLine()
+	B = NextIntsLine()
+
+	ans := 0
+	// A, Bの2*Tのあまりの別スライスを作る
+	AA := make([]int, n)
+	BB := make([]int, n)
+	// 全ビットについて求める
+	for i := 0; i <= 29; i++ {
+		T := PowInt(2, i)
+		for j := 0; j < n; j++ {
+			AA[j] = A[j] % (2 * T)
+			BB[j] = B[j] % (2 * T)
+		}
+		sort.Sort(sort.IntSlice(BB))
+
+		// aiを固定
+		onBitNum := 0
+		for j := 0; j < n; j++ {
+			a := AA[j]
+			lb := LowerBound(BB, T-a)
+			ub := UpperBound(BB, 2*T-a-1)
+			onBitNum += ub - lb + 1
+			lb = LowerBound(BB, 3*T-a)
+			ub = UpperBound(BB, 4*T-a-1)
+			onBitNum += ub - lb + 1
+		}
+		if onBitNum%2 == 1 {
+			//ans += PowInt(2, i)
+			ans += T
+		}
+	}
+	fmt.Println(ans)
 }
