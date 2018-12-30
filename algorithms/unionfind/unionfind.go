@@ -24,14 +24,14 @@ func NewUnionFindTree(n int) *UnionFindTree {
 
 // xとyの属する集合を併合
 func (uft *UnionFindTree) Unite(x, y int) {
-	x = uft.root(x)
-	y = uft.root(y)
+	xp := uft.root(x)
+	yp := uft.root(y)
 	// もともと併合済の場合は経路圧縮のみがなされる
-	if x == y {
+	if xp == yp {
 		return
 	}
 
-	uft.parents[x] = y
+	uft.parents[xp] = yp
 }
 
 // xとyが同じ集合に属するか否かを判定

@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -37,7 +39,6 @@ func newReadString(ior io.Reader) func() string {
 	}
 }
 
-// ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
 }
@@ -50,7 +51,6 @@ func readInt64() int64 {
 	return i
 }
 
-// ReadIntSlice returns an integer slice that has n integers.
 func ReadIntSlice(n int) []int {
 	b := make([]int, n)
 	for i := 0; i < n; i++ {
@@ -59,12 +59,10 @@ func ReadIntSlice(n int) []int {
 	return b
 }
 
-// ReadRuneSlice returns a rune slice.
-func ReadRuneSlice() []rune {
-	return []rune(ReadString())
+func ReadLengthAndSlice() (int, []int) {
+	n := ReadInt()
+	return n, ReadIntSlice(n)
 }
-
-/*********** Arithmetic ***********/
 
 // Max returns the max integer among input set.
 // This function needs at least 1 argument (no argument causes panic).
@@ -113,8 +111,6 @@ func AbsInt(a int) int {
 	fanswer := math.Abs(fa)
 	return int(fanswer)
 }
-
-/*********** Utilities ***********/
 
 // DeleteElement returns a *NEW* slice, that have the same and minimum length and capacity.
 // DeleteElement makes a new slice by using easy slice literal.
@@ -230,20 +226,45 @@ func UpperBound(s []int, key int) int {
 	return left
 }
 
-/********** sort package (snippets) **********/
+// sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
 
-/********** copy function **********/
+// copy function
 //a = []int{0, 1, 2}
 //b = make([]int, len(a))
 //copy(b, a)
 
-/********** I/O usage **********/
-
 /*******************************************************************/
 
+var S []rune
+var k int
+
 func main() {
+	//	S = NextRunesLine()
+	//	k = NextIntsLine()[0]
+	S = []rune(ReadString())
+	k = ReadInt()
+
+	strMap := make(map[string]int)
+	for j := 1; j <= k; j++ {
+		for i := 0; i < len(S); i++ {
+			if i+j > len(S) {
+				continue
+			}
+			str := string(S[i : i+j])
+			strMap[str] = 1
+		}
+	}
+
+	strSlice := make([]string, 0, 25000001)
+	for k, _ := range strMap {
+		strSlice = append(strSlice, k)
+	}
+
+	sort.Sort(sort.StringSlice(strSlice))
+
+	fmt.Println(strSlice[k-1])
 }

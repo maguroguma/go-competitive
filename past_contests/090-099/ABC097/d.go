@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -37,7 +38,6 @@ func newReadString(ior io.Reader) func() string {
 	}
 }
 
-// ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
 }
@@ -50,7 +50,6 @@ func readInt64() int64 {
 	return i
 }
 
-// ReadIntSlice returns an integer slice that has n integers.
 func ReadIntSlice(n int) []int {
 	b := make([]int, n)
 	for i := 0; i < n; i++ {
@@ -59,9 +58,9 @@ func ReadIntSlice(n int) []int {
 	return b
 }
 
-// ReadRuneSlice returns a rune slice.
-func ReadRuneSlice() []rune {
-	return []rune(ReadString())
+func ReadLengthAndSlice() (int, []int) {
+	n := ReadInt()
+	return n, ReadIntSlice(n)
 }
 
 /*********** Arithmetic ***********/
@@ -230,20 +229,80 @@ func UpperBound(s []int, key int) int {
 	return left
 }
 
-/********** sort package (snippets) **********/
+// sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
 
-/********** copy function **********/
+// copy function
 //a = []int{0, 1, 2}
 //b = make([]int, len(a))
 //copy(b, a)
 
-/********** I/O usage **********/
-
 /*******************************************************************/
 
+var n, m int
+var P []int
+
+var parents [100005]int
+
 func main() {
+	//	tmp := NextIntsLine(true)
+	//	n, m = tmp[0], tmp[1]
+	//	P = NextIntsLine(false)
+	//	for i := 0; i < n; i++ {
+	//		P[i]--
+	//	}
+	n = ReadInt()
+	m = ReadInt()
+	P = ReadIntSlice(n)
+	for i := 0; i < n; i++ {
+		P[i]--
+	}
+
+	initialize()
+
+	for i := 0; i < m; i++ {
+		//tmp = NextIntsLine(true)
+		tmp := ReadIntSlice(2)
+		x, y := tmp[0]-1, tmp[1]-1
+		unite(x, y)
+	}
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		if same(P[i], i) {
+			ans++
+		}
+	}
+	fmt.Println(ans)
+}
+
+func initialize() {
+	for i := 0; i < n; i++ {
+		parents[i] = i
+	}
+}
+
+func unite(x, y int) {
+	xp := root(x)
+	yp := root(y)
+	if xp == yp {
+		return
+	}
+	parents[xp] = yp
+}
+
+func same(x, y int) bool {
+	return root(x) == root(y)
+}
+
+func root(x int) int {
+	if parents[x] == x {
+		return x
+	} else {
+		parents[x] = root(parents[x])
+		return parents[x]
+	}
 }

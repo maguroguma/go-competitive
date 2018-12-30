@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -245,5 +246,20 @@ func UpperBound(s []int, key int) int {
 
 /*******************************************************************/
 
+var n int
+var A []int
+
 func main() {
+	n = ReadInt()
+	for i := 0; i < n; i++ {
+		A = append(A, ReadInt())
+	}
+
+	for _, a := range A {
+		if a%2 != 0 {
+			fmt.Println("first")
+			return
+		}
+	}
+	fmt.Println("second")
 }

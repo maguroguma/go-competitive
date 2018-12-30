@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -37,7 +38,6 @@ func newReadString(ior io.Reader) func() string {
 	}
 }
 
-// ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
 }
@@ -50,7 +50,6 @@ func readInt64() int64 {
 	return i
 }
 
-// ReadIntSlice returns an integer slice that has n integers.
 func ReadIntSlice(n int) []int {
 	b := make([]int, n)
 	for i := 0; i < n; i++ {
@@ -59,12 +58,10 @@ func ReadIntSlice(n int) []int {
 	return b
 }
 
-// ReadRuneSlice returns a rune slice.
-func ReadRuneSlice() []rune {
-	return []rune(ReadString())
+func ReadLengthAndSlice() (int, []int) {
+	n := ReadInt()
+	return n, ReadIntSlice(n)
 }
-
-/*********** Arithmetic ***********/
 
 // Max returns the max integer among input set.
 // This function needs at least 1 argument (no argument causes panic).
@@ -113,8 +110,6 @@ func AbsInt(a int) int {
 	fanswer := math.Abs(fa)
 	return int(fanswer)
 }
-
-/*********** Utilities ***********/
 
 // DeleteElement returns a *NEW* slice, that have the same and minimum length and capacity.
 // DeleteElement makes a new slice by using easy slice literal.
@@ -230,20 +225,52 @@ func UpperBound(s []int, key int) int {
 	return left
 }
 
-/********** sort package (snippets) **********/
+// sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
 
-/********** copy function **********/
+// copy function
 //a = []int{0, 1, 2}
 //b = make([]int, len(a))
 //copy(b, a)
 
-/********** I/O usage **********/
-
 /*******************************************************************/
 
+var n int
+
 func main() {
+	n = ReadInt()
+	ans := []int{}
+	for i := 5; i <= 55555; i++ {
+		// 解答があまり1でやっていたため、ここでは2としてみた
+		if isPrime(i) && i%5 == 2 {
+			ans = append(ans, i)
+			if len(ans) == n {
+				break
+			}
+		}
+	}
+
+	output := ""
+	for i := 0; i < len(ans)-1; i++ {
+		output += fmt.Sprintf("%d ", ans[i])
+	}
+	output += fmt.Sprintf("%d", ans[len(ans)-1])
+	fmt.Println(output)
+}
+
+func isPrime(p int) bool {
+	if p == 1 {
+		return false
+	}
+
+	for i := 2; i < p; i++ {
+		if p%i == 0 {
+			return false
+		}
+	}
+
+	return true
 }

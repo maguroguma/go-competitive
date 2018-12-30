@@ -3,68 +3,70 @@ package main
 import (
 	"bufio"
 	"errors"
-	"io"
+	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
 
-/*********** I/O ***********/
-
-var (
-	ReadString func() string // ReadString returns a WORD string.
-	stdout     *bufio.Writer
-)
-
-func init() {
-	ReadString = newReadString(os.Stdin)
-	stdout = bufio.NewWriter(os.Stdout)
-}
-
-func newReadString(ior io.Reader) func() string {
-	r := bufio.NewScanner(ior)
-	r.Buffer(make([]byte, 1024), int(1e+11))
-	// Split sets the split function for the Scanner. The default split function is ScanLines.
-	// Split panics if it is called after scanning has started.
-	r.Split(bufio.ScanWords)
-
-	return func() string {
-		if !r.Scan() {
-			panic("Scan failed")
+/*
+var rdr = bufio.NewReaderSize(os.Stdin, 1000000)
+// readLine can read long line string (at least 10^5)
+func readLine() string {
+	buf := make([]byte, 0, 1000000)
+	for {
+		l, p, e := rdr.ReadLine()
+		if e != nil {
+			panic(e)
 		}
-		return r.Text()
+		buf = append(buf, l...)
+		if !p {
+			break
+		}
 	}
+	return string(buf)
+}
+// NextLine reads a line text from stdin, and then returns its string.
+func NextLine() string {
+	return readLine()
+}
+*/
+
+var sc = bufio.NewScanner(os.Stdin)
+
+// NextLine reads a line text from stdin, and then returns its string.
+func NextLine() string {
+	sc.Scan()
+	return sc.Text()
 }
 
-// ReadInt returns an integer.
-func ReadInt() int {
-	return int(readInt64())
-}
-
-func readInt64() int64 {
-	i, err := strconv.ParseInt(ReadString(), 0, 64)
-	if err != nil {
-		panic(err.Error())
+// NextIntsLine reads a line text, that consists of **ONLY INTEGERS DELIMITED BY SPACES**, from stdin.
+// And then returns intergers slice.
+func NextIntsLine() []int {
+	ints := []int{}
+	intsStr := NextLine()
+	tmp := strings.Split(intsStr, " ")
+	for _, s := range tmp {
+		integer, _ := strconv.Atoi(s)
+		ints = append(ints, integer)
 	}
-	return i
+	return ints
 }
 
-// ReadIntSlice returns an integer slice that has n integers.
-func ReadIntSlice(n int) []int {
-	b := make([]int, n)
-	for i := 0; i < n; i++ {
-		b[i] = ReadInt()
-	}
-	return b
+// NextStringsLine reads a line text, that consists of **STRINGS DELIMITED BY SPACES**, from stdin.
+// And then returns strings slice.
+func NextStringsLine() []string {
+	str := NextLine()
+	return strings.Split(str, " ")
 }
 
-// ReadRuneSlice returns a rune slice.
-func ReadRuneSlice() []rune {
-	return []rune(ReadString())
+// NextRunesLine reads a line text, that consists of **ONLY CHARACTERS ARRANGED CONTINUOUSLY**, from stdin.
+// Ant then returns runes slice.
+func NextRunesLine() []rune {
+	return []rune(NextLine())
 }
-
-/*********** Arithmetic ***********/
 
 // Max returns the max integer among input set.
 // This function needs at least 1 argument (no argument causes panic).
@@ -113,8 +115,6 @@ func AbsInt(a int) int {
 	fanswer := math.Abs(fa)
 	return int(fanswer)
 }
-
-/*********** Utilities ***********/
 
 // DeleteElement returns a *NEW* slice, that have the same and minimum length and capacity.
 // DeleteElement makes a new slice by using easy slice literal.
@@ -230,20 +230,43 @@ func UpperBound(s []int, key int) int {
 	return left
 }
 
-/********** sort package (snippets) **********/
+// sort package (snippets)
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
 
-/********** copy function **********/
+// copy function
 //a = []int{0, 1, 2}
 //b = make([]int, len(a))
 //copy(b, a)
 
-/********** I/O usage **********/
-
 /*******************************************************************/
 
+var S []rune
+var k int
+
 func main() {
+	S = NextRunesLine()
+	k = NextIntsLine()[0]
+
+	strMap := make(map[string]int)
+	for j := 1; j <= len(S); j++ {
+		for i := 0; i < len(S); i++ {
+			if i+j > len(S) {
+				continue
+			}
+			str := string(S[i : i+j])
+			strMap[str] = 1
+		}
+	}
+
+	strSlice := make([]string, 0, 25000001)
+	for k, _ := range strMap {
+		strSlice = append(strSlice, k)
+	}
+
+	sort.Sort(sort.StringSlice(strSlice))
+
+	fmt.Println(strSlice[k-1])
 }
