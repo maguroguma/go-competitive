@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -13,8 +14,7 @@ import (
 /*********** I/O ***********/
 
 var (
-	// ReadString returns a WORD string.
-	ReadString func() string
+	ReadString func() string // ReadString returns a WORD string.
 	stdout     *bufio.Writer
 )
 
@@ -183,8 +183,6 @@ func Strtoi(s string) int {
 	}
 }
 
-/*********** Binary Search ***********/
-
 // LowerBound returns an index of a slice whose value is EQUAL TO AND LARGER THAN A KEY VALUE.
 func LowerBound(s []int, key int) int {
 	isLarger := func(index, key int) bool {
@@ -233,73 +231,24 @@ func UpperBound(s []int, key int) int {
 	return left
 }
 
-/*********** Factorization, Prime Number ***********/
-
-// TrialDivision returns the result of prime factorization of integer N.
-func TrialDivision(n int) map[int]int {
-	if n <= 0 {
-		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
-	}
-	if n == 1 {
-		return map[int]int{1: 1}
-	}
-
-	p := map[int]int{}
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
-		exp := 0
-		for n%i == 0 {
-			exp++
-			n /= i
-		}
-
-		if exp == 0 {
-			continue
-		}
-		p[i] = exp
-	}
-	if n > 1 {
-		p[n] = 1
-	}
-
-	return p
-}
-
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
-	}
-
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
-		if n%i == 0 {
-			return false
-		}
-	}
-
-	return true
-}
-
 /********** sort package (snippets) **********/
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
 
-/********** copy function (snippets) **********/
+/********** copy function **********/
 //a = []int{0, 1, 2}
 //b = make([]int, len(a))
 //copy(b, a)
 
 /********** I/O usage **********/
 
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-
 /*******************************************************************/
 
+var a, b int
+
 func main() {
+	a, b = ReadInt(), ReadInt()
+	fmt.Println(Max(a+b, a-b, a*b))
 }

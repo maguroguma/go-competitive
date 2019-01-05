@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -301,5 +303,47 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
+var n, m int
+var X, Y, Z []int
+
 func main() {
+	n, m = ReadInt(), ReadInt()
+	for i := 0; i < n; i++ {
+		x, y, z := ReadInt(), ReadInt(), ReadInt()
+		X, Y, Z = append(X, x), append(Y, y), append(Z, z)
+	}
+
+	ans := -1
+	for i := 0; i < 8; i++ {
+		V := make([]int, n)
+		for j := 0; j < n; j++ {
+			var x, y, z int
+			if (i >> 2 & 1) == 0 {
+				x = X[j]
+			} else {
+				x = -X[j]
+			}
+			if (i >> 1 & 1) == 0 {
+				y = Y[j]
+			} else {
+				y = -Y[j]
+			}
+			if (i & 1) == 0 {
+				z = Z[j]
+			} else {
+				z = -Z[j]
+			}
+			V[j] = x + y + z
+		}
+		sort.Sort(sort.Reverse(sort.IntSlice(V)))
+		sum := 0
+		for i, v := range V {
+			if i == m {
+				break
+			}
+			sum += v
+		}
+		ans = Max(ans, sum)
+	}
+	fmt.Println(ans)
 }

@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -301,5 +303,33 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
+var n int
+var dp [101][100001]bool
+
+// [1 6 36 216 1296 7776 46656 9 81 729 6561 59049]
+
 func main() {
+	n = ReadInt()
+	options := []int{1, 6, 36, 216, 1296, 7776, 46656, 9, 81, 729, 6561, 59049}
+	sort.Sort(sort.Reverse(sort.IntSlice(options)))
+
+	dp[0][0] = true
+	for i := 0; i <= 99; i++ {
+		for j := 0; j <= n; j++ {
+			if dp[i][j] {
+				for _, opt := range options {
+					if j+opt <= n {
+						dp[i+1][j+opt] = true
+					}
+				}
+			}
+		}
+	}
+
+	for i := 0; i <= 99; i++ {
+		if dp[i][n] {
+			fmt.Println(i)
+			return
+		}
+	}
 }

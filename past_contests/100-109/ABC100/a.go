@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -301,5 +302,13 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
+var a, b int
+
 func main() {
+	a, b = ReadInt(), ReadInt()
+	if Max(a, b) <= 8 {
+		fmt.Println("Yay!")
+	} else {
+		fmt.Println(":(")
+	}
 }

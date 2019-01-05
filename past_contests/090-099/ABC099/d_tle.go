@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -301,5 +302,67 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
+var n, c int
+var D, C [][]int
+
 func main() {
+	n, c = ReadInt(), ReadInt()
+	for i := 0; i < c; i++ {
+		row := ReadIntSlice(c)
+		D = append(D, row)
+	}
+	for i := 0; i < n; i++ {
+		row := ReadIntSlice(n)
+		for j := 0; j < n; j++ {
+			row[j]-- // 0-based
+		}
+		C = append(C, row)
+	}
+
+	R := [][]int{}
+	for i := 0; i < n; i++ {
+		row := make([]int, n)
+		R = append(R, row)
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			R[i][j] = (i + j) % 3
+		}
+	}
+
+	ans := 1000*250000 + 1
+	for c1 := 0; c1 < c; c1++ {
+		for c2 := 0; c2 < c; c2++ {
+			if c1 == c2 {
+				continue
+			}
+			for c3 := 0; c3 < c; c3++ {
+				if c1 == c3 || c2 == c3 {
+					continue
+				}
+				// 違和感の和を計算し、最小なら更新する
+				sum := 0
+				for i := 0; i < n; i++ {
+					for j := 0; j < n; j++ {
+						bef := C[i][j]
+						var af int
+						if R[i][j] == 0 {
+							af = c1
+						} else if R[i][j] == 1 {
+							af = c2
+						} else {
+							af = c3
+						}
+						if (R[i][j] == 0 && C[i][j] == c1) || (R[i][j] == 1 && C[i][j] == c2) || (R[i][j] == 2 && C[i][j] == c3) {
+							continue
+						}
+						sum += D[bef][af]
+					}
+				}
+				ans = Min(ans, sum)
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }

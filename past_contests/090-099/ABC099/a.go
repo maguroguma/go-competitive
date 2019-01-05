@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -301,5 +302,13 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
+var n int
+
 func main() {
+	n = ReadInt()
+	if n < 1000 {
+		fmt.Println("ABC")
+	} else {
+		fmt.Println("ABD")
+	}
 }

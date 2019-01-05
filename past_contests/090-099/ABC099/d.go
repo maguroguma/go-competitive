@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -301,5 +302,76 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
+var n, c int
+var D, C [][]int
+
 func main() {
+	n, c = ReadInt(), ReadInt()
+	for i := 0; i < c; i++ {
+		row := ReadIntSlice(c)
+		D = append(D, row)
+	}
+	for i := 0; i < n; i++ {
+		row := ReadIntSlice(n)
+		for j := 0; j < n; j++ {
+			row[j]-- // 0-based
+		}
+		C = append(C, row)
+	}
+
+	R := [][]int{}
+	for i := 0; i < n; i++ {
+		row := make([]int, n)
+		R = append(R, row)
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			R[i][j] = (i + j) % 3
+		}
+	}
+
+	memo := [3][30]int{} // memo[i][j]: あまりがiのマスがj色であるマスの数を記録する場所
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			color := C[i][j]
+			residual := R[i][j]
+			memo[residual][color]++
+		}
+	}
+
+	ans := 1000*250000 + 1
+	for c1 := 0; c1 < c; c1++ {
+		for c2 := 0; c2 < c; c2++ {
+			if c1 == c2 {
+				continue
+			}
+			for c3 := 0; c3 < c; c3++ {
+				if c1 == c3 || c2 == c3 {
+					continue
+				}
+				// 違和感の和を計算し、最小なら更新する
+				sum := 0
+				for i := 0; i < 3; i++ {
+					// iはあまり
+					for j := 0; j < c; j++ {
+						// jは色
+						num := memo[i][j]
+						bef := j
+						var af int
+						if i == 0 {
+							af = c1
+						} else if i == 1 {
+							af = c2
+						} else {
+							af = c3
+						}
+						sum += D[bef][af] * num
+					}
+				}
+				ans = Min(ans, sum)
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
