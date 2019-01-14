@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"io"
 	"math"
 	"os"
@@ -302,51 +301,5 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
-var n, m, q int
-var L, R, P, Q []int
-var memo [501][501]int
-var sumsum [501][501]int
-
 func main() {
-	n, m, q := ReadInt(), ReadInt(), ReadInt()
-	for i := 0; i < m; i++ {
-		l, r := ReadInt(), ReadInt()
-		memo[l][r]++
-	}
-
-	// 2次元累積和を計算する
-	for i := 1; i <= n; i++ {
-		for j := 1; j <= n; j++ {
-			sumsum[i][j] = memo[i][j]
-			if i > 0 {
-				sumsum[i][j] += sumsum[i-1][j]
-			}
-			if j > 0 {
-				sumsum[i][j] += sumsum[i][j-1]
-			}
-			if i > 0 && j > 0 {
-				sumsum[i][j] -= sumsum[i-1][j-1]
-			}
-		}
-	}
-
-	for i := 0; i < q; i++ {
-		pp, qq := ReadInt(), ReadInt()
-		ans := getSum(qq, pp, pp, qq)
-		fmt.Println(ans)
-	}
-}
-
-func getSum(top, left, bottom, right int) int {
-	res := sumsum[top][right]
-	if left > 0 {
-		res -= sumsum[top][left-1]
-	}
-	if bottom > 0 {
-		res -= sumsum[bottom-1][right]
-	}
-	if left > 0 && bottom > 0 {
-		res += sumsum[bottom-1][left-1]
-	}
-	return res
 }

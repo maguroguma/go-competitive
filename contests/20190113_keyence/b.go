@@ -302,51 +302,84 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
-var n, m, q int
-var L, R, P, Q []int
-var memo [501][501]int
-var sumsum [501][501]int
+var S []rune
 
 func main() {
-	n, m, q := ReadInt(), ReadInt(), ReadInt()
-	for i := 0; i < m; i++ {
-		l, r := ReadInt(), ReadInt()
-		memo[l][r]++
+	S = ReadRuneSlice()
+
+	if len(S) < 7 {
+		fmt.Println("NO")
+		return
 	}
 
-	// 2次元累積和を計算する
-	for i := 1; i <= n; i++ {
-		for j := 1; j <= n; j++ {
-			sumsum[i][j] = memo[i][j]
-			if i > 0 {
-				sumsum[i][j] += sumsum[i-1][j]
-			}
-			if j > 0 {
-				sumsum[i][j] += sumsum[i][j-1]
-			}
-			if i > 0 && j > 0 {
-				sumsum[i][j] -= sumsum[i-1][j-1]
-			}
-		}
+	// そのもの
+	if string(S) == "keyence" {
+		fmt.Println("YES")
+		return
 	}
 
-	for i := 0; i < q; i++ {
-		pp, qq := ReadInt(), ReadInt()
-		ans := getSum(qq, pp, pp, qq)
-		fmt.Println(ans)
+	// 末尾
+	SS := S[len(S)-7 : len(S)]
+	if string(SS) == "keyence" {
+		fmt.Println("YES")
+		return
 	}
-}
 
-func getSum(top, left, bottom, right int) int {
-	res := sumsum[top][right]
-	if left > 0 {
-		res -= sumsum[top][left-1]
+	// 先頭
+	SS = S[0:7]
+	if string(SS) == "keyence" {
+		fmt.Println("YES")
+		return
 	}
-	if bottom > 0 {
-		res -= sumsum[bottom-1][right]
+
+	//	before := S[0:3]
+	//	after := S[len(S)-4 : len(S)]
+	//	if string(before) == "key" && string(after) == "ence" {
+	//		fmt.Println("YES")
+	//		return
+	//	}
+	n := len(S)
+	before := S[0:1]
+	after := S[n-6 : n]
+	if string(before) == "k" && string(after) == "eyence" {
+		fmt.Println("YES")
+		return
 	}
-	if left > 0 && bottom > 0 {
-		res += sumsum[bottom-1][left-1]
+
+	before = S[0:2]
+	after = S[n-5 : n]
+	if string(before) == "ke" && string(after) == "yence" {
+		fmt.Println("YES")
+		return
 	}
-	return res
+
+	before = S[0:3]
+	after = S[n-4 : n]
+	if string(before) == "key" && string(after) == "ence" {
+		fmt.Println("YES")
+		return
+	}
+
+	before = S[0:4]
+	after = S[n-3 : n]
+	if string(before) == "keye" && string(after) == "nce" {
+		fmt.Println("YES")
+		return
+	}
+
+	before = S[0:5]
+	after = S[n-2 : n]
+	if string(before) == "keyen" && string(after) == "ce" {
+		fmt.Println("YES")
+		return
+	}
+
+	before = S[0:6]
+	after = S[n-1 : n]
+	if string(before) == "keyenc" && string(after) == "e" {
+		fmt.Println("YES")
+		return
+	}
+
+	fmt.Println("NO")
 }

@@ -302,51 +302,30 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
-var n, m, q int
-var L, R, P, Q []int
-var memo [501][501]int
-var sumsum [501][501]int
+var x1, y1, x2, y2 int
 
 func main() {
-	n, m, q := ReadInt(), ReadInt(), ReadInt()
-	for i := 0; i < m; i++ {
-		l, r := ReadInt(), ReadInt()
-		memo[l][r]++
-	}
+	x1, y1, x2, y2 = ReadInt(), ReadInt(), ReadInt(), ReadInt()
 
-	// 2次元累積和を計算する
-	for i := 1; i <= n; i++ {
-		for j := 1; j <= n; j++ {
-			sumsum[i][j] = memo[i][j]
-			if i > 0 {
-				sumsum[i][j] += sumsum[i-1][j]
-			}
-			if j > 0 {
-				sumsum[i][j] += sumsum[i][j-1]
-			}
-			if i > 0 && j > 0 {
-				sumsum[i][j] -= sumsum[i-1][j-1]
-			}
-		}
-	}
+	dx := x2 - x1
+	dy := y2 - y1
+	adx, ady := AbsInt(dx), AbsInt(dy)
 
-	for i := 0; i < q; i++ {
-		pp, qq := ReadInt(), ReadInt()
-		ans := getSum(qq, pp, pp, qq)
-		fmt.Println(ans)
+	if dx >= 0 && dy >= 0 {
+		x3, y3 := x2-ady, y2+adx
+		x4, y4 := x3-adx, y3-ady
+		fmt.Println(x3, y3, x4, y4)
+	} else if dx <= 0 && dy >= 0 {
+		x3, y3 := x2-ady, y2-adx
+		x4, y4 := x3+adx, y3-ady
+		fmt.Println(x3, y3, x4, y4)
+	} else if dx <= 0 && dy <= 0 {
+		x3, y3 := x2+ady, y2-adx
+		x4, y4 := x3+adx, y3+ady
+		fmt.Println(x3, y3, x4, y4)
+	} else {
+		x3, y3 := x2+ady, y2+adx
+		x4, y4 := x3-adx, y3+ady
+		fmt.Println(x3, y3, x4, y4)
 	}
-}
-
-func getSum(top, left, bottom, right int) int {
-	res := sumsum[top][right]
-	if left > 0 {
-		res -= sumsum[top][left-1]
-	}
-	if bottom > 0 {
-		res -= sumsum[bottom-1][right]
-	}
-	if left > 0 && bottom > 0 {
-		res += sumsum[bottom-1][left-1]
-	}
-	return res
 }

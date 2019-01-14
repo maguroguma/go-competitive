@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -302,51 +303,55 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
-var n, m, q int
-var L, R, P, Q []int
-var memo [501][501]int
-var sumsum [501][501]int
+var n int
+var A, B []int
 
 func main() {
-	n, m, q := ReadInt(), ReadInt(), ReadInt()
-	for i := 0; i < m; i++ {
-		l, r := ReadInt(), ReadInt()
-		memo[l][r]++
+	n = ReadInt()
+	A = ReadIntSlice(n)
+	B = ReadIntSlice(n)
+
+	asum := 0
+	bsum := 0
+	for i := 0; i < n; i++ {
+		asum += A[i]
+		bsum += B[i]
 	}
 
-	// 2次元累積和を計算する
-	for i := 1; i <= n; i++ {
-		for j := 1; j <= n; j++ {
-			sumsum[i][j] = memo[i][j]
-			if i > 0 {
-				sumsum[i][j] += sumsum[i-1][j]
-			}
-			if j > 0 {
-				sumsum[i][j] += sumsum[i][j-1]
-			}
-			if i > 0 && j > 0 {
-				sumsum[i][j] -= sumsum[i-1][j-1]
-			}
+	if asum < bsum {
+		fmt.Println(-1)
+		return
+	}
+
+	diffs := make([]int, n)
+	for i := 0; i < n; i++ {
+		diffs[i] = A[i] - B[i]
+	}
+
+	ans := 0
+
+	minusCount := 0
+	minusSum := 0
+	for i := 0; i < n; i++ {
+		if diffs[i] < 0 {
+			minusCount++
+			minusSum += AbsInt(diffs[i])
 		}
 	}
 
-	for i := 0; i < q; i++ {
-		pp, qq := ReadInt(), ReadInt()
-		ans := getSum(qq, pp, pp, qq)
-		fmt.Println(ans)
-	}
-}
+	ans += minusCount
 
-func getSum(top, left, bottom, right int) int {
-	res := sumsum[top][right]
-	if left > 0 {
-		res -= sumsum[top][left-1]
+	sort.Sort(sort.Reverse(sort.IntSlice(diffs)))
+	for i := 0; i < n; i++ {
+		if minusSum <= 0 {
+			break
+		}
+
+		if diffs[i] > 0 {
+			ans++
+			minusSum -= diffs[i]
+		}
 	}
-	if bottom > 0 {
-		res -= sumsum[bottom-1][right]
-	}
-	if left > 0 && bottom > 0 {
-		res += sumsum[bottom-1][left-1]
-	}
-	return res
+
+	fmt.Println(ans)
 }

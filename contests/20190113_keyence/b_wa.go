@@ -302,51 +302,61 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
-var n, m, q int
-var L, R, P, Q []int
-var memo [501][501]int
-var sumsum [501][501]int
+var S []rune
 
 func main() {
-	n, m, q := ReadInt(), ReadInt(), ReadInt()
-	for i := 0; i < m; i++ {
-		l, r := ReadInt(), ReadInt()
-		memo[l][r]++
+	S = ReadRuneSlice()
+
+	// そのもの
+	if string(S) == "keyence" {
+		fmt.Println("YES")
+		return
 	}
 
-	// 2次元累積和を計算する
-	for i := 1; i <= n; i++ {
-		for j := 1; j <= n; j++ {
-			sumsum[i][j] = memo[i][j]
-			if i > 0 {
-				sumsum[i][j] += sumsum[i-1][j]
-			}
-			if j > 0 {
-				sumsum[i][j] += sumsum[i][j-1]
-			}
-			if i > 0 && j > 0 {
-				sumsum[i][j] -= sumsum[i-1][j-1]
+	// 末尾
+	for i := 0; i < len(S); i++ {
+		if S[i] == 'k' {
+			SS := S[i:len(S)]
+			if string(SS) == "keyence" {
+				fmt.Println("YES")
+				return
 			}
 		}
 	}
 
-	for i := 0; i < q; i++ {
-		pp, qq := ReadInt(), ReadInt()
-		ans := getSum(qq, pp, pp, qq)
-		fmt.Println(ans)
+	// 先頭
+	if S[0] == 'k' {
+		SS := S[0:7]
+		if string(SS) == "keyence" {
+			fmt.Println("YES")
+			return
+		}
 	}
-}
 
-func getSum(top, left, bottom, right int) int {
-	res := sumsum[top][right]
-	if left > 0 {
-		res -= sumsum[top][left-1]
+	ok := false
+
+	keyendidx := len(S)
+	for i, r := range S {
+		if r == 'k' {
+			if i+1 < len(S) && S[i+1] == 'e' && i+2 < len(S) && S[i+2] == 'y' {
+				keyendidx = i + 3
+				break
+			}
+		}
 	}
-	if bottom > 0 {
-		res -= sumsum[bottom-1][right]
+
+	for i := keyendidx; i < len(S); i++ {
+		if S[i] == 'e' {
+			if i+3 < len(S) && S[i+1] == 'n' && S[i+2] == 'c' && S[i+3] == 'e' {
+				ok = true
+				break
+			}
+		}
 	}
-	if left > 0 && bottom > 0 {
-		res += sumsum[bottom-1][left-1]
+
+	if ok {
+		fmt.Println("YES")
+	} else {
+		fmt.Println("NO")
 	}
-	return res
 }
