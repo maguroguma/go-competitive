@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -98,7 +99,6 @@ func Min(integers ...int) int {
 }
 
 // PowInt is integer version of math.Pow
-// FIXME: DO NOT USE FLOAT!
 func PowInt(a, e int) int {
 	if a < 0 || e < 0 {
 		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
@@ -110,50 +110,10 @@ func PowInt(a, e int) int {
 }
 
 // AbsInt is integer version of math.Abs
-// FIXME: DO NOT USE FLOAT!
 func AbsInt(a int) int {
 	fa := float64(a)
 	fanswer := math.Abs(fa)
 	return int(fanswer)
-}
-
-// Gcd returns the Greatest Common Divisor of two natural numbers.
-// Gcd only accepts two natural numbers (a, b >= 1).
-// 0 or negative number causes panic.
-// Gcd uses the Euclidean Algorithm.
-func Gcd(a, b int) int {
-	if a <= 0 || b <= 0 {
-		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
-	}
-	if a < b {
-		a, b = b, a
-	}
-
-	// Euclidean Algorithm
-	for b > 0 {
-		div := a % b
-		a, b = b, div
-	}
-
-	return a
-}
-
-// Lcm returns the Least Common Multiple of two natural numbers.
-// Lcd only accepts two natural numbers (a, b >= 1).
-// 0 or negative number causes panic.
-// Lcd uses the Euclidean Algorithm indirectly.
-func Lcm(a, b int) int {
-	if a <= 0 || b <= 0 {
-		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
-	}
-
-	// a = a'*gcd, b = b'*gcd, a*b = a'*b'*gcd^2
-	// a' and b' are relatively prime numbers
-	// gcd consists of prime numbers, that are included in a and b
-	gcd := Gcd(a, b)
-
-	// not (a * b / gcd), because of reducing a probability of overflow
-	return (a / gcd) * b
 }
 
 /*********** Utilities ***********/
@@ -277,8 +237,6 @@ func UpperBound(s []int, key int) int {
 /*********** Factorization, Prime Number ***********/
 
 // TrialDivision returns the result of prime factorization of integer N.
-// Complicity: O(n)
-// FIXME: DO NOT USE FLOAT!
 func TrialDivision(n int) map[int]int {
 	if n <= 0 {
 		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
@@ -309,7 +267,6 @@ func TrialDivision(n int) map[int]int {
 }
 
 // IsPrime judges whether an argument integer is a prime number or not.
-// FIXME: DO NOT USE FLOAT!
 func IsPrime(n int) bool {
 	if n == 1 {
 		return false
@@ -325,66 +282,11 @@ func IsPrime(n int) bool {
 	return true
 }
 
-/*********** Inverse Element ***********/
-
-// CalcNegativeMod can calculate a right residual whether value is positive or negative.
-func CalcNegativeMod(val, m int) int {
-	res := val % m
-	if res < 0 {
-		res += m
-	}
-	return res
-}
-
-func modpow(a, e, m int) int {
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := modpow(a, halfE, m)
-		return half * half % m
-	}
-
-	return a * modpow(a, e-1, m) % m
-}
-
-// CalcModInv returns $a^{-1} mod m$ by Fermat's little theorem.
-func CalcModInv(a, m int) int {
-	return modpow(a, m-2, m)
-}
-
 /********** sort package (snippets) **********/
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
-
-// struct sort
-type Mono struct {
-	key, value int
-}
-type MonoList []*Mono
-
-func (ml MonoList) Len() int {
-	return len(ml)
-}
-func (ml MonoList) Swap(i, j int) {
-	ml[i], ml[j] = ml[j], ml[i]
-}
-func (ml MonoList) Less(i, j int) bool {
-	return ml[i].value < ml[j].value
-}
-
-// Example(ABC111::C)
-//oddCountList, evenCountList := make(MonoList, 1e5+1), make(MonoList, 1e5+1)
-//for i := 0; i <= 1e5; i++ {
-//	oddCountList[i] = &Mono{key: i, value: oddMemo[i]}
-//	evenCountList[i] = &Mono{key: i, value: evenMemo[i]}
-//}
-//sort.Sort(sort.Reverse(oddCountList))		// DESC sort
-//sort.Sort(sort.Reverse(evenCountList))	// DESC sort
 
 /********** copy function (snippets) **********/
 //a = []int{0, 1, 2}
@@ -400,8 +302,13 @@ func (ml MonoList) Less(i, j int) bool {
 
 /*******************************************************************/
 
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
+var a, b int
 
 func main() {
+	a, b = ReadInt(), ReadInt()
+	if a%2 == 0 || b%2 == 0 {
+		fmt.Println("No")
+	} else {
+		fmt.Println("Yes")
+	}
 }

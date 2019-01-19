@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -98,7 +99,6 @@ func Min(integers ...int) int {
 }
 
 // PowInt is integer version of math.Pow
-// FIXME: DO NOT USE FLOAT!
 func PowInt(a, e int) int {
 	if a < 0 || e < 0 {
 		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
@@ -110,7 +110,6 @@ func PowInt(a, e int) int {
 }
 
 // AbsInt is integer version of math.Abs
-// FIXME: DO NOT USE FLOAT!
 func AbsInt(a int) int {
 	fa := float64(a)
 	fanswer := math.Abs(fa)
@@ -277,8 +276,6 @@ func UpperBound(s []int, key int) int {
 /*********** Factorization, Prime Number ***********/
 
 // TrialDivision returns the result of prime factorization of integer N.
-// Complicity: O(n)
-// FIXME: DO NOT USE FLOAT!
 func TrialDivision(n int) map[int]int {
 	if n <= 0 {
 		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
@@ -309,7 +306,6 @@ func TrialDivision(n int) map[int]int {
 }
 
 // IsPrime judges whether an argument integer is a prime number or not.
-// FIXME: DO NOT USE FLOAT!
 func IsPrime(n int) bool {
 	if n == 1 {
 		return false
@@ -325,66 +321,11 @@ func IsPrime(n int) bool {
 	return true
 }
 
-/*********** Inverse Element ***********/
-
-// CalcNegativeMod can calculate a right residual whether value is positive or negative.
-func CalcNegativeMod(val, m int) int {
-	res := val % m
-	if res < 0 {
-		res += m
-	}
-	return res
-}
-
-func modpow(a, e, m int) int {
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := modpow(a, halfE, m)
-		return half * half % m
-	}
-
-	return a * modpow(a, e-1, m) % m
-}
-
-// CalcModInv returns $a^{-1} mod m$ by Fermat's little theorem.
-func CalcModInv(a, m int) int {
-	return modpow(a, m-2, m)
-}
-
 /********** sort package (snippets) **********/
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
-
-// struct sort
-type Mono struct {
-	key, value int
-}
-type MonoList []*Mono
-
-func (ml MonoList) Len() int {
-	return len(ml)
-}
-func (ml MonoList) Swap(i, j int) {
-	ml[i], ml[j] = ml[j], ml[i]
-}
-func (ml MonoList) Less(i, j int) bool {
-	return ml[i].value < ml[j].value
-}
-
-// Example(ABC111::C)
-//oddCountList, evenCountList := make(MonoList, 1e5+1), make(MonoList, 1e5+1)
-//for i := 0; i <= 1e5; i++ {
-//	oddCountList[i] = &Mono{key: i, value: oddMemo[i]}
-//	evenCountList[i] = &Mono{key: i, value: evenMemo[i]}
-//}
-//sort.Sort(sort.Reverse(oddCountList))		// DESC sort
-//sort.Sort(sort.Reverse(evenCountList))	// DESC sort
 
 /********** copy function (snippets) **********/
 //a = []int{0, 1, 2}
@@ -400,8 +341,11 @@ func (ml MonoList) Less(i, j int) bool {
 
 /*******************************************************************/
 
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
+const mod = 1e9 + 7
+
+var a, b, c int
 
 func main() {
+	a, b, c = ReadInt(), ReadInt(), ReadInt()
+	fmt.Println(Max(10*a+b+c, a+10*b+c, a+b+10*c))
 }
