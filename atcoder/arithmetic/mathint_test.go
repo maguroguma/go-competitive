@@ -10,6 +10,8 @@ func Test整数のべき乗(t *testing.T) {
 	assert.Equal(t, 4, PowInt(2, 2))
 	assert.Equal(t, 1, PowInt(10000, 0))
 	assert.Equal(t, 1024, PowInt(2, 10))
+	assert.Equal(t, 1073741824, PowInt(2, 30))
+	assert.Equal(t, 25937424601, PowInt(11, 10))
 }
 
 func Test整数の絶対値(t *testing.T) {

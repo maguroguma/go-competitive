@@ -2,21 +2,17 @@ package prime
 
 import (
 	"errors"
-	"math"
 )
 
 // TrialDivision returns the result of prime factorization of integer N.
+// Complicity: O(n)
 func TrialDivision(n int) map[int]int {
-	if n <= 0 {
+	if n <= 1 {
 		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
-	}
-	if n == 1 {
-		return map[int]int{1: 1}
 	}
 
 	p := map[int]int{}
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
+	for i := 2; i*i <= n; i++ {
 		exp := 0
 		for n%i == 0 {
 			exp++
@@ -41,8 +37,7 @@ func IsPrime(n int) bool {
 		return false
 	}
 
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
+	for i := 2; i*i <= n; i++ {
 		if n%i == 0 {
 			return false
 		}

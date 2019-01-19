@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"errors"
 	"io"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -98,23 +97,31 @@ func Min(integers ...int) int {
 }
 
 // PowInt is integer version of math.Pow
-// FIXME: DO NOT USE FLOAT!
+// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
 func PowInt(a, e int) int {
 	if a < 0 || e < 0 {
 		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
 	}
-	fa := float64(a)
-	fe := float64(e)
-	fanswer := math.Pow(fa, fe)
-	return int(fanswer)
+
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := PowInt(a, halfE)
+		return half * half
+	}
+
+	return a * PowInt(a, e-1)
 }
 
 // AbsInt is integer version of math.Abs
-// FIXME: DO NOT USE FLOAT!
 func AbsInt(a int) int {
-	fa := float64(a)
-	fanswer := math.Abs(fa)
-	return int(fanswer)
+	if a < 0 {
+		return -a
+	}
+	return a
 }
 
 // Gcd returns the Greatest Common Divisor of two natural numbers.
@@ -224,6 +231,63 @@ func Strtoi(s string) int {
 	}
 }
 
+/*********** Permutation ***********/
+
+// memo: 10! == 3628800 > 3M
+func CalcFactorialPatterns(elements []rune) [][]rune {
+	copiedResidual := make([]rune, len(elements))
+	copy(copiedResidual, elements)
+	return factorialRecursion([]rune{}, copiedResidual)
+}
+func factorialRecursion(interim, residual []rune) [][]rune {
+	if len(residual) == 0 {
+		return [][]rune{interim}
+	}
+
+	res := [][]rune{}
+	for idx, elem := range residual {
+		copiedInterim := make([]rune, len(interim))
+		copy(copiedInterim, interim)
+		copiedInterim = append(copiedInterim, elem)
+		copiedResidual := genDeletedSlice(idx, residual)
+		res = append(res, factorialRecursion(copiedInterim, copiedResidual)...)
+	}
+
+	return res
+}
+func genDeletedSlice(delId int, S []rune) []rune {
+	res := []rune{}
+	res = append(res, S[:delId]...)
+	res = append(res, S[delId+1:]...)
+	return res
+}
+
+// memo: 3**10 == 59049
+func CalcDuplicatePatterns(elements []rune, digit int) [][]rune {
+	return duplicateRecursion([]rune{}, elements, digit)
+}
+func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
+	if len(interim) == digit {
+		return [][]rune{interim}
+	}
+
+	res := [][]rune{}
+	for i := 0; i < len(elements); i++ {
+		copiedInterim := make([]rune, len(interim))
+		copy(copiedInterim, interim)
+		copiedInterim = append(copiedInterim, elements[i])
+		res = append(res, duplicateRecursion(copiedInterim, elements, digit)...)
+	}
+
+	return res
+}
+
+// usage
+//tmp := CalcFactorialPatterns([]rune{'a', 'b', 'c'})
+//expected := []string{"abc", "acb", "bac", "bca", "cab", "cba"}
+//tmp := CalcDuplicatePatterns([]rune{'a', 'b', 'c'}, 3)
+//expected := []string{"aaa", "aab", "aac", "aba", "abb", "abc", ...}
+
 /*********** Binary Search ***********/
 
 // LowerBound returns an index of a slice whose value is EQUAL TO AND LARGER THAN A KEY VALUE.
@@ -278,18 +342,13 @@ func UpperBound(s []int, key int) int {
 
 // TrialDivision returns the result of prime factorization of integer N.
 // Complicity: O(n)
-// FIXME: DO NOT USE FLOAT!
 func TrialDivision(n int) map[int]int {
-	if n <= 0 {
+	if n <= 1 {
 		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
-	}
-	if n == 1 {
-		return map[int]int{1: 1}
 	}
 
 	p := map[int]int{}
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
+	for i := 2; i*i <= n; i++ {
 		exp := 0
 		for n%i == 0 {
 			exp++
@@ -309,14 +368,12 @@ func TrialDivision(n int) map[int]int {
 }
 
 // IsPrime judges whether an argument integer is a prime number or not.
-// FIXME: DO NOT USE FLOAT!
 func IsPrime(n int) bool {
 	if n == 1 {
 		return false
 	}
 
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
+	for i := 2; i*i <= n; i++ {
 		if n%i == 0 {
 			return false
 		}

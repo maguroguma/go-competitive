@@ -285,8 +285,7 @@ func TrialDivision(n int) map[int]int {
 	}
 
 	p := map[int]int{}
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
+	for i := 2; i*i <= n; i++ {
 		exp := 0
 		for n%i == 0 {
 			exp++
@@ -311,8 +310,7 @@ func IsPrime(n int) bool {
 		return false
 	}
 
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
+	for i := 2; i*i <= n; i++ {
 		if n%i == 0 {
 			return false
 		}
@@ -367,27 +365,15 @@ var n, m int
 func main() {
 	n, m = ReadInt(), ReadInt()
 
-	ans := 1
-	//	memo := TrialDivision(m)
-	//	for _, v := range memo {
-	//		ans *= calcComb(n+v-1, n-1)
-	//		ans %= MOD
-	//	}
-	mnokori := m
-	for i := 2; i*i <= mnokori; i++ {
-		if mnokori%i == 0 {
-			count := 0
-			for mnokori%i == 0 {
-				count++
-				mnokori /= i
-			}
-
-			ans *= calcComb(n+count-1, n-1)
-			ans %= MOD
-		}
+	if m == 1 {
+		fmt.Println(1)
+		return
 	}
-	if mnokori != 1 {
-		ans *= calcComb(n+1-1, n-1)
+
+	ans := 1
+	memo := TrialDivision(m)
+	for _, v := range memo {
+		ans *= calcComb(n+v-1, n-1)
 		ans %= MOD
 	}
 

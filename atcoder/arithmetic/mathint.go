@@ -2,23 +2,32 @@ package arithmetic
 
 import (
 	"errors"
-	"math"
 )
 
 // PowInt is integer version of math.Pow
+// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
 func PowInt(a, e int) int {
 	if a < 0 || e < 0 {
 		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
 	}
-	fa := float64(a)
-	fe := float64(e)
-	fanswer := math.Pow(fa, fe)
-	return int(fanswer)
+
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := PowInt(a, halfE)
+		return half * half
+	}
+
+	return a * PowInt(a, e-1)
 }
 
 // AbsInt is integer version of math.Abs
 func AbsInt(a int) int {
-	fa := float64(a)
-	fanswer := math.Abs(fa)
-	return int(fanswer)
+	if a < 0 {
+		return -a
+	}
+	return a
 }

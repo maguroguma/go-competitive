@@ -8,7 +8,7 @@ import (
 
 func Test試し割りによる素因数分解(t *testing.T) {
 	assert.Equal(t, map[int]int{2: 3, 3: 2, 5: 1}, TrialDivision(360))
-	assert.Equal(t, map[int]int{1: 1}, TrialDivision(1))
+	//	assert.Equal(t, map[int]int{1: 1}, TrialDivision(1))	// 1は素数ではない
 	assert.Equal(t, map[int]int{13: 1}, TrialDivision(13))
 	assert.Equal(t, map[int]int{2: 1, 13: 1}, TrialDivision(26))
 }
@@ -20,6 +20,8 @@ func Test試し割りによる素数判定(t *testing.T) {
 	assert.True(t, IsPrime(3571))
 	assert.True(t, IsPrime(3559))
 	assert.True(t, IsPrime(3557))
+	assert.True(t, IsPrime(1e9+7)) // AtCoderで頻出するMOD
+	assert.True(t, IsPrime(1e9+9))
 
 	assert.False(t, IsPrime(1))
 	assert.False(t, IsPrime(4))
@@ -27,4 +29,5 @@ func Test試し割りによる素数判定(t *testing.T) {
 	assert.False(t, IsPrime(3570))
 	assert.False(t, IsPrime(3549))
 	assert.False(t, IsPrime(3509))
+	assert.False(t, IsPrime(1e9+8))
 }
