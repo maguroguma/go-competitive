@@ -3,9 +3,10 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
-	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -98,21 +99,70 @@ func Min(integers ...int) int {
 }
 
 // PowInt is integer version of math.Pow
+// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
 func PowInt(a, e int) int {
 	if a < 0 || e < 0 {
 		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
 	}
-	fa := float64(a)
-	fe := float64(e)
-	fanswer := math.Pow(fa, fe)
-	return int(fanswer)
+
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := PowInt(a, halfE)
+		return half * half
+	}
+
+	return a * PowInt(a, e-1)
 }
 
 // AbsInt is integer version of math.Abs
 func AbsInt(a int) int {
-	fa := float64(a)
-	fanswer := math.Abs(fa)
-	return int(fanswer)
+	if a < 0 {
+		return -a
+	}
+	return a
+}
+
+// Gcd returns the Greatest Common Divisor of two natural numbers.
+// Gcd only accepts two natural numbers (a, b >= 1).
+// 0 or negative number causes panic.
+// Gcd uses the Euclidean Algorithm.
+func Gcd(a, b int) int {
+	if a <= 0 || b <= 0 {
+		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
+	}
+	if a < b {
+		a, b = b, a
+	}
+
+	// Euclidean Algorithm
+	for b > 0 {
+		div := a % b
+		a, b = b, div
+	}
+
+	return a
+}
+
+// Lcm returns the Least Common Multiple of two natural numbers.
+// Lcd only accepts two natural numbers (a, b >= 1).
+// 0 or negative number causes panic.
+// Lcd uses the Euclidean Algorithm indirectly.
+func Lcm(a, b int) int {
+	if a <= 0 || b <= 0 {
+		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
+	}
+
+	// a = a'*gcd, b = b'*gcd, a*b = a'*b'*gcd^2
+	// a' and b' are relatively prime numbers
+	// gcd consists of prime numbers, that are included in a and b
+	gcd := Gcd(a, b)
+
+	// not (a * b / gcd), because of reducing a probability of overflow
+	return (a / gcd) * b
 }
 
 /*********** Utilities ***********/
@@ -183,16 +233,99 @@ func Strtoi(s string) int {
 	}
 }
 
+/*********** Permutation ***********/
+
+// memo: 10! == 3628800 > 3M
+func CalcFactorialPatterns(elements []rune) [][]rune {
+	copiedResidual := make([]rune, len(elements))
+	copy(copiedResidual, elements)
+	return factorialRecursion([]rune{}, copiedResidual)
+}
+func factorialRecursion(interim, residual []rune) [][]rune {
+	if len(residual) == 0 {
+		return [][]rune{interim}
+	}
+
+	res := [][]rune{}
+	for idx, elem := range residual {
+		copiedInterim := make([]rune, len(interim))
+		copy(copiedInterim, interim)
+		copiedInterim = append(copiedInterim, elem)
+		copiedResidual := genDeletedSlice(idx, residual)
+		res = append(res, factorialRecursion(copiedInterim, copiedResidual)...)
+	}
+
+	return res
+}
+func genDeletedSlice(delId int, S []rune) []rune {
+	res := []rune{}
+	res = append(res, S[:delId]...)
+	res = append(res, S[delId+1:]...)
+	return res
+}
+
+// memo: 3**10 == 59049
+func CalcDuplicatePatterns(elements []rune, digit int) [][]rune {
+	return duplicateRecursion([]rune{}, elements, digit)
+}
+func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
+	if len(interim) == digit {
+		return [][]rune{interim}
+	}
+
+	res := [][]rune{}
+	for i := 0; i < len(elements); i++ {
+		copiedInterim := make([]rune, len(interim))
+		copy(copiedInterim, interim)
+		copiedInterim = append(copiedInterim, elements[i])
+		res = append(res, duplicateRecursion(copiedInterim, elements, digit)...)
+	}
+
+	return res
+}
+
+// usage
+//tmp := CalcFactorialPatterns([]rune{'a', 'b', 'c'})
+//expected := []string{"abc", "acb", "bac", "bca", "cab", "cba"}
+//tmp := CalcDuplicatePatterns([]rune{'a', 'b', 'c'}, 3)
+//expected := []string{"aaa", "aab", "aac", "aba", "abb", "abc", ...}
+
 /*********** Binary Search ***********/
 
-// LowerBound returns an index of a slice whose value is EQUAL TO AND LARGER THAN A KEY VALUE.
+// LowerBound returns an index of a slice whose value(s[idx]) is EQUAL TO AND LARGER THAN A KEY.
+// The idx is the most left one when there are many keys.
+// In other words, the idx is the point where the argument key should be inserted.
 func LowerBound(s []int, key int) int {
-	isLarger := func(index, key int) bool {
+	isLargerAndEqual := func(index, key int) bool {
 		if s[index] >= key {
 			return true
-		} else {
-			return false
 		}
+		return false
+	}
+
+	left, right := -1, len(s)
+
+	for right-left > 1 {
+		mid := left + (right-left)/2
+		if isLargerAndEqual(mid, key) {
+			right = mid
+		} else {
+			left = mid
+		}
+	}
+
+	return right
+}
+
+// UpperBound returns an index of a slice whose value(s[idx]) is LARGER THAN A KEY.
+// The idx is the most right one when there are many keys.
+// In other words, the idx is the point where the argument key should be inserted.
+func UpperBound(s []int, key int) int {
+	isLarger := func(index, key int) bool {
+		if s[index] > key {
+			return true
+		}
+		return false
 	}
 
 	left, right := -1, len(s)
@@ -209,44 +342,22 @@ func LowerBound(s []int, key int) int {
 	return right
 }
 
-// UpperBound returns an index of a slice whose value is EQUAL TO AND SMALLER THAN A KEY VALUE.
-func UpperBound(s []int, key int) int {
-	isSmaller := func(index, key int) bool {
-		if s[index] <= key {
-			return true
-		} else {
-			return false
-		}
-	}
-
-	left, right := -1, len(s)
-
-	for right-left > 1 {
-		mid := left + (right-left)/2
-		if isSmaller(mid, key) {
-			left = mid
-		} else {
-			right = mid
-		}
-	}
-
-	return left
-}
+// usage
+//test := []int{1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 10, 10, 10, 20, 20, 20, 30, 30, 30}
+//assert.Equal(t, 5, UpperBound(test, 5)-LowerBound(test, 5))
+//assert.Equal(t, 0, UpperBound(test, 15)-LowerBound(test, 15))
 
 /*********** Factorization, Prime Number ***********/
 
 // TrialDivision returns the result of prime factorization of integer N.
+// Complicity: O(n)
 func TrialDivision(n int) map[int]int {
-	if n <= 0 {
+	if n <= 1 {
 		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
-	}
-	if n == 1 {
-		return map[int]int{1: 1}
 	}
 
 	p := map[int]int{}
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
+	for i := 2; i*i <= n; i++ {
 		exp := 0
 		for n%i == 0 {
 			exp++
@@ -271,8 +382,7 @@ func IsPrime(n int) bool {
 		return false
 	}
 
-	sqrt := math.Pow(float64(n), 0.5)
-	for i := 2; i <= int(sqrt); i++ {
+	for i := 2; i*i <= n; i++ {
 		if n%i == 0 {
 			return false
 		}
@@ -281,11 +391,66 @@ func IsPrime(n int) bool {
 	return true
 }
 
+/*********** Inverse Element ***********/
+
+// CalcNegativeMod can calculate a right residual whether value is positive or negative.
+func CalcNegativeMod(val, m int) int {
+	res := val % m
+	if res < 0 {
+		res += m
+	}
+	return res
+}
+
+func modpow(a, e, m int) int {
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := modpow(a, halfE, m)
+		return half * half % m
+	}
+
+	return a * modpow(a, e-1, m) % m
+}
+
+// CalcModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+func CalcModInv(a, m int) int {
+	return modpow(a, m-2, m)
+}
+
 /********** sort package (snippets) **********/
 //sort.Sort(sort.IntSlice(s))
 //sort.Sort(sort.Reverse(sort.IntSlice(s)))
 //sort.Sort(sort.Float64Slice(s))
 //sort.Sort(sort.StringSlice(s))
+
+// struct sort
+type Mono struct {
+	key, value int
+}
+type MonoList []*Mono
+
+func (ml MonoList) Len() int {
+	return len(ml)
+}
+func (ml MonoList) Swap(i, j int) {
+	ml[i], ml[j] = ml[j], ml[i]
+}
+func (ml MonoList) Less(i, j int) bool {
+	return ml[i].value < ml[j].value
+}
+
+// Example(ABC111::C)
+//oddCountList, evenCountList := make(MonoList, 1e5+1), make(MonoList, 1e5+1)
+//for i := 0; i <= 1e5; i++ {
+//	oddCountList[i] = &Mono{key: i, value: oddMemo[i]}
+//	evenCountList[i] = &Mono{key: i, value: evenMemo[i]}
+//}
+//sort.Sort(sort.Reverse(oddCountList))		// DESC sort
+//sort.Sort(sort.Reverse(evenCountList))	// DESC sort
 
 /********** copy function (snippets) **********/
 //a = []int{0, 1, 2}
@@ -301,12 +466,49 @@ func IsPrime(n int) bool {
 
 /*******************************************************************/
 
+const MOD = 1000000000 + 7
+const ALPHABET_NUM = 26
+
 var n, m int
 var A, B []int
 
 func main() {
 	n, m = ReadInt(), ReadInt()
-	A = ReadIntSlice(n)
-	B = ReadIntSlice(m)
+	A, B = ReadIntSlice(n), ReadIntSlice(m)
 
+	sort.Sort(sort.IntSlice(A))
+	sort.Sort(sort.IntSlice(B))
+
+	ans := 1
+	for i := n * m; i >= 1; i-- {
+		key := i
+		rowNum := UpperBound(A, key) - LowerBound(A, key)
+		colNum := UpperBound(B, key) - LowerBound(B, key)
+		if rowNum > 1 || colNum > 1 {
+			fmt.Println(0)
+			return
+		}
+
+		if rowNum == 1 && colNum == 1 {
+			continue
+		} else if rowNum == 1 && colNum == 0 {
+			want := m - LowerBound(B, key)
+			ans *= want
+			ans %= MOD
+			continue
+		} else if rowNum == 0 && colNum == 1 {
+			want := n - LowerBound(A, key)
+			ans *= want
+			ans %= MOD
+			continue
+		} else {
+			rowWant := n - LowerBound(A, key)
+			colWant := m - LowerBound(B, key)
+			ans *= (rowWant*colWant - (n*m - key))
+			ans %= MOD
+			continue
+		}
+	}
+
+	fmt.Println(ans)
 }
