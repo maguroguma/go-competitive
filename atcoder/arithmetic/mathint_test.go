@@ -22,3 +22,19 @@ func Test整数の絶対値(t *testing.T) {
 	assert.Equal(t, 1000, AbsInt(1000))
 	assert.Equal(t, 1000, AbsInt(-1000))
 }
+
+func Test整数で閉じた天井関数(t *testing.T) {
+	assert.Equal(t, 1, CeilInt(2, 3))
+	assert.Equal(t, 0, CeilInt(0, 3))
+	assert.Equal(t, 1, CeilInt(1, 1000000))
+	assert.Equal(t, 100, CeilInt(200, 2))
+	assert.Equal(t, 5, CeilInt(14, 3))
+}
+
+func Test整数で閉じた床関数(t *testing.T) {
+	assert.Equal(t, 0, FloorInt(2, 3))
+	assert.Equal(t, 0, FloorInt(0, 3))
+	assert.Equal(t, 0, FloorInt(1, 1000000))
+	assert.Equal(t, 100, FloorInt(200, 2))
+	assert.Equal(t, 4, FloorInt(14, 3))
+}

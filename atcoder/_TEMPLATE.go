@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -94,6 +95,21 @@ func Min(integers ...int) int {
 		}
 	}
 	return m
+}
+
+// CeilInt returns the minimum integer larger than or equal to float(a/b).
+func CeilInt(a, b int) int {
+	res := a / b
+	if a%b > 0 {
+		res++
+	}
+	return res
+}
+
+// FloorInt returns the maximum integer smaller than or equal to float(a/b)
+func FloorInt(a, b int) int {
+	res := a / b
+	return res
 }
 
 // PowInt is integer version of math.Pow
@@ -345,6 +361,36 @@ func UpperBound(s []int, key int) int {
 //assert.Equal(t, 5, UpperBound(test, 5)-LowerBound(test, 5))
 //assert.Equal(t, 0, UpperBound(test, 15)-LowerBound(test, 15))
 
+/*********** Union Find ***********/
+
+func InitParents(parents []int, maxNodeId int) {
+	for i := 0; i <= maxNodeId; i++ {
+		parents[i] = i
+	}
+}
+
+func unite(x, y int, parents []int) {
+	xp, yp := root(x, parents), root(y, parents)
+	if xp == yp {
+		return
+	}
+
+	parents[xp] = yp
+}
+
+func same(x, y int, parents []int) bool {
+	return root(x, parents) == root(y, parents)
+}
+
+func root(x int, parents []int) int {
+	if parents[x] == x {
+		return x
+	}
+
+	parents[x] = root(parents[x], parents)
+	return parents[x]
+}
+
 /*********** Factorization, Prime Number ***********/
 
 // TrialDivision returns the result of prime factorization of integer N.
@@ -462,10 +508,15 @@ func (ml MonoList) Less(i, j int) bool {
 //X := ReadIntSlice(n)
 //S := ReadRuneSlice()
 
+/********** String Split **********/
+
+//strs := strings.Split(string(runeSlice), "+")
+
 /*******************************************************************/
 
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 func main() {
+	fmt.Println("Hello World.")
 }

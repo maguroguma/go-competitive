@@ -31,3 +31,18 @@ func AbsInt(a int) int {
 	}
 	return a
 }
+
+// CeilInt returns the minimum integer larger than or equal to float(a/b).
+func CeilInt(a, b int) int {
+	res := a / b
+	if a%b > 0 {
+		res++
+	}
+	return res
+}
+
+// FloorInt returns the maximum integer smaller than or equal to float(a/b)
+func FloorInt(a, b int) int {
+	res := a / b
+	return res
+}
