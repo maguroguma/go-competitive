@@ -29,6 +29,8 @@ func (h *IntHeap) Pop() interface{} {
 	return x
 }
 
+/******************************* test cases ********************************/
+
 func Test標準パッケージのheapのテスト(t *testing.T) {
 	h := &IntHeap{3, 6, 1, 2}
 

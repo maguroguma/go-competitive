@@ -470,14 +470,6 @@ const ALPHABET_NUM = 26
 var n, k int
 var T, D []int
 
-// 1つめは確実に一番おいしい寿司のはず
-
-/*
-素直に考えるなら、
-・たくさんの種類を優先して食べる（各種類の寿司、まだ食べていないネタの寿司を美味しい順にとっていく）
-・まだ食べていないネタの寿司であっても、よっぽどまずかったら食べることを選ばない
-*/
-
 func main() {
 	n, k = ReadInt(), ReadInt()
 	for i := 0; i < n; i++ {
@@ -486,7 +478,18 @@ func main() {
 		D = append(D, d)
 	}
 
-	netaEatFlag := [100005]bool{}
-	sushiEatFlag := [100005]bool{}
+	answers := make([]int, k+1)
+	for i := 0; i < len(answers); i++ {
+		answers[i] = -1
+	}
 
+	// 種類ごとに寿司をまとめたスライスを値とするマップ
+	sushiPerKind := make(map[int][]int)
+	for i := 1; i <= n; i++ {
+		sushiPerKind[i] = make([]int, 0)
+	}
+	for i := 0; i < n; i++ {
+		kind, good := T[i], D[i]
+		sushiPerKind[kind] = append(sushiPerKind[kind], good)
+	}
 }

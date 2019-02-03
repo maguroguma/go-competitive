@@ -42,12 +42,14 @@ func (pq *PriorityQueue) Pop() interface{} {
 	return item
 }
 
-// update modifies the priority and value of an Item in the queue.
+// `update` method modifies the priority and value of an Item in the queue.
 func (pq *PriorityQueue) update(item *Item, value string, priority int) {
 	item.value = value
 	item.priority = priority
 	heap.Fix(pq, item.index)
 }
+
+/******************************* test cases ********************************/
 
 func Test構造体のヒープ(t *testing.T) {
 	items := map[string]int{
