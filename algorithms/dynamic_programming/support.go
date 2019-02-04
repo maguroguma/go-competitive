@@ -21,3 +21,9 @@ func ChMax(updatedValue *int, target int) bool {
 	}
 	return false
 }
+
+// GetNthBit returns nth bit value of an argument.
+// n starts from 0.
+func GetNthBit(num, nth int) int {
+	return num >> uint(nth) & 1
+}

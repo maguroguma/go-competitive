@@ -547,6 +547,63 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n, k int
+var A []int
+
+var memo []int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, k = ReadInt(), ReadInt()
+	A = ReadIntSlice(n)
+
+	memo = make([]int, 45)
+	for i := 0; i < n; i++ {
+		a := A[i]
+
+		for j := 0; j < len(memo); j++ {
+			if GetNthBit(a, j) == 1 {
+				memo[j]++
+			}
+		}
+	}
+
+	currentX := make([]int, 45)
+	ans := 0
+	for _, a := range A {
+		ans += a
+	}
+
+	for j := len(memo) - 1; j >= 0; j-- {
+		if GetNthBit(k+1, j) == 1 {
+			ChMax(&ans, sub(&currentX, j))
+			currentX[j] = 1
+		}
+	}
+
+	fmt.Println(ans)
+}
+
+// currentXのjビット目を0とした上で、j-1ビット目以降を自由に動かしたときのfの値を返す
+func sub(X *[]int, nth int) int {
+	res := 0
+
+	// 確定している上位ビット
+	for j := len(*X) - 1; j >= nth; j-- {
+		if (*X)[j] == 0 {
+			res += PowInt(2, j) * memo[j]
+		} else {
+			res += PowInt(2, j) * (n - memo[j])
+		}
+	}
+
+	// 自由に設定できる下位ビット
+	for j := nth - 1; j >= 0; j-- {
+		if memo[j] < n-memo[j] {
+			res += PowInt(2, j) * (n - memo[j])
+		} else {
+			res += PowInt(2, j) * memo[j]
+		}
+	}
+
+	return res
 }
