@@ -5,6 +5,9 @@ import "errors"
 // 各ノード番号は0-based index
 type UnionFindTree struct {
 	parents [100005]int
+
+	// 連結成分のサイズも計算できる
+	ccsize [100005]int
 }
 
 // 最大ノード数は100005
@@ -17,6 +20,7 @@ func NewUnionFindTree(n int) *UnionFindTree {
 	// 最初はすべてのノードが根ノード
 	for i := 0; i < n; i++ {
 		uft.parents[i] = i
+		uft.ccsize[i] = 1
 	}
 
 	return uft
@@ -31,7 +35,12 @@ func (uft *UnionFindTree) Unite(x, y int) {
 		return
 	}
 
+	// ypが2つの集合の新しい根ノードになる
 	uft.parents[xp] = yp
+
+	// 連結成分のサイズを更新
+	ss := uft.ccsize[xp] + uft.ccsize[yp]
+	uft.ccsize[yp] = ss
 }
 
 // xとyが同じ集合に属するか否かを判定
@@ -52,4 +61,8 @@ func (uft *UnionFindTree) root(x int) int {
 		uft.parents[x] = uft.root(uft.parents[x])
 		return uft.parents[x]
 	}
+}
+
+func (uft *UnionFindTree) ccSize(x int) int {
+	return uft.ccsize[uft.root(x)]
 }

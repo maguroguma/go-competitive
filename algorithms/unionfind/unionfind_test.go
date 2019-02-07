@@ -25,6 +25,7 @@ func TestUnionFind木(t *testing.T) {
 		{1, 0, 0},
 	}
 	results := []string{}
+	ccSizes := []int{}
 
 	uft := NewUnionFindTree(8)
 
@@ -38,8 +39,10 @@ func TestUnionFind木(t *testing.T) {
 			} else {
 				results = append(results, "No")
 			}
+			ccSizes = append(ccSizes, uft.ccSize(qu.b))
 		}
 	}
 
 	assert.Equal(t, []string{"Yes", "No", "Yes", "Yes"}, results)
+	assert.Equal(t, []int{3, 1, 4, 1}, ccSizes)
 }
