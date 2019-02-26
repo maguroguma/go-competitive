@@ -337,52 +337,60 @@ func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
 
 /*********** Binary Search ***********/
 
-func GeneralLowerBound(s []int, key int) int {
-	isOK := func(index, key int) bool {
+// LowerBound returns an index of a slice whose value(s[idx]) is EQUAL TO AND LARGER THAN A KEY.
+// The idx is the most left one when there are many keys.
+// In other words, the idx is the point where the argument key should be inserted.
+func LowerBound(s []int, key int) int {
+	isLargerAndEqual := func(index, key int) bool {
 		if s[index] >= key {
 			return true
 		}
 		return false
 	}
 
-	ng, ok := -1, len(s)
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid, key) {
-			ok = mid
+	left, right := -1, len(s)
+
+	for right-left > 1 {
+		mid := left + (right-left)/2
+		if isLargerAndEqual(mid, key) {
+			right = mid
 		} else {
-			ng = mid
+			left = mid
 		}
 	}
 
-	return ok
+	return right
 }
 
-func GeneralUpperBound(s []int, key int) int {
-	isOK := func(index, key int) bool {
+// UpperBound returns an index of a slice whose value(s[idx]) is LARGER THAN A KEY.
+// The idx is the most right one when there are many keys.
+// In other words, the idx is the point where the argument key should be inserted.
+func UpperBound(s []int, key int) int {
+	isLarger := func(index, key int) bool {
 		if s[index] > key {
 			return true
 		}
 		return false
 	}
 
-	ng, ok := -1, len(s)
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid, key) {
-			ok = mid
+	left, right := -1, len(s)
+
+	for right-left > 1 {
+		mid := left + (right-left)/2
+		if isLarger(mid, key) {
+			right = mid
 		} else {
-			ng = mid
+			left = mid
 		}
 	}
 
-	return ok
+	return right
 }
 
 // usage
 //test := []int{1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 10, 10, 10, 20, 20, 20, 30, 30, 30}
-//assert.Equal(t, 5, GeneralUpperBound(test, 5)-GeneralLowerBound(test, 5))
-//assert.Equal(t, 0, GeneralUpperBound(test, 15)-GeneralLowerBound(test, 15))
+//assert.Equal(t, 5, UpperBound(test, 5)-LowerBound(test, 5))
+//assert.Equal(t, 0, UpperBound(test, 15)-LowerBound(test, 15))
 
 /*********** Union Find ***********/
 
@@ -540,6 +548,49 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n, a, b, c int
+var L []int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, a, b, c = ReadInt(), ReadInt(), ReadInt(), ReadInt()
+	L = ReadIntSlice(n)
+
+	// sort.Sort(sort.IntSlice(L))
+
+	patterns := CalcDuplicatePatterns([]rune{'a', 'b', 'c', 'x'}, n)
+	ans := math.MaxInt64
+	for _, pat := range patterns {
+		aa, bb, cc := 0, 0, 0
+		magicPower := 0
+		for i := 0; i < n; i++ {
+			if pat[i] == 'a' {
+				if aa > 0 {
+					magicPower += 10
+				}
+				aa += L[i]
+			} else if pat[i] == 'b' {
+				if bb > 0 {
+					magicPower += 10
+				}
+				bb += L[i]
+			} else if pat[i] == 'c' {
+				if cc > 0 {
+					magicPower += 10
+				}
+				cc += L[i]
+			}
+		}
+
+		if aa == 0 || bb == 0 || cc == 0 {
+			continue
+		}
+
+		magicPower += AbsInt(a - aa)
+		magicPower += AbsInt(b - bb)
+		magicPower += AbsInt(c - cc)
+
+		ChMin(&ans, magicPower)
+	}
+
+	fmt.Println(ans)
 }

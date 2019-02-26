@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -337,52 +336,60 @@ func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
 
 /*********** Binary Search ***********/
 
-func GeneralLowerBound(s []int, key int) int {
-	isOK := func(index, key int) bool {
+// LowerBound returns an index of a slice whose value(s[idx]) is EQUAL TO AND LARGER THAN A KEY.
+// The idx is the most left one when there are many keys.
+// In other words, the idx is the point where the argument key should be inserted.
+func LowerBound(s []int, key int) int {
+	isLargerAndEqual := func(index, key int) bool {
 		if s[index] >= key {
 			return true
 		}
 		return false
 	}
 
-	ng, ok := -1, len(s)
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid, key) {
-			ok = mid
+	left, right := -1, len(s)
+
+	for right-left > 1 {
+		mid := left + (right-left)/2
+		if isLargerAndEqual(mid, key) {
+			right = mid
 		} else {
-			ng = mid
+			left = mid
 		}
 	}
 
-	return ok
+	return right
 }
 
-func GeneralUpperBound(s []int, key int) int {
-	isOK := func(index, key int) bool {
+// UpperBound returns an index of a slice whose value(s[idx]) is LARGER THAN A KEY.
+// The idx is the most right one when there are many keys.
+// In other words, the idx is the point where the argument key should be inserted.
+func UpperBound(s []int, key int) int {
+	isLarger := func(index, key int) bool {
 		if s[index] > key {
 			return true
 		}
 		return false
 	}
 
-	ng, ok := -1, len(s)
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid, key) {
-			ok = mid
+	left, right := -1, len(s)
+
+	for right-left > 1 {
+		mid := left + (right-left)/2
+		if isLarger(mid, key) {
+			right = mid
 		} else {
-			ng = mid
+			left = mid
 		}
 	}
 
-	return ok
+	return right
 }
 
 // usage
 //test := []int{1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 10, 10, 10, 20, 20, 20, 30, 30, 30}
-//assert.Equal(t, 5, GeneralUpperBound(test, 5)-GeneralLowerBound(test, 5))
-//assert.Equal(t, 0, GeneralUpperBound(test, 15)-GeneralLowerBound(test, 15))
+//assert.Equal(t, 5, UpperBound(test, 5)-LowerBound(test, 5))
+//assert.Equal(t, 0, UpperBound(test, 15)-LowerBound(test, 15))
 
 /*********** Union Find ***********/
 
@@ -541,5 +548,14 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 func main() {
-	fmt.Println("Hello World.")
+	S := ReadString()
+	strs := strings.Split(S, "/")
+
+	str := strs[0] + strs[1] + strs[2]
+
+	if str <= "20190430" {
+		fmt.Println("Heisei")
+	} else {
+		fmt.Println("TBD")
+	}
 }

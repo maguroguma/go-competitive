@@ -547,6 +547,85 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n int
+var islands [100000 + 1][]int
+var dpf, dpg, dph [100000 + 1]int
+var flags [100000 + 1]bool
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	for i := 1; i <= n; i++ {
+		islands[i] = make([]int, 0)
+	}
+	for i := 0; i < n-1; i++ {
+		a, b := ReadInt(), ReadInt()
+		islands[a] = append(islands[a], b)
+		islands[b] = append(islands[b], a)
+	}
+
+	for i := 1; i <= n; i++ {
+		dpf[i], dpg[i], dph[i] = -1, -1, -1
+		// flags[i] = false
+	}
+
+	ans := fsub(1, 0)
+	fmt.Println(ans)
+}
+
+func fsub(id, parentId int) int {
+	if dpf[id] != -1 {
+		return dpf[id]
+	}
+
+	flags[id] = true
+	res := 0
+	res += gsub(id, parentId)
+	res %= MOD
+	res += hsub(id, parentId)
+	res %= MOD
+	dpf[id] = res
+
+	return res
+}
+
+func gsub(id, parentId int) int {
+	if dpg[id] != -1 {
+		return dpg[id]
+	}
+
+	res := 1
+	for _, childId := range islands[id] {
+		// 親はみない
+		// if flags[childId] {
+		if childId == parentId {
+			continue
+		}
+
+		res *= fsub(childId, id)
+		res %= MOD
+	}
+	dpg[id] = res
+
+	return res
+}
+
+func hsub(id, parentId int) int {
+	if dph[id] != -1 {
+		return dph[id]
+	}
+
+	res := 1
+	for _, childId := range islands[id] {
+		// 親はみない
+		// if flags[childId] {
+		if childId == parentId {
+			continue
+		}
+
+		res *= gsub(childId, id)
+		res %= MOD
+	}
+	dph[id] = res
+
+	return res
 }
