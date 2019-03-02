@@ -484,9 +484,33 @@ func modpow(a, e, m int) int {
 }
 
 // CalcModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
 func CalcModInv(a, m int) int {
 	return modpow(a, m-2, m)
 }
+
+/********** heap package (Integer Priority Queue) **********/
+
+type IntHeap []int
+
+func (h IntHeap) Len() int           { return len(h) }
+func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
+func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *IntHeap) Push(x interface{}) {
+	*h = append(*h, x.(int))
+}
+func (h *IntHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+// h := &IntHeap{3, 6, 1, 2}
+// heap.Init(h)
+// heap.Push(h, followers[i])
+// poppedD := heap.Pop(h).(int)
 
 /********** sort package (snippets) **********/
 //sort.Sort(sort.IntSlice(s))
