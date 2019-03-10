@@ -66,30 +66,6 @@ func ReadRuneSlice() []rune {
 	return []rune(ReadString())
 }
 
-/*********** Debugging ***********/
-
-// GetZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
-// For debugging use.
-func GetZeroPaddingRuneSlice(n, digitsNum int) []rune {
-	sn := fmt.Sprintf("%b", n)
-
-	residualLength := digitsNum - len(sn)
-	if residualLength <= 0 {
-		return []rune(sn)
-	}
-
-	zeros := make([]rune, residualLength)
-	for i := 0; i < len(zeros); i++ {
-		zeros[i] = '0'
-	}
-
-	res := []rune{}
-	res = append(res, zeros...)
-	res = append(res, []rune(sn)...)
-
-	return res
-}
-
 /*********** DP sub-functions ***********/
 
 // ChMin accepts a pointer of integer and a target value.
@@ -150,48 +126,6 @@ func Min(integers ...int) int {
 		}
 	}
 	return m
-}
-
-// GetDigitSum returns digit sum of a decimal number.
-// GetDigitSum only accept a positive integer.
-func GetDigitSum(n int) int {
-	if n < 0 {
-		return -1
-	}
-
-	res := 0
-
-	for n > 0 {
-		res += n % 10
-		n /= 10
-	}
-
-	return res
-}
-
-// Sum returns multiple integers sum.
-func Sum(integers ...int) int {
-	s := 0
-
-	for _, i := range integers {
-		s += i
-	}
-
-	return s
-}
-
-// GetCumulativeSums returns cumulative sums.
-// Length of result slice is equal to that of an argument.
-func GetCumulativeSums(integers []int) []int {
-	res := make([]int, len(integers))
-
-	currentSum := 0
-	for i, a := range integers {
-		currentSum += a
-		res[i] = currentSum
-	}
-
-	return res
 }
 
 // CeilInt returns the minimum integer larger than or equal to float(a/b).
@@ -452,66 +386,32 @@ func GeneralUpperBound(s []int, key int) int {
 
 /*********** Union Find ***********/
 
-// UnionFind provides disjoint set algorithm.
-// It accepts both 0-based and 1-based setting.
-type UnionFind struct {
-	parents []int
+func InitParents(parents []int, maxNodeId int) {
+	for i := 0; i <= maxNodeId; i++ {
+		parents[i] = i
+	}
 }
 
-// NewUnionFind returns a pointer of a new instance of UnionFind.
-func NewUnionFind(n int) *UnionFind {
-	uf := new(UnionFind)
-	uf.parents = make([]int, n+1)
-
-	for i := 0; i <= n; i++ {
-		uf.parents[i] = -1
+func unite(x, y int, parents []int) {
+	xp, yp := root(x, parents), root(y, parents)
+	if xp == yp {
+		return
 	}
 
-	return uf
+	parents[xp] = yp
 }
 
-// Root method returns root node of an argument node.
-// Root method is a recursive function.
-func (uf *UnionFind) Root(x int) int {
-	if uf.parents[x] < 0 {
+func same(x, y int, parents []int) bool {
+	return root(x, parents) == root(y, parents)
+}
+
+func root(x int, parents []int) int {
+	if parents[x] == x {
 		return x
 	}
 
-	// route compression
-	uf.parents[x] = uf.Root(uf.parents[x])
-	return uf.parents[x]
-}
-
-// Unite method merges a set including x and a set including y.
-func (uf *UnionFind) Unite(x, y int) bool {
-	xp := uf.Root(x)
-	yp := uf.Root(y)
-
-	if xp == yp {
-		return false
-	}
-
-	// merge: xp -> yp
-	// merge larger set to smaller set
-	if uf.CcSize(xp) > uf.CcSize(yp) {
-		xp, yp = yp, xp
-	}
-	// update set size
-	uf.parents[yp] += uf.parents[xp]
-	// finally, merge
-	uf.parents[xp] = yp
-
-	return true
-}
-
-// Same method returns whether x is in the set including y or not.
-func (uf *UnionFind) Same(x, y int) bool {
-	return uf.Root(x) == uf.Root(y)
-}
-
-// CcSize method returns the size of a set including an argument node.
-func (uf *UnionFind) CcSize(x int) int {
-	return -uf.parents[uf.Root(x)]
+	parents[x] = root(parents[x], parents)
+	return parents[x]
 }
 
 /*********** Factorization, Prime Number ***********/
@@ -664,6 +564,24 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var X []rune
+
 func main() {
-	fmt.Println("Hello World.")
+	X = ReadRuneSlice()
+
+	stack := []rune{}
+	for _, x := range X {
+		if len(stack) == 0 || x == 'S' {
+			stack = append(stack, x)
+			continue
+		}
+
+		if stack[len(stack)-1] == 'S' {
+			stack = stack[:len(stack)-1]
+		} else {
+			stack = append(stack, x)
+		}
+	}
+
+	fmt.Println(len(stack))
 }

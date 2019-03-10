@@ -664,6 +664,39 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n, m int
+var A, B []int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, m = ReadInt(), ReadInt()
+	A, B = make([]int, m), make([]int, m)
+	for i := 0; i < m; i++ {
+		a, b := ReadInt(), ReadInt()
+		A[i], B[i] = a, b
+	}
+
+	uf := NewUnionFind(n)
+	answers := make([]int, m)
+	ans := n * (n - 1) / 2
+	answers[m-1] = ans
+
+	for i := m - 1; i >= 1; i-- {
+		a, b := A[i], B[i]
+
+		if uf.Same(a, b) {
+			answers[i-1] = ans
+			continue
+		}
+
+		sa := uf.CcSize(a)
+		sb := uf.CcSize(b)
+		ans -= sa * sb
+		answers[i-1] = ans
+
+		uf.Unite(a, b)
+	}
+
+	for i := 0; i < m; i++ {
+		fmt.Println(answers[i])
+	}
 }
