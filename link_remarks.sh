@@ -2,8 +2,8 @@
 
 # root_dir=$1
 # link_target_dir=$2
-root_dir="$HOME/go/src/github.com/myokoyama0712/go-competitive/past_contests/ABC"
-link_target_dir="$HOME/go/src/github.com/myokoyama0712/go-competitive/remark_link/ABC"
+root_dir="$HOME/go/src/github.com/myokoyama0712/go-competitive/past_contests/AGC"
+link_target_dir="$HOME/go/src/github.com/myokoyama0712/go-competitive/remark_link/AGC"
 
 # 末尾のスラッシュ除去
 # root_dir=$(echo $1 | tr -d '/')

@@ -589,8 +589,5 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 func main() {
-	// swap
-	a, b := 0, 100
-	a, b = b, a
-	fmt.Println(a, b)
+	fmt.Println("test: " + strings.Repeat("z", 10))
 }

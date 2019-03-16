@@ -181,14 +181,13 @@ func Sum(integers ...int) int {
 }
 
 // GetCumulativeSums returns cumulative sums.
-// Length of result slice is equal to that of an argument.
+// Length of result slice is equal to that of an argument +1.
 func GetCumulativeSums(integers []int) []int {
-	res := make([]int, len(integers))
+	res := make([]int, len(integers)+1)
 
-	currentSum := 0
+	res[0] = 0
 	for i, a := range integers {
-		currentSum += a
-		res[i] = currentSum
+		res[i+1] = res[i] + a
 	}
 
 	return res

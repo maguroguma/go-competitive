@@ -20,6 +20,6 @@ func Test整数スライスの総和(t *testing.T) {
 }
 
 func Test整数スライスの累積和スライス(t *testing.T) {
-	assert.Equal(t, []int{1, 3, 6, 10, 15, 21, 28, 36, 45},
+	assert.Equal(t, []int{0, 1, 3, 6, 10, 15, 21, 28, 36, 45},
 		GetCumulativeSums([]int{1, 2, 3, 4, 5, 6, 7, 8, 9}))
 }

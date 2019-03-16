@@ -1,0 +1,1 @@
+/Users/yokoyamamasahiro/go/src/github.com/myokoyama0712/go-competitive/past_contests/AGC/010-019/AGC012/README.md
