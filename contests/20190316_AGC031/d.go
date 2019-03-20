@@ -152,6 +152,47 @@ func Min(integers ...int) int {
 	return m
 }
 
+// GetDigitSum returns digit sum of a decimal number.
+// GetDigitSum only accept a positive integer.
+func GetDigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// Sum returns multiple integers sum.
+func Sum(integers ...int) int {
+	s := 0
+
+	for _, i := range integers {
+		s += i
+	}
+
+	return s
+}
+
+// GetCumulativeSums returns cumulative sums.
+// Length of result slice is equal to that of an argument +1.
+func GetCumulativeSums(integers []int) []int {
+	res := make([]int, len(integers)+1)
+
+	res[0] = 0
+	for i, a := range integers {
+		res[i+1] = res[i] + a
+	}
+
+	return res
+}
+
 // CeilInt returns the minimum integer larger than or equal to float(a/b).
 func CeilInt(a, b int) int {
 	res := a / b
@@ -410,32 +451,66 @@ func GeneralUpperBound(s []int, key int) int {
 
 /*********** Union Find ***********/
 
-func InitParents(parents []int, maxNodeId int) {
-	for i := 0; i <= maxNodeId; i++ {
-		parents[i] = i
+// UnionFind provides disjoint set algorithm.
+// It accepts both 0-based and 1-based setting.
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n+1)
+
+	for i := 0; i <= n; i++ {
+		uf.parents[i] = -1
 	}
+
+	return uf
 }
 
-func unite(x, y int, parents []int) {
-	xp, yp := root(x, parents), root(y, parents)
-	if xp == yp {
-		return
-	}
-
-	parents[xp] = yp
-}
-
-func same(x, y int, parents []int) bool {
-	return root(x, parents) == root(y, parents)
-}
-
-func root(x int, parents []int) int {
-	if parents[x] == x {
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
 		return x
 	}
 
-	parents[x] = root(parents[x], parents)
-	return parents[x]
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
+		return false
+	}
+
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
+	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
+
+	return true
+}
+
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
 }
 
 /*********** Factorization, Prime Number ***********/
@@ -589,14 +664,5 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 func main() {
-	A := []int{0, 1, 2, 3, 4}
-
-	for i := 0; i < 10; i++ {
-		if i < len(A) && A[i]%2 == 0 {
-			fmt.Println(A[i])
-		} else {
-			fmt.Println("OUT!")
-		}
-	}
-
+	fmt.Println("d.go 20190316")
 }

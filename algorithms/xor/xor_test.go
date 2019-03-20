@@ -24,3 +24,12 @@ func Test偶数とそれより1大きい奇数のXORは1(t *testing.T) {
 	assert.Equal(t, 1, 123456^123457)
 	assert.Equal(t, 1, 9876^9877)
 }
+
+func Test加算和とXOR和の関係(t *testing.T) {
+	// a+b - a^b == 2 * (a&b)
+	for i := 0; i <= 1000; i++ {
+		for j := 0; j <= 1000; j++ {
+			assert.True(t, ((i+j)-(i^j)) == 2*(i&j))
+		}
+	}
+}

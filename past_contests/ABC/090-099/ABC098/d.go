@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"os"
@@ -252,4 +253,25 @@ func main() {
 	n = ReadInt()
 	A = ReadIntSlice(n)
 
+	ans := 0
+	xorSum, normalSum := 0, 0
+	right := 0
+	for left := 0; left < n; left++ {
+		for right < n && (xorSum^A[right]) == (normalSum+A[right]) {
+			xorSum ^= A[right]
+			normalSum += A[right]
+			right++
+		}
+
+		ans += (right - left)
+
+		if right == left {
+			right++
+		} else {
+			xorSum ^= A[left]
+			normalSum -= A[left]
+		}
+	}
+
+	fmt.Println(ans)
 }
