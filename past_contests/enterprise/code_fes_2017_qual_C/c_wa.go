@@ -663,39 +663,98 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var S []rune
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
+	S = ReadRuneSlice()
+	n := len(S)
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
+	noxS := []rune{}
+	ids := []int{}
+	for i, s := range S {
+		if s == 'x' {
+			continue
 		}
-		last[C[i]] = i
+		noxS = append(noxS, s)
+		ids = append(ids, i)
+	}
+	// fmt.Println(string(noxS))
+	// fmt.Println(string(getRevRuneSlice(noxS)))
+	// fmt.Println(ids)
+
+	if string(noxS) != string(getRevRuneSlice(noxS)) {
+		fmt.Println(-1)
+		return
 	}
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+	// 左と右に分ける、偶奇性でも場合分け
+	left, right := []rune{}, []rune{}
+	if len(noxS)%2 == 1 {
+		end := ids[len(noxS)/2]
+		for i := 0; i < end; i++ {
+			left = append(left, S[i])
+		}
+		for i := end + 1; i < n; i++ {
+			right = append(right, S[i])
+		}
+	} else {
+		end := ids[len(noxS)/2-1]
+		for i := 0; i <= end; i++ {
+			left = append(left, S[i])
+		}
+		for i := end + 1; i < n; i++ {
+			right = append(right, S[i])
 		}
 	}
+	// fmt.Println(string(left), string(right))
+	left = getRevRuneSlice(left)
+	// fmt.Println(string(left), string(right))
+	if len(left) == 0 || len(right) == 0 {
+		fmt.Println(Max(len(left), len(right)))
+		return
+	}
 
-	fmt.Println(dp[n])
+	ll, lm, lr, rl, rm, rr := 0, 0, 0, 0, 0, 0
+	for i := 0; i < len(left); i++ {
+		if left[i] != 'x' {
+			break
+		}
+		ll++
+	}
+	for i := len(left) - 1; i >= 0; i-- {
+		if left[i] != 'x' {
+			break
+		}
+		lr++
+	}
+	lm = len(left) - ll - lr
+	for i := 0; i < len(right); i++ {
+		if right[i] != 'x' {
+			break
+		}
+		rl++
+	}
+	for i := len(right) - 1; i >= 0; i-- {
+		if right[i] != 'x' {
+			break
+		}
+		rr++
+	}
+	rm = len(right) - rl - rr
+
+	ans := AbsInt(ll-rl) + AbsInt(lm-rm) + AbsInt(lr-rr)
+	fmt.Println(ans)
 }
+
+func getRevRuneSlice(R []rune) []rune {
+	res := make([]rune, len(R))
+
+	for i := len(R) - 1; i >= 0; i-- {
+		res[(len(R)-1)-i] = R[i]
+	}
+
+	return res
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

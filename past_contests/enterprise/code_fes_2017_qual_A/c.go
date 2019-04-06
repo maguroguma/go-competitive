@@ -663,39 +663,62 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var h, w int
+var A [][]rune
+var counter, needs [5]int
+var memo map[rune]int
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
-
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
+	h, w = ReadInt(), ReadInt()
+	for i := 0; i < h; i++ {
+		row := ReadRuneSlice()
+		A = append(A, row)
 	}
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+	memo = make(map[rune]int)
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			memo[A[i][j]]++
 		}
 	}
 
-	fmt.Println(dp[n])
+	needs[4] = (h / 2) * (w / 2)
+	if h%2 == 1 {
+		needs[2] += w / 2
+	}
+	if w%2 == 1 {
+		needs[2] += h / 2
+	}
+	if h%2 == 1 && w%2 == 1 {
+		needs[1] = 1
+	}
+
+	for _, c := range memo {
+		counter[4] += c / 4
+
+		if c%4 == 1 {
+			counter[1]++
+		} else if c%4 == 2 {
+			counter[2]++
+		} else if c%4 == 3 {
+			counter[1]++
+			counter[2]++
+		}
+	}
+
+	// 余分な4は2に転化させる
+	if counter[4] > needs[4] {
+		num := counter[4] - needs[4]
+		counter[2] += 2 * num
+		counter[4] = needs[4]
+	}
+
+	if needs[1] == counter[1] && needs[2] == counter[2] && needs[4] == counter[4] {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

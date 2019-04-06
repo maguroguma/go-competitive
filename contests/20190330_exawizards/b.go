@@ -664,38 +664,27 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var S []rune
 
 func main() {
 	n = ReadInt()
-	C = ReadIntSlice(n)
+	S = ReadRuneSlice()
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
+	red, blue := 0, 0
+	for _, r := range S {
+		if r == 'R' {
+			red++
 		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
-	}
-
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+			blue++
 		}
 	}
 
-	fmt.Println(dp[n])
+	if red > blue {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

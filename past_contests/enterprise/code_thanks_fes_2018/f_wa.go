@@ -663,39 +663,103 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var n, m, k int
+var P []int
+var H []int    // ノード i の根からの高さ
+var SumH []int // ノード i を含めた、i 以下の子の根からの高さの和
+var num []int  // ノード i を含めた、i 以下の子のノードの数
+
+var children [][]int // 子ノードリスト
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
-
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
+	n, m, k = ReadInt(), ReadInt(), ReadInt()
+	P = ReadIntSlice(n)
 	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
+		P[i]--
 	}
+	H, SumH, num = make([]int, n), make([]int, n), make([]int, n)
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+	root := -1
+	for i, p := range P {
+		if p == -1 {
+			root = i
+			break
 		}
 	}
+	fmt.Println(root)
 
-	fmt.Println(dp[n])
+	children = make([][]int, n)
+	for i, p := range P {
+		if p == -1 {
+			continue
+		}
+		children[p] = append(children[p], i)
+	}
+	fmt.Println(children)
+
+	dfs(root, 0)
+	fmt.Println(H)
+
+	dfs2(root)
+	fmt.Println(SumH)
+
+	dfs3(root)
+	fmt.Println(num)
+
+	// i が小さいところから、置けるのならば貪欲にコインを置いていく
+	resiM := m
+	resiK := k
+	resiL := n
+	resiH := SumH[root]
+	ans := []int{}
+	for i := 0; i < n; i++ {
+		ll := resiL - num[i]
+		mm := resiM - 1
+		kk := resiK - (1 + H[i])
+		hh := resiH - SumH[i]
+		if ll >= mm && hh >= kk && kk >= 0 {
+			ans = append(ans, i)
+			resiL -= num[i]
+			resiM--
+			resiK -= 1 + H[i]
+			resiH -= SumH[i]
+		}
+
+		if resiM == 0 {
+			break
+		}
+	}
 }
+
+func dfs(id, height int) {
+	H[id] = height
+
+	for _, childId := range children[id] {
+		dfs(childId, height+1)
+	}
+}
+
+func dfs2(id int) int {
+	res := H[id]
+
+	for _, childId := range children[id] {
+		res += dfs2(childId)
+	}
+
+	SumH[id] = res
+	return SumH[id]
+}
+
+func dfs3(id int) int {
+	res := 1
+
+	for _, childId := range children[id] {
+		res += dfs3(childId)
+	}
+
+	num[id] = res
+	return num[id]
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

@@ -663,39 +663,67 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var t int
+var A []int
+
+var dp [301][1000]int
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
+	t = ReadInt()
+	temp := ReadIntSlice(t)
+	A = []int{-1}
+	A = append(A, temp...)
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
+	for i := 0; i <= A[1]; i++ {
+		dp[1][i] = 1
 	}
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
+	for i := 2; i <= t; i++ {
+		for j := 0; j <= A[i]; j++ {
+			// k は最終状態
+			for k := 0; k <= 999; k++ {
+				// 最下位ビットが立っている
+				if k%2 == 1 {
+					continue
+				}
 
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+				state := k >> 1
+				dp[i][state+j] += dp[i-1][k]
+				dp[i][state+j] %= MOD
+			}
 		}
 	}
 
-	fmt.Println(dp[n])
+	ans := 0
+	for i := 0; i <= 999; i++ {
+		if sub(i) == 1 {
+			ans += dp[t][i]
+			ans %= MOD
+		}
+	}
+	for i := 1; i <= t-1; i++ {
+		ans += dp[i][1]
+		ans %= MOD
+	}
+
+	fmt.Println(ans)
+
+	// fmt.Println("---")
+	// for i := 1; i <= 2; i++ {
+	// 	fmt.Println(dp[i][:5])
+	// }
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+// 2進数で経っているビットの数を返す
+func sub(state int) int {
+	res := 0
+
+	for i := 0; i <= 10; i++ {
+		res += GetNthBit(state, i)
+	}
+
+	return res
 }

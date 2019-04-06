@@ -40,3 +40,7 @@ func GetCumulativeSums(integers []int) []int {
 
 	return res
 }
+
+// 任意のスライスを反転した、新しいスライスを返す
+
+// unshift

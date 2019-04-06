@@ -663,39 +663,100 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var n, m int
+var rmemo [1000]int
+var memo [1000][1000]int
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
+	n, m = ReadInt(), ReadInt()
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
-	}
-
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+	ans := 0
+	for x := 1; x <= n; x++ {
+		for y := 1; y <= m; y++ {
+			if dfs(x, y) == 1 {
+				ans++
+			}
 		}
 	}
 
-	fmt.Println(dp[n])
+	fmt.Println(ans)
 }
+
+// 1: 無限ループ, 2: 停止, 3: 未確定
+// dfsといっても向かう先は単一（関数・写像のように全射であるため）
+func dfs(x, y int) int {
+	// いずれかの状態が決まっていればそれを返す
+	if memo[y][x] != 0 {
+		return memo[y][x]
+	}
+
+	memo[y][x] = 3 // 初めて見るときは未確定としておく
+
+	// どちらかが0なら終了
+	if x == 0 || y == 0 {
+		memo[y][x] = 2
+		return memo[y][x]
+	}
+
+	// 変化前のx, yをxx, yyで保存
+	xx, yy := x, y
+
+	// 変化手順1つ目
+	if x < y {
+		x = rev(x)
+	} else {
+		y = rev(y)
+	}
+	// 変化手順2つ目
+	if x < y {
+		y = y - x
+	} else {
+		x = x - y
+	}
+
+	state := dfs(x, y)
+	if state == 1 {
+		memo[yy][xx] = 1
+		return memo[yy][xx]
+	} else if state == 2 {
+		memo[yy][xx] = 2
+		return memo[yy][xx]
+	} else if state == 3 {
+		// 未確定のところに到達したらそれは無限ループになると考えられる
+		memo[yy][xx] = 1
+		return memo[yy][xx]
+	}
+
+	// コンパイルを通すために必要（実際には実行されない）
+	return 0
+}
+
+func reverseString(str string) string {
+	length := len(str)
+	res := make([]rune, length)
+
+	for i := len(str) - 1; i >= 0; i-- {
+		res[(length-1)-i] = rune(str[i])
+	}
+
+	return string(res)
+}
+
+func rev(x int) int {
+	if x == 0 {
+		return 0
+	}
+	if rmemo[x] > 0 {
+		return rmemo[x]
+	}
+
+	xstr := strconv.Itoa(x)
+
+	// goでは以下のような書き方はできない
+	// return rmemo[x] = Strtoi(reverseString(xstr))
+	rmemo[x] = Strtoi(reverseString(xstr))
+	return rmemo[x]
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

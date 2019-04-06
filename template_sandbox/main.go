@@ -589,14 +589,13 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 func main() {
-	A := []int{0, 1, 2, 3, 4}
+	S := []int{}
+	fmt.Println(S)
 
-	for i := 0; i < 10; i++ {
-		if i < len(A) && A[i]%2 == 0 {
-			fmt.Println(A[i])
-		} else {
-			fmt.Println("OUT!")
-		}
-	}
+	sub(&S)
+	fmt.Println(S)
+}
 
+func sub(S *[]int) {
+	*S = append(*S, 0)
 }

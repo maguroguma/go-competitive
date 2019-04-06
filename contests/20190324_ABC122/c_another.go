@@ -663,39 +663,32 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var n, q int
+var S []rune
+var L, R []int
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
-
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
+	n, q = ReadInt(), ReadInt()
+	S = ReadRuneSlice()
+	L, R = make([]int, q), make([]int, q)
+	for i := 0; i < q; i++ {
+		l, r := ReadInt(), ReadInt()
+		L[i], R[i] = l-1, r-1
 	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
+
+	sums := make([]int, n+1)
+	for i := 1; i < n; i++ {
+		if S[i-1] == 'A' && S[i] == 'C' {
+			sums[i+1] = sums[i] + 1
 		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
-	}
-
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+			sums[i+1] = sums[i]
 		}
 	}
 
-	fmt.Println(dp[n])
+	for i := 0; i < q; i++ {
+		fmt.Println(sums[R[i]+1] - sums[L[i]+1])
+	}
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

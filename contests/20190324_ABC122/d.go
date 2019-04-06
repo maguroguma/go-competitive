@@ -664,38 +664,81 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var dp [101][4][4][4]int
 
 func main() {
 	n = ReadInt()
-	C = ReadIntSlice(n)
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
-	}
-
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+	// memo := make(map[rune]int)
+	// memo['A'], memo['C'], memo['G'], memo['T'] = 0, 1, 2, 3
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			for k := 0; k < 4; k++ {
+				if i == 0 && j == 2 && k == 1 {
+					continue
+				}
+				if i == 0 && j == 1 && k == 2 {
+					continue
+				}
+				if i == 2 && j == 0 && k == 1 {
+					continue
+				}
+				dp[3][i][j][k] = 1
+			}
 		}
 	}
 
-	fmt.Println(dp[n])
+	for i := 3; i < n; i++ {
+		for j := 0; j < 4; j++ {
+			for k := 0; k < 4; k++ {
+				for l := 0; l < 4; l++ {
+					// 次の1文字決め
+					for x := 0; x < 4; x++ {
+						if j == 0 && l == 2 && x == 1 {
+							continue
+						}
+						if j == 0 && k == 2 && x == 1 {
+							continue
+						}
+
+						if k == 0 && l == 2 && x == 1 {
+							continue
+						}
+						if k == 0 && l == 1 && x == 2 {
+							continue
+						}
+						if k == 2 && l == 0 && x == 1 {
+							continue
+						}
+
+						dp[i+1][k][l][x] += dp[i][j][k][l]
+						dp[i+1][k][l][x] %= MOD
+					}
+				}
+			}
+		}
+	}
+
+	ans := 0
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 4; j++ {
+			for k := 0; k < 4; k++ {
+				ans += dp[n][i][j][k]
+				ans %= MOD
+			}
+		}
+	}
+	fmt.Println(ans)
+
+	for i := 3; i <= n; i++ {
+		if dp[i][0][2][1] != 0 {
+			fmt.Println("AGC!?")
+		}
+		if dp[i][0][1][2] != 0 {
+			fmt.Println("ACG!?")
+		}
+		if dp[i][2][0][1] != 0 {
+			fmt.Println("GAC!?")
+		}
+	}
 }

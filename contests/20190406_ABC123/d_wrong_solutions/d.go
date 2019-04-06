@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -663,39 +664,52 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var x, y, z, kk int
+var A, B, C []int
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
+	x, y, z, kk = ReadInt(), ReadInt(), ReadInt(), ReadInt()
+	A = ReadIntSlice(x)
+	B = ReadIntSlice(y)
+	C = ReadIntSlice(z)
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
+	sort.Sort(sort.Reverse(sort.IntSlice(A)))
+	sort.Sort(sort.Reverse(sort.IntSlice(B)))
+	sort.Sort(sort.Reverse(sort.IntSlice(C)))
+
+	i, j, k := 0, 0, 0
+	for kk > 0 {
+		sum := A[i] + B[j] + C[k]
+		fmt.Println(sum)
+
+		kk--
+		// na, nb, nc := A[i+1], B[j+1], C[k+1]
+		var na, nb, nc int
+		if i+1 < len(A) {
+			na = A[i+1]
 		} else {
-			memo[i] = last[C[i]]
+			na = -1
 		}
-		last[C[i]] = i
-	}
+		if j+1 < len(B) {
+			nb = B[j+1]
+		} else {
+			nb = -1
+		}
+		if k+1 < len(C) {
+			nc = C[k+1]
+		} else {
+			nc = -1
+		}
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+		if na >= nb && na >= nc {
+			i++
+		} else if nb >= nc && nb >= na {
+			j++
+		} else {
+			k++
 		}
 	}
-
-	fmt.Println(dp[n])
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

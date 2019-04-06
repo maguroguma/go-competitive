@@ -663,39 +663,36 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var C [11][11]int
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
-
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
+	for i := 0; i <= 10; i++ {
+		C[10][i] = CalcComb(10, i)
 	}
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
-		}
+	ans := 0
+	for i := 0; i <= 10; i++ {
+		ans += C[10][i]
+		ans %= MOD
 	}
-
-	fmt.Println(dp[n])
+	ans *= 2
+	ans %= MOD
+	fmt.Println(ans)
 }
+
+func CalcComb(n, r int) int {
+	if r > n-r {
+		return CalcComb(n, n-r)
+	}
+
+	resMul, resDiv := 1, 1
+	for i := 0; i < r; i++ {
+		resMul *= n - i
+		resDiv *= i + 1
+	}
+
+	return resMul / resDiv
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

@@ -663,39 +663,29 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
-
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
+	A := ReadIntSlice(5)
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
+	patterns := CalcFactorialPatterns([]rune{'0', '1', '2', '3', '4'})
+
+	ans := math.MaxInt32
+	for _, pattern := range patterns {
+		temp := 0
+		for i, r := range pattern {
+			idx, _ := strconv.Atoi(string(r))
+			time := A[idx]
+
+			temp += time
+			if temp%10 > 0 && i != 4 {
+				temp = (temp/10)*10 + 10
+			}
 		}
-		last[C[i]] = i
+
+		ChMin(&ans, temp)
 	}
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
-		}
-	}
-
-	fmt.Println(dp[n])
+	fmt.Println(ans)
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

@@ -663,39 +663,36 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var S []rune
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
+	S = ReadRuneSlice()
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
+	left, right := 0, len(S)-1
+
+	ans := 0
+	for left < right {
+		head, tail := S[left], S[right]
+		if head == tail {
+			left++
+			right--
+			continue
+		}
+
+		if head != tail && head == 'x' {
+			left++
+			ans++
+		} else if head != tail && tail == 'x' {
+			right--
+			ans++
 		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
-	}
-
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+			fmt.Println(-1)
+			return
 		}
 	}
 
-	fmt.Println(dp[n])
+	fmt.Println(ans)
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

@@ -663,39 +663,98 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var n, m int
+var S [][]rune
+
+// そのマスから何マス該当方向へ移動できるかの値を記録
+var up, down, left, right [][]int
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
-
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
+	n, m = ReadInt(), ReadInt()
+	row := make([]rune, m+2)
+	for i := 0; i < len(row); i++ {
+		row[i] = '#'
 	}
+	S = append(S, row)
 	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
+		readRow := ReadRuneSlice()
+		newRow := []rune{'#'}
+		newRow = append(newRow, readRow...)
+		newRow = append(newRow, '#')
+		S = append(S, newRow)
+	}
+	row = make([]rune, m+2)
+	for i := 0; i < len(row); i++ {
+		row[i] = '#'
+	}
+	S = append(S, row)
+
+	// for i := 0; i < len(S); i++ {
+	// 	fmt.Println(string(S[i]))
+	// }
+
+	for i := 0; i < n+2; i++ {
+		up, down, left, right = append(up, make([]int, m+2)), append(down, make([]int, m+2)),
+			append(left, make([]int, m+2)), append(right, make([]int, m+2))
+	}
+	for i := 0; i < n+2; i++ {
+		for j := 0; j < m+2; j++ {
+			// -1の初期化は壁だけで良い
+			if S[i][j] == '.' {
+				continue
+			}
+			up[i][j], down[i][j], left[i][j], right[i][j] = -1, -1, -1, -1
 		}
-		last[C[i]] = i
 	}
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
+	// for i := 0; i < n+2; i++ {
+	// 	fmt.Println(up[i])
+	// }
 
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+	for y := 1; y <= n; y++ {
+		for x := 1; x < m+1; x++ {
+			if S[y][x] == '#' {
+				continue
+			}
+			up[y][x] = up[y-1][x] + 1
+			left[y][x] = left[y][x-1] + 1
+		}
+	}
+	for y := n; y >= 1; y-- {
+		for x := m; x >= 1; x-- {
+			if S[y][x] == '#' {
+				continue
+			}
+			down[y][x] = down[y+1][x] + 1
+			right[y][x] = right[y][x+1] + 1
 		}
 	}
 
-	fmt.Println(dp[n])
+	// for i := 0; i < n+2; i++ {
+	// 	fmt.Println(up[i])
+	// }
+	// for i := 0; i < n+2; i++ {
+	// 	fmt.Println(down[i])
+	// }
+	// for i := 0; i < n+2; i++ {
+	// 	fmt.Println(left[i])
+	// }
+	// for i := 0; i < n+2; i++ {
+	// 	fmt.Println(right[i])
+	// }
+
+	ans := 0
+	for y := 1; y <= n; y++ {
+		for x := 1; x <= m; x++ {
+			if S[y][x] == '#' {
+				continue
+			}
+			u, d, l, r := up[y][x], down[y][x], left[y][x], right[y][x]
+			ans += r*d + d*l + l*u + u*r
+		}
+	}
+	fmt.Println(ans)
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

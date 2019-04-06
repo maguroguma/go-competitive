@@ -664,38 +664,62 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var A []int
 
 func main() {
 	n = ReadInt()
-	C = ReadIntSlice(n)
+	A = ReadIntSlice(5)
+	a, b, c, d, e := A[0], A[1], A[2], A[3], A[4]
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
+	t := 0
+	stations := [6]int{}
+	stations[0] = n
+	for stations[5] != n {
+		if stations[4] >= e {
+			stations[5] += e
+			stations[4] -= e
 		} else {
-			memo[i] = last[C[i]]
+			stations[5] += stations[4]
+			stations[4] = 0
 		}
-		last[C[i]] = i
+
+		if stations[3] >= d {
+			stations[4] += d
+			stations[3] -= d
+		} else {
+			stations[4] += stations[3]
+			stations[3] = 0
+		}
+
+		if stations[2] >= c {
+			stations[3] += c
+			stations[2] -= c
+		} else {
+			stations[3] += stations[2]
+			stations[2] = 0
+		}
+
+		if stations[1] >= b {
+			stations[2] += b
+			stations[1] -= b
+		} else {
+			stations[2] += stations[1]
+			stations[1] = 0
+		}
+
+		if stations[0] >= a {
+			stations[1] += a
+			stations[0] -= a
+		} else {
+			stations[1] += stations[0]
+			stations[0] = 0
+		}
+
+		t++
 	}
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
-		}
-	}
-
-	fmt.Println(dp[n])
+	fmt.Println(t)
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

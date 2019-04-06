@@ -663,39 +663,16 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var b []rune
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
+	b = ReadRuneSlice()
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
-	}
+	memo := make(map[rune]rune)
+	memo['A'] = 'T'
+	memo['C'] = 'G'
+	memo['T'] = 'A'
+	memo['G'] = 'C'
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
-		}
-	}
-
-	fmt.Println(dp[n])
+	fmt.Println(string(memo[b[0]]))
 }

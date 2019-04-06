@@ -666,3 +666,6 @@ const ALPHABET_NUM = 26
 func main() {
 	fmt.Println("Hello World.")
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

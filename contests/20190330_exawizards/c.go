@@ -663,39 +663,95 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var n, q int
+var S []rune
+var T, D []rune
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
-
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
+	n, q = ReadInt(), ReadInt()
+	S = ReadRuneSlice()
+	T, D = make([]rune, q), make([]rune, q)
+	for i := 0; i < q; i++ {
+		t, d := ReadRuneSlice(), ReadRuneSlice()
+		T[i], D[i] = t[0], d[0]
 	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
+
+	// ng, ok := -1, len(S)
+	// for int(math.Abs(float64(ok-ng))) > 1 {
+	// 	mid := (ok + ng) / 2
+	// 	if isRightFall(mid) {
+	// 		ok = mid
+	// 	} else {
+	// 		ng = mid
+	// 	}
+	// }
+	// right := ok
+	ng, ok := -1, len(S)
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isRightFall(mid) {
+			ok = mid
 		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
-	}
-
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+			ng = mid
 		}
 	}
+	right := ok
 
-	fmt.Println(dp[n])
+	ng, ok = len(S), -1
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isLeftFall(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+	left := ok
+
+	ans := right - left - 1
+	fmt.Println(ans)
 }
+
+func isRightFall(index int) bool {
+	finalIdx := simulate(index)
+
+	if finalIdx == n {
+		return true
+	}
+	return false
+}
+
+func isLeftFall(index int) bool {
+	finalIdx := simulate(index)
+
+	if finalIdx == -1 {
+		return true
+	}
+	return false
+}
+
+func simulate(index int) int {
+	curIdx := index
+
+	for i := 0; i < q; i++ {
+		t, d := T[i], D[i]
+		if S[curIdx] != t {
+			continue
+		}
+
+		if d == 'L' {
+			curIdx--
+		} else {
+			curIdx++
+		}
+
+		if curIdx == -1 || curIdx == n {
+			return curIdx
+		}
+	}
+
+	return curIdx
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

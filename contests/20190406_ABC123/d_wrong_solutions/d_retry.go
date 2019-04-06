@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -663,39 +664,63 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var x, y, z, kk int
+var A, B, C []int
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
+	x, y, z, kk = ReadInt(), ReadInt(), ReadInt(), ReadInt()
+	A = ReadIntSlice(x)
+	B = ReadIntSlice(y)
+	C = ReadIntSlice(z)
 
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
+	sort.Sort(sort.Reverse(sort.IntSlice(A)))
+	sort.Sort(sort.Reverse(sort.IntSlice(B)))
+	sort.Sort(sort.Reverse(sort.IntSlice(C)))
+
+	all := make(MonoList, 0)
+	all = append(all, &Mono{key: 0, value: A[0]})
+	all = append(all, &Mono{key: 1, value: B[0]})
+	all = append(all, &Mono{key: 2, value: C[0]})
+
+	temp := make(MonoList, 0)
+	for i := 1; i < len(A); i++ {
+		temp = append(temp, &Mono{key: 0, value: A[i]})
 	}
-	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
+	for i := 1; i < len(B); i++ {
+		temp = append(temp, &Mono{key: 1, value: B[i]})
+	}
+	for i := 1; i < len(C); i++ {
+		temp = append(temp, &Mono{key: 2, value: C[i]})
+	}
+	sort.Sort(sort.Reverse(temp))
+	for i := 0; i < Min(len(temp), 300); i++ {
+		all = append(all, temp[i])
+	}
+
+	AA, BB, CC := []int{}, []int{}, []int{}
+	for i := 0; i < len(all); i++ {
+		if all[i].key == 0 {
+			AA = append(AA, all[i].value)
+		} else if all[i].key == 1 {
+			BB = append(BB, all[i].value)
 		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
-	}
-
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+			CC = append(CC, all[i].value)
 		}
 	}
+	sums := []int{}
+	for i := 0; i < len(AA); i++ {
+		for j := 0; j < len(BB); j++ {
+			for k := 0; k < len(CC); k++ {
+				sums = append(sums, AA[i]+BB[j]+CC[k])
+			}
+		}
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(sums)))
 
-	fmt.Println(dp[n])
+	for i := 0; i < kk; i++ {
+		fmt.Println(sums[i])
+	}
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

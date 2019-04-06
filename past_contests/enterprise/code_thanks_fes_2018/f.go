@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -663,39 +664,144 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var C []int
-var last [200000 + 1]int
-var dp [200000 + 1]int
+var n, m, k int
+var P []int
+var H []int // ノード i の根からの高さ
+var isBlocked []bool
+
+var children [][]int // 子ノードリスト
 
 func main() {
-	n = ReadInt()
-	C = ReadIntSlice(n)
-
-	memo := make([]int, n)
-	for i := 0; i < len(last); i++ {
-		last[i] = -1
-	}
+	n, m, k = ReadInt(), ReadInt(), ReadInt()
+	P = ReadIntSlice(n)
 	for i := 0; i < n; i++ {
-		if last[C[i]] == i-1 {
-			memo[i] = -1
-		} else {
-			memo[i] = last[C[i]]
-		}
-		last[C[i]] = i
+		P[i]--
 	}
+	H, isBlocked = make([]int, n), make([]bool, n)
 
-	dp[0] = 1
-	for i := 0; i < n; i++ {
-		dp[i+1] += dp[i]
-		dp[i+1] %= MOD
-
-		if memo[i] != -1 {
-			dp[i+1] += dp[memo[i]+1]
-			// fmt.Printf("dp[memo[i]+1]: dp[%d]: %d\n", memo[i]+1, dp[memo[i]+1])
-			dp[i+1] %= MOD
+	root := -1
+	for i, p := range P {
+		if p == -1 {
+			root = i
+			break
 		}
 	}
+	// fmt.Println(root)
 
-	fmt.Println(dp[n])
+	children = make([][]int, n)
+	for i, p := range P {
+		if p == -1 {
+			continue
+		}
+		children[p] = append(children[p], i)
+	}
+	// fmt.Println(children)
+
+	dfs(root, 1) // 根を1としてしまう
+	// fmt.Println(H)
+
+	resiM := m
+	resiK := k
+	ans := []int{}
+	for resiM > 0 {
+		// 全ノードについて走査
+		isSelected := false
+		for i := 0; i < n; i++ {
+			// すでにコインが置かれている場合はスキップ
+			if isBlocked[i] {
+				continue
+			}
+
+			unusedIds := []int{}
+			dfs3(root, i, &unusedIds)
+			// fmt.Println(unusedIds)
+			// 置ける場所の残りが、残ったコインよりも少ない場合はスキップ
+			if len(unusedIds) < resiM-1 {
+				continue
+			}
+
+			heights := make([]int, len(unusedIds))
+			for j, idx := range unusedIds {
+				heights[j] = H[idx]
+			}
+			sort.Sort(sort.IntSlice(heights))
+			maxHeights, minHeights := 0, 0
+			for j := 0; j < resiM-1; j++ {
+				minHeights += heights[j]
+			}
+			sort.Sort(sort.Reverse(sort.IntSlice(heights)))
+			for j := 0; j < resiM-1; j++ {
+				maxHeights += heights[j]
+			}
+
+			// 残手数について条件を満たすかどうかを判定、満たさないならばスキップ
+			if !(minHeights <= resiK-H[i] && resiK-H[i] <= maxHeights) {
+				continue
+			}
+
+			// i を選択する
+			ans = append(ans, i+1)
+			resiM--
+			resiK -= H[i]
+			dfs2(i) // i と i の子孫のブロックを確定する
+			isSelected = true
+			break
+		}
+
+		if !isSelected {
+			break
+		}
+	}
+
+	if resiM > 0 {
+		fmt.Println(-1)
+	} else {
+		str := ""
+		for i := 0; i < len(ans); i++ {
+			if i == 0 {
+				str += fmt.Sprintf("%d", ans[i])
+			} else {
+				str += fmt.Sprintf(" %d", ans[i])
+			}
+		}
+		fmt.Println(str)
+	}
 }
+
+// 各ノードの高さを計算する
+func dfs(id, height int) {
+	H[id] = height
+
+	for _, childId := range children[id] {
+		dfs(childId, height+1)
+	}
+}
+
+// 自身を含めて子以下のノードを使用済みにする
+func dfs2(id int) {
+	isBlocked[id] = true
+
+	for _, childId := range children[id] {
+		dfs2(childId)
+	}
+}
+
+// 未使用ノードをかき集める
+func dfs3(id, tryId int, unusedIds *[]int) {
+	if id == tryId {
+		return
+	}
+
+	*unusedIds = append(*unusedIds, id)
+
+	for _, childId := range children[id] {
+		if childId == tryId || isBlocked[childId] {
+			continue
+		}
+
+		dfs3(childId, tryId, unusedIds)
+	}
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
