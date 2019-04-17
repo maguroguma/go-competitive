@@ -589,13 +589,5 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 func main() {
-	S := []int{}
-	fmt.Println(S)
-
-	sub(&S)
-	fmt.Println(S)
-}
-
-func sub(S *[]int) {
-	*S = append(*S, 0)
+	fmt.Println('a')
 }
