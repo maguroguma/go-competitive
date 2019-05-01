@@ -674,24 +674,30 @@ type Item struct {
 	priority      int
 	xid, yid, zid int
 }
-type PriorityQueue []*Item
+type ItemPQ []*Item
 
-func (pq PriorityQueue) Len() int           { return len(pq) }
-func (pq PriorityQueue) Less(i, j int) bool { return pq[i].priority > pq[j].priority }
-func (pq PriorityQueue) Swap(i, j int) {
+func (pq ItemPQ) Len() int           { return len(pq) }
+func (pq ItemPQ) Less(i, j int) bool { return pq[i].priority > pq[j].priority } // <: ASC, >: DESC
+func (pq ItemPQ) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 }
-func (pq *PriorityQueue) Push(x interface{}) {
+func (pq *ItemPQ) Push(x interface{}) {
 	item := x.(*Item)
 	*pq = append(*pq, item)
 }
-func (pq *PriorityQueue) Pop() interface{} {
+func (pq *ItemPQ) Pop() interface{} {
 	old := *pq
 	n := len(old)
 	item := old[n-1]
 	*pq = old[0 : n-1]
 	return item
 }
+
+// how to use
+// pq := make(ItemPQ, 0, 100000+1)
+// heap.Init(pq)
+// heap.Push(pq, &Item{priority: intValue})
+// popped := heap.Pop(pq).(*Item)
 
 func main() {
 	x, y, z, k = ReadInt(), ReadInt(), ReadInt(), ReadInt()
@@ -701,12 +707,16 @@ func main() {
 	sort.Sort(sort.Reverse(sort.IntSlice(B)))
 	sort.Sort(sort.Reverse(sort.IntSlice(C)))
 
-	pq := make(PriorityQueue, 0)
-	heap.Init(&pq)
+	// pq := make(PriorityQueue, 0)
+	// heap.Init(&pq)
+	// pq := &ItemPQ{}
+	temp := make(ItemPQ, 0, 100000+1)
+	pq := &temp
+	heap.Init(pq)
 
 	memo = make(map[int]bool)
 	cx, cy, cz := 0, 0, 0
-	heap.Push(&pq, &Item{
+	heap.Push(pq, &Item{
 		priority: A[cx] + B[cy] + C[cz],
 		xid:      cx,
 		yid:      cy,
@@ -714,13 +724,13 @@ func main() {
 	})
 	memo[cx<<20+cy<<10+cz] = true
 	for i := 0; i < k; i++ {
-		item := heap.Pop(&pq).(*Item)
+		item := heap.Pop(pq).(*Item)
 		fmt.Println(item.priority)
 
 		cx, cy, cz = item.xid, item.yid, item.zid
 		if !memo[(cx+1)<<20+cy<<10+cz] && cx+1 < x {
 			memo[(cx+1)<<20+cy<<10+cz] = true
-			heap.Push(&pq, &Item{
+			heap.Push(pq, &Item{
 				priority: A[cx+1] + B[cy] + C[cz],
 				xid:      cx + 1,
 				yid:      cy,
@@ -729,7 +739,7 @@ func main() {
 		}
 		if !memo[cx<<20+(cy+1)<<10+cz] && cy+1 < y {
 			memo[cx<<20+(cy+1)<<10+cz] = true
-			heap.Push(&pq, &Item{
+			heap.Push(pq, &Item{
 				priority: A[cx] + B[cy+1] + C[cz],
 				xid:      cx,
 				yid:      cy + 1,
@@ -738,7 +748,7 @@ func main() {
 		}
 		if !memo[cx<<20+cy<<10+(cz+1)] && cz+1 < z {
 			memo[cx<<20+cy<<10+(cz+1)] = true
-			heap.Push(&pq, &Item{
+			heap.Push(pq, &Item{
 				priority: A[cx] + B[cy] + C[cz+1],
 				xid:      cx,
 				yid:      cy,

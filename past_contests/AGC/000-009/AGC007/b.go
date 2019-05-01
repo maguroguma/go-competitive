@@ -2,13 +2,11 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"errors"
 	"fmt"
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -665,85 +663,41 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var x, y, z, k int
-var A, B, C []int
-
-var memo map[int]bool
-
-type Item struct {
-	priority      int
-	xid, yid, zid int
-}
-type PriorityQueue []*Item
-
-func (pq PriorityQueue) Len() int           { return len(pq) }
-func (pq PriorityQueue) Less(i, j int) bool { return pq[i].priority > pq[j].priority }
-func (pq PriorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-}
-func (pq *PriorityQueue) Push(x interface{}) {
-	item := x.(*Item)
-	*pq = append(*pq, item)
-}
-func (pq *PriorityQueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	*pq = old[0 : n-1]
-	return item
-}
+var n int
+var P []int
 
 func main() {
-	x, y, z, k = ReadInt(), ReadInt(), ReadInt(), ReadInt()
-	A, B, C = ReadIntSlice(x), ReadIntSlice(y), ReadIntSlice(z)
+	n = ReadInt()
+	P = ReadIntSlice(n)
 
-	sort.Sort(sort.Reverse(sort.IntSlice(A)))
-	sort.Sort(sort.Reverse(sort.IntSlice(B)))
-	sort.Sort(sort.Reverse(sort.IntSlice(C)))
+	A, B := make([]int, n), make([]int, n)
+	diff := 50000 - 1
+	A[0] = 1
+	for i := 1; i < n; i++ {
+		A[i] = A[i-1] + diff
+	}
+	for i := 0; i < n; i++ {
+		B[i] = A[(n-1)-i]
+	}
+	// fmt.Println(A, B)
 
-	pq := make(PriorityQueue, 0)
-	heap.Init(&pq)
+	for i := 0; i < n; i++ {
+		p := P[i] - 1
+		A[p] += i
+	}
 
-	memo = make(map[int]bool)
-	cx, cy, cz := 0, 0, 0
-	heap.Push(&pq, &Item{
-		priority: A[cx] + B[cy] + C[cz],
-		xid:      cx,
-		yid:      cy,
-		zid:      cz,
-	})
-	memo[cx<<20+cy<<10+cz] = true
-	for i := 0; i < k; i++ {
-		item := heap.Pop(&pq).(*Item)
-		fmt.Println(item.priority)
-
-		cx, cy, cz = item.xid, item.yid, item.zid
-		if !memo[(cx+1)<<20+cy<<10+cz] && cx+1 < x {
-			memo[(cx+1)<<20+cy<<10+cz] = true
-			heap.Push(&pq, &Item{
-				priority: A[cx+1] + B[cy] + C[cz],
-				xid:      cx + 1,
-				yid:      cy,
-				zid:      cz,
-			})
+	for i := 0; i < n; i++ {
+		if i < n-1 {
+			fmt.Printf("%d ", A[i])
+		} else {
+			fmt.Println(A[i])
 		}
-		if !memo[cx<<20+(cy+1)<<10+cz] && cy+1 < y {
-			memo[cx<<20+(cy+1)<<10+cz] = true
-			heap.Push(&pq, &Item{
-				priority: A[cx] + B[cy+1] + C[cz],
-				xid:      cx,
-				yid:      cy + 1,
-				zid:      cz,
-			})
-		}
-		if !memo[cx<<20+cy<<10+(cz+1)] && cz+1 < z {
-			memo[cx<<20+cy<<10+(cz+1)] = true
-			heap.Push(&pq, &Item{
-				priority: A[cx] + B[cy] + C[cz+1],
-				xid:      cx,
-				yid:      cy,
-				zid:      cz + 1,
-			})
+	}
+	for i := 0; i < n; i++ {
+		if i < n-1 {
+			fmt.Printf("%d ", B[i])
+		} else {
+			fmt.Println(B[i])
 		}
 	}
 }

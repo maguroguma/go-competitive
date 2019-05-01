@@ -663,18 +663,22 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, a, b, c, d int
-
 func main() {
-	n, a, b, c, d = ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadInt()
+	n, a, b, c, d := ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadInt()
 
-	x := float64(b-a) / float64(n-2)
+	// iは上りの回数
+	for i := 0; i < n; i++ {
+		lb := i*c - (n-1-i)*d
+		ub := i*d - (n-1-i)*c
+		diff := AbsInt(a - b)
 
-	if float64(c) <= x && x <= float64(d) {
-		fmt.Println("YES")
-	} else {
-		fmt.Println("NO")
+		if lb <= diff && diff <= ub {
+			fmt.Println("YES")
+			return
+		}
 	}
+
+	fmt.Println("NO")
 }
 
 // MODはとったか？

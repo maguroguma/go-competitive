@@ -152,6 +152,34 @@ func Min(integers ...int) int {
 	return m
 }
 
+// GetDigitSum returns digit sum of a decimal number.
+// GetDigitSum only accept a positive integer.
+func GetDigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// Sum returns multiple integers sum.
+func Sum(integers ...int) int {
+	s := 0
+
+	for _, i := range integers {
+		s += i
+	}
+
+	return s
+}
+
 // CeilInt returns the minimum integer larger than or equal to float(a/b).
 func CeilInt(a, b int) int {
 	res := a / b
@@ -236,62 +264,6 @@ func Lcm(a, b int) int {
 
 /*********** Utilities ***********/
 
-// DeleteElement returns a *NEW* slice, that have the same and minimum length and capacity.
-// DeleteElement makes a new slice by using easy slice literal.
-func DeleteElement(s []int, i int) []int {
-	if i < 0 || len(s) <= i {
-		panic(errors.New("[index error]"))
-	}
-	// appendのみの実装
-	n := make([]int, 0, len(s)-1)
-	n = append(n, s[:i]...)
-	n = append(n, s[i+1:]...)
-	return n
-}
-
-// Concat returns a *NEW* slice, that have the same and minimum length and capacity.
-func Concat(s, t []rune) []rune {
-	n := make([]rune, 0, len(s)+len(t))
-	n = append(n, s...)
-	n = append(n, t...)
-	return n
-}
-
-// UpperRune is rune version of `strings.ToUpper()`.
-func UpperRune(r rune) rune {
-	str := strings.ToUpper(string(r))
-	return []rune(str)[0]
-}
-
-// LowerRune is rune version of `strings.ToLower()`.
-func LowerRune(r rune) rune {
-	str := strings.ToLower(string(r))
-	return []rune(str)[0]
-}
-
-// ToggleRune returns a upper case if an input is a lower case, v.v.
-func ToggleRune(r rune) rune {
-	var str string
-	if 'a' <= r && r <= 'z' {
-		str = strings.ToUpper(string(r))
-	} else if 'A' <= r && r <= 'Z' {
-		str = strings.ToLower(string(r))
-	} else {
-		str = string(r)
-	}
-	return []rune(str)[0]
-}
-
-// ToggleString iteratively calls ToggleRune, and returns the toggled string.
-func ToggleString(s string) string {
-	inputRunes := []rune(s)
-	outputRunes := make([]rune, 0, len(inputRunes))
-	for _, r := range inputRunes {
-		outputRunes = append(outputRunes, ToggleRune(r))
-	}
-	return string(outputRunes)
-}
-
 // Strtoi is a wrapper of `strconv.Atoi()`.
 // If `strconv.Atoi()` returns an error, Strtoi calls panic.
 func Strtoi(s string) int {
@@ -359,83 +331,68 @@ func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
 //tmp := CalcDuplicatePatterns([]rune{'a', 'b', 'c'}, 3)
 //expected := []string{"aaa", "aab", "aac", "aba", "abb", "abc", ...}
 
-/*********** Binary Search ***********/
-
-func GeneralLowerBound(s []int, key int) int {
-	isOK := func(index, key int) bool {
-		if s[index] >= key {
-			return true
-		}
-		return false
-	}
-
-	ng, ok := -1, len(s)
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid, key) {
-			ok = mid
-		} else {
-			ng = mid
-		}
-	}
-
-	return ok
-}
-
-func GeneralUpperBound(s []int, key int) int {
-	isOK := func(index, key int) bool {
-		if s[index] > key {
-			return true
-		}
-		return false
-	}
-
-	ng, ok := -1, len(s)
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid, key) {
-			ok = mid
-		} else {
-			ng = mid
-		}
-	}
-
-	return ok
-}
-
-// usage
-//test := []int{1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 10, 10, 10, 20, 20, 20, 30, 30, 30}
-//assert.Equal(t, 5, GeneralUpperBound(test, 5)-GeneralLowerBound(test, 5))
-//assert.Equal(t, 0, GeneralUpperBound(test, 15)-GeneralLowerBound(test, 15))
-
 /*********** Union Find ***********/
 
-func InitParents(parents []int, maxNodeId int) {
-	for i := 0; i <= maxNodeId; i++ {
-		parents[i] = i
+// UnionFind provides disjoint set algorithm.
+// It accepts both 0-based and 1-based setting.
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n+1)
+
+	for i := 0; i <= n; i++ {
+		uf.parents[i] = -1
 	}
+
+	return uf
 }
 
-func unite(x, y int, parents []int) {
-	xp, yp := root(x, parents), root(y, parents)
-	if xp == yp {
-		return
-	}
-
-	parents[xp] = yp
-}
-
-func same(x, y int, parents []int) bool {
-	return root(x, parents) == root(y, parents)
-}
-
-func root(x int, parents []int) int {
-	if parents[x] == x {
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
 		return x
 	}
 
-	parents[x] = root(parents[x], parents)
-	return parents[x]
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
+		return false
+	}
+
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
+	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
+
+	return true
+}
+
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
 }
 
 /*********** Factorization, Prime Number ***********/
@@ -513,65 +470,6 @@ func CalcModInv(a, m int) int {
 	return modpow(a, m-2, m)
 }
 
-/********** heap package (Integer Priority Queue) **********/
-
-type IntHeap []int
-
-func (h IntHeap) Len() int           { return len(h) }
-func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
-func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *IntHeap) Push(x interface{}) {
-	*h = append(*h, x.(int))
-}
-func (h *IntHeap) Pop() interface{} {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-	return x
-}
-
-// h := &IntHeap{3, 6, 1, 2}
-// heap.Init(h)
-// heap.Push(h, followers[i])
-// poppedD := heap.Pop(h).(int)
-
-/********** sort package (snippets) **********/
-//sort.Sort(sort.IntSlice(s))
-//sort.Sort(sort.Reverse(sort.IntSlice(s)))
-//sort.Sort(sort.Float64Slice(s))
-//sort.Sort(sort.StringSlice(s))
-
-// struct sort
-type Mono struct {
-	key, value int
-}
-type MonoList []*Mono
-
-func (ml MonoList) Len() int {
-	return len(ml)
-}
-func (ml MonoList) Swap(i, j int) {
-	ml[i], ml[j] = ml[j], ml[i]
-}
-func (ml MonoList) Less(i, j int) bool {
-	return ml[i].value < ml[j].value
-}
-
-// Example(ABC111::C)
-//oddCountList, evenCountList := make(MonoList, 1e5+1), make(MonoList, 1e5+1)
-//for i := 0; i <= 1e5; i++ {
-//	oddCountList[i] = &Mono{key: i, value: oddMemo[i]}
-//	evenCountList[i] = &Mono{key: i, value: evenMemo[i]}
-//}
-//sort.Sort(sort.Reverse(oddCountList))		// DESC sort
-//sort.Sort(sort.Reverse(evenCountList))	// DESC sort
-
-/********** copy function (snippets) **********/
-//a = []int{0, 1, 2}
-//b = make([]int, len(a))
-//copy(b, a)
-
 /********** I/O usage **********/
 
 //str := ReadString()
@@ -589,5 +487,9 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
 func main() {
-	fmt.Println('a')
+	fmt.Println(len(strings.Split("Hello Hello World", " ")))
+	fmt.Println(math.Abs(1))
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？

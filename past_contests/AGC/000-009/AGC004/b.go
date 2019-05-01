@@ -670,64 +670,29 @@ func main() {
 	n, x = ReadInt(), ReadInt()
 	A = ReadIntSlice(n)
 
-	ans := 0
-	memo := make([]int, n)
+	ans := math.MaxInt64
+	mins := make([]int, n)
 	for i := 0; i < n; i++ {
-		// 直接捕まえる場合
-		minimum := A[i]
-		otherId := -1
-
-		for j := 0; j < n; j++ {
-			if i == j {
-				continue
-			}
-
-			cost := sub(j, i)
-			// ChMin(&minimum, cost)
-			if minimum > cost {
-				otherId = j
-				minimum = cost
-			}
-		}
-
-		if otherId != -1 {
-			ans += A[otherId]
-			memo[i] = sub2(otherId, i)
-		} else {
-			ans += A[i]
-			memo[i] = 0
-		}
+		mins[i] = math.MaxInt64
 	}
-	ans += x * Max(memo...)
+	for k := 0; k < n; k++ {
+		tmpAns := x * k
+
+		for i := 0; i < n; i++ {
+			if i-k < 0 {
+				idx := n + (i - k)
+				ChMin(&mins[i], A[idx])
+			} else {
+				ChMin(&mins[i], A[i-k])
+			}
+
+			tmpAns += mins[i]
+		}
+
+		ChMin(&ans, tmpAns)
+	}
 
 	fmt.Println(ans)
-}
-
-// 0-based, start != goal
-func sub(start, goal int) int {
-	res := A[start]
-
-	if goal > start {
-		res += (goal - start) * x
-	} else if goal < start {
-		res += ((n - 1) - start) * x
-		res += (goal + 1) * x
-	}
-
-	return res
-}
-
-func sub2(start, goal int) int {
-	res := 0
-
-	if goal > start {
-		res += goal - start
-	} else if goal < start {
-		res += (n - 1) - start
-		res += goal + 1
-	}
-
-	return res
 }
 
 // MODはとったか？

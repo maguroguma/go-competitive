@@ -2,13 +2,11 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"errors"
 	"fmt"
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -665,86 +663,37 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var x, y, z, k int
-var A, B, C []int
-
-var memo map[int]bool
-
-type Item struct {
-	priority      int
-	xid, yid, zid int
-}
-type PriorityQueue []*Item
-
-func (pq PriorityQueue) Len() int           { return len(pq) }
-func (pq PriorityQueue) Less(i, j int) bool { return pq[i].priority > pq[j].priority }
-func (pq PriorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-}
-func (pq *PriorityQueue) Push(x interface{}) {
-	item := x.(*Item)
-	*pq = append(*pq, item)
-}
-func (pq *PriorityQueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	*pq = old[0 : n-1]
-	return item
-}
+var n, a, b, c, d int
 
 func main() {
-	x, y, z, k = ReadInt(), ReadInt(), ReadInt(), ReadInt()
-	A, B, C = ReadIntSlice(x), ReadIntSlice(y), ReadIntSlice(z)
+	n, a, b, c, d = ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadInt()
 
-	sort.Sort(sort.Reverse(sort.IntSlice(A)))
-	sort.Sort(sort.Reverse(sort.IntSlice(B)))
-	sort.Sort(sort.Reverse(sort.IntSlice(C)))
+	if (n-2)%2 == 1 {
+		delta := (n - 2) * d
+		lb, ub := a-delta, a+delta
 
-	pq := make(PriorityQueue, 0)
-	heap.Init(&pq)
-
-	memo = make(map[int]bool)
-	cx, cy, cz := 0, 0, 0
-	heap.Push(&pq, &Item{
-		priority: A[cx] + B[cy] + C[cz],
-		xid:      cx,
-		yid:      cy,
-		zid:      cz,
-	})
-	memo[cx<<20+cy<<10+cz] = true
-	for i := 0; i < k; i++ {
-		item := heap.Pop(&pq).(*Item)
-		fmt.Println(item.priority)
-
-		cx, cy, cz = item.xid, item.yid, item.zid
-		if !memo[(cx+1)<<20+cy<<10+cz] && cx+1 < x {
-			memo[(cx+1)<<20+cy<<10+cz] = true
-			heap.Push(&pq, &Item{
-				priority: A[cx+1] + B[cy] + C[cz],
-				xid:      cx + 1,
-				yid:      cy,
-				zid:      cz,
-			})
+		if lb <= b && b <= ub {
+			fmt.Println("YES")
+		} else {
+			fmt.Println("NO")
 		}
-		if !memo[cx<<20+(cy+1)<<10+cz] && cy+1 < y {
-			memo[cx<<20+(cy+1)<<10+cz] = true
-			heap.Push(&pq, &Item{
-				priority: A[cx] + B[cy+1] + C[cz],
-				xid:      cx,
-				yid:      cy + 1,
-				zid:      cz,
-			})
-		}
-		if !memo[cx<<20+cy<<10+(cz+1)] && cz+1 < z {
-			memo[cx<<20+cy<<10+(cz+1)] = true
-			heap.Push(&pq, &Item{
-				priority: A[cx] + B[cy] + C[cz+1],
-				xid:      cx,
-				yid:      cy,
-				zid:      cz + 1,
-			})
-		}
+		return
+	}
+
+	delta := (n - 3) * d
+	lb, ub := a-delta, a+delta
+	lb2, ub2 := b+c, b+d
+	lb3, ub3 := b-d, b-c
+	b1 := lb <= lb2 && lb2 <= ub
+	b2 := lb <= ub2 && ub2 <= ub
+	b3 := lb <= lb3 && lb3 <= ub
+	b4 := lb <= ub3 && ub3 <= ub
+	b5 := lb2 <= lb && ub <= ub2
+	b6 := lb3 <= lb && ub <= ub3
+	if b1 || b2 || b3 || b4 || b5 || b6 {
+		fmt.Println("YES")
+	} else {
+		fmt.Println("NO")
 	}
 }
 
