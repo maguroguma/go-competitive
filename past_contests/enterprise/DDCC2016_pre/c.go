@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -484,22 +485,44 @@ func CalcModInv(a, m int) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-type pair struct {
-	x, y int
-}
-
-var memo map[pair]int
+var n, k int
+var A []int
 
 func main() {
-	memo = make(map[pair]int)
+	n, k = ReadInt(), ReadInt()
+	A = ReadIntSlice(n)
 
-	memo[pair{x: 1, y: 1}] = 1
-	memo[pair{x: 1, y: 1}] = 100
+	memo := make(map[int]int)
+	for _, a := range A {
+		vgcd := Gcd(a, k)
+		memo[vgcd]++
+	}
 
-	fmt.Println(memo[pair{x: 1, y: 1}])
+	keyList := []int{}
+	for k, _ := range memo {
+		keyList = append(keyList, k)
+	}
+	sort.Sort(sort.IntSlice(keyList))
 
-	boolmap := make(map[int]bool)
-	fmt.Println(boolmap[100])
+	ans := 0
+	for i := 0; i < len(keyList); i++ {
+		for j := i; j < len(keyList); j++ {
+			a, b := keyList[i], keyList[j]
+			anum, bnum := memo[a], memo[b]
+
+			if a*b%k != 0 {
+				continue
+			}
+
+			if i == j {
+				ans += anum * (bnum - 1) / 2
+			} else {
+				ans += anum * bnum
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

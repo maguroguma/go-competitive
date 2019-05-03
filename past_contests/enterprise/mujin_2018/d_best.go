@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
 	"strconv"
+	"strings"
 )
 
 /*********** I/O ***********/
@@ -178,6 +180,19 @@ func Sum(integers ...int) int {
 	return s
 }
 
+// GetCumulativeSums returns cumulative sums.
+// Length of result slice is equal to that of an argument +1.
+func GetCumulativeSums(integers []int) []int {
+	res := make([]int, len(integers)+1)
+
+	res[0] = 0
+	for i, a := range integers {
+		res[i+1] = res[i] + a
+	}
+
+	return res
+}
+
 // CeilInt returns the minimum integer larger than or equal to float(a/b).
 func CeilInt(a, b int) int {
 	res := a / b
@@ -262,6 +277,62 @@ func Lcm(a, b int) int {
 
 /*********** Utilities ***********/
 
+// DeleteElement returns a *NEW* slice, that have the same and minimum length and capacity.
+// DeleteElement makes a new slice by using easy slice literal.
+func DeleteElement(s []int, i int) []int {
+	if i < 0 || len(s) <= i {
+		panic(errors.New("[index error]"))
+	}
+	// appendのみの実装
+	n := make([]int, 0, len(s)-1)
+	n = append(n, s[:i]...)
+	n = append(n, s[i+1:]...)
+	return n
+}
+
+// Concat returns a *NEW* slice, that have the same and minimum length and capacity.
+func Concat(s, t []rune) []rune {
+	n := make([]rune, 0, len(s)+len(t))
+	n = append(n, s...)
+	n = append(n, t...)
+	return n
+}
+
+// UpperRune is rune version of `strings.ToUpper()`.
+func UpperRune(r rune) rune {
+	str := strings.ToUpper(string(r))
+	return []rune(str)[0]
+}
+
+// LowerRune is rune version of `strings.ToLower()`.
+func LowerRune(r rune) rune {
+	str := strings.ToLower(string(r))
+	return []rune(str)[0]
+}
+
+// ToggleRune returns a upper case if an input is a lower case, v.v.
+func ToggleRune(r rune) rune {
+	var str string
+	if 'a' <= r && r <= 'z' {
+		str = strings.ToUpper(string(r))
+	} else if 'A' <= r && r <= 'Z' {
+		str = strings.ToLower(string(r))
+	} else {
+		str = string(r)
+	}
+	return []rune(str)[0]
+}
+
+// ToggleString iteratively calls ToggleRune, and returns the toggled string.
+func ToggleString(s string) string {
+	inputRunes := []rune(s)
+	outputRunes := make([]rune, 0, len(inputRunes))
+	for _, r := range inputRunes {
+		outputRunes = append(outputRunes, ToggleRune(r))
+	}
+	return string(outputRunes)
+}
+
 // Strtoi is a wrapper of `strconv.Atoi()`.
 // If `strconv.Atoi()` returns an error, Strtoi calls panic.
 func Strtoi(s string) int {
@@ -328,6 +399,55 @@ func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
 //expected := []string{"abc", "acb", "bac", "bca", "cab", "cba"}
 //tmp := CalcDuplicatePatterns([]rune{'a', 'b', 'c'}, 3)
 //expected := []string{"aaa", "aab", "aac", "aba", "abb", "abc", ...}
+
+/*********** Binary Search ***********/
+
+func GeneralLowerBound(s []int, key int) int {
+	isOK := func(index, key int) bool {
+		if s[index] >= key {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := -1, len(s)
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid, key) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
+}
+
+func GeneralUpperBound(s []int, key int) int {
+	isOK := func(index, key int) bool {
+		if s[index] > key {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := -1, len(s)
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid, key) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
+}
+
+// usage
+//test := []int{1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 10, 10, 10, 20, 20, 20, 30, 30, 30}
+//assert.Equal(t, 5, GeneralUpperBound(test, 5)-GeneralLowerBound(test, 5))
+//assert.Equal(t, 0, GeneralUpperBound(test, 15)-GeneralLowerBound(test, 15))
 
 /*********** Union Find ***********/
 
@@ -468,6 +588,65 @@ func CalcModInv(a, m int) int {
 	return modpow(a, m-2, m)
 }
 
+/********** heap package (Integer Priority Queue) **********/
+
+type IntHeap []int
+
+func (h IntHeap) Len() int           { return len(h) }
+func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
+func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *IntHeap) Push(x interface{}) {
+	*h = append(*h, x.(int))
+}
+func (h *IntHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+// h := &IntHeap{3, 6, 1, 2}
+// heap.Init(h)
+// heap.Push(h, followers[i])
+// poppedD := heap.Pop(h).(int)
+
+/********** sort package (snippets) **********/
+//sort.Sort(sort.IntSlice(s))
+//sort.Sort(sort.Reverse(sort.IntSlice(s)))
+//sort.Sort(sort.Float64Slice(s))
+//sort.Sort(sort.StringSlice(s))
+
+// struct sort
+type Mono struct {
+	key, value int
+}
+type MonoList []*Mono
+
+func (ml MonoList) Len() int {
+	return len(ml)
+}
+func (ml MonoList) Swap(i, j int) {
+	ml[i], ml[j] = ml[j], ml[i]
+}
+func (ml MonoList) Less(i, j int) bool {
+	return ml[i].value < ml[j].value
+}
+
+// Example(ABC111::C)
+//oddCountList, evenCountList := make(MonoList, 1e5+1), make(MonoList, 1e5+1)
+//for i := 0; i <= 1e5; i++ {
+//	oddCountList[i] = &Mono{key: i, value: oddMemo[i]}
+//	evenCountList[i] = &Mono{key: i, value: evenMemo[i]}
+//}
+//sort.Sort(sort.Reverse(oddCountList))		// DESC sort
+//sort.Sort(sort.Reverse(evenCountList))	// DESC sort
+
+/********** copy function (snippets) **********/
+//a = []int{0, 1, 2}
+//b = make([]int, len(a))
+//copy(b, a)
+
 /********** I/O usage **********/
 
 //str := ReadString()
@@ -484,22 +663,84 @@ func CalcModInv(a, m int) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-type pair struct {
-	x, y int
-}
+var n, m int
 
-var memo map[pair]int
+var edges [1000000][]int
+var isVisited [1000000]bool
 
 func main() {
-	memo = make(map[pair]int)
+	n, m = ReadInt(), ReadInt()
 
-	memo[pair{x: 1, y: 1}] = 1
-	memo[pair{x: 1, y: 1}] = 100
+	// すべての隣接リストを初期化する
+	for i := 0; i < len(edges); i++ {
+		edges[i] = make([]int, 0, 100)
+	}
+	// 次の1回の操作が可能なペアすべてについて遷移先を調べる
+	for i := 1; i <= 999; i++ {
+		for j := 1; j <= 999; j++ {
+			ni, nj := i, j
 
-	fmt.Println(memo[pair{x: 1, y: 1}])
+			if ni < nj {
+				ni = reverse(ni)
+			} else {
+				nj = reverse(nj)
+			}
 
-	boolmap := make(map[int]bool)
-	fmt.Println(boolmap[100])
+			if ni < nj {
+				nj -= ni
+			} else {
+				ni -= nj
+			}
+
+			p, np := i*1000+j, ni*1000+nj
+			// edges[p] = append(edges[p], np)	// 重要なのは終了ペアからたどることなので、この遷移は不要
+			edges[np] = append(edges[np], p)
+		}
+	}
+
+	// yが0なすべてのペアから辿れるペアをDFSで全探索する
+	for i := 0; i <= 999; i++ {
+		dfs(i * 1000)
+	}
+	// xが0なすべてのペアから辿れるペアをDFSで全探索する
+	for j := 0; j <= 999; j++ {
+		dfs(j)
+	}
+
+	// 次の操作が可能なペアのうち、終了ペアから辿られないものの数が答え
+	ans := 0
+	for i := 1; i <= n; i++ {
+		for j := 1; j <= m; j++ {
+			if isVisited[i*1000+j] {
+				ans++
+			}
+		}
+	}
+
+	fmt.Println(n*m - ans)
+}
+
+func dfs(s int) {
+	if isVisited[s] {
+		return
+	}
+	isVisited[s] = true
+
+	for _, ns := range edges[s] {
+		dfs(ns)
+	}
+}
+
+func reverse(val int) int {
+	valStr := strconv.Itoa(val)
+
+	res := make([]rune, len(valStr))
+	for i := len(valStr) - 1; i >= 0; i-- {
+		res[len(valStr)-1-i] = rune(valStr[i])
+	}
+	num := Strtoi(string(res))
+
+	return num
 }
 
 // MODはとったか？

@@ -484,22 +484,75 @@ func CalcModInv(a, m int) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-type pair struct {
-	x, y int
-}
-
-var memo map[pair]int
+var a, b int
 
 func main() {
-	memo = make(map[pair]int)
+	a, b = ReadInt(), ReadInt()
+	twos, threes, others := []int{}, []int{}, []int{}
 
-	memo[pair{x: 1, y: 1}] = 1
-	memo[pair{x: 1, y: 1}] = 100
+	for i := a; i <= b; i++ {
+		if i%2 == 0 {
+			twos = append(twos, i)
+		} else if i%3 == 0 {
+			threes = append(threes, i)
+		} else {
+			others = append(others, i)
+		}
+	}
+	// fmt.Println(twos, threes, others)
 
-	fmt.Println(memo[pair{x: 1, y: 1}])
+	ans := 0
+	maximum := 1 << uint(len(others))
+	for i := -1; i < len(twos); i++ {
+		for j := -1; j < len(threes); j++ {
+			for k := 0; k < maximum; k++ {
+				// if i == -1 && j == -1 && k == 0 {
+				// 	ans++
+				// 	continue
+				// }
 
-	boolmap := make(map[int]bool)
-	fmt.Println(boolmap[100])
+				choices := []int{}
+
+				if i != -1 {
+					choices = append(choices, twos[i])
+				}
+				if j != -1 {
+					choices = append(choices, threes[j])
+				}
+
+				for l := 0; l < len(others); l++ {
+					if GetNthBit(k, l) == 1 {
+						choices = append(choices, others[l])
+					}
+				}
+
+				if len(choices) == 0 || len(choices) == 1 {
+					ans++
+					continue
+				}
+
+				if sub(choices) {
+					ans++
+				}
+			}
+		}
+	}
+
+	fmt.Println(ans)
+}
+
+// 引数配列から取り出す任意の2数の最大公約数が1の場合のみtrueを返す
+func sub(nums []int) bool {
+	for i := 0; i < len(nums); i++ {
+		for j := i + 1; j < len(nums); j++ {
+			aa, bb := nums[i], nums[j]
+			if Gcd(aa, bb) != 1 {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 // MODはとったか？

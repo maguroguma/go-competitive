@@ -5,10 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
-	"strings"
 )
 
 /*********** I/O ***********/
@@ -180,19 +178,6 @@ func Sum(integers ...int) int {
 	return s
 }
 
-// GetCumulativeSums returns cumulative sums.
-// Length of result slice is equal to that of an argument +1.
-func GetCumulativeSums(integers []int) []int {
-	res := make([]int, len(integers)+1)
-
-	res[0] = 0
-	for i, a := range integers {
-		res[i+1] = res[i] + a
-	}
-
-	return res
-}
-
 // CeilInt returns the minimum integer larger than or equal to float(a/b).
 func CeilInt(a, b int) int {
 	res := a / b
@@ -277,62 +262,6 @@ func Lcm(a, b int) int {
 
 /*********** Utilities ***********/
 
-// DeleteElement returns a *NEW* slice, that have the same and minimum length and capacity.
-// DeleteElement makes a new slice by using easy slice literal.
-func DeleteElement(s []int, i int) []int {
-	if i < 0 || len(s) <= i {
-		panic(errors.New("[index error]"))
-	}
-	// appendのみの実装
-	n := make([]int, 0, len(s)-1)
-	n = append(n, s[:i]...)
-	n = append(n, s[i+1:]...)
-	return n
-}
-
-// Concat returns a *NEW* slice, that have the same and minimum length and capacity.
-func Concat(s, t []rune) []rune {
-	n := make([]rune, 0, len(s)+len(t))
-	n = append(n, s...)
-	n = append(n, t...)
-	return n
-}
-
-// UpperRune is rune version of `strings.ToUpper()`.
-func UpperRune(r rune) rune {
-	str := strings.ToUpper(string(r))
-	return []rune(str)[0]
-}
-
-// LowerRune is rune version of `strings.ToLower()`.
-func LowerRune(r rune) rune {
-	str := strings.ToLower(string(r))
-	return []rune(str)[0]
-}
-
-// ToggleRune returns a upper case if an input is a lower case, v.v.
-func ToggleRune(r rune) rune {
-	var str string
-	if 'a' <= r && r <= 'z' {
-		str = strings.ToUpper(string(r))
-	} else if 'A' <= r && r <= 'Z' {
-		str = strings.ToLower(string(r))
-	} else {
-		str = string(r)
-	}
-	return []rune(str)[0]
-}
-
-// ToggleString iteratively calls ToggleRune, and returns the toggled string.
-func ToggleString(s string) string {
-	inputRunes := []rune(s)
-	outputRunes := make([]rune, 0, len(inputRunes))
-	for _, r := range inputRunes {
-		outputRunes = append(outputRunes, ToggleRune(r))
-	}
-	return string(outputRunes)
-}
-
 // Strtoi is a wrapper of `strconv.Atoi()`.
 // If `strconv.Atoi()` returns an error, Strtoi calls panic.
 func Strtoi(s string) int {
@@ -399,55 +328,6 @@ func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
 //expected := []string{"abc", "acb", "bac", "bca", "cab", "cba"}
 //tmp := CalcDuplicatePatterns([]rune{'a', 'b', 'c'}, 3)
 //expected := []string{"aaa", "aab", "aac", "aba", "abb", "abc", ...}
-
-/*********** Binary Search ***********/
-
-func GeneralLowerBound(s []int, key int) int {
-	isOK := func(index, key int) bool {
-		if s[index] >= key {
-			return true
-		}
-		return false
-	}
-
-	ng, ok := -1, len(s)
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid, key) {
-			ok = mid
-		} else {
-			ng = mid
-		}
-	}
-
-	return ok
-}
-
-func GeneralUpperBound(s []int, key int) int {
-	isOK := func(index, key int) bool {
-		if s[index] > key {
-			return true
-		}
-		return false
-	}
-
-	ng, ok := -1, len(s)
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid, key) {
-			ok = mid
-		} else {
-			ng = mid
-		}
-	}
-
-	return ok
-}
-
-// usage
-//test := []int{1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 10, 10, 10, 20, 20, 20, 30, 30, 30}
-//assert.Equal(t, 5, GeneralUpperBound(test, 5)-GeneralLowerBound(test, 5))
-//assert.Equal(t, 0, GeneralUpperBound(test, 15)-GeneralLowerBound(test, 15))
 
 /*********** Union Find ***********/
 
@@ -588,65 +468,6 @@ func CalcModInv(a, m int) int {
 	return modpow(a, m-2, m)
 }
 
-/********** heap package (Integer Priority Queue) **********/
-
-type IntHeap []int
-
-func (h IntHeap) Len() int           { return len(h) }
-func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
-func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
-func (h *IntHeap) Push(x interface{}) {
-	*h = append(*h, x.(int))
-}
-func (h *IntHeap) Pop() interface{} {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-	return x
-}
-
-// h := &IntHeap{3, 6, 1, 2}
-// heap.Init(h)
-// heap.Push(h, followers[i])
-// poppedD := heap.Pop(h).(int)
-
-/********** sort package (snippets) **********/
-//sort.Sort(sort.IntSlice(s))
-//sort.Sort(sort.Reverse(sort.IntSlice(s)))
-//sort.Sort(sort.Float64Slice(s))
-//sort.Sort(sort.StringSlice(s))
-
-// struct sort
-type Mono struct {
-	key, value int
-}
-type MonoList []*Mono
-
-func (ml MonoList) Len() int {
-	return len(ml)
-}
-func (ml MonoList) Swap(i, j int) {
-	ml[i], ml[j] = ml[j], ml[i]
-}
-func (ml MonoList) Less(i, j int) bool {
-	return ml[i].value < ml[j].value
-}
-
-// Example(ABC111::C)
-//oddCountList, evenCountList := make(MonoList, 1e5+1), make(MonoList, 1e5+1)
-//for i := 0; i <= 1e5; i++ {
-//	oddCountList[i] = &Mono{key: i, value: oddMemo[i]}
-//	evenCountList[i] = &Mono{key: i, value: evenMemo[i]}
-//}
-//sort.Sort(sort.Reverse(oddCountList))		// DESC sort
-//sort.Sort(sort.Reverse(evenCountList))	// DESC sort
-
-/********** copy function (snippets) **********/
-//a = []int{0, 1, 2}
-//b = make([]int, len(a))
-//copy(b, a)
-
 /********** I/O usage **********/
 
 //str := ReadString()
@@ -663,35 +484,47 @@ func (ml MonoList) Less(i, j int) bool {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var C [11][11]int
+var n int
 
 func main() {
-	for i := 0; i <= 10; i++ {
-		C[10][i] = CalcComb(10, i)
-	}
+	n = ReadInt()
 
 	ans := 0
-	for i := 0; i <= 10; i++ {
-		ans += C[10][i]
+	tmp := 1
+	for i := 0; i < 10; i++ {
+		tmp *= n
+		tmp %= MOD
+	}
+	ans += tmp
+	for i := 2; i <= n; i++ {
+		l := i
+		m := n / l
+
+		tmp := 1
+		for j := 0; j < 10; j++ {
+			tmp *= l
+			tmp %= MOD
+		}
+		tmp2 := 1
+		for j := 0; j < 10; j++ {
+			tmp2 *= (l - 1)
+			tmp2 %= MOD
+		}
+		tmp3 := tmp - tmp2
+		tmp3 = CalcNegativeMod(tmp3, MOD)
+
+		tmp4 := 1
+		for j := 0; j < 10; j++ {
+			tmp4 *= m
+			tmp4 %= MOD
+		}
+
+		added := tmp4 * tmp3
+		ans += added
 		ans %= MOD
 	}
-	ans *= 2
-	ans %= MOD
+
 	fmt.Println(ans)
-}
-
-func CalcComb(n, r int) int {
-	if r > n-r {
-		return CalcComb(n, n-r)
-	}
-
-	resMul, resDiv := 1, 1
-	for i := 0; i < r; i++ {
-		resMul *= n - i
-		resDiv *= i + 1
-	}
-
-	return resMul / resDiv
 }
 
 // MODはとったか？
