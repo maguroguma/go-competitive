@@ -282,11 +282,69 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n, k int
+var A []int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, k = ReadInt(), ReadInt()
+	A = ReadIntSlice(n)
+
+	ones, fives := []int{}, []int{}
+	for i := 0; i < 10; i++ {
+		// ones = append(ones, 1<<uint(i))
+		ones = append(ones, PowInt(10, i))
+		// fives = append(fives, 5*(1<<uint(i)))
+		fives = append(fives, 5*PowInt(10, i))
+	}
+
+	ans := 5 * (1 << 18)
+	patterns := CombinationPatterns(A, k)
+	for _, p := range patterns {
+		sum := Sum(p...)
+		tmp := 0
+		for i := 9; i >= 0; i-- {
+			tmp += (sum / fives[i])
+			sum %= fives[i]
+			tmp += (sum / ones[i])
+			sum %= ones[i]
+		}
+
+		ChMin(&ans, tmp)
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/
+
+// CombinationPatterns returns all patterns of nCk of elems([]int).
+func CombinationPatterns(elems []int, k int) [][]int {
+	newResi := make([]int, len(elems))
+	copy(newResi, elems)
+
+	return combRec([]int{}, newResi, k)
+}
+
+// DFS function for CombinationPatterns.
+func combRec(pattern, residual []int, k int) [][]int {
+	if len(pattern) == k {
+		return [][]int{pattern}
+	}
+
+	res := [][]int{}
+	for i, e := range residual {
+		newPattern := make([]int, len(pattern))
+		copy(newPattern, pattern)
+		newPattern = append(newPattern, e)
+
+		newResi := []int{}
+		newResi = append(newResi, residual[i+1:]...)
+
+		res = append(res, combRec(newPattern, newResi, k)...)
+	}
+
+	return res
+}

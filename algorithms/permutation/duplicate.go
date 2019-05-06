@@ -1,20 +1,23 @@
 package permutation
 
-func CalcDuplicatePatterns(elements []rune, digit int) [][]rune {
-	return duplicateRecursion([]rune{}, elements, digit)
+// CalcDuplicatePatterns returns all patterns of n^k of elems([]rune).
+func CalcDuplicatePatterns(elems []rune, k int) [][]rune {
+	return dupliRec([]rune{}, elems, k)
 }
 
-func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
-	if len(interim) == digit {
-		return [][]rune{interim}
+// DFS function for CalcDuplicatePatterns.
+func dupliRec(pattern, elems []rune, k int) [][]rune {
+	if len(pattern) == k {
+		return [][]rune{pattern}
 	}
 
 	res := [][]rune{}
-	for i := 0; i < len(elements); i++ {
-		copiedInterim := make([]rune, len(interim))
-		copy(copiedInterim, interim)
-		copiedInterim = append(copiedInterim, elements[i])
-		res = append(res, duplicateRecursion(copiedInterim, elements, digit)...)
+	for _, e := range elems {
+		newPattern := make([]rune, len(pattern))
+		copy(newPattern, pattern)
+		newPattern = append(newPattern, e)
+
+		res = append(res, dupliRec(newPattern, elems, k)...)
 	}
 
 	return res

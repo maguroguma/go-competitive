@@ -1,16 +1,16 @@
 package permutation
 
-// CalcFactorialPatterns returns all patterns of n! of elems([]rune).
-func CalcFactorialPatterns(elems []rune) [][]rune {
+// CalcPermutationPatterns returns all patterns of nPk of elems([]rune).
+func CalcPermutationPatterns(elems []rune, k int) [][]rune {
 	newResi := make([]rune, len(elems))
 	copy(newResi, elems)
 
-	return factRec([]rune{}, newResi)
+	return permRec([]rune{}, newResi, k)
 }
 
-// DFS function for CalcFactorialPatterns.
-func factRec(pattern, residual []rune) [][]rune {
-	if len(residual) == 0 {
+// DFS function for CalcPermutationPatterns.
+func permRec(pattern, residual []rune, k int) [][]rune {
+	if len(pattern) == k {
 		return [][]rune{pattern}
 	}
 
@@ -24,7 +24,7 @@ func factRec(pattern, residual []rune) [][]rune {
 		newResi = append(newResi, residual[:i]...)
 		newResi = append(newResi, residual[i+1:]...)
 
-		res = append(res, factRec(newPattern, newResi)...)
+		res = append(res, permRec(newPattern, newResi, k)...)
 	}
 
 	return res

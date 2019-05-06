@@ -66,9 +66,9 @@ func ReadRuneSlice() []rune {
 
 /*********** Debugging ***********/
 
-// ZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
+// GetZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
 // For debugging use.
-func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
+func GetZeroPaddingRuneSlice(n, digitsNum int) []rune {
 	sn := fmt.Sprintf("%b", n)
 
 	residualLength := digitsNum - len(sn)
@@ -112,9 +112,9 @@ func ChMax(updatedValue *int, target int) bool {
 	return false
 }
 
-// NthBit returns nth bit value of an argument.
+// GetNthBit returns nth bit value of an argument.
 // n starts from 0.
-func NthBit(num, nth int) int {
+func GetNthBit(num, nth int) int {
 	return num >> uint(nth) & 1
 }
 
@@ -150,9 +150,9 @@ func Min(integers ...int) int {
 	return m
 }
 
-// DigitSum returns digit sum of a decimal number.
-// DigitSum only accept a positive integer.
-func DigitSum(n int) int {
+// GetDigitSum returns digit sum of a decimal number.
+// GetDigitSum only accept a positive integer.
+func GetDigitSum(n int) int {
 	if n < 0 {
 		return -1
 	}
@@ -260,6 +260,8 @@ func Lcm(a, b int) int {
 	return (a / gcd) * b
 }
 
+/*********** Utilities ***********/
+
 // Strtoi is a wrapper of `strconv.Atoi()`.
 // If `strconv.Atoi()` returns an error, Strtoi calls panic.
 func Strtoi(s string) int {
@@ -270,6 +272,202 @@ func Strtoi(s string) int {
 	}
 }
 
+/*********** Permutation ***********/
+
+// memo: 10! == 3628800 > 3M
+func CalcFactorialPatterns(elements []rune) [][]rune {
+	copiedResidual := make([]rune, len(elements))
+	copy(copiedResidual, elements)
+	return factorialRecursion([]rune{}, copiedResidual)
+}
+func factorialRecursion(interim, residual []rune) [][]rune {
+	if len(residual) == 0 {
+		return [][]rune{interim}
+	}
+
+	res := [][]rune{}
+	for idx, elem := range residual {
+		copiedInterim := make([]rune, len(interim))
+		copy(copiedInterim, interim)
+		copiedInterim = append(copiedInterim, elem)
+		copiedResidual := genDeletedSlice(idx, residual)
+		res = append(res, factorialRecursion(copiedInterim, copiedResidual)...)
+	}
+
+	return res
+}
+func genDeletedSlice(delId int, S []rune) []rune {
+	res := []rune{}
+	res = append(res, S[:delId]...)
+	res = append(res, S[delId+1:]...)
+	return res
+}
+
+// memo: 3**10 == 59049
+func CalcDuplicatePatterns(elements []rune, digit int) [][]rune {
+	return duplicateRecursion([]rune{}, elements, digit)
+}
+func duplicateRecursion(interim, elements []rune, digit int) [][]rune {
+	if len(interim) == digit {
+		return [][]rune{interim}
+	}
+
+	res := [][]rune{}
+	for i := 0; i < len(elements); i++ {
+		copiedInterim := make([]rune, len(interim))
+		copy(copiedInterim, interim)
+		copiedInterim = append(copiedInterim, elements[i])
+		res = append(res, duplicateRecursion(copiedInterim, elements, digit)...)
+	}
+
+	return res
+}
+
+// usage
+//tmp := CalcFactorialPatterns([]rune{'a', 'b', 'c'})
+//expected := []string{"abc", "acb", "bac", "bca", "cab", "cba"}
+//tmp := CalcDuplicatePatterns([]rune{'a', 'b', 'c'}, 3)
+//expected := []string{"aaa", "aab", "aac", "aba", "abb", "abc", ...}
+
+/*********** Union Find ***********/
+
+// UnionFind provides disjoint set algorithm.
+// It accepts both 0-based and 1-based setting.
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n+1)
+
+	for i := 0; i <= n; i++ {
+		uf.parents[i] = -1
+	}
+
+	return uf
+}
+
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
+		return x
+	}
+
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
+		return false
+	}
+
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
+	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
+
+	return true
+}
+
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
+}
+
+/*********** Factorization, Prime Number ***********/
+
+// TrialDivision returns the result of prime factorization of integer N.
+// Complicity: O(n)
+func TrialDivision(n int) map[int]int {
+	if n <= 1 {
+		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
+	}
+
+	p := map[int]int{}
+	for i := 2; i*i <= n; i++ {
+		exp := 0
+		for n%i == 0 {
+			exp++
+			n /= i
+		}
+
+		if exp == 0 {
+			continue
+		}
+		p[i] = exp
+	}
+	if n > 1 {
+		p[n] = 1
+	}
+
+	return p
+}
+
+// IsPrime judges whether an argument integer is a prime number or not.
+func IsPrime(n int) bool {
+	if n == 1 {
+		return false
+	}
+
+	for i := 2; i*i <= n; i++ {
+		if n%i == 0 {
+			return false
+		}
+	}
+
+	return true
+}
+
+/*********** Inverse Element ***********/
+
+// CalcNegativeMod can calculate a right residual whether value is positive or negative.
+func CalcNegativeMod(val, m int) int {
+	res := val % m
+	if res < 0 {
+		res += m
+	}
+	return res
+}
+
+func modpow(a, e, m int) int {
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := modpow(a, halfE, m)
+		return half * half % m
+	}
+
+	return a * modpow(a, e-1, m) % m
+}
+
+// CalcModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
+func CalcModInv(a, m int) int {
+	return modpow(a, m-2, m)
+}
+
 /********** I/O usage **********/
 
 //str := ReadString()
@@ -277,16 +475,36 @@ func Strtoi(s string) int {
 //X := ReadIntSlice(n)
 //S := ReadRuneSlice()
 
+/********** String Split **********/
+
+//strs := strings.Split(string(runeSlice), "+")
+
 /*******************************************************************/
 
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var S []rune
+
 func main() {
-	fmt.Println("Hello World.")
+	S = ReadRuneSlice()
+
+	memo := make(map[rune]int)
+	for _, r := range S {
+		memo[r]++
+	}
+
+	memo2 := make(map[int]int)
+	for _, c := range memo {
+		memo2[c] = 1
+	}
+
+	if len(memo2) == 1 {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？
-
-/*******************************************************************/
