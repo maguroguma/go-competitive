@@ -1,4 +1,4 @@
-package tekito
+package main
 
 import (
 	"bufio"
@@ -486,55 +486,39 @@ const ALPHABET_NUM = 26
 
 var h, w int
 var A [][]rune
-var isVis [][]bool
-var isDarked [][]bool
 var count [][]int
-
-type coord struct {
-	y, x int
-}
 
 func main() {
 	h, w = ReadInt(), ReadInt()
 	for i := 0; i < h; i++ {
 		row := ReadRuneSlice()
-		row2 := make([]bool, w)
-		row3 := make([]bool, w)
-		row4 := make([]int, w)
+		row2 := make([]int, w)
 		A = append(A, row)
-		isVis = append(isVis, row2)
-		isDarked = append(isDarked, row3)
-		count = append(count, row4)
+		count = append(count, row2)
 	}
-	// fmt.Println(h, w)
-	// fmt.Println(A)
-	// fmt.Println(isVis)
-	// fmt.Println(isDarked)
 
-	queue := []coord{}
+	queue := [][2]int{}
 	steps := [4][2]int{
 		[2]int{0, 1}, [2]int{1, 0}, [2]int{0, -1}, [2]int{-1, 0},
 	}
 	for i := 0; i < h; i++ {
 		for j := 0; j < w; j++ {
 			if A[i][j] == '#' {
-				queue = append(queue, coord{y: i, x: j})
+				queue = append(queue, [2]int{i, j})
 			}
 		}
 	}
-	// fmt.Println(queue)
-	// fmt.Println(count)
 
 	for len(queue) > 0 {
 		cc := queue[0]
 		queue = queue[1:]
 
-		cy, cx := cc.y, cc.x
+		cy, cx := cc[0], cc[1]
 		for _, step := range steps {
 			ny, nx := cy+step[0], cx+step[1]
 			if 0 <= ny && ny < h && 0 <= nx && nx < w && A[ny][nx] == '.' && count[ny][nx] == 0 {
-				newCoord := coord{y: ny, x: nx}
 				count[ny][nx] = count[cy][cx] + 1
+				newCoord := [2]int{ny, nx}
 				queue = append(queue, newCoord)
 			}
 		}
