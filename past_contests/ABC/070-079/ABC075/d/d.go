@@ -5,14 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
 /*********** I/O ***********/
 
 var (
-	// ReadString returns atest WORD string.
+	// ReadString returns a WORD string.
 	ReadString func() string
 	stdout     *bufio.Writer
 )
@@ -59,7 +61,7 @@ func ReadIntSlice(n int) []int {
 	return b
 }
 
-// ReadRuneSlice returns atest rune slice.
+// ReadRuneSlice returns a rune slice.
 func ReadRuneSlice() []rune {
 	return []rune(ReadString())
 }
@@ -90,7 +92,7 @@ func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
 
 /*********** DP sub-functions ***********/
 
-// ChMin accepts atest pointer of integer and atest target value.
+// ChMin accepts a pointer of integer and a target value.
 // If target value is SMALLER than the first argument,
 //	then the first argument will be updated by the second argument.
 func ChMin(updatedValue *int, target int) bool {
@@ -101,7 +103,7 @@ func ChMin(updatedValue *int, target int) bool {
 	return false
 }
 
-// ChMax accepts atest pointer of integer and atest target value.
+// ChMax accepts a pointer of integer and a target value.
 // If target value is LARGER than the first argument,
 //	then the first argument will be updated by the second argument.
 func ChMax(updatedValue *int, target int) bool {
@@ -150,8 +152,8 @@ func Min(integers ...int) int {
 	return m
 }
 
-// DigitSum returns digit sum of atest decimal number.
-// DigitSum only accept atest positive integer.
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
 func DigitSum(n int) int {
 	if n < 0 {
 		return -1
@@ -178,25 +180,25 @@ func Sum(integers ...int) int {
 	return s
 }
 
-// CeilInt returns the minimum integer larger than or equal to float(atest/b).
-func CeilInt(atest, b int) int {
-	res := atest / b
-	if atest%b > 0 {
+// CeilInt returns the minimum integer larger than or equal to float(a/b).
+func CeilInt(a, b int) int {
+	res := a / b
+	if a%b > 0 {
 		res++
 	}
 	return res
 }
 
-// FloorInt returns the maximum integer smaller than or equal to float(atest/b)
-func FloorInt(atest, b int) int {
-	res := atest / b
+// FloorInt returns the maximum integer smaller than or equal to float(a/b)
+func FloorInt(a, b int) int {
+	res := a / b
 	return res
 }
 
 // PowInt is integer version of math.Pow
-// PowInt calculate atest power by Binary Power (二分累乗法(O(log e))).
-func PowInt(atest, e int) int {
-	if atest < 0 || e < 0 {
+// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
+func PowInt(a, e int) int {
+	if a < 0 || e < 0 {
 		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
 	}
 
@@ -206,61 +208,61 @@ func PowInt(atest, e int) int {
 
 	if e%2 == 0 {
 		halfE := e / 2
-		half := PowInt(atest, halfE)
+		half := PowInt(a, halfE)
 		return half * half
 	}
 
-	return atest * PowInt(atest, e-1)
+	return a * PowInt(a, e-1)
 }
 
 // AbsInt is integer version of math.Abs
-func AbsInt(atest int) int {
-	if atest < 0 {
-		return -atest
+func AbsInt(a int) int {
+	if a < 0 {
+		return -a
 	}
-	return atest
+	return a
 }
 
 // Gcd returns the Greatest Common Divisor of two natural numbers.
-// Gcd only accepts two natural numbers (atest, b >= 1).
+// Gcd only accepts two natural numbers (a, b >= 1).
 // 0 or negative number causes panic.
 // Gcd uses the Euclidean Algorithm.
-func Gcd(atest, b int) int {
-	if atest <= 0 || b <= 0 {
+func Gcd(a, b int) int {
+	if a <= 0 || b <= 0 {
 		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
 	}
-	if atest < b {
-		atest, b = b, atest
+	if a < b {
+		a, b = b, a
 	}
 
 	// Euclidean Algorithm
 	for b > 0 {
-		div := atest % b
-		atest, b = b, div
+		div := a % b
+		a, b = b, div
 	}
 
-	return atest
+	return a
 }
 
 // Lcm returns the Least Common Multiple of two natural numbers.
-// Lcd only accepts two natural numbers (atest, b >= 1).
+// Lcd only accepts two natural numbers (a, b >= 1).
 // 0 or negative number causes panic.
 // Lcd uses the Euclidean Algorithm indirectly.
-func Lcm(atest, b int) int {
-	if atest <= 0 || b <= 0 {
+func Lcm(a, b int) int {
+	if a <= 0 || b <= 0 {
 		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
 	}
 
-	// atest = atest'*gcd, b = b'*gcd, atest*b = atest'*b'*gcd^2
-	// atest' and b' are relatively prime numbers
-	// gcd consists of prime numbers, that are included in atest and b
-	gcd := Gcd(atest, b)
+	// a = a'*gcd, b = b'*gcd, a*b = a'*b'*gcd^2
+	// a' and b' are relatively prime numbers
+	// gcd consists of prime numbers, that are included in a and b
+	gcd := Gcd(a, b)
 
-	// not (atest * b / gcd), because of reducing atest probability of overflow
-	return (atest / gcd) * b
+	// not (a * b / gcd), because of reducing a probability of overflow
+	return (a / gcd) * b
 }
 
-// Strtoi is atest wrapper of `strconv.Atoi()`.
+// Strtoi is a wrapper of `strconv.Atoi()`.
 // If `strconv.Atoi()` returns an error, Strtoi calls panic.
 func Strtoi(s string) int {
 	if i, err := strconv.Atoi(s); err != nil {
@@ -282,9 +284,50 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n, k int
+var X, Y []int
+
 func main() {
-	val := (50 * 49 / 2) * (50 * 49 / 2) * 50
-	fmt.Println(val)
+	n, k = ReadInt(), ReadInt()
+	X, Y = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		x, y := ReadInt(), ReadInt()
+		X[i], Y[i] = x, y
+	}
+
+	XX := make([]int, len(X))
+	copy(XX, X)
+	YY := make([]int, len(Y))
+	copy(YY, Y)
+	sort.Sort(sort.IntSlice(XX))
+	sort.Sort(sort.IntSlice(YY))
+
+	// ans := 1 << 60
+	ans := math.MaxInt64
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			for l := 0; l < n; l++ {
+				for m := l + 1; m < n; m++ {
+					x1, x2 := XX[i], XX[j]
+					y1, y2 := YY[l], YY[m]
+
+					num := 0
+					for p := 0; p < n; p++ {
+						x, y := X[p], Y[p]
+						if x1 <= x && x <= x2 && y1 <= y && y <= y2 {
+							num++
+						}
+					}
+
+					if num >= k {
+						ChMin(&ans, AbsInt(x1-x2)*AbsInt(y1-y2))
+					}
+				}
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？
