@@ -1,0 +1,21 @@
+snippet     imosMethod
+abbr        s, t := S[i], T[i]
+options     head
+  ${1:memo} := make([]int, ${2:1000000+5})  // 十分な定義域分の区間を取る
+  for i := 0; i < len(${3:S}); i++ {
+    // すべての起点・終点をマークする
+    memo[$3[i]]++
+    memo[${4:T}[i]]--
+  }
+  for i := 1; i < $2; i++ {
+    // 十分な定義域分の区間について更新を行う
+    memo[i] += memo[i-1]
+  }
+
+snippet     cumulativeSum
+abbr        s[i+1] = s[i] + A[i]
+options     head
+  ${1:sums} := make([]int, len(${2:#:A})+1)
+  for i := 0; i < len($2); i++ {
+    $1[i+1] = $1[i] + $2[i]
+  }

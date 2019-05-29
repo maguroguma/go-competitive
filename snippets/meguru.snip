@@ -1,0 +1,14 @@
+snippet     meguruBinarySearch
+abbr        ng, ok := -1, len(A)
+options     head
+  ng, ok := -1, len(${1:#:SliceName})
+  for int(math.Abs(float64(ok - ng))) > 1 {
+    mid := (ok + ng) / 2
+    if ${2:isOK}(mid) {
+      ok = mid
+    } else {
+      ng = mid
+    }
+  }
+  ${3:boundaryIdx} := ok
+

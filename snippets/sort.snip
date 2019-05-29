@@ -1,0 +1,43 @@
+snippet     sortAscIntegerSlice
+abbr        sort.Sort(sort.IntSlice(A))
+options     head
+  sort.Sort(sort.IntSlice(${1:A}))
+
+snippet     sortDescIntegerSlice
+abbr        sort.Sort(sort.Reverse(sort.IntSlice(A)))
+options     head
+  sort.Sort(sort.Reverse(sort.IntSlice(${1:A})))
+
+snippet     sortAscStringSlice
+abbr        sort.Sort(sort.StringSlice(S))
+options     head
+  sort.Sort(sort.StringSlice(${1:S}))
+
+snippet     sortDescStringSlice
+abbr        sort.Sort(sort.Reverse(sort.StringSlice(S)))
+options     head
+  sort.Sort(sort.Reverse(sort.StringSlice(${1:S})))
+
+snippet     sortedStruct
+abbr        type Item struct
+options     head
+  type ${1:Item} struct {
+    key int
+    ${2:#:otherProperty and type}
+  }
+  type $1List []*$1
+
+  func (l $1List) Len() int {
+    return len(l)
+  }
+  func (l $1List) Swap(i, j int) {
+    l[i], l[j] = l[j], l[i]
+  }
+  func (l $1List) Less(i, j int) bool {
+    return l[i].key < l[j].key
+  }
+  // how to use
+  // L := make($1List, 0, 100000+1)
+  // L = append(L, &$1{key: intValue})
+  // sort.Sort(L)               // ASC
+  // sort.Sort(sort.Reverse(L)) // DESC

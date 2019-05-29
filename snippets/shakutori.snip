@@ -1,0 +1,19 @@
+snippet     shakutoriMethod
+abbr        r := 0; for l := 0; l < n; l++ {...}
+options     head
+  r := 0
+  for l := 0; l < n; l++ {
+    for r < n && (${1:rightを1個前進させるにあたって条件を満たすかどうか}) {
+      ${2:sum += A[r]}
+      r++
+    }
+
+    ${3:ans += (r - l)}
+
+    if r == l {
+      r++
+    } else {
+      ${4:sum -= A[l]}
+    }
+  }
+

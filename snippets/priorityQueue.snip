@@ -1,0 +1,57 @@
+snippet     pqInt
+abbr        type IntPQ []int
+options     head
+  type IntPQ []int
+
+  func (pq IntPQ) Len() int           { return len(pq) }
+  func (pq IntPQ) Less(i, j int) bool { return pq[i] ${1:<} pq[j] } // <: ASC, >: DESC
+  func (pq IntPQ) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
+  func (pq *IntPQ) Push(x interface{}) {
+    *pq = append(*pq, x.(int))
+  }
+  func (pq *IntPQ) Pop() interface{} {
+    old := *pq
+    n := len(old)
+    x := old[n-1]
+    *pq = old[0 : n-1]
+    return x
+  }
+
+  // how to use
+  // pq := &IntPQ{3, 6, 1, 2}
+  // heap.Init(pq)
+  // heap.Push(pq, intValue)
+  // poppedVal := heap.Pop(pq).(int)
+
+snippet     pqStruct
+abbr        type ItemPQ []*Item
+options     head
+  type ${1:Item} struct {
+    priority int
+    ${2:#:otherProperty and type}
+  }
+  type $1PQ []*$1
+
+  func (pq $1PQ) Len() int           { return len(pq) }
+  func (pq $1PQ) Less(i, j int) bool { return pq[i].priority ${2:<} pq[j].priority } // <: ASC, >: DESC
+  func (pq $1PQ) Swap(i, j int) {
+    pq[i], pq[j] = pq[j], pq[i]
+  }
+  func (pq *$1PQ) Push(x interface{}) {
+    item := x.(*$1)
+    *pq = append(*pq, item)
+  }
+  func (pq *$1PQ) Pop() interface{} {
+    old := *pq
+    n := len(old)
+    item := old[n-1]
+    *pq = old[0 : n-1]
+    return item
+  }
+
+  // how to use
+  // temp := make($1PQ, 0, 100000+1)
+  // pq := &temp
+  // heap.Init(pq)
+  // heap.Push(pq, &$1{priority: intValue})
+  // popped := heap.Pop(pq).(*$1)

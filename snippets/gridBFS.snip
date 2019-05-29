@@ -1,0 +1,29 @@
+snippet     gridBFS
+abbr        steps := [4][2]int
+options     head
+  queue := [][2]int{}
+  steps := [4][2]int{
+    [2]int{0, 1}, [2]int{1, 0}, [2]int{0, -1}, [2]int{-1, 0},
+  }
+  for i := 0; i < ${1:h}; i++ {
+    for j := 0; j < ${2:w}; j++ {
+      if ${3:#:enqueue-condition} {
+        queue = append(queue, [2]int{i, j})
+      }
+    }
+  }
+
+  for len(queue) > 0 {
+    cc := queue[0]
+    queue = queue[1:]
+
+    cy, cx := cc[0], cc[1]
+    for _, step := range steps {
+      ny, nx := cy+step[0], cx+step[1]
+      if 0 <= ny && ny < $1 && 0 <= nx && nx < $2 && ${4:#:enqueue-condition} {
+        newCoord := [2]int{ny, nx}
+        queue = append(queue, newCoord)
+      }
+    }
+  }
+

@@ -1,0 +1,35 @@
+snippet     negativeMod
+abbr        NegativeMod(val, m int) int
+options     head
+  // NegativeMod can calculate a right residual whether value is positive or negative.
+  func NegativeMod(val, m int) int {
+    res := val % m
+    if res < 0 {
+      res += m
+    }
+    return res
+  }
+
+snippet     modInv
+abbr        ModInv(a, m int) int
+options     head
+  // ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+  // O(1), but C is nearly equal to 30 (when m is 1000000000+7).
+  func ModInv(a, m int) int {
+    return modpow(a, m-2, m)
+  }
+
+  func modpow(a, e, m int) int {
+    if e == 0 {
+      return 1
+    }
+
+    if e%2 == 0 {
+      halfE := e / 2
+      half := modpow(a, halfE, m)
+      return half * half % m
+    }
+
+    return a * modpow(a, e-1, m) % m
+  }
+

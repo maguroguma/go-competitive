@@ -1,0 +1,123 @@
+snippet     permutationPatterns
+abbr        PermutationPatterns(elems []rune, k int) [][]rune
+options     head
+  // PermutationPatterns returns all patterns of nPk of elems([]${1:rune}).
+  func PermutationPatterns(elems []$1, k int) [][]$1 {
+    newResi := make([]$1, len(elems))
+    copy(newResi, elems)
+
+    return permRec([]$1{}, newResi, k)
+  }
+
+  // DFS function for PermutationPatterns.
+  func permRec(pattern, residual []$1, k int) [][]$1 {
+    if len(pattern) == k {
+      return [][]$1{pattern}
+    }
+
+    res := [][]$1{}
+    for i, e := range residual {
+      newPattern := make([]$1, len(pattern))
+      copy(newPattern, pattern)
+      newPattern = append(newPattern, e)
+
+      newResi := []$1{}
+      newResi = append(newResi, residual[:i]...)
+      newResi = append(newResi, residual[i+1:]...)
+
+      res = append(res, permRec(newPattern, newResi, k)...)
+    }
+
+    return res
+  }
+
+snippet     combinationPatterns
+abbr        CombinationPatterns(elems []rune, k int) [][]rune
+options     head
+  // CombinationPatterns returns all patterns of nCk of elems([]${1:rune}).
+  func CombinationPatterns(elems []$1, k int) [][]$1 {
+    newResi := make([]$1, len(elems))
+    copy(newResi, elems)
+
+    return combRec([]$1{}, newResi, k)
+  }
+
+  // DFS function for CombinationPatterns.
+  func combRec(pattern, residual []$1, k int) [][]$1 {
+    if len(pattern) == k {
+      return [][]$1{pattern}
+    }
+
+    res := [][]$1{}
+    for i, e := range residual {
+      newPattern := make([]$1, len(pattern))
+      copy(newPattern, pattern)
+      newPattern = append(newPattern, e)
+
+      newResi := []$1{}
+      newResi = append(newResi, residual[i+1:]...)
+
+      res = append(res, combRec(newPattern, newResi, k)...)
+    }
+
+    return res
+  }
+
+snippet     duplicatePatterns
+abbr        DuplicatePatterns(elems []rune, k int) [][]rune
+options     head
+  // DuplicatePatterns returns all patterns of n^k of elems([]${1:rune}).
+  func DuplicatePatterns(elems []$1, k int) [][]$1 {
+    return dupliRec([]$1{}, elems, k)
+  }
+
+  // DFS function for DuplicatePatterns.
+  func dupliRec(pattern, elems []$1, k int) [][]$1 {
+    if len(pattern) == k {
+      return [][]$1{pattern}
+    }
+
+    res := [][]$1{}
+    for _, e := range elems {
+      newPattern := make([]$1, len(pattern))
+      copy(newPattern, pattern)
+      newPattern = append(newPattern, e)
+
+      res = append(res, dupliRec(newPattern, elems, k)...)
+    }
+
+    return res
+  }
+
+snippet     factorialPatterns
+abbr        FactorialPatterns(elems []rune) [][]rune
+options     head
+  // FactorialPatterns returns all patterns of n! of elems([]${1:rune}).
+  func FactorialPatterns(elems []$1) [][]$1 {
+    newResi := make([]$1, len(elems))
+    copy(newResi, elems)
+
+    return factRec([]$1{}, newResi)
+  }
+
+  // DFS function for FactorialPatterns.
+  func factRec(pattern, residual []$1) [][]$1 {
+    if len(residual) == 0 {
+      return [][]$1{pattern}
+    }
+
+    res := [][]$1{}
+    for i, e := range residual {
+      newPattern := make([]$1, len(pattern))
+      copy(newPattern, pattern)
+      newPattern = append(newPattern, e)
+
+      newResi := []$1{}
+      newResi = append(newResi, residual[:i]...)
+      newResi = append(newResi, residual[i+1:]...)
+
+      res = append(res, factRec(newPattern, newResi)...)
+    }
+
+    return res
+  }
