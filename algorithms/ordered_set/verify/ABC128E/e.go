@@ -284,16 +284,18 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n int
-var A []int
-
-var sset *SortedSet
+var n, q int
+var S, T, X []int
+var D []int
 
 type Item struct {
-	key int
-	idx int
+	key            int
+	time, query, x int
 }
 type ItemList []*Item
+type byQuery struct {
+	ItemList
+}
 
 func (l ItemList) Len() int {
 	return len(l)
@@ -304,6 +306,9 @@ func (l ItemList) Swap(i, j int) {
 func (l ItemList) Less(i, j int) bool {
 	return l[i].key < l[j].key
 }
+func (b byQuery) Less(i, j int) bool {
+	return b.ItemList[i].query < b.ItemList[j].query
+}
 
 // how to use
 // L := make(ItemList, 0, 100000+1)
@@ -311,42 +316,62 @@ func (l ItemList) Less(i, j int) bool {
 // sort.Sort(L)               // ASC
 // sort.Sort(sort.Reverse(L)) // DESC
 
-func main() {
-	n = ReadInt()
-	A = ReadIntSlice(n)
-	sset = New()
+var L ItemList
+var sset *SortedSet
 
-	L := make(ItemList, n)
+func main() {
+	n, q = ReadInt(), ReadInt()
+	S, T, X = make([]int, n), make([]int, n), make([]int, n)
+	L = make(ItemList, 0, 200005)
 	for i := 0; i < n; i++ {
-		L[i] = &Item{key: A[i], idx: i}
+		s, t, x := ReadInt(), ReadInt(), ReadInt()
+		S[i], T[i], X[i] = s, t, x
+
+		L = append(L, &Item{key: s - x, time: s - x, query: 1, x: x})
+		L = append(L, &Item{key: t - x, time: t - x, query: -1, x: x})
 	}
+	D = ReadIntSlice(q)
+
 	sort.Stable(L)
 
-	ans := 0
-	for i := 0; i < n; i++ {
-		item := L[i]
-		sset.AddOrUpdate(item.idx, SCORE(item.idx), 0)
-		// fmt.Printf("set size: %d\n", sset.GetCount())
+	sset = New()
+	curIdx := 0
+	for _, item := range L {
 
-		// a のランクxと、ランクx-1, x+1のキー（スコア）が知りたい
-		arank := sset.FindRank(item.idx)
-
-		left := 0
-		if arank > 1 {
-			lnode := sset.GetByRank(arank-1, false)
-			left = lnode.key + 1
-		}
-		right := n - 1
-		if arank < sset.GetCount() {
-			rnode := sset.GetByRank(arank+1, false)
-			right = rnode.key - 1
+		if D[curIdx] >= item.time {
+			if item.query == 1 {
+				sset.AddOrUpdate(item.x, SCORE(item.x), 0)
+			} else {
+				sset.Remove(item.x)
+			}
+			continue
 		}
 
-		// fmt.Printf("left: %d, mid: %d, right: %d\n", left, item.idx, right)
-		ans += item.key * (item.idx - left + 1) * (right - item.idx + 1)
+		for curIdx < q && D[curIdx] < item.time {
+			lowest := sset.GetByRank(1, false)
+			if lowest != nil {
+				fmt.Println(lowest.score)
+			} else {
+				fmt.Println(-1)
+			}
+
+			curIdx++
+		}
+
+		if curIdx == q {
+			break
+		} else {
+			if item.query == 1 {
+				sset.AddOrUpdate(item.x, SCORE(item.x), 0)
+			} else {
+				sset.Remove(item.x)
+			}
+		}
 	}
 
-	fmt.Println(ans)
+	for i := curIdx; i < q; i++ {
+		fmt.Println(-1)
+	}
 }
 
 // MODはとったか？
@@ -438,6 +463,8 @@ type SCORE int64 // the type of score
 
 const SKIPLIST_MAXLEVEL = 32 /* Should be enough for 2^32 elements */
 const SKIPLIST_P = 0.25      /* Skiplist P = 1/4 */
+
+const RESERVED_MINIMUM_KEY = -2 * 1000000000000000000
 
 type SortedSet struct {
 	header *SortedSetNode
@@ -593,7 +620,7 @@ func New() *SortedSet {
 		level: 1,
 		dict:  make(map[int]*SortedSetNode),
 	}
-	sortedSet.header = createNode(SKIPLIST_MAXLEVEL, -1000000000000, -1000000000000, nil)
+	sortedSet.header = createNode(SKIPLIST_MAXLEVEL, RESERVED_MINIMUM_KEY, RESERVED_MINIMUM_KEY, nil)
 	return &sortedSet
 }
 

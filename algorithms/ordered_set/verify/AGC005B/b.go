@@ -439,6 +439,8 @@ type SCORE int64 // the type of score
 const SKIPLIST_MAXLEVEL = 32 /* Should be enough for 2^32 elements */
 const SKIPLIST_P = 0.25      /* Skiplist P = 1/4 */
 
+const RESERVED_MINIMUM_KEY = -2 * 1000000000000000000
+
 type SortedSet struct {
 	header *SortedSetNode
 	tail   *SortedSetNode
@@ -593,7 +595,7 @@ func New() *SortedSet {
 		level: 1,
 		dict:  make(map[int]*SortedSetNode),
 	}
-	sortedSet.header = createNode(SKIPLIST_MAXLEVEL, -1000000000000, -1000000000000, nil)
+	sortedSet.header = createNode(SKIPLIST_MAXLEVEL, RESERVED_MINIMUM_KEY, RESERVED_MINIMUM_KEY, nil)
 	return &sortedSet
 }
 

@@ -618,7 +618,7 @@ func New() *SortedSet {
 		level: 1,
 		dict:  make(map[int]*SortedSetNode),
 	}
-	sortedSet.header = createNode(SKIPLIST_MAXLEVEL, 0, 0, nil)
+	sortedSet.header = createNode(SKIPLIST_MAXLEVEL, -1000000000, -1000000000, nil)
 	return &sortedSet
 }
 
