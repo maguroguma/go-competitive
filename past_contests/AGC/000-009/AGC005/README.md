@@ -14,3 +14,13 @@
     - **[じゅっぴーさんのブログでのAVL木の紹介](https://juppy.hatenablog.com/entry/2019/02/26/python_AVL%E6%9C%A8_%E9%85%8D%E5%88%97ver_%E7%AB%B6%E6%8A%80%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0_Atcoder_)が参考になりそう。**
         - テストも含めて入念に作り込みたい。
   - [ABC025のD問題](https://atcoder.jp/contests/abc025/tasks/abc025_d)が類題らしいので、解けたらこちらにも取り組んで見る。
+
+## B問題再考（2019/05/29）
+
+以下はACした提出。
+
+https://atcoder.jp/contests/agc005/submissions/5694269
+
+SortedSetのkeyをstringからintに変更したところ、実装が壊れてしまったため、
+headerの初期値（？）を併せて変更した。
+

@@ -107,7 +107,7 @@ func Testランク2(t *testing.T) {
 
 	// ランク1のノード（スコア最小のノード）を取得する
 	// 第2引数は削除フラグ
-	// **O(lg(N))**
+	// **O(log(N))**
 	actual := set.GetByRank(1, false)
 	assert.Equal(t, actual.Key(), "d")
 	// ノード数は変化しない
