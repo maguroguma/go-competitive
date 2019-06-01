@@ -282,90 +282,23 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, m, k int
+var A []rune
 
 func main() {
-	n, m, k = ReadInt(), ReadInt(), ReadInt()
+	A = ReadRuneSlice()
 
-	ans := 0
-
-	patterns := sub()
-
-	horizon := 0
-	// horizon += m * (m - 1) / 2
-	// horizon %= MOD
-	// horizon *= n
-	// horizon %= MOD
-	for i := 0; i < m; i++ {
-		d := (m - 1) - i
-		horizon += d * (d + 1) / 2
-		horizon %= MOD
+	memo := make(map[rune]int)
+	for _, a := range A {
+		memo[a]++
 	}
-	horizon *= n
-	horizon %= MOD
-	horizon *= n
-	horizon %= MOD
 
-	vertical := 0
-	// vertical += n * (n - 1) / 2
-	// vertical %= MOD
-	// vertical *= m
-	// vertical %= MOD
-	for i := 0; i < n; i++ {
-		d := (n - 1) - i
-		vertical += d * (d + 1) / 2
-		vertical %= MOD
+	n := len(A)
+	ans := n*(n+1)/2 + 1
+	for _, v := range memo {
+		ans -= v * (v + 1) / 2
 	}
-	vertical *= m
-	vertical %= MOD
-	vertical *= m
-	vertical %= MOD
-
-	ans += (horizon + vertical)
-	ans %= MOD
-	ans *= patterns
-	ans %= MOD
 
 	fmt.Println(ans)
-}
-
-func sub() int {
-	res := 1
-
-	for i := 1; i <= n*m-2; i++ {
-		res *= i
-		res %= MOD
-	}
-	for i := 1; i <= (k - 2); i++ {
-		res *= ModInv(i, MOD)
-		res %= MOD
-	}
-	for i := 1; i <= (m*n-2)-(k-2); i++ {
-		res *= ModInv(i, MOD)
-		res %= MOD
-	}
-
-	return res
-}
-
-// ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
-// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
-func ModInv(a, m int) int {
-	return modpow(a, m-2, m)
-}
-
-func modpow(a, e, m int) int {
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := modpow(a, halfE, m)
-		return half * half % m
-	}
-
-	return a * modpow(a, e-1, m) % m
 }
 
 // MODはとったか？

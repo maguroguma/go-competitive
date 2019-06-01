@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -282,90 +283,67 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, m, k int
+var n int
+var S, P []int
+
+type Mono struct {
+	key   int
+	name  string
+	score int
+	idx   int
+}
+type MonoList []*Mono
+type byKey struct {
+	MonoList
+}
+type byName struct {
+	MonoList
+}
+type byScore struct {
+	MonoList
+}
+
+func (l MonoList) Len() int {
+	return len(l)
+}
+func (l MonoList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.MonoList[i].key < l.MonoList[j].key
+}
+func (l byName) Less(i, j int) bool {
+	return l.MonoList[i].name < l.MonoList[j].name
+}
+func (l byScore) Less(i, j int) bool {
+	return l.MonoList[i].score < l.MonoList[j].score
+}
+
+// how to use
+// L := make(MonoList, 0, 200000+5)
+// L = append(L, &Mono{key: intValue})
+// sort.Stable(byKey{ MonoList(L) })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ MonoList(L) }))  // Stable DESC
 
 func main() {
-	n, m, k = ReadInt(), ReadInt(), ReadInt()
-
-	ans := 0
-
-	patterns := sub()
-
-	horizon := 0
-	// horizon += m * (m - 1) / 2
-	// horizon %= MOD
-	// horizon *= n
-	// horizon %= MOD
-	for i := 0; i < m; i++ {
-		d := (m - 1) - i
-		horizon += d * (d + 1) / 2
-		horizon %= MOD
-	}
-	horizon *= n
-	horizon %= MOD
-	horizon *= n
-	horizon %= MOD
-
-	vertical := 0
-	// vertical += n * (n - 1) / 2
-	// vertical %= MOD
-	// vertical *= m
-	// vertical %= MOD
+	n = ReadInt()
+	L := make(MonoList, 0, 200000+5)
 	for i := 0; i < n; i++ {
-		d := (n - 1) - i
-		vertical += d * (d + 1) / 2
-		vertical %= MOD
-	}
-	vertical *= m
-	vertical %= MOD
-	vertical *= m
-	vertical %= MOD
-
-	ans += (horizon + vertical)
-	ans %= MOD
-	ans *= patterns
-	ans %= MOD
-
-	fmt.Println(ans)
-}
-
-func sub() int {
-	res := 1
-
-	for i := 1; i <= n*m-2; i++ {
-		res *= i
-		res %= MOD
-	}
-	for i := 1; i <= (k - 2); i++ {
-		res *= ModInv(i, MOD)
-		res %= MOD
-	}
-	for i := 1; i <= (m*n-2)-(k-2); i++ {
-		res *= ModInv(i, MOD)
-		res %= MOD
+		s, p := ReadString(), ReadInt()
+		L = append(L, &Mono{
+			key:   p,
+			name:  s,
+			score: p,
+			idx:   i + 1,
+		})
 	}
 
-	return res
-}
-
-// ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
-// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
-func ModInv(a, m int) int {
-	return modpow(a, m-2, m)
-}
-
-func modpow(a, e, m int) int {
-	if e == 0 {
-		return 1
+	sort.Stable(sort.Reverse(byScore{MonoList(L)}))
+	sort.Stable(byName{MonoList(L)})
+	for i := 0; i < n; i++ {
+		fmt.Println(L[i].idx)
 	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := modpow(a, halfE, m)
-		return half * half % m
-	}
-
-	return a * modpow(a, e-1, m) % m
 }
 
 // MODはとったか？
