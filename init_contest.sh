@@ -14,3 +14,5 @@ do
   cp "${GOCOMPE}/_TEMPLATE.go" "${dirName}/${dirName}.go"
 done
 
+touch 'README.md'
+

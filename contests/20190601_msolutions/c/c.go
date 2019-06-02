@@ -282,30 +282,11 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var k int
-var A []int
+var n, a, b, c int
 
 func main() {
-	k = ReadInt()
-	A = ReadIntSlice(k)
+	n, a, b, c = ReadInt(), ReadInt(), ReadInt(), ReadInt()
 
-	mini, maxi := 2, 2
-	for i := k - 1; i >= 0; i-- {
-		a := A[i]
-
-		l := CeilInt(mini, a)
-		r := FloorInt(maxi, a)
-
-		if l > r {
-			fmt.Println(-1)
-			return
-		}
-
-		mini = a * l
-		maxi = a*(r+1) - 1
-	}
-
-	fmt.Println(mini, maxi)
 }
 
 // MODはとったか？

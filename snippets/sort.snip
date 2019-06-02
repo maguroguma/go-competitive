@@ -44,8 +44,8 @@ options     head
   // how to use
   // L := make($1List, 0, 200000+5)
   // L = append(L, &$1{key: intValue})
-  // sort.Stable(byKey{ $1List(L) })                // Stable ASC
-  // sort.Stable(sort.Reverse(byKey{ $1List(L) }))  // Stable DESC
+  // sort.Stable(byKey{ L })                // Stable ASC
+  // sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
 
 snippet     sortNeo
 abbr        sss

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -282,31 +283,136 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var k int
-var A []int
+var n int
+var A, B []int
+var C []int
+var jisu []int
+
+type Node struct {
+	key             int
+	id, jisu, value int
+}
+type NodeList []*Node
+type byKey struct {
+	NodeList
+}
+type byJisu struct {
+	NodeList
+}
+type byId struct {
+	NodeList
+}
+
+func (l NodeList) Len() int {
+	return len(l)
+}
+func (l NodeList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.NodeList[i].key < l.NodeList[j].key
+}
+func (l byJisu) Less(i, j int) bool {
+	return l.NodeList[i].jisu < l.NodeList[j].jisu
+}
+func (l byId) Less(i, j int) bool {
+	return l.NodeList[i].id < l.NodeList[j].id
+}
+
+// how to use
+// L := make(NodeList, 0, 200000+5)
+// L = append(L, &Node{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+var adjLists [][]int
+
+var L NodeList
 
 func main() {
-	k = ReadInt()
-	A = ReadIntSlice(k)
+	n = ReadInt()
+	A, B = make([]int, n-1), make([]int, n-1)
+	for i := 0; i < n-1; i++ {
+		a, b := ReadInt(), ReadInt()
+		A[i], B[i] = a, b
+	}
+	C = ReadIntSlice(n)
 
-	mini, maxi := 2, 2
-	for i := k - 1; i >= 0; i-- {
-		a := A[i]
+	// 隣接リストの作成
+	adjLists = make([][]int, n)
+	for i := 0; i < n-1; i++ {
+		adjLists[i] = make([]int, 0)
+	}
+	for i := 0; i < n-1; i++ {
+		a, b := A[i], B[i]
+		adjLists[a-1] = append(adjLists[a-1], b-1)
+		adjLists[b-1] = append(adjLists[b-1], a-1)
+	}
+	// fmt.Println(adjLists)
 
-		l := CeilInt(mini, a)
-		r := FloorInt(maxi, a)
+	jisu = make([]int, n)
+	for i := 0; i < n-1; i++ {
+		a, b := A[i], B[i]
+		jisu[a-1]++
+		jisu[b-1]++
+	}
+	// fmt.Println(jisu)
 
-		if l > r {
-			fmt.Println(-1)
-			return
-		}
+	L := make(NodeList, 0, 200000+5)
+	for i := 0; i < n; i++ {
+		L = append(L, &Node{key: i, id: i, jisu: jisu[i], value: -1})
+	}
+	// for i := 0; i < n; i++ {
+	// 	fmt.Printf("Node ID: %d, Jisu: %d\n", L[i].id, L[i].jisu)
+	// }
 
-		mini = a * l
-		maxi = a*(r+1) - 1
+	// 次数が小さい順に小さいC[i]を割り当てる
+	// ただし、次に小さい次数がすでに割り当てられているノードに隣接していたら、それを優先して選ぶ
+	sort.Stable(byJisu{L})
+	sort.Sort(sort.IntSlice(C))
+	for i := 0; i < n; i++ {
+		L[i].value = C[i]
 	}
 
-	fmt.Println(mini, maxi)
+	// 答えの出力
+	// fmt.Println(sub(L))
+	sort.Stable(byId{L})
+	res := 0
+	for i := 0; i < n-1; i++ {
+		a, b := A[i], B[i]
+		res += Min(L[a-1].value, L[b-1].value)
+	}
+
+	// for i := 0; i < n; i++ {
+	// 	fmt.Printf("Node ID: %d, Jisu: %d, Value: %d\n", L[i].id, L[i].jisu, L[i].value)
+	// }
+	fmt.Println(res)
+	answers := make([]int, n)
+	for i := 0; i < n; i++ {
+		answers[i] = L[i].value
+	}
+	for i := 0; i < n; i++ {
+		if i == n-1 {
+			fmt.Printf("%d\n", answers[i])
+			return
+		}
+		fmt.Printf("%d ", answers[i])
+	}
 }
+
+// 構築された木から和を算出する
+// func sub(L NodeList) int {
+// 	res := 0
+
+// 	for i := 0; i < n-1; i++ {
+// 		a, b := A[i], B[i]
+// 		fmt.Println(a-1, b-1, L[a-1].value, L[b-1].value)
+// 		res += Min(L[a-1].value, L[b-1].value)
+// 	}
+
+// 	return res
+// }
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？

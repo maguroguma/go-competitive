@@ -339,8 +339,10 @@ func main() {
 		})
 	}
 
-	sort.Stable(sort.Reverse(byScore{MonoList(L)}))
-	sort.Stable(byName{MonoList(L)})
+	// sort.Stable(sort.Reverse(byScore{MonoList(L)}))
+	// sort.Stable(byName{MonoList(L)})
+	sort.Stable(sort.Reverse(byScore{L}))
+	sort.Stable(byName{L})
 	for i := 0; i < n; i++ {
 		fmt.Println(L[i].idx)
 	}

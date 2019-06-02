@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -282,30 +283,58 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var k int
-var A []int
+var n int
+var A, B, C []int
+var adjLists [][]int
+var nodeValues []int
 
 func main() {
-	k = ReadInt()
-	A = ReadIntSlice(k)
+	n = ReadInt()
+	A, B = make([]int, n-1), make([]int, n-1)
+	for i := 0; i < n-1; i++ {
+		a, b := ReadInt(), ReadInt()
+		A[i], B[i] = a-1, b-1
+	}
+	C = ReadIntSlice(n)
+	sort.Sort(sort.Reverse(sort.IntSlice(C)))
 
-	mini, maxi := 2, 2
-	for i := k - 1; i >= 0; i-- {
-		a := A[i]
-
-		l := CeilInt(mini, a)
-		r := FloorInt(maxi, a)
-
-		if l > r {
-			fmt.Println(-1)
-			return
-		}
-
-		mini = a * l
-		maxi = a*(r+1) - 1
+	adjLists = make([][]int, n)
+	for i := 0; i < n-1; i++ {
+		adjLists[i] = make([]int, 0)
+	}
+	for i := 0; i < n-1; i++ {
+		a, b := A[i], B[i]
+		adjLists[a] = append(adjLists[a], b)
+		adjLists[b] = append(adjLists[b], a)
 	}
 
-	fmt.Println(mini, maxi)
+	nodeValues = make([]int, n)
+	queue := []int{}
+	queue = append(queue, 0)
+	cid := 0
+	for len(queue) > 0 {
+		curNodeId := queue[0]
+		queue = queue[1:]
+
+		nodeValues[curNodeId] = C[cid]
+		cid++
+
+		for _, adjId := range adjLists[curNodeId] {
+			if nodeValues[adjId] == 0 {
+				queue = append(queue, adjId)
+			}
+		}
+	}
+
+	// 和はこれでよい
+	fmt.Println(Sum(C...) - Max(C...))
+	for i := 0; i < n; i++ {
+		if i == n-1 {
+			fmt.Printf("%d\n", nodeValues[i])
+			return
+		}
+		fmt.Printf("%d ", nodeValues[i])
+	}
 }
 
 // MODはとったか？
