@@ -59,28 +59,6 @@ func ReadIntSlice(n int) []int {
 	return b
 }
 
-// ReadFloat64 returns an float64.
-func ReadFloat64() float64 {
-	return float64(readFloat64())
-}
-
-func readFloat64() float64 {
-	f, err := strconv.ParseFloat(ReadString(), 64)
-	if err != nil {
-		panic(err.Error())
-	}
-	return f
-}
-
-// ReadFloatSlice returns an float64 slice that has n float64.
-func ReadFloat64Slice(n int) []float64 {
-	b := make([]float64, n)
-	for i := 0; i < n; i++ {
-		b[i] = ReadFloat64()
-	}
-	return b
-}
-
 // ReadRuneSlice returns a rune slice.
 func ReadRuneSlice() []rune {
 	return []rune(ReadString())
@@ -304,8 +282,35 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var S []rune
+
 func main() {
-	fmt.Println("Hello World.")
+	S = ReadRuneSlice()
+
+	SS := []rune{}
+	for i := 0; i < len(S); i++ {
+		if S[i] == 'B' && i+1 < len(S) && S[i+1] == 'C' {
+			SS = append(SS, 'D')
+			i++
+		} else {
+			SS = append(SS, S[i])
+		}
+	}
+	// fmt.Println(string(SS))
+
+	ans := 0
+	aNum := 0
+	for i := 0; i < len(SS); i++ {
+		if SS[i] == 'A' {
+			aNum++
+		} else if SS[i] == 'D' {
+			ans += aNum
+		} else {
+			aNum = 0
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

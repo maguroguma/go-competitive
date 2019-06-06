@@ -59,28 +59,6 @@ func ReadIntSlice(n int) []int {
 	return b
 }
 
-// ReadFloat64 returns an float64.
-func ReadFloat64() float64 {
-	return float64(readFloat64())
-}
-
-func readFloat64() float64 {
-	f, err := strconv.ParseFloat(ReadString(), 64)
-	if err != nil {
-		panic(err.Error())
-	}
-	return f
-}
-
-// ReadFloatSlice returns an float64 slice that has n float64.
-func ReadFloat64Slice(n int) []float64 {
-	b := make([]float64, n)
-	for i := 0; i < n; i++ {
-		b[i] = ReadFloat64()
-	}
-	return b
-}
-
 // ReadRuneSlice returns a rune slice.
 func ReadRuneSlice() []rune {
 	return []rune(ReadString())
@@ -304,8 +282,59 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+
+	flag := false
+	for m := 1; m*(m+1)/2 <= n; m++ {
+		if n == m*(m+1)/2 {
+			flag = true
+			break
+		}
+	}
+
+	if !flag {
+		fmt.Println("No")
+		return
+	}
+
+	k := 0
+	a := 1 + 8*n
+	for i := 1; i*i <= a; i++ {
+		if i*i == a {
+			k = (1 + i) / 2
+			break
+		}
+	}
+
+	answers := [][]int{}
+	for i := 0; i < k; i++ {
+		answers = append(answers, []int{})
+	}
+	num := 1
+	for i := 0; i < k-1; i++ {
+		for j := i + 1; j < k; j++ {
+			answers[i] = append(answers[i], num)
+			answers[j] = append(answers[j], num)
+			num++
+		}
+	}
+
+	fmt.Println("Yes")
+	fmt.Println(k)
+	for i := 0; i < len(answers); i++ {
+		row := answers[i]
+		fmt.Printf("%d ", len(row))
+		for j := 0; j < len(row); j++ {
+			if j == len(row)-1 {
+				fmt.Printf("%d\n", row[j])
+			} else {
+				fmt.Printf("%d ", row[j])
+			}
+		}
+	}
 }
 
 // MODはとったか？

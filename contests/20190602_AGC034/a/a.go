@@ -282,8 +282,84 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n, a, b, c, d int
+var S []rune
+
 func main() {
-	fmt.Println("AGC034 a.go")
+	n, a, b, c, d = ReadInt(), ReadInt(), ReadInt(), ReadInt(), ReadInt()
+	tmp := ReadRuneSlice()
+	S = []rune{'0'}
+	S = append(S, tmp...)
+	// fmt.Println(string(S))
+
+	// a-c
+	maxRockNum := 0
+	rockNum := 0
+	for i := a; i <= c; i++ {
+		if S[i] == '#' {
+			rockNum++
+			ChMax(&maxRockNum, rockNum)
+		} else {
+			rockNum = 0
+		}
+	}
+	if maxRockNum >= 2 {
+		fmt.Println("No")
+		return
+	}
+	// b-d
+	maxRockNum = 0
+	rockNum = 0
+	for i := b; i <= d; i++ {
+		if S[i] == '#' {
+			rockNum++
+			ChMax(&maxRockNum, rockNum)
+		} else {
+			rockNum = 0
+		}
+	}
+	if maxRockNum >= 2 {
+		fmt.Println("No")
+		return
+	}
+
+	if c < d {
+		fmt.Println("Yes")
+		return
+	}
+
+	// Bは初期配置で必ず追い抜ける
+	if S[b+1] == '.' && S[b-1] == '.' {
+		fmt.Println("Yes")
+		return
+	}
+
+	if S[d-1] == '.' && d+1 <= n && S[d+1] == '.' {
+		fmt.Println("Yes")
+		return
+	}
+
+	maxDotNum := 0
+	dotNum := 0
+	// d-1? -> ちがった
+	for i := b; i <= d; i++ {
+		if S[i] == '.' {
+			dotNum++
+			ChMax(&maxDotNum, dotNum)
+		} else {
+			dotNum = 0
+		}
+	}
+	// if (maxDotNum >= 3) || (S[b+1] == '.' && S[b-1] == '.') {
+	// 	fmt.Println("Yes")
+	// 	return
+	// }
+	if maxDotNum >= 3 {
+		fmt.Println("Yes")
+		return
+	}
+
+	fmt.Println("No")
 }
 
 // MODはとったか？

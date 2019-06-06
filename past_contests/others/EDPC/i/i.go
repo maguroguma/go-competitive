@@ -304,8 +304,29 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n int
+var P []float64
+
+var dp [3005][3005]float64
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	P = ReadFloat64Slice(n)
+
+	dp[0][0] = 1.0
+	for i := 0; i < n; i++ {
+		for j := 0; j <= i; j++ {
+			dp[i+1][j] += dp[i][j] * (1 - P[i])
+			dp[i+1][j+1] += dp[i][j] * P[i]
+		}
+	}
+
+	ans := 0.0
+	for j := n/2 + 1; j <= n; j++ {
+		ans += dp[n][j]
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

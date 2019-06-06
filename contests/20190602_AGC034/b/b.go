@@ -282,8 +282,62 @@ func Strtoi(s string) int {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var S []rune
+
+type abcStr struct {
+	aId, cId        int
+	frontId, backId int
+}
+
 func main() {
-	fmt.Println("AGC034 b.go")
+	S = ReadRuneSlice()
+
+	n := len(S)
+	strs := []abcStr{}
+	for i := 0; i < n; i++ {
+		if S[i] == 'A' && i+2 < n && S[i+1] == 'B' && S[i+2] == 'C' {
+			strs = append(strs, abcStr{
+				aId:     i,
+				cId:     i + 2,
+				frontId: i,
+				backId:  i + 2,
+			})
+		}
+	}
+
+	for _, abc := range strs {
+		f, b := abc.frontId, abc.backId
+
+		for i := f; i >= 0; i-- {
+			if S[i] == 'A' {
+				abc.frontId++
+			} else {
+				break
+			}
+		}
+
+		for i := b; i < n; i += 2 {
+			if i+2 < n && S[i+1] == 'B' && S[i+2] == 'C' {
+				abc.backId += 2
+			} else {
+				break
+			}
+		}
+	}
+
+	ans := 0
+	for i, abc := range strs {
+		n := AbsInt(abc.frontId - abc.aId)
+		m := (abc.backId - abc.cId) / 2
+
+		ans += (n + m + 1)
+
+		if i+1 < len(strs) && strs[i+1].frontId == abc.backId {
+			ans++
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？
