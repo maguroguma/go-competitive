@@ -8,4 +8,5 @@ import (
 
 func Test整数スライスをスペース区切り改行なし文字列に変換(t *testing.T) {
 	assert.Equal(t, "1 10 100 1000", PrintIntsLine([]int{1, 10, 100, 1000}...))
+	assert.Equal(t, "1234567890", PrintIntsLine([]int{1234567890}...))
 }
