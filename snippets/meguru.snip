@@ -1,10 +1,14 @@
 snippet     meguruBinarySearch
 abbr        ng, ok := -1, len(A)
 options     head
-  ng, ok := -1, len(${1:#:SliceName})
+  ${1:isOK} := func(m int) bool {
+    return false
+  }
+
+  ng, ok := -1, len(${2:#:SliceName})
   for int(math.Abs(float64(ok - ng))) > 1 {
     mid := (ok + ng) / 2
-    if ${2:isOK}(mid) {
+    if $1(mid) {
       ok = mid
     } else {
       ng = mid
