@@ -324,6 +324,7 @@ var n, m int
 var S, T []int
 
 var dp [2000 + 5][2000 + 5]int
+var sums [2000 + 5][2000 + 5]int
 
 func main() {
 	n, m = ReadInt(), ReadInt()
@@ -331,22 +332,25 @@ func main() {
 	T = ReadIntSlice(m)
 
 	dp[0][0] = 1
+	// sums[0][0] = 1
+
 	for i := 0; i < n; i++ {
 		for j := 0; j < m; j++ {
 			if S[i] == T[j] {
-				dp[i+1][j+1] += dp[i][j] + 1
+				dp[i+1][j+1] = sums[i][j] + 1
 				dp[i+1][j+1] %= MOD
 			}
-			dp[i+1][j+1] += dp[i+1][j]
-			dp[i+1][j+1] %= MOD
-			dp[i+1][j+1] += dp[i][j+1]
-			dp[i+1][j+1] %= MOD
-
-			dp[i+1][j+1] = NegativeMod(dp[i+1][j+1]-dp[i][j], MOD)
+			sums[i+1][j+1] += sums[i][j+1]
+			sums[i+1][j+1] %= MOD
+			sums[i+1][j+1] += sums[i+1][j]
+			sums[i+1][j+1] %= MOD
+			sums[i+1][j+1] = NegativeMod(sums[i+1][j+1]-sums[i][j], MOD)
+			sums[i+1][j+1] += dp[i+1][j+1]
+			sums[i+1][j+1] %= MOD
 		}
 	}
 
-	fmt.Println(dp[n][m])
+	fmt.Println(sums[n][m] + 1)
 }
 
 // NegativeMod can calculate a right residual whether value is positive or negative.

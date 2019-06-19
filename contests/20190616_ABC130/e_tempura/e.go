@@ -331,18 +331,23 @@ func main() {
 	T = ReadIntSlice(m)
 
 	dp[0][0] = 1
+	for i := 0; i <= n; i++ {
+		dp[i][0] = 1
+	}
+	for j := 0; j <= m; j++ {
+		dp[0][j] = 1
+	}
+
 	for i := 0; i < n; i++ {
 		for j := 0; j < m; j++ {
-			if S[i] == T[j] {
-				dp[i+1][j+1] += dp[i][j] + 1
-				dp[i+1][j+1] %= MOD
-			}
-			dp[i+1][j+1] += dp[i+1][j]
-			dp[i+1][j+1] %= MOD
 			dp[i+1][j+1] += dp[i][j+1]
 			dp[i+1][j+1] %= MOD
+			dp[i+1][j+1] += dp[i+1][j]
+			dp[i+1][j+1] %= MOD
 
-			dp[i+1][j+1] = NegativeMod(dp[i+1][j+1]-dp[i][j], MOD)
+			if S[i] != T[j] {
+				dp[i+1][j+1] = NegativeMod(dp[i+1][j+1]-dp[i][j], MOD)
+			}
 		}
 	}
 

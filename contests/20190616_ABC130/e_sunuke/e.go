@@ -323,30 +323,40 @@ const ALPHABET_NUM = 26
 var n, m int
 var S, T []int
 
-var dp [2000 + 5][2000 + 5]int
+var dp [2][2000 + 5][2000 + 5]int
 
 func main() {
 	n, m = ReadInt(), ReadInt()
 	S = ReadIntSlice(n)
 	T = ReadIntSlice(m)
+	S = append(S, -1)
+	T = append(T, -1)
 
-	dp[0][0] = 1
-	for i := 0; i < n; i++ {
-		for j := 0; j < m; j++ {
+	dp[0][0][0] = 1
+	for i := 0; i <= n; i++ {
+		for j := 0; j <= m; j++ {
+			dp[1][i][j] += dp[0][i][j]
+			dp[0][i+1][j] += dp[0][i][j]
+			dp[1][i][j+1] += dp[1][i][j]
+			dp[1][i][j] %= MOD
+			dp[0][i+1][j] %= MOD
+			dp[1][i][j+1] %= MOD
+
 			if S[i] == T[j] {
-				dp[i+1][j+1] += dp[i][j] + 1
-				dp[i+1][j+1] %= MOD
+				dp[0][i+1][j+1] += dp[1][i][j]
+				dp[0][i+1][j+1] %= MOD
 			}
-			dp[i+1][j+1] += dp[i+1][j]
-			dp[i+1][j+1] %= MOD
-			dp[i+1][j+1] += dp[i][j+1]
-			dp[i+1][j+1] %= MOD
-
-			dp[i+1][j+1] = NegativeMod(dp[i+1][j+1]-dp[i][j], MOD)
 		}
 	}
+	for i := 0; i <= n; i++ {
+		fmt.Println(PrintIntsLine(dp[0][i][:m+1]...))
+	}
+	fmt.Println("-----------------------")
+	for i := 0; i <= n; i++ {
+		fmt.Println(PrintIntsLine(dp[1][i][:m+1]...))
+	}
 
-	fmt.Println(dp[n][m])
+	fmt.Println(dp[1][n][m])
 }
 
 // NegativeMod can calculate a right residual whether value is positive or negative.
