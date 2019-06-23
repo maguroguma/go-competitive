@@ -320,38 +320,40 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, l int
+var c, d int
+var lowers, uppers [60]int
 
 func main() {
-	n, l = ReadInt(), ReadInt()
+	c, d = ReadInt(), ReadInt()
 
-	honrai := 0
-	for i := 1; i <= n; i++ {
-		aji := l + i - 1
-		honrai += aji
+	for j := 0; j < 55; j++ {
+		l := 140 * PowInt(2, j)
+		u := 170 * PowInt(2, j)
+		lowers[j], uppers[j] = l, u
 	}
 
-	diff := 1000000000
-	notHonrai := 0
-	for i := 1; i <= n; i++ {
-		// aji := l + i - 1
+	fmt.Println(sub(d) - sub(c))
+}
 
-		giji := 0
-		for j := 1; j <= n; j++ {
-			if j == i {
-				continue
-			}
-			aji := l + j - 1
-			giji += aji
+func sub(n int) int {
+	res := 0
+
+	for j := 0; j < 55; j++ {
+		bpm140 := 140 * PowInt(2, j)
+		bpm170 := 170 * PowInt(2, j)
+
+		if bpm140 > n {
+			break
 		}
 
-		if diff > AbsInt(honrai-giji) {
-			diff = AbsInt(honrai - giji)
-			notHonrai = giji
+		if n < bpm170 {
+			res += n - bpm140
+		} else {
+			res += bpm170 - bpm140
 		}
 	}
 
-	fmt.Println(notHonrai)
+	return res
 }
 
 // MODはとったか？

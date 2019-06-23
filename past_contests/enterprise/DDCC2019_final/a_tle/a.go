@@ -320,38 +320,54 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, l int
+var n int
+var S []rune
 
 func main() {
-	n, l = ReadInt(), ReadInt()
+	n = ReadInt()
+	S = ReadRuneSlice()
 
-	honrai := 0
-	for i := 1; i <= n; i++ {
-		aji := l + i - 1
-		honrai += aji
+	maxIces := 0
+	currentIces := 0
+	for i := 0; i < len(S); i++ {
+		if S[i] == '-' {
+			currentIces = 0
+		} else {
+			currentIces++
+			ChMax(&maxIces, currentIces)
+		}
 	}
 
-	diff := 1000000000
-	notHonrai := 0
-	for i := 1; i <= n; i++ {
-		// aji := l + i - 1
+	icesRunes := []rune{}
+	for i := 0; i < maxIces; i++ {
+		icesRunes = append(icesRunes, '>')
+	}
 
-		giji := 0
-		for j := 1; j <= n; j++ {
-			if j == i {
-				continue
+	if maxIces > 0 {
+		for i := 0; (i + maxIces - 1) < n; i++ {
+			if string(icesRunes) == string(S[i:i+maxIces]) {
+				// beforeIdx = i-1
+				S[i-1] = '>'
+				break
 			}
-			aji := l + j - 1
-			giji += aji
 		}
+	} else {
+		S[0] = '>'
+	}
 
-		if diff > AbsInt(honrai-giji) {
-			diff = AbsInt(honrai - giji)
-			notHonrai = giji
+	ans := 0.0
+	k := 0
+	for i := 0; i < n; i++ {
+		if S[i] == '-' {
+			k = 0
+			ans += 1.0
+		} else {
+			ans += 1.0 / (float64(k) + 2)
+			k++
 		}
 	}
 
-	fmt.Println(notHonrai)
+	fmt.Println(ans)
 }
 
 // MODはとったか？

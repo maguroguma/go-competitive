@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -320,9 +321,63 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n int
+var A, B []int
+
 func main() {
-	fmt.Println("ABC131 d.go")
+	n = ReadInt()
+	A, B = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		A[i], B[i] = ReadInt(), ReadInt()
+	}
+
+	L := make(TaskList, 0, 200000+5)
+	for i := 0; i < n; i++ {
+		a, b := A[i], B[i]
+		L = append(L, &Task{key: b, cost: a, deadline: b})
+	}
+	sort.Stable(byKey{L})
+
+	time := 0
+	for i := 0; i < n; i++ {
+		task := L[i]
+
+		time += task.cost
+		if time > task.deadline {
+			fmt.Println("No")
+			return
+		}
+	}
+
+	fmt.Println("Yes")
 }
+
+type Task struct {
+	key      int
+	cost     int
+	deadline int
+}
+type TaskList []*Task
+type byKey struct {
+	TaskList
+}
+
+func (l TaskList) Len() int {
+	return len(l)
+}
+func (l TaskList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.TaskList[i].key < l.TaskList[j].key
+}
+
+// how to use
+// L := make(TaskList, 0, 200000+5)
+// L = append(L, &Task{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？

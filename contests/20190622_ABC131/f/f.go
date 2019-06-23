@@ -320,8 +320,15 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n int
+var X, Y []int
+
 func main() {
-	fmt.Println("ABC131 f.go")
+	n = ReadInt()
+	X, Y = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		X[i], Y[i] = ReadInt(), ReadInt()
+	}
 }
 
 // MODはとったか？

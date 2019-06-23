@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -320,38 +321,32 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, l int
+var n, c int
+var L []int
 
 func main() {
-	n, l = ReadInt(), ReadInt()
+	n, c = ReadInt(), ReadInt()
+	L = ReadIntSlice(n)
 
-	honrai := 0
-	for i := 1; i <= n; i++ {
-		aji := l + i - 1
-		honrai += aji
-	}
+	sort.Sort(sort.IntSlice(L))
 
-	diff := 1000000000
-	notHonrai := 0
-	for i := 1; i <= n; i++ {
-		// aji := l + i - 1
-
-		giji := 0
-		for j := 1; j <= n; j++ {
-			if j == i {
-				continue
-			}
-			aji := l + j - 1
-			giji += aji
+	ans := 0
+	for len(L) > 0 {
+		if len(L) == 1 {
+			ans++
+			break
 		}
 
-		if diff > AbsInt(honrai-giji) {
-			diff = AbsInt(honrai - giji)
-			notHonrai = giji
+		if L[0]+L[len(L)-1]+1 <= c {
+			ans++
+			L = L[1 : len(L)-1]
+		} else {
+			ans++
+			L = L[:len(L)-1]
 		}
 	}
 
-	fmt.Println(notHonrai)
+	fmt.Println(ans)
 }
 
 // MODはとったか？

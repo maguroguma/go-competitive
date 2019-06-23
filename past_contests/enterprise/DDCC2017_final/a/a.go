@@ -320,38 +320,56 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, l int
+var k int
 
 func main() {
-	n, l = ReadInt(), ReadInt()
+	k = ReadInt()
 
-	honrai := 0
-	for i := 1; i <= n; i++ {
-		aji := l + i - 1
-		honrai += aji
-	}
+	num2 := 200 / k
+	num3 := 300 / k
 
-	diff := 1000000000
-	notHonrai := 0
-	for i := 1; i <= n; i++ {
-		// aji := l + i - 1
+	// for i := 0; i < num2; i++ {
+	// 	x1, x2 := i*k, (i+1)*k
+	// 	for j := 0; j < num2; j++ {
+	// 		y1, y2 := j*k, (j+1)*k
 
-		giji := 0
-		for j := 1; j <= n; j++ {
-			if j == i {
-				continue
+	// 		// (x1, y1), (x1, y2), (x2, y1), (x2, y2)
+
+	// 		d1 := (100-x1)*(100-x1) + (100-y1)*(100-y1)
+	// 		d2 := (100-x1)*(100-x1) + (100-y2)*(100-y2)
+	// 		d3 := (100-x2)*(100-x2) + (100-y1)*(100-y1)
+	// 		d4 := (100-x2)*(100-x2) + (100-y2)*(100-y2)
+
+	// 		if d1 <= 100*100 && d2 <= 100*100 && d3 <= 100*100 && d4 <= 100*100 {
+	// 			ans2++
+	// 		}
+	// 	}
+	// }
+	fmt.Println(sub(num2, 100), sub(num3, 150))
+}
+
+func sub(num, radius int) int {
+	res := 0
+
+	for i := 0; i < num; i++ {
+		x1, x2 := i*k, (i+1)*k
+		for j := 0; j < num; j++ {
+			y1, y2 := j*k, (j+1)*k
+
+			// (x1, y1), (x1, y2), (x2, y1), (x2, y2)
+
+			d1 := (radius-x1)*(radius-x1) + (radius-y1)*(radius-y1)
+			d2 := (radius-x1)*(radius-x1) + (radius-y2)*(radius-y2)
+			d3 := (radius-x2)*(radius-x2) + (radius-y1)*(radius-y1)
+			d4 := (radius-x2)*(radius-x2) + (radius-y2)*(radius-y2)
+
+			if d1 <= radius*radius && d2 <= radius*radius && d3 <= radius*radius && d4 <= radius*radius {
+				res++
 			}
-			aji := l + j - 1
-			giji += aji
-		}
-
-		if diff > AbsInt(honrai-giji) {
-			diff = AbsInt(honrai - giji)
-			notHonrai = giji
 		}
 	}
 
-	fmt.Println(notHonrai)
+	return res
 }
 
 // MODはとったか？

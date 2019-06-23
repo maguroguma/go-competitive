@@ -320,8 +320,16 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var S []rune
+
 func main() {
-	fmt.Println("ABC131 a.go")
+	S = ReadRuneSlice()
+
+	if S[0] == S[1] || S[1] == S[2] || S[2] == S[3] {
+		fmt.Println("Bad")
+	} else {
+		fmt.Println("Good")
+	}
 }
 
 // MODはとったか？

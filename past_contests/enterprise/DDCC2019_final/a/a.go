@@ -320,38 +320,44 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, l int
+var n int
+var S []rune
 
 func main() {
-	n, l = ReadInt(), ReadInt()
+	n = ReadInt()
+	S = ReadRuneSlice()
 
-	honrai := 0
-	for i := 1; i <= n; i++ {
-		aji := l + i - 1
-		honrai += aji
-	}
-
-	diff := 1000000000
-	notHonrai := 0
-	for i := 1; i <= n; i++ {
-		// aji := l + i - 1
-
-		giji := 0
-		for j := 1; j <= n; j++ {
-			if j == i {
-				continue
+	maxIces := 0
+	currentIces := 0
+	beforeIdx := 0
+	for i := 0; i < len(S); i++ {
+		if S[i] == '-' {
+			currentIces = 0
+		} else {
+			currentIces++
+			// ChMax(&maxIces, currentIces)
+			if currentIces > maxIces {
+				maxIces = currentIces
+				beforeIdx = i + 1
 			}
-			aji := l + j - 1
-			giji += aji
-		}
-
-		if diff > AbsInt(honrai-giji) {
-			diff = AbsInt(honrai - giji)
-			notHonrai = giji
 		}
 	}
 
-	fmt.Println(notHonrai)
+	S[beforeIdx] = '>'
+
+	ans := 0.0
+	k := 0
+	for i := 0; i < n; i++ {
+		if S[i] == '-' {
+			k = 0
+			ans += 1.0
+		} else {
+			ans += 1.0 / (float64(k) + 2)
+			k++
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

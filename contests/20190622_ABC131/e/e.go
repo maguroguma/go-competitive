@@ -320,8 +320,52 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
+var n, k int
+
 func main() {
-	fmt.Println("ABC131 e.go")
+	n, k = ReadInt(), ReadInt()
+
+	if k > (n-1)*(n-2)/2 {
+		fmt.Println(-1)
+		return
+	}
+
+	answers := [][]int{}
+	for i := 2; i <= n; i++ {
+		row := []int{1, i}
+		answers = append(answers, row)
+	}
+
+	// 最短距離2は今、n-1C2対
+	count := (n-1)*(n-2)/2 - k
+	counter := 0
+	for i := 2; i <= (n - 1); i++ {
+		if counter == count {
+			break
+		}
+		for j := i + 1; j <= n; j++ {
+			if counter == count {
+				break
+			}
+
+			row := []int{i, j}
+			answers = append(answers, row)
+			counter++
+
+			if counter == count {
+				break
+			}
+		}
+
+		if counter == count {
+			break
+		}
+	}
+
+	fmt.Println(len(answers))
+	for _, row := range answers {
+		fmt.Println(PrintIntsLine(row[0], row[1]))
+	}
 }
 
 // MODはとったか？

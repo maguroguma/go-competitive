@@ -320,38 +320,45 @@ func PrintIntsLine(A ...int) string {
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 
-var n, l int
+var n, k int
 
 func main() {
-	n, l = ReadInt(), ReadInt()
+	n, k = ReadInt(), ReadInt()
 
-	honrai := 0
-	for i := 1; i <= n; i++ {
-		aji := l + i - 1
-		honrai += aji
+	maximum := (n - 1) * (n - 2) / 2
+
+	if k > maximum {
+		fmt.Println(-1)
+		return
 	}
 
-	diff := 1000000000
-	notHonrai := 0
-	for i := 1; i <= n; i++ {
-		// aji := l + i - 1
+	answers := [][]int{}
+	for i := 2; i <= n; i++ {
+		row := []int{1, i}
+		answers = append(answers, row)
+	}
 
-		giji := 0
-		for j := 1; j <= n; j++ {
-			if j == i {
-				continue
+	// 最短距離2は今、n-1C2対
+	count := maximum - k
+	counter := 0
+
+OUTER_LOOP:
+	for i := 2; i <= (n - 1); i++ {
+		for j := i + 1; j <= n; j++ {
+			if counter == count {
+				break OUTER_LOOP
 			}
-			aji := l + j - 1
-			giji += aji
-		}
 
-		if diff > AbsInt(honrai-giji) {
-			diff = AbsInt(honrai - giji)
-			notHonrai = giji
+			row := []int{i, j}
+			answers = append(answers, row)
+			counter++
 		}
 	}
 
-	fmt.Println(notHonrai)
+	fmt.Println(len(answers))
+	for _, row := range answers {
+		fmt.Println(PrintIntsLine(row[0], row[1]))
+	}
 }
 
 // MODはとったか？
