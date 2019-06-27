@@ -27,3 +27,15 @@ func ChMax(updatedValue *int, target int) bool {
 func GetNthBit(num, nth int) int {
 	return num >> uint(nth) & 1
 }
+
+// func OnBit(num, nth int) int {
+
+// }
+
+// func OffBit(num, nth int) int {
+
+// }
+
+// func PopCount(num int) int {
+
+// }
