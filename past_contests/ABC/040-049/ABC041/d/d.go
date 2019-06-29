@@ -29,8 +29,46 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m int
+var X, Y []int
+var memo [16][]int
+
+var dp [1 << 16]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, m = ReadInt(), ReadInt()
+	X, Y = make([]int, m), make([]int, m)
+	for i := 0; i < m; i++ {
+		X[i], Y[i] = ReadInt()-1, ReadInt()-1
+	}
+	for i := 0; i < n; i++ {
+		memo[i] = []int{}
+	}
+	for i := 0; i < m; i++ {
+		x, y := X[i], Y[i]
+		memo[y] = append(memo[y], x)
+	}
+
+	dp[0] = 1
+	for S := 0; S < (1 << uint(n)); S++ {
+		for j := 0; j < n; j++ {
+			if NthBit(S, j) == 0 {
+				flag := true
+				for _, k := range memo[j] {
+					if NthBit(S, k) == 0 {
+						flag = false
+						break
+					}
+				}
+
+				if flag {
+					dp[S|(1<<uint(j))] += dp[S]
+				}
+			}
+		}
+	}
+
+	fmt.Println(dp[(1<<uint(n))-1])
 }
 
 // MODはとったか？

@@ -28,14 +28,27 @@ func GetNthBit(num, nth int) int {
 	return num >> uint(nth) & 1
 }
 
-// func OnBit(num, nth int) int {
+// OnBit returns the integer that has nth ON bit.
+// If an argument has nth ON bit, OnBit returns the argument.
+func OnBit(num, nth int) int {
+	return num | (1 << uint(nth))
+}
 
-// }
+// OffBit returns the integer that has nth OFF bit.
+// If an argument has nth OFF bit, OffBit returns the argument.
+func OffBit(num, nth int) int {
+	return num & ^(1 << uint(nth))
+}
 
-// func OffBit(num, nth int) int {
+// PopCount returns the number of ON bit of an argument.
+func PopCount(num int) int {
+	res := 0
 
-// }
+	for i := 0; i < 70; i++ {
+		if ((num >> uint(i)) & 1) == 1 {
+			res++
+		}
+	}
 
-// func PopCount(num int) int {
-
-// }
+	return res
+}
