@@ -29,8 +29,27 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var S []rune
+
 func main() {
-	fmt.Println("ABC132 a.go")
+	S = ReadRuneSlice()
+
+	memo := make(map[rune]int)
+	for _, s := range S {
+		memo[s]++
+	}
+
+	flag := true
+	for _, v := range memo {
+		if v != 2 {
+			flag = false
+		}
+	}
+	if len(memo) == 2 && flag {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
 
 // MODはとったか？

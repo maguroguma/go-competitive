@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -29,20 +30,97 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n int
-var P []int
+var n, m int
+var U, V []int
+var s, t int
+
+var nexts [100000 + 5][]int
+
+var dp [100000 + 5][3]int
+var flags [100000 + 5][3]bool
+
+type node struct {
+	priority int
+	id       int
+	step     int
+}
+type nodePQ []*node
+
+func (pq nodePQ) Len() int           { return len(pq) }
+func (pq nodePQ) Less(i, j int) bool { return pq[i].priority < pq[j].priority } // <: ASC, >: DESC
+func (pq nodePQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *nodePQ) Push(x interface{}) {
+	item := x.(*node)
+	*pq = append(*pq, item)
+}
+func (pq *nodePQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
+}
+
+// how to use
+// temp := make(nodePQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &node{priority: intValue})
+// popped := heap.Pop(pq).(*node)
+
+var revNexts [100000 + 5][]int
 
 func main() {
-	n = ReadInt()
-	P = ReadIntSlice(n)
+	n, m = ReadInt(), ReadInt()
+	U, V = make([]int, m), make([]int, m)
+	for i := 0; i < m; i++ {
+		u, v := ReadInt()-1, ReadInt()-1
+		U[i], V[i] = u, v
+	}
+	s, t = ReadInt()-1, ReadInt()-1
 
-	ans := 0
-	for m := 1; m < n-1; m++ {
-		if (P[m-1] < P[m] && P[m] < P[m+1]) || (P[m+1] < P[m] && P[m] < P[m-1]) {
-			ans++
+	for i := 0; i < n; i++ {
+		revNexts[i] = []int{}
+	}
+	for i := 0; i < m; i++ {
+		u, v := U[i], V[i]
+		revNexts[v] = append(revNexts[v], u)
+	}
+
+	// ここから
+
+	for i := 0; i < n; i++ {
+		for j := 0; j < 3; j++ {
+			dp[i][j] = INF_BIT60
 		}
 	}
-	fmt.Println(ans)
+	dp[t][0] = 0
+	flags[t][0] = true
+
+	temp := make(nodePQ, 0, 100000+1)
+	pq := &temp
+	heap.Init(pq)
+	heap.Push(pq, &node{priority: dp[t][0], id: t, step: 0})
+
+	for pq.Len() > 0 {
+		popped := heap.Pop(pq).(*node)
+
+		for _, nextId := range revNexts[popped.id] {
+			if !flags[nextId][(popped.step+1)%3] {
+				dp[nextId][(popped.step+1)%3] = dp[popped.id][popped.step] + 1
+				flags[nextId][(popped.step+1)%3] = true
+				heap.Push(pq, &node{priority: dp[popped.id][popped.step] + 1, id: nextId, step: (popped.step + 1) % 3})
+			}
+		}
+	}
+
+	if flags[s][0] {
+		fmt.Println(dp[s][0] / 3)
+	} else {
+		fmt.Println(-1)
+	}
 }
 
 // MODはとったか？

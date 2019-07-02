@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -29,8 +30,22 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var D []int
+
 func main() {
-	fmt.Println("ABC132 c.go")
+	n = ReadInt()
+	D = ReadIntSlice(n)
+
+	sort.Sort(sort.IntSlice(D))
+
+	l, r := D[(n/2)-1], D[(n/2)]
+	if l == r {
+		fmt.Println(0)
+		return
+	}
+
+	fmt.Println(r - l)
 }
 
 // MODはとったか？

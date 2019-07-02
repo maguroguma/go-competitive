@@ -29,8 +29,85 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m int
+var U, V []int
+var s, t int
+
+var nexts [100000 + 5][]int
+var revNexts [100000 + 5][]int
+
+var dp [100000 + 5]int
+var flags [100000 + 5]bool
+
 func main() {
-	fmt.Println("ABC132 e.go")
+	n, m = ReadInt(), ReadInt()
+	U, V = make([]int, m), make([]int, m)
+	for i := 0; i < m; i++ {
+		u, v := ReadInt()-1, ReadInt()-1
+		U[i], V[i] = u, v
+	}
+	s, t = ReadInt()-1, ReadInt()-1
+
+	for i := 0; i < n; i++ {
+		nexts[i] = []int{}
+		revNexts[i] = []int{}
+	}
+	for i := 0; i < m; i++ {
+		u, v := U[i], V[i]
+		nexts[u] = append(nexts[u], v)
+		revNexts[v] = append(revNexts[v], u)
+	}
+
+	for i := 0; i < n; i++ {
+		dp[i] = INF_BIT60
+	}
+	dp[t] = 0
+	flags[t] = true
+	for _, v := range revNexts[t] {
+		rec(v, t, 2)
+	}
+
+	if flags[s] {
+		fmt.Println(dp[s])
+	} else {
+		fmt.Println(-1)
+	}
+}
+
+func rec(cid, threeBefId, step int) {
+	// if flags[cid] && step == 0 {
+	// 	return
+	// }
+
+	if step == 0 {
+		// ChMin(&dp[cid], dp[threeBefId]+1)
+		if dp[cid] > dp[threeBefId]+1 {
+			dp[cid] = dp[threeBefId] + 1
+			flags[cid] = true
+			for _, nid := range revNexts[cid] {
+				rec(nid, cid, 2)
+			}
+
+		}
+	} else {
+		for _, nid := range revNexts[cid] {
+			rec(nid, threeBefId, step-1)
+		}
+	}
+
+	// 次のノードへ
+	// for _, nid := range revNexts[cid] {
+	// 	if step > 0 {
+	// 		rec(nid, threeBefId, step-1)
+	// 	} else {
+	// 		if flags[cid] {
+	// 			return
+	// 		}
+	// 		ChMin(&dp[nid], dp[cid]+dp[threeBefId])
+	// 		flags[nid] = true
+	// 		rec(nid, nid, 3)
+	// 	}
+	// }
 }
 
 // MODはとったか？

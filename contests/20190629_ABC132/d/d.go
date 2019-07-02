@@ -29,8 +29,93 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, k int
+
+var memo [4000 + 5]int
+var modMemo [4000 + 5]int
+
 func main() {
-	fmt.Println("ABC132 d.go")
+	n, k = ReadInt(), ReadInt()
+
+	initMemos()
+
+	// for i := 0; i < k; i++ {
+	for i := 1; i <= k; i++ {
+		bluePattern := i
+		blueNokori := k - i
+		redPattern := (i - 1) + 2
+		redNokori := (n - k) - (i - 1)
+
+		if blueNokori < 0 || redNokori < 0 {
+			fmt.Println(0)
+			continue
+		}
+
+		ans := 1
+		ans *= sub(redPattern, redNokori)
+		ans %= MOD
+		ans *= sub(bluePattern, blueNokori)
+		ans %= MOD
+
+		fmt.Println(ans)
+	}
+}
+
+// 重複組合せ
+func sub(n, r int) int {
+	return combination(n+r-1, r)
+}
+
+func combination(n, r int) int {
+	// if r > n-r {
+	// 	return combination(n, n-r)
+	// }
+
+	res := 1
+	res *= memo[n]
+	res %= MOD
+	res *= modMemo[r]
+	res %= MOD
+	res *= modMemo[n-r]
+	res %= MOD
+
+	return res
+}
+
+// 初期
+func initMemos() {
+	for i := 0; i <= 4002; i++ {
+		if i == 0 {
+			memo[i] = 1
+			modMemo[i] = ModInv(memo[i], MOD)
+			continue
+		}
+
+		num := i * memo[i-1]
+		num %= MOD
+		memo[i] = num
+		modMemo[i] = ModInv(memo[i], MOD)
+	}
+}
+
+// ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
+func ModInv(a, m int) int {
+	return modpow(a, m-2, m)
+}
+
+func modpow(a, e, m int) int {
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := modpow(a, halfE, m)
+		return half * half % m
+	}
+
+	return a * modpow(a, e-1, m) % m
 }
 
 // MODはとったか？

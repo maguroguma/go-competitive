@@ -29,21 +29,127 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n int
-var P []int
+var n, m int
+var U, V []int
+var s, t int
+
+var revNexts [100000 + 5][]int
+
+var dp [100000 + 5]int
+var flags [100000 + 5][3]bool
+
+type Step struct {
+	cid        int32
+	threeBefId int32
+	resiStep   int32
+}
 
 func main() {
-	n = ReadInt()
-	P = ReadIntSlice(n)
+	n, m = ReadInt(), ReadInt()
+	U, V = make([]int, m), make([]int, m)
+	for i := 0; i < m; i++ {
+		u, v := ReadInt()-1, ReadInt()-1
+		U[i], V[i] = u, v
+	}
+	s, t = ReadInt()-1, ReadInt()-1
 
-	ans := 0
-	for m := 1; m < n-1; m++ {
-		if (P[m-1] < P[m] && P[m] < P[m+1]) || (P[m+1] < P[m] && P[m] < P[m-1]) {
-			ans++
+	for i := 0; i < n; i++ {
+		revNexts[i] = []int{}
+	}
+	for i := 0; i < m; i++ {
+		u, v := U[i], V[i]
+		revNexts[v] = append(revNexts[v], u)
+	}
+
+	for i := 0; i < n; i++ {
+		dp[i] = 1 << 30
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < 3; j++ {
+			flags[i][j] = false
 		}
 	}
-	fmt.Println(ans)
+	dp[t] = 0
+	flags[t][0] = true
+
+	// queue := []Step{}
+	queue := make([]Step, 0, 300000+5)
+	for _, v := range revNexts[t] {
+		if flags[v][2] {
+			continue
+		}
+		s := Step{cid: int32(v), threeBefId: int32(t), resiStep: 2}
+		queue = append(queue, s)
+	}
+
+	for len(queue) > 0 {
+		s := queue[0]
+		queue = queue[1:]
+
+		flags[s.cid][s.resiStep] = true
+
+		if s.resiStep == 0 {
+			if dp[s.cid] > dp[s.threeBefId]+1 {
+				dp[s.cid] = dp[s.threeBefId] + 1
+				for _, nid := range revNexts[s.cid] {
+					if flags[nid][2] {
+						continue
+					}
+					queue = append(queue, Step{cid: int32(nid), threeBefId: s.cid, resiStep: 2})
+				}
+			}
+		} else {
+			for _, nid := range revNexts[s.cid] {
+				if flags[nid][s.resiStep-1] {
+					continue
+				}
+				queue = append(queue, Step{cid: int32(nid), threeBefId: s.threeBefId, resiStep: s.resiStep - 1})
+			}
+		}
+	}
+
+	if flags[s][0] {
+		fmt.Println(dp[s])
+	} else {
+		fmt.Println(-1)
+	}
 }
+
+// func rec(cid, threeBefId, step int) {
+// 	// if flags[cid] && step == 0 {
+// 	// 	return
+// 	// }
+
+// 	if step == 0 {
+// 		// ChMin(&dp[cid], dp[threeBefId]+1)
+// 		if dp[cid] > dp[threeBefId]+1 {
+// 			dp[cid] = dp[threeBefId] + 1
+// 			flags[cid] = true
+// 			for _, nid := range revNexts[cid] {
+// 				rec(nid, cid, 2)
+// 			}
+
+// 		}
+// 	} else {
+// 		for _, nid := range revNexts[cid] {
+// 			rec(nid, threeBefId, step-1)
+// 		}
+// 	}
+
+// 	// 次のノードへ
+// 	// for _, nid := range revNexts[cid] {
+// 	// 	if step > 0 {
+// 	// 		rec(nid, threeBefId, step-1)
+// 	// 	} else {
+// 	// 		if flags[cid] {
+// 	// 			return
+// 	// 		}
+// 	// 		ChMin(&dp[nid], dp[cid]+dp[threeBefId])
+// 	// 		flags[nid] = true
+// 	// 		rec(nid, nid, 3)
+// 	// 	}
+// 	// }
+// }
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？
