@@ -29,8 +29,35 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, d int
+var X [][]int
+
 func main() {
-	fmt.Println("ABC133 b.go")
+	n, d = ReadInt(), ReadInt()
+	X = [][]int{}
+	for i := 0; i < n; i++ {
+		row := ReadIntSlice(d)
+		X = append(X, row)
+	}
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			dist := 0
+			for k := 0; k < d; k++ {
+				dist += PowInt(AbsInt(X[i][k]-X[j][k]), 2)
+			}
+
+			for t := 0; t <= 10000; t++ {
+				if t*t == dist {
+					ans++
+					break
+				}
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

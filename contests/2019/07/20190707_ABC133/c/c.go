@@ -29,8 +29,29 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var l, r int
+
 func main() {
-	fmt.Println("ABC133 c.go")
+	l, r = ReadInt(), ReadInt()
+
+	ans := INF_INT64
+	// flag := false
+	counter := 0
+	for i := l; i <= r; i++ {
+		for j := i + 1; j <= r; j++ {
+			if counter == 1000000 {
+				break
+			}
+
+			counter++
+			if ans > (i*j)%2019 {
+				ans = (i * j) % 2019
+				// flag = true
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

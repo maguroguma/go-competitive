@@ -29,25 +29,132 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	if IsPrime(2019) {
-		fmt.Println("2019は素数")
-	}
+var n, k int
+var A, B []int
+
+var edges [100000 + 5][]int
+var dp [100000 + 5]int
+var flags [100000 + 5]bool
+
+type CombFactorial struct {
+	factorial, modFactorial [200001]int
 }
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
+func NewCombFactorial() *CombFactorial {
+	cf := new(CombFactorial)
+
+	return cf
+}
+func (c *CombFactorial) modInv(a int) int {
+	return c.modpow(a, MOD-2)
+}
+func (c *CombFactorial) modpow(a, e int) int {
+	if e == 0 {
+		return 1
 	}
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	if e%2 == 0 {
+		halfE := e / 2
+		half := c.modpow(a, halfE)
+		return half * half % MOD
+	}
+
+	return a * c.modpow(a, e-1) % MOD
+}
+func (c *CombFactorial) InitCF() {
+	for i := 0; i <= 200000; i++ {
+		if i == 0 {
+			c.factorial[i] = 1
+			c.modFactorial[i] = c.modInv(c.factorial[i])
+			continue
 		}
+
+		num := i * c.factorial[i-1]
+		num %= MOD
+		c.factorial[i] = num
+		c.modFactorial[i] = c.modInv(c.factorial[i])
+	}
+}
+func (c *CombFactorial) C(n, r int) int {
+	res := 1
+	res *= c.factorial[n]
+	res %= MOD
+	res *= c.modFactorial[r]
+	res %= MOD
+	res *= c.modFactorial[n-r]
+	res %= MOD
+
+	return res
+}
+func (c *CombFactorial) P(n, r int) int {
+	res := 1
+	res *= c.factorial[n]
+	res %= MOD
+	res *= c.modFactorial[n-r]
+	res %= MOD
+
+	return res
+}
+func (c *CombFactorial) H(n, r int) int {
+	return c.C(n-1+r, r)
+}
+
+// cf = NewCombFactorial()
+// cf.InitCF()
+// res := cf.C(n, r) 	// 組み合わせ
+// res := cf.H(n, r) 	// 重複組合せ
+// res := cf.P(n, r) 	// 順列
+var cf *CombFactorial
+
+func main() {
+	n, k = ReadInt(), ReadInt()
+	A, B = make([]int, n-1), make([]int, n-1)
+	for i := 0; i < n-1; i++ {
+		A[i], B[i] = ReadInt()-1, ReadInt()-1
 	}
 
-	return true
+	// エッジ整理
+	for i := 0; i < n; i++ {
+		edges[i] = []int{}
+	}
+	for i := 0; i < n-1; i++ {
+		a, b := A[i], B[i]
+		edges[a] = append(edges[a], b)
+		edges[b] = append(edges[b], a)
+	}
+
+	cf = NewCombFactorial()
+	cf.InitCF()
+
+	ans := 1
+	for i := 0; i < n; i++ {
+		fact := 1
+		if i == 0 {
+			nn := k - 1
+			rr := len(edges[i])
+			if nn < 0 || nn < rr {
+				fmt.Println(0)
+				return
+			}
+
+			fact *= k
+			fact *= cf.P(nn, rr)
+			fact %= MOD
+		} else {
+			nn := k - 2
+			rr := len(edges[i]) - 1
+			if nn < 0 || nn < rr {
+				fmt.Println(0)
+				return
+			}
+
+			fact *= cf.P(nn, rr)
+		}
+		ans *= fact
+		ans %= MOD
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

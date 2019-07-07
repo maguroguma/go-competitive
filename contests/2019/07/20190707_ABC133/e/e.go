@@ -29,8 +29,69 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, k int
+var A, B []int
+
+var edges [100000 + 5][]int
+var dp [100000 + 5]int
+var flags [100000 + 5]bool
+
 func main() {
-	fmt.Println("ABC133 e.go")
+	n, k = ReadInt(), ReadInt()
+	A, B = make([]int, n-1), make([]int, n-1)
+	for i := 0; i < n-1; i++ {
+		A[i], B[i] = ReadInt()-1, ReadInt()-1
+	}
+
+	// エッジ整理
+	for i := 0; i < n; i++ {
+		edges[i] = []int{}
+	}
+	for i := 0; i < n-1; i++ {
+		a, b := A[i], B[i]
+		edges[a] = append(edges[a], b)
+		edges[b] = append(edges[b], a)
+	}
+
+	for i := 0; i < n; i++ {
+		dp[i] = k
+	}
+
+	for i := 0; i < n; i++ {
+		flags[i] = true
+		dfs(i, 2, -1)
+	}
+
+	ans := 1
+	for i := 0; i < n; i++ {
+		if dp[i] < 0 {
+			fmt.Println(0)
+			return
+		}
+		ans *= dp[i]
+		ans %= MOD
+	}
+
+	fmt.Println(ans)
+	// fmt.Println(dp[:n])
+}
+
+func dfs(cid, step, pid int) {
+	// 確定させたところはデクリメントしない
+	if !flags[cid] {
+		dp[cid]--
+	}
+
+	if step == 0 {
+		return
+	}
+
+	for _, nextId := range edges[cid] {
+		if nextId == pid {
+			continue
+		}
+		dfs(nextId, step-1, cid)
+	}
 }
 
 // MODはとったか？

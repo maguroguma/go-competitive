@@ -68,6 +68,15 @@ options     head
 
     return res
   }
+  func (c *CombFactorial) P(n, r int) int {
+    res := 1
+    res *= c.factorial[n]
+    res %= MOD
+    res *= c.modFactorial[n-r]
+    res %= MOD
+
+    return res
+  }
   func (c *CombFactorial) H(n, r int) int {
     return c.C(n-1+r, r)
   }
@@ -76,4 +85,5 @@ options     head
   // cf.InitCF()
   // res := cf.C(n, r) 	// 組み合わせ
   // res := cf.H(n, r) 	// 重複組合せ
+  // res := cf.P(n, r) 	// 順列
   var cf *CombFactorial
