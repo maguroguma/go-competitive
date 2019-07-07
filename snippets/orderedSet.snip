@@ -1,6 +1,20 @@
 snippet     sortedSet
 abbr        sset := NewSortedSet()
 options     head
+  // usage
+  var sset *SortedSet
+  sset = New()
+  // O(logN), (key, score, value)だがvalueは無視して良い
+  sset.AddOrUpdate(i, SCORE(i), 0)
+  // O(logN), 削除時はpopのように取得できる, 存在しないkeyを指定してもpanicは発生しない
+  sset.Remove(i)
+  // O(logN), removeしたくない場合はfalse, ランクは1-based, -1だと最大スコアのものを取得
+  lowest := sset.GetByRank(1, false)
+  // O(logN), スコアが小さいものほど小さいランクが1-basedで返る, 存在しないkeyを指定すると0が返る
+  irank := sset.FindRank(i)
+  // 要素数の取得
+  count := sset.GetCount()
+
   // Copyright (c) 2016, Jerry.Wang
   // All rights reserved.
   //
