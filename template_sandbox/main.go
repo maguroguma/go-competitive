@@ -288,6 +288,7 @@ func main() {
 	fmt.Println(91 * 19)
 
 	fmt.Println(59 + 26 + 59 + 53)
+
 }
 
 // MODはとったか？

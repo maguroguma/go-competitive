@@ -1,0 +1,25 @@
+snippet     dijkstra
+abbr        for pq.Len() > 0 {
+options     head
+  // 全頂点について、始点からの距離は無限大としておく
+  for (すべての頂点) {
+    dp[i] = INF
+  }
+  // 始点は当然0
+  dp[0] = 0
+
+  // queueの初期化
+  heap.Push(pq, &Node{priority: dp[0], id: 0})
+  for pq.Len() > 0 {
+    // この時点でノードの最短距離が確定（フラグ立てができる）
+    node := heap.Pop(pq).(*Node)
+
+    // 選択中のノードのエッジをすべて見る
+    for _, next := range edges[node.id] {
+      // 選択中のノードを経由した場合のコストが暫定よりも小さかった場合、更新してqueueに突っ込む
+      if dp[next.tid] > node.priority + next.cost {
+        dp[next.tid] = node.priority + next.cost
+        heap.Push(pq, &Node{priority: dp[next.tid], id: next.tid})
+      }
+    }
+  }
