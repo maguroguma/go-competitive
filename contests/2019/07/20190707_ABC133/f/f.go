@@ -30,7 +30,7 @@ const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
 func main() {
-	fmt.Println("Hello World.")
+	fmt.Println("ABC133 f.go")
 }
 
 // MODはとったか？
