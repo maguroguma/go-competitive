@@ -1,0 +1,79 @@
+snippet     pascalTriangle
+abbr        C[n][r]
+options     head
+  var Comb [5001][5001]int
+  func InitPascalTriangle(m int) {
+    for i := 0; i <= 5000; i++ {
+      for j := 0; j <= i; j++ {
+        if j == 0 || j == i {
+          Comb[i][j] = 1
+        } else {
+          Comb[i][j] = Comb[i-1][j-1] + Comb[i-1][j]
+          Comb[i][j] %= m
+        }
+      }
+    }
+  }
+
+snippet     combinationFactorial
+abbr        cf.C(n, r)
+options     head
+  type CombFactorial struct {
+    factorial, modFactorial [200001]int
+  }
+
+  func NewCombFactorial() *CombFactorial {
+    cf := new(CombFactorial)
+
+    return cf
+  }
+  func (c *CombFactorial) modInv(a int) int {
+    return c.modpow(a, MOD-2)
+  }
+  func (c *CombFactorial) modpow(a, e int) int {
+    if e == 0 {
+      return 1
+    }
+
+    if e%2 == 0 {
+      halfE := e / 2
+      half := c.modpow(a, halfE)
+      return half * half % MOD
+    }
+
+    return a * c.modpow(a, e-1) % MOD
+  }
+  func (c *CombFactorial) InitCF() {
+    for i := 0; i <= 200000; i++ {
+      if i == 0 {
+        c.factorial[i] = 1
+        c.modFactorial[i] = c.modInv(c.factorial[i])
+        continue
+      }
+
+      num := i * c.factorial[i-1]
+      num %= MOD
+      c.factorial[i] = num
+      c.modFactorial[i] = c.modInv(c.factorial[i])
+    }
+  }
+  func (c *CombFactorial) C(n, r int) int {
+    res := 1
+    res *= c.factorial[n]
+    res %= MOD
+    res *= c.modFactorial[r]
+    res %= MOD
+    res *= c.modFactorial[n-r]
+    res %= MOD
+
+    return res
+  }
+  func (c *CombFactorial) H(n, r int) int {
+    return c.C(n-1+r, r)
+  }
+
+  // cf = NewCombFactorial()
+  // cf.InitCF()
+  // res := cf.C(n, r) 	// 組み合わせ
+  // res := cf.H(n, r) 	// 重複組合せ
+  var cf *CombFactorial
