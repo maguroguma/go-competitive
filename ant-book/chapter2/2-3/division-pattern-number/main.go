@@ -29,62 +29,30 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m, M int
+
+// dp[i][j]: jのi分割の総数
+var dp [1000 + 1][1000 + 1]int
+
 func main() {
-	fmt.Println(gacha(70))
-	fmt.Println(gacha(110))
-	fmt.Println(gacha(120))
-	fmt.Println(gacha(250))
-	fmt.Println("---")
-	fmt.Println(gacha3(70, 1))
-	fmt.Println(gacha3(110, 1))
-	fmt.Println(gacha3(120, 1))
-	fmt.Println(gacha3(250, 1))
-	fmt.Println("---")
-	fmt.Println(gacha3(70+110+120+250, 4))
-}
+	n, m, M = ReadInt(), ReadInt(), ReadInt()
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
-	}
-
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	// 0の0分割は1, 1以上のnの0分割は0
+	dp[0][0] = 1
+	for i := 1; i <= m; i++ {
+		for j := 0; j <= n; j++ {
+			if j-i >= 0 {
+				// 第1項はi-1分割の総数,
+				// 第2項はピッタリi個の1以上の要素へ分割したときのパターン数
+				dp[i][j] = (dp[i-1][j] + dp[i][j-i]) % M
+			} else {
+				// jがi未満のときはピッタリi分割は不可能
+				dp[i][j] = dp[i-1][j]
+			}
 		}
 	}
 
-	return true
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
+	fmt.Println(dp[m][n])
 }
 
 // MODはとったか？

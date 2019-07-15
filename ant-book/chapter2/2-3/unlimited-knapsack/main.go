@@ -29,62 +29,31 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var W, V []int
+var w int
+
+var dp [100 + 1][10000 + 1]int
+
 func main() {
-	fmt.Println(gacha(70))
-	fmt.Println(gacha(110))
-	fmt.Println(gacha(120))
-	fmt.Println(gacha(250))
-	fmt.Println("---")
-	fmt.Println(gacha3(70, 1))
-	fmt.Println(gacha3(110, 1))
-	fmt.Println(gacha3(120, 1))
-	fmt.Println(gacha3(250, 1))
-	fmt.Println("---")
-	fmt.Println(gacha3(70+110+120+250, 4))
-}
-
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
+	n = ReadInt()
+	W, V = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		W[i], V[i] = ReadInt(), ReadInt()
 	}
+	w = ReadInt()
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	for i := 0; i < n; i++ {
+		for j := 0; j <= w; j++ {
+			if j < W[i] {
+				dp[i+1][j] = dp[i][j]
+			} else {
+				dp[i+1][j] = Max(dp[i][j], dp[i+1][j-W[i]]+V[i])
+			}
 		}
 	}
 
-	return true
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
+	fmt.Println(dp[n][w])
 }
 
 // MODはとったか？

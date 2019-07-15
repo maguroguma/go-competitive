@@ -29,62 +29,32 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m, M int
+var A []int
+
+// dp[i+1][j]: i番目までの品物から、j個選ぶ組み合わせの総数
+var dp [1000 + 1][1000 + 1]int
+
 func main() {
-	fmt.Println(gacha(70))
-	fmt.Println(gacha(110))
-	fmt.Println(gacha(120))
-	fmt.Println(gacha(250))
-	fmt.Println("---")
-	fmt.Println(gacha3(70, 1))
-	fmt.Println(gacha3(110, 1))
-	fmt.Println(gacha3(120, 1))
-	fmt.Println(gacha3(250, 1))
-	fmt.Println("---")
-	fmt.Println(gacha3(70+110+120+250, 4))
-}
+	n, m = ReadInt(), ReadInt()
+	A = ReadIntSlice(n)
+	M = ReadInt()
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
+	for i := 0; i <= n; i++ {
+		dp[i][0] = 1
 	}
-
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	for i := 0; i < n; i++ {
+		for j := 1; j <= m; j++ {
+			if j-1-A[i] >= 0 {
+				// 引き算の剰余算部分は注意が必要
+				dp[i+1][j] = (dp[i+1][j-1] + dp[i][j] - dp[i][j-1-A[i]] + M) % M
+			} else {
+				dp[i+1][j] = (dp[i+1][j-1] + dp[i][j]) % M
+			}
 		}
 	}
 
-	return true
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
+	fmt.Println(dp[n][m])
 }
 
 // MODはとったか？

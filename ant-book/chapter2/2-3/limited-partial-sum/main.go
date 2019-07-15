@@ -29,62 +29,44 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A []int
+var M []int
+var k int
+
+// i番目まででjを作る際に、余る最大のi番目の個数（作れない場合は-1）
+var dp [100 + 1][100000 + 1]int
+
 func main() {
-	fmt.Println(gacha(70))
-	fmt.Println(gacha(110))
-	fmt.Println(gacha(120))
-	fmt.Println(gacha(250))
-	fmt.Println("---")
-	fmt.Println(gacha3(70, 1))
-	fmt.Println(gacha3(110, 1))
-	fmt.Println(gacha3(120, 1))
-	fmt.Println(gacha3(250, 1))
-	fmt.Println("---")
-	fmt.Println(gacha3(70+110+120+250, 4))
-}
+	n = ReadInt()
+	A = ReadIntSlice(n)
+	M = ReadIntSlice(n)
+	k = ReadInt()
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
+	for j := 0; j <= 100000; j++ {
+		dp[0][j] = -1
 	}
+	dp[0][0] = 0
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	for i := 0; i < n; i++ {
+		for j := 0; j <= k; j++ {
+			if dp[i][j] >= 0 {
+				// i番目を使わずしてすでに出来上がっているので、i番目はすべて余らせることができる
+				dp[i+1][j] = M[i]
+			} else if j < A[i] || dp[i+1][j-A[i]] <= 0 {
+				// i番目の値ではどうあがいてもjを作れない
+				dp[i+1][j] = -1
+			} else {
+				dp[i+1][j] = dp[i+1][j-A[i]] - 1
+			}
 		}
 	}
 
-	return true
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
+	if dp[n][k] >= 0 {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
 	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
 }
 
 // MODはとったか？

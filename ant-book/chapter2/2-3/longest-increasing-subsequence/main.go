@@ -29,62 +29,74 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A []int
+
+var dp [1000 + 1]int
+
 func main() {
-	fmt.Println(gacha(70))
-	fmt.Println(gacha(110))
-	fmt.Println(gacha(120))
-	fmt.Println(gacha(250))
-	fmt.Println("---")
-	fmt.Println(gacha3(70, 1))
-	fmt.Println(gacha3(110, 1))
-	fmt.Println(gacha3(120, 1))
-	fmt.Println(gacha3(250, 1))
-	fmt.Println("---")
-	fmt.Println(gacha3(70+110+120+250, 4))
+	n = ReadInt()
+	A = ReadIntSlice(n)
+
+	// fmt.Println(solve())
+	fmt.Println(solve2())
 }
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
-	}
-
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+func solve() int {
+	res := 0
+	for i := 0; i < n; i++ {
+		dp[i] = 1
+		for j := 0; j < i; j++ {
+			if A[j] < A[i] {
+				dp[i] = Max(dp[i], dp[j]+1)
+			}
 		}
+		res = Max(res, dp[i])
 	}
-
-	return true
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
 	return res
 }
 
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
+func solve2() int {
+	for i := 0; i < len(dp); i++ {
+		dp[i] = INF_BIT60
 	}
-	return 1.0 - res
+
+	for i := 0; i < n; i++ {
+		idx := sub(A[i])
+		fmt.Printf("idx: %d, a: %d\n", idx, A[i])
+		fmt.Println(dp[:5])
+		// if 0 <= idx && idx < n {
+		// 	dp[idx] = A[i]
+		// }
+		dp[idx+1] = A[i]
+	}
+
+	fmt.Println(dp[:5])
+	return sub(INF_BIT60-1) + 1
+}
+
+// a
+func sub(a int) int {
+	// m は中央を意味する何らかの値
+	isOK := func(m, a int) bool {
+		if dp[m] <= a {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := len(dp), -1
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid, a) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+	bIdx := ok
+
+	return bIdx
 }
 
 // MODはとったか？
