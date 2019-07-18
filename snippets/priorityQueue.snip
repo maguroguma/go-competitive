@@ -22,6 +22,7 @@ options     head
   // heap.Init(pq)
   // heap.Push(pq, intValue)
   // poppedVal := heap.Pop(pq).(int)
+  // l := len(*pq)
 
 snippet     priorityQueueStruct
 abbr        type ItemPQ []*Item
@@ -55,3 +56,4 @@ options     head
   // heap.Init(pq)
   // heap.Push(pq, &$1{priority: intValue})
   // popped := heap.Pop(pq).(*$1)
+  // l := len(*pq)
