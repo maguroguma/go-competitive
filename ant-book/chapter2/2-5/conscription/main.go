@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -29,65 +30,127 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m, r int
+var X, Y, D []int
+
+var es EdgeList
+
 func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-	a, b := 1, 100
-	a, b = b, a
-	fmt.Println(a, b)
+	n, m, r = ReadInt(), ReadInt(), ReadInt()
+	X, Y, D = make([]int, r), make([]int, r), make([]int, r)
+	for i := 0; i < r; i++ {
+		// 与えられる男女のIDは0-based
+		X[i], Y[i], D[i] = ReadInt(), ReadInt(), ReadInt()
+	}
+
+	v := n + m // 全頂点数
+	es = make(EdgeList, 0, 200000+5)
+	for i := 0; i < r; i++ {
+		x, y, d := X[i], Y[i], D[i]
+		// 女はn加算することで別のノードとする
+		es = append(es, &Edge{key: -d, from: x, to: n + y, cost: -d})
+		es = append(es, &Edge{key: -d, from: n + y, to: x, cost: -d}) // クラスカル法では逆向きの辺はなくても大丈夫（？）
+	}
+	sort.Stable(byKey{es})
+
+	uf := NewUnionFind(v)
+	res := 0
+	for _, e := range es {
+		if !uf.Same(e.from, e.to) {
+			uf.Unite(e.from, e.to)
+			res += e.cost
+		}
+	}
+
+	fmt.Println(10000*(n+m) + res)
 }
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
+type Edge struct {
+	key            int
+	from, to, cost int
+}
+type EdgeList []*Edge
+type byKey struct {
+	EdgeList
+}
+
+func (l EdgeList) Len() int {
+	return len(l)
+}
+func (l EdgeList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.EdgeList[i].key < l.EdgeList[j].key
+}
+
+// how to use
+// L := make(EdgeList, 0, 200000+5)
+// L = append(L, &Edge{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+// UnionFind provides disjoint set algorithm.
+// It accepts both 0-based and 1-based setting.
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n+1)
+
+	for i := 0; i <= n; i++ {
+		uf.parents[i] = -1
+	}
+
+	return uf
+}
+
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
+		return x
+	}
+
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
 		return false
 	}
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
-		}
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
 	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
 
 	return true
 }
 
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
 }
 
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
 }
 
 // MODはとったか？

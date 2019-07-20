@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -29,66 +30,92 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-	a, b := 1, 100
-	a, b = b, a
-	fmt.Println(a, b)
+var v, e int
+var S, T, W []int
+
+type Edge struct {
+	to, cost int
 }
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
+var G [10000 + 5][]Edge
+var used [10000 + 5]bool
+
+func main() {
+	v, e := ReadInt(), ReadInt()
+	S, T, W = make([]int, e), make([]int, e), make([]int, e)
+	for i := 0; i < e; i++ {
+		S[i], T[i], W[i] = ReadInt(), ReadInt(), ReadInt()
 	}
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	for i := 0; i < v; i++ {
+		G[i] = []Edge{}
+	}
+	for i := 0; i < e; i++ {
+		s, t, w := S[i], T[i], W[i]
+		G[s] = append(G[s], Edge{to: t, cost: w})
+		G[t] = append(G[t], Edge{to: s, cost: w})
+	}
+
+	temp := make(NodePQ, 0, 100000+1)
+	pq := &temp
+	heap.Init(pq)
+	for _, e := range G[0] {
+		heap.Push(pq, &Node{pri: e.cost, cost: e.cost, id: e.to})
+	}
+	used[0] = true
+
+	res := 0
+	for pq.Len() > 0 {
+		node := heap.Pop(pq).(*Node)
+		cid, ccost := node.id, node.cost
+
+		if used[cid] {
+			continue
+		}
+
+		res += ccost
+		used[cid] = true
+
+		for _, e := range G[cid] {
+			if used[e.to] {
+				continue
+			}
+			heap.Push(pq, &Node{pri: e.cost, cost: e.cost, id: e.to})
 		}
 	}
 
-	return true
+	fmt.Println(res)
 }
 
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
+type Node struct {
+	pri      int
+	cost, id int
+}
+type NodePQ []*Node
+
+func (pq NodePQ) Len() int           { return len(pq) }
+func (pq NodePQ) Less(i, j int) bool { return pq[i].pri < pq[j].pri } // <: ASC, >: DESC
+func (pq NodePQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *NodePQ) Push(x interface{}) {
+	item := x.(*Node)
+	*pq = append(*pq, item)
+}
+func (pq *NodePQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
 }
 
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
-}
+// how to use
+// temp := make(NodePQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &Node{pri: intValue})
+// popped := heap.Pop(pq).(*Node)
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？

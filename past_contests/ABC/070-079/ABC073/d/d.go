@@ -29,65 +29,94 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-	a, b := 1, 100
-	a, b = b, a
-	fmt.Println(a, b)
-}
+var n, m, r int
+var R []int
+var A, B, C []int
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
+var dp [205][205][205]int
+
+func main() {
+	n, m, r = ReadInt(), ReadInt(), ReadInt()
+	R = ReadIntSlice(r)
+	A, B, C = make([]int, m), make([]int, m), make([]int, m)
+	for i := 0; i < m; i++ {
+		A[i], B[i], C[i] = ReadInt(), ReadInt(), ReadInt()
 	}
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	for i := 0; i <= n; i++ {
+		for j := 0; j <= n; j++ {
+			if i == j {
+				dp[0][i][j] = 0
+			} else {
+				dp[0][i][j] = 200*100000 + 5
+			}
 		}
 	}
-
-	return true
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
+	for i := 0; i < m; i++ {
+		a, b, c := A[i], B[i], C[i]
+		dp[0][a][b] = c
+		dp[0][b][a] = c
 	}
 
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
+	warshallFloyd()
+
+	tmp := FactorialPatterns(R)
+
+	ans := INF_BIT60
+	for _, p := range tmp {
+		tmpAns := 0
+		for i := 0; i < len(p)-1; i++ {
+			tmpAns += dp[n+1][p[i]][p[i+1]]
+		}
+		ChMin(&ans, tmpAns)
+	}
+
+	fmt.Println(ans)
+}
+
+func warshallFloyd() {
+	// dp[0][u][v] = e[u][v] or INF
+	// dp[i][i] = 0
+	for k := 0; k <= n; k++ {
+		for i := 1; i <= n; i++ {
+			for j := 1; j <= n; j++ {
+				// 1. 頂点kをちょうど一度通る場合
+				// 2. 頂点kを全く通らない場合
+				// の排反な2ケースを加味したもの
+				dp[k+1][i][j] = Min(dp[k][i][j], dp[k][i][k]+dp[k][k][j])
+			}
+		}
+	}
+}
+
+// FactorialPatterns returns all patterns of n! of elems([]int).
+func FactorialPatterns(elems []int) [][]int {
+	newResi := make([]int, len(elems))
+	copy(newResi, elems)
+
+	return factRec([]int{}, newResi)
+}
+
+// DFS function for FactorialPatterns.
+func factRec(pattern, residual []int) [][]int {
+	if len(residual) == 0 {
+		return [][]int{pattern}
+	}
+
+	res := [][]int{}
+	for i, e := range residual {
+		newPattern := make([]int, len(pattern))
+		copy(newPattern, pattern)
+		newPattern = append(newPattern, e)
+
+		newResi := []int{}
+		newResi = append(newResi, residual[:i]...)
+		newResi = append(newResi, residual[i+1:]...)
+
+		res = append(res, factRec(newPattern, newResi)...)
+	}
 
 	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
 }
 
 // MODはとったか？

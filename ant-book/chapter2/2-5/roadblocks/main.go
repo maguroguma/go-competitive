@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -29,66 +30,100 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-	a, b := 1, 100
-	a, b = b, a
-	fmt.Println(a, b)
+var n, r int
+var A, B, C []int
+
+var G [5000 + 5][]Edge
+var dist [5000 + 5]int
+var dist2 [5000 + 5]int
+
+type Edge struct {
+	to, cost int
 }
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
+func main() {
+	n, r = ReadInt(), ReadInt()
+	A, B, C = make([]int, r), make([]int, r), make([]int, r)
+	for i := 0; i < r; i++ {
+		A[i], B[i], C[i] = ReadInt()-1, ReadInt()-1, ReadInt()
 	}
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	for i := 0; i < n; i++ {
+		dist[i] = INF_BIT60
+		dist2[i] = INF_BIT60
+		G[i] = []Edge{}
+	}
+	for i := 0; i < r; i++ {
+		a, b, c := A[i], B[i], C[i]
+		G[a] = append(G[a], Edge{to: b, cost: c})
+		G[b] = append(G[b], Edge{to: a, cost: c})
+	}
+	dist[0] = 0
+
+	temp := make(NodePQ, 0, 100000+1)
+	pq := &temp
+	heap.Init(pq)
+
+	heap.Push(pq, &Node{pri: 0, dist: 0, id: 0})
+
+	for pq.Len() > 0 {
+		node := heap.Pop(pq).(*Node)
+		v, d := node.id, node.dist
+
+		// 2番目の最短路よりも距離dが大きい場合は無視
+		if dist2[v] < d {
+			continue
+		}
+
+		// vから伸びる辺をチェック
+		for _, e := range G[v] {
+			d2 := d + e.cost
+			// 最短路の更新から考える
+			if dist[e.to] > d2 {
+				// もともとの最短路は2番手に来る可能性があるため保持しておく
+				dist[e.to], d2 = d2, dist[e.to]
+				heap.Push(pq, &Node{pri: dist[e.to], dist: dist[e.to], id: e.to})
+			}
+			// dist[e.to] < d2 < dist2[e.to] という順序関係
+			if dist2[e.to] > d2 && dist[e.to] < d2 {
+				dist2[e.to] = d2
+				heap.Push(pq, &Node{pri: dist2[e.to], dist: dist2[e.to], id: e.to})
+			}
 		}
 	}
 
-	return true
+	fmt.Println(dist2[n-1])
 }
 
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
+type Node struct {
+	pri      int
+	dist, id int
+}
+type NodePQ []*Node
+
+func (pq NodePQ) Len() int           { return len(pq) }
+func (pq NodePQ) Less(i, j int) bool { return pq[i].pri < pq[j].pri } // <: ASC, >: DESC
+func (pq NodePQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *NodePQ) Push(x interface{}) {
+	item := x.(*Node)
+	*pq = append(*pq, item)
+}
+func (pq *NodePQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
 }
 
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
-}
+// how to use
+// temp := make(NodePQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &Node{pri: intValue})
+// popped := heap.Pop(pq).(*Node)
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？

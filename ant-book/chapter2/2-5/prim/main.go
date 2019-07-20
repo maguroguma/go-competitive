@@ -26,6 +26,7 @@ func prim() int {
 	for _, e := range G[0] {
 		heap.Push(pq, &Node{pri: e.cost, cost: e.cost, id: e.to})
 	}
+	used[0] = true
 
 	res := 0
 	for pq.Len() > 0 {
@@ -39,6 +40,7 @@ func prim() int {
 
 		// ノードへ到達するための辺のコストを加算する
 		res += node.cost
+		used[v] = true
 
 		for _, e := range G[v] {
 			// vから伸びる先のノードがすでに全域木Tに組み込まれている場合は、その辺は無視する

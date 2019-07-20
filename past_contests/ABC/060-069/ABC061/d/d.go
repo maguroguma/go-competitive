@@ -29,65 +29,72 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-	a, b := 1, 100
-	a, b = b, a
-	fmt.Println(a, b)
+var n, m int
+var A, B, C []int
+
+type Edge struct {
+	from, to, cost int
 }
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
+var es []Edge
+var dist [1000 + 5]int
+var isRoop [1000 + 5]bool
+
+func main() {
+	n, m = ReadInt(), ReadInt()
+	A, B, C = make([]int, m), make([]int, m), make([]int, m)
+	for i := 0; i < m; i++ {
+		A[i], B[i], C[i] = ReadInt()-1, ReadInt()-1, ReadInt()
 	}
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	es = []Edge{}
+	for i := 0; i < m; i++ {
+		a, b, c := A[i], B[i], C[i]
+		es = append(es, Edge{from: a, to: b, cost: -c})
+	}
+
+	for i := 0; i < n; i++ {
+		dist[i] = INF_BIT60
+	}
+	dist[0] = 0
+
+	// まずは普通に更新
+	for i := 0; i < n; i++ {
+		isUpdate := false
+
+		for _, e := range es {
+			if dist[e.from] != INF_BIT60 && dist[e.to] > dist[e.from]+e.cost {
+				dist[e.to] = dist[e.from] + e.cost
+				isUpdate = true
+			}
+		}
+
+		if !isUpdate {
+			break
 		}
 	}
 
-	return true
-}
+	// 閉路チェック
+	for i := 0; i < n; i++ {
+		for _, e := range es {
+			// 起こらないはずの更新が起こる
+			if dist[e.from] != INF_BIT60 && dist[e.to] > dist[e.from]+e.cost {
+				dist[e.to] = dist[e.from] + e.cost
+				isRoop[e.to] = true
+			}
 
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
+			// ※このパートはなくても通ってしまった
+			if isRoop[e.from] {
+				isRoop[e.to] = true
+			}
+		}
 	}
-	for i := num; i > 0; i-- {
-		comb /= i
+
+	if isRoop[n-1] {
+		fmt.Println("inf")
+	} else {
+		fmt.Println(-dist[n-1])
 	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
 }
 
 // MODはとったか？

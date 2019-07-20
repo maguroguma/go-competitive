@@ -11,4 +11,8 @@
   - これは早いうちにまとめて取り掛かったほうがいいかもしれない。
 - [初心者の初心者による初心者のための典型segment tree](http://d.hatena.ne.jp/DEGwer/touch/20131211/1386757368)
   - DEGwerさんのブログ。遅延評価を含むセグメント木の解説。
+- [双子おすすめSRM問題集](https://docs.google.com/spreadsheets/d/1HpCzGy_FlOk7p0Ok6x_InM-l49luYau1MCCObtfknFA/edit#gid=1527555479)
+  - 全50問？
+- [双子が考える水色周辺の人が解くべき問題20選](https://docs.google.com/spreadsheets/d/1nXQpWJ7fddnfDNqcdBumj2WzCbIy_H06upI6R_-_qkI/edit#gid=0)
+  - 双子のファンボーイなので解く。
 

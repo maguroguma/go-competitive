@@ -126,6 +126,14 @@ DAG: 有向グラフで閉路を持たないグラフ（Directed Acyclic Graph�
 
 ### 全点対最短路問題: ワーシャルフロイド法
 
+#### ポイント
+
+- 実装が簡単なので `O(n^3)` という計算量に耐えられるのであれば積極的に使ったほうがいい。
+- **負の辺があっても動作する！**
+  - 負の閉路があるかないかは `d[i][i]` が負になる頂点 `i`があるかどうかで判別できる。
+
+#### 考え方: DP
+
 wikipediaなどの解説も詳しかったが、「`k` について1周で十分なのはなぜか？」みたいな疑問が生じていて、なんとなく腑に落ちていなかった。
 
 **DPだと言われると納得しやすかったので、書いて理解を深める。**
@@ -219,4 +227,29 @@ Union Find木を使う！
 - Union-Find木を使う。
 
 Union-Find木の実装方法次第だが、コアとなるロジック部分はプリム法よりもスッキリする気がする。
+
+※クラスカル法では、無向グラフでも逆向きの辺はリストに加えなくても大丈夫？
+（UF木で連結判定を行うだけなため。）
+
+---
+
+## グラフアルゴリズムのverify問集
+
+### ベルマンフォード法
+
+- [Score Attack](https://atcoder.jp/contests/abc061/tasks/abc061_d)
+
+### ダイクストラ法
+
+
+### ワーシャルフロイド法
+
+- [joisino's travel](https://atcoder.jp/contests/abc073/tasks/abc073_d)
+
+### プリム法、クラスカル法
+
+- [AOJ Minimum Spanning Tree](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=GRL_2_A&lang=jp)
+  - 入力が隣接リスト形式
+- [AOJ Graph2 Minimum Spanning Tree](http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=ALDS1_12_A&lang=jp)
+  - 入力が隣接行列
 
