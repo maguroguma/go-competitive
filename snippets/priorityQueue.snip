@@ -22,19 +22,18 @@ options     head
   // heap.Init(pq)
   // heap.Push(pq, intValue)
   // poppedVal := heap.Pop(pq).(int)
-  // l := len(*pq)
 
 snippet     priorityQueueStruct
 abbr        type ItemPQ []*Item
 options     head
   type ${1:Item} struct {
-    priority int
+    pri int
     ${2:#:otherProperty and type}
   }
   type $1PQ []*$1
 
   func (pq $1PQ) Len() int           { return len(pq) }
-  func (pq $1PQ) Less(i, j int) bool { return pq[i].priority ${2:<} pq[j].priority } // <: ASC, >: DESC
+  func (pq $1PQ) Less(i, j int) bool { return pq[i].pri ${2:<} pq[j].pri } // <: ASC, >: DESC
   func (pq $1PQ) Swap(i, j int) {
     pq[i], pq[j] = pq[j], pq[i]
   }
@@ -54,6 +53,5 @@ options     head
   // temp := make($1PQ, 0, 100000+1)
   // pq := &temp
   // heap.Init(pq)
-  // heap.Push(pq, &$1{priority: intValue})
+  // heap.Push(pq, &$1{pri: intValue})
   // popped := heap.Pop(pq).(*$1)
-  // l := len(*pq)
