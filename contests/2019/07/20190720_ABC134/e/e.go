@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -30,95 +29,50 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A []int
+
+var B []int
+
 func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-	a, b := 1, 100
-	a, b = b, a
-	fmt.Println(a, b)
+	n = ReadInt()
+	A = ReadIntSlice(n)
 
-	pq := &IntPQ{3, 6, 1, 2}
-	heap.Init(pq)
-	fmt.Println(pq)
-	heap.Push(pq, 4)
-	fmt.Println(pq)
-	heap.Init(pq)
-	fmt.Println(pq)
-}
+	B = []int{}
 
-type IntPQ []int
-
-func (pq IntPQ) Len() int           { return len(pq) }
-func (pq IntPQ) Less(i, j int) bool { return pq[i] < pq[j] } // <: ASC, >: DESC
-func (pq IntPQ) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
-func (pq *IntPQ) Push(x interface{}) {
-	*pq = append(*pq, x.(int))
-}
-func (pq *IntPQ) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	x := old[n-1]
-	*pq = old[0 : n-1]
-	return x
-}
-
-// how to use
-// pq := &IntPQ{3, 6, 1, 2}
-// heap.Init(pq)
-// heap.Push(pq, intValue)
-// poppedVal := heap.Pop(pq).(int)
-
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
-	}
-
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	for _, a := range A {
+		idx := sub(a)
+		if idx == len(B) {
+			B = append(B, a)
+		} else {
+			B[idx] = a
 		}
 	}
 
-	return true
+	fmt.Println(len(B))
 }
 
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
+func sub(a int) int {
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if B[m] < a {
+			return true
+		}
+		return false
 	}
 
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
+	ng, ok := -1, len(B)
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
 	}
-	return 1.0 - res
+	bIdx := ok
+
+	return bIdx
 }
 
 // MODはとったか？
