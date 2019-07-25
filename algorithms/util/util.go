@@ -41,6 +41,12 @@ func GetCumulativeSums(integers []int) []int {
 	return res
 }
 
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
+}
+
 // 任意のスライスを反転した、新しいスライスを返す
 
 // unshift

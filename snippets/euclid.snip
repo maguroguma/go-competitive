@@ -1,0 +1,26 @@
+snippet     euclid
+abbr        gcd(a, b int) int
+options     head
+  func gcd(a, b int) int {
+    if b == 0 {
+      return a
+    }
+    return gcd(b, a%b)
+  }
+
+snippet     extendedEuclid
+abbr        extgcd(a, b int, x, y *int) int
+options     head
+  // 返り値: a, bの最大公約数
+  // ax + by = gcd(a, b) を満たす (x, y) が格納される
+  func extgcd(a, b int, x, y *int) int {
+    // 再帰の終了条件
+    if b == 0 {
+      *x, *y = 1, 0
+      return a
+    }
+
+    d := extgcd(b, a%b, y, x)
+    *y -= (a / b) * (*x)
+    return d
+  }

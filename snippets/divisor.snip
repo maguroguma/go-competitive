@@ -27,7 +27,7 @@ options     head
     return p
   }
 
-snippet     divisors
+snippet     divisorsMapVer
 abbr        Divisors(n int) map[int]int
 options     head
   // Divisors returns the divisors of an argument integer as map[int]int.
@@ -39,6 +39,25 @@ options     head
       if n%l == 0 {
         res[l] = 1
         res[n/l] = 1
+      }
+    }
+
+    return res
+  }
+
+snippet     divisorsSliceVer
+abbr        divisor(n int) []int
+options     head
+  // 約数の列挙: O(sqrt(n))
+  func divisor(n int) []int {
+    res := []int{}
+
+    for i := 1; i*i <= n; i++ {
+      if n%i == 0 {
+        res = append(res, i)
+        if i != (n / i) {
+          res = append(res, (n / i))
+        }
       }
     }
 

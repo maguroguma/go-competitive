@@ -41,3 +41,12 @@ func Test累積和スライスを用いた部分和の算出(t *testing.T) {
 	// ↓これはアウト
 	// assert.Equal(t, []int{}, A[len(A)+1:len(A)+1])
 }
+
+func Test整数型除算の切り上げ(t *testing.T) {
+	assert.Equal(t, 2, Kiriage(5, 3))
+	assert.Equal(t, 2, Kiriage(6, 3))
+	assert.Equal(t, 0, Kiriage(0, 100))
+	assert.Equal(t, 1, Kiriage(1<<60-1, 1<<60))
+	assert.Equal(t, 1, Kiriage(1, 1<<60))
+	assert.Equal(t, 0, Kiriage(0, 1<<60))
+}
