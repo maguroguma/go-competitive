@@ -18,6 +18,16 @@ abbr        sort.Sort(sort.Reverse(sort.StringSlice(S)))
 options     head
   sort.Sort(sort.Reverse(sort.StringSlice(${1:S})))
 
+snippet     sortAscFloat64Slice
+abbr        sort.Sort(sort.Float64Slice(S))
+options     head
+  sort.Sort(sort.Float64Slice(${1:S}))
+
+snippet     sortDescFloat64Slice
+abbr        sort.Sort(sort.Reverse(sort.Float64Slice(S)))
+options     head
+  sort.Sort(sort.Reverse(sort.Float64Slice(${1:S})))
+
 snippet     sortedStruct
 abbr        type Item struct
 options     head
