@@ -29,8 +29,43 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var S []rune
+var revS []rune
+
+var dp [100000 + 5][15]int
+var memo [100000 + 5]int
+
 func main() {
-	fmt.Println("ABC135 d.go")
+	revS = ReadRuneSlice()
+	S = []rune{}
+	for i := len(revS) - 1; i >= 0; i-- {
+		S = append(S, revS[i])
+	}
+
+	memo[0] = 1
+	for i := 0; i < len(S); i++ {
+		memo[i+1] = (10 * memo[i]) % 13
+	}
+
+	dp[0][0] = 1
+	for i := 0; i < len(S); i++ {
+		if S[i] == '?' {
+			for j := 0; j < 13; j++ {
+				for k := 0; k < 10; k++ {
+					dp[i+1][(j+k*memo[i])%13] += dp[i][j]
+					dp[i+1][(j+k*memo[i])%13] %= MOD
+				}
+			}
+		} else {
+			num := int(S[i] - '0')
+			for j := 0; j < 13; j++ {
+				dp[i+1][(j+num*memo[i])%13] += dp[i][j]
+				dp[i+1][(j+num*memo[i])%13] %= MOD
+			}
+		}
+	}
+
+	fmt.Println(dp[len(S)][5])
 }
 
 // MODはとったか？

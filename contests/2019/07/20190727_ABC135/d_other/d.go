@@ -29,38 +29,36 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n int
-var A, B []int
+var S []rune
+
+var dp [100000 + 5][15]int
 
 func main() {
-	n = ReadInt()
-	A = ReadIntSlice(n + 1)
-	B = ReadIntSlice(n)
+	S = ReadRuneSlice()
+	n := len(S)
 
-	ans := 0
+	dp[0][0] = 1
 	for i := 0; i < n; i++ {
-		if A[i] >= B[i] {
-			// 勇者が力尽きる
-			ans += B[i]
+		var c int
+		if S[i] == '?' {
+			c = -1
 		} else {
-			// まずi番目の街のモンスターを壊滅させる
-			ans += A[i]
-			// 勇者の体力を減らす
-			B[i] -= A[i]
+			c = int(S[i] - '0')
+		}
 
-			if A[i+1] >= B[i] {
-				// 体力分だけ倒す
-				ans += B[i]
-				A[i+1] -= B[i]
-			} else {
-				// i+1番目も壊滅させる
-				ans += A[i+1]
-				A[i+1] = 0
+		for j := 0; j < 10; j++ {
+			if c != -1 && c != j {
+				continue
+			}
+
+			for ki := 0; ki < 13; ki++ {
+				dp[i+1][(ki*10+j)%13] += dp[i][ki]
+				dp[i+1][(ki*10+j)%13] %= MOD
 			}
 		}
 	}
 
-	fmt.Println(ans)
+	fmt.Println(dp[n][5])
 }
 
 // MODはとったか？

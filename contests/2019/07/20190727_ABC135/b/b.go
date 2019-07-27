@@ -29,8 +29,25 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var P []int
+
 func main() {
-	fmt.Println("ABC135 b.go")
+	n = ReadInt()
+	P = ReadIntSlice(n)
+
+	count := 0
+	for i := 1; i <= n; i++ {
+		if P[i-1] != i {
+			count++
+		}
+	}
+
+	if count == 2 || count == 0 {
+		fmt.Println("YES")
+	} else {
+		fmt.Println("NO")
+	}
 }
 
 // MODはとったか？
