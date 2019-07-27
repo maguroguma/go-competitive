@@ -1,0 +1,9 @@
+input:
+
+7
+BBFBFBB
+
+output:
+
+3 3
+

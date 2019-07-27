@@ -29,8 +29,39 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, s int
+var A []int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, s = ReadInt(), ReadInt()
+	A = ReadIntSlice(n)
+
+	r := 0
+	sum := 0
+	ans := 1 << 60
+	for l := 0; l < n; l++ {
+		for r < n && (sum < s) {
+			sum += A[r]
+			r++
+		}
+
+		// ans += (r - l)
+		if sum >= s {
+			ChMin(&ans, r-l)
+		}
+
+		if r == l {
+			r++
+		} else {
+			sum -= A[l]
+		}
+	}
+
+	if ans > n {
+		fmt.Println(0)
+	} else {
+		fmt.Println(ans)
+	}
 }
 
 // MODはとったか？
@@ -69,15 +100,6 @@ func newReadString(ior io.Reader) func() string {
 // ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
-}
-func ReadInt2() (int, int) {
-	return int(readInt64()), int(readInt64())
-}
-func ReadInt3() (int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64())
-}
-func ReadInt4() (int, int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
 func readInt64() int64 {

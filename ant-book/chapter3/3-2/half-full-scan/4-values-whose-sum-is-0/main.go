@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -29,8 +30,78 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A, B, C, D []int
+
+var CD []int // CとDの組からの取り出し方
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	A, B, C, D = ReadIntSlice(n), ReadIntSlice(n), ReadIntSlice(n), ReadIntSlice(n)
+	CD = make([]int, n*n)
+
+	// CとDからの取り出し方の組を全列挙
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			CD[i*n+j] = C[i] + D[j]
+		}
+	}
+	sort.Sort(sort.IntSlice(CD))
+
+	res := 0
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			cd := -(A[i] + B[j])
+			// CとDから和がcdとなるように取り出す
+			res += upperBound(CD, cd) - lowerBound(CD, cd)
+		}
+	}
+
+	fmt.Println(res)
+}
+
+func upperBound(A []int, a int) int {
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if A[m] > a {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := -1, len(A)
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
+}
+
+func lowerBound(A []int, a int) int {
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if A[m] >= a {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := -1, len(A)
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
 }
 
 // MODはとったか？

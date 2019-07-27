@@ -29,8 +29,118 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var m, n int
+var tile [][]int
+
+// 隣接するマスの座標
+// ※golangでは配列定数は定義できない
+// const dx = [5]int{-1, 0, 0, 0, 1}
+// const dy = [5]int{0, -1, 0, 1, 0}
+var dx, dy []int
+var opt [][]int  // 最適解保存用
+var flip [][]int // 作業用
+
 func main() {
-	fmt.Println("Hello World.")
+	m, n = ReadInt(), ReadInt()
+	tile = [][]int{}
+	for i := 0; i < m; i++ {
+		row := ReadIntSlice(n)
+		tile = append(tile, row)
+	}
+	dx = []int{-1, 0, 0, 0, 1}
+	dy = []int{0, -1, 0, 1, 0}
+
+	for i := 0; i < m; i++ {
+		row1, row2 := make([]int, n), make([]int, n)
+		opt, flip = append(opt, row1), append(flip, row2)
+	}
+
+	res := -1
+
+	// 1行目を辞書順で全通り試す
+	for i := 0; i < 1<<uint(n); i++ {
+		clearFlip()
+		for j := 0; j < n; j++ {
+			// （おそらく）n-1番目の列を0bit目としている
+			flip[0][n-j-1] = (i >> uint(j)) & 1
+		}
+		num := calc()
+		if num >= 0 && (res < 0 || res > num) {
+			res = num
+			copyFlipToOpt()
+		}
+	}
+
+	if res < 0 {
+		// 解なし
+		fmt.Println("IMPOSSIBLE")
+	} else {
+		for i := 0; i < m; i++ {
+			fmt.Println(PrintIntsLine(opt[i]...))
+		}
+	}
+}
+
+func clearFlip() {
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			flip[i][j] = 0
+		}
+	}
+}
+
+func copyFlipToOpt() {
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			opt[i][j] = flip[i][j]
+		}
+	}
+}
+
+// (x, y)の色を調べる
+func get(x, y int) int {
+	// タイル本来の色（反転を一切していない初期値）
+	c := tile[x][y]
+	for d := 0; d < 5; d++ {
+		x2, y2 := x+dx[d], y+dy[d]
+		if 0 <= x2 && x2 < m && 0 <= y2 && y2 < n {
+			// 反転状況から(x, y)が反転対象に選ばれた回数を加算
+			c += flip[x2][y2]
+		}
+	}
+	return c % 2
+}
+
+// 1行目を決めた場合の最小操作回数を求める
+// 解が存在しないならば-1
+func calc() int {
+	// 2行目からのひっくり返し方を求める
+	for i := 1; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if get(i-1, j) != 0 {
+				// (i-1, j)が黒色なら、このマスをひっくり返すしかない
+				flip[i][j] = 1
+			}
+		}
+	}
+
+	// 最後の行が全部白かチェック
+	for j := 0; j < n; j++ {
+		if get(m-1, j) != 0 {
+			// 解なし
+			return -1
+		}
+	}
+
+	// 反転回数をカウント
+	res := 0
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			res += flip[i][j]
+		}
+	}
+
+	return res
 }
 
 // MODはとったか？
@@ -69,15 +179,6 @@ func newReadString(ior io.Reader) func() string {
 // ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
-}
-func ReadInt2() (int, int) {
-	return int(readInt64()), int(readInt64())
-}
-func ReadInt3() (int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64())
-}
-func ReadInt4() (int, int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
 func readInt64() int64 {

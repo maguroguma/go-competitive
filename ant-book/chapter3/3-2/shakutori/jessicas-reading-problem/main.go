@@ -29,8 +29,56 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var p int
+var A []int
+
 func main() {
-	fmt.Println("Hello World.")
+	p = ReadInt()
+	A = ReadIntSlice(p)
+
+	// 書かれている事柄の総数を計算
+	memo := make(map[int]int)
+	for _, a := range A {
+		memo[a] = 1
+	}
+	n := len(memo)
+	fmt.Printf("n: %d\n", n)
+
+	// しゃくとり法により解を求める
+	r := 0
+	num := 0
+	ans := 1 << 60
+	count := make(map[int]int) // 事柄->出現数の対応
+	for l := 0; l < n; l++ {
+		for r < p && (num < n) {
+			// sum += A[r]
+			// r++
+			if count[A[r]] == 0 {
+				// 新しい事柄が出現
+				num++
+			}
+			count[A[r]]++
+			r++
+		}
+
+		// ans += (r - l)
+		if num == n {
+			ChMin(&ans, r-l)
+		}
+
+		if r == l {
+			r++
+		} else {
+			// sum -= A[l]
+			if count[A[l]] == 1 {
+				// ある事柄の出現数が0になった
+				num--
+			}
+			count[A[l]]--
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？
@@ -69,15 +117,6 @@ func newReadString(ior io.Reader) func() string {
 // ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
-}
-func ReadInt2() (int, int) {
-	return int(readInt64()), int(readInt64())
-}
-func ReadInt3() (int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64())
-}
-func ReadInt4() (int, int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
 func readInt64() int64 {

@@ -29,8 +29,63 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var S []rune
+var dir []int // 0:F, 1:B
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	S = ReadRuneSlice()
+	dir = make([]int, n)
+	for i := 0; i < len(S); i++ {
+		if S[i] == 'B' {
+			dir[i] = 1
+		}
+	}
+
+	K, M := 1, n
+	for k := 1; k <= n; k++ {
+		m := calc(k)
+		if m >= 0 && M > m {
+			M, K = m, k
+		}
+	}
+
+	fmt.Println(K, M)
+}
+
+// kを固定したときの最小操作回数を求める
+func calc(k int) int {
+	F := make([]int, len(S))
+	// sumはfの和（累積和のようなものだが範囲外のものは適宜途中で減らす必要があるようなもの）
+	res, sum := 0, 0
+
+	// iを動かす範囲はちょっとむずかしいので注意！
+	for i := 0; i+k <= n; i++ {
+		// 区間[i, i+k-1]に着目
+		if (dir[i]+sum)%2 != 0 {
+			// 先頭の牛が後ろを向いている（この場合は絶対に反転する必要がある）
+			res++
+			F[i] = 1
+		}
+		sum += F[i] // 現在注目するマスのfは決定後に必ず足す
+		if i-k+1 >= 0 {
+			sum -= F[i-k+1] // お尻で減らす必要のある部分があれば減らす
+		}
+	}
+
+	// 残りの牛が前を向いているかをチェック（上のfor分を抜けた時点でできる操作はないためここでチェックする）
+	for i := n - k + 1; i < n; i++ {
+		if (dir[i]+sum)%2 != 0 {
+			// （後ろを向いている牛が見つかったので）解なし
+			return -1
+		}
+		if i-k+1 >= 0 {
+			sum -= F[i-k+1]
+		}
+	}
+
+	return res
 }
 
 // MODはとったか？
@@ -69,15 +124,6 @@ func newReadString(ior io.Reader) func() string {
 // ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
-}
-func ReadInt2() (int, int) {
-	return int(readInt64()), int(readInt64())
-}
-func ReadInt3() (int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64())
-}
-func ReadInt4() (int, int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
 func readInt64() int64 {

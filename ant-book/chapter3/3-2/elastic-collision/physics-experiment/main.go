@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -29,8 +30,46 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+const g = 10.0 // 重力加速度
+var n, h, r, t int
+
+var Y []float64 // 最終的なボールの位置
+
 func main() {
-	fmt.Println("Hello World.")
+	n, h, r, t = Read4Int()
+	Y = make([]float64, n)
+
+	for i := 0; i < n; i++ {
+		Y[i] = calc(t - i)
+	}
+
+	sort.Sort(sort.Float64Slice(Y))
+
+	for i := 0; i < n; i++ {
+		Y[i] += 2.0 * float64(r) * float64(i) / 100.0
+		if i == n-1 {
+			fmt.Printf("%.2f\n", Y[i])
+		} else {
+			fmt.Printf("%.2f ", Y[i])
+		}
+	}
+}
+
+// 時刻tでのボールの位置を求める
+func calc(t int) float64 {
+	if t < 0 {
+		return float64(h)
+	}
+
+	tt := math.Sqrt(2.0 * float64(h) / g)
+	k := int(float64(t) / tt)
+	if k%2 == 0 {
+		d := float64(t) - float64(k)*tt
+		return float64(h) - g*d*d/2.0
+	} else {
+		d := float64(k)*float64(t) + float64(t) - tt
+		return float64(h) - g*d*d/2.0
+	}
 }
 
 // MODはとったか？
@@ -70,13 +109,16 @@ func newReadString(ior io.Reader) func() string {
 func ReadInt() int {
 	return int(readInt64())
 }
-func ReadInt2() (int, int) {
+
+func Read2Int() (int, int) {
 	return int(readInt64()), int(readInt64())
 }
-func ReadInt3() (int, int, int) {
+
+func Read3Int() (int, int, int) {
 	return int(readInt64()), int(readInt64()), int(readInt64())
 }
-func ReadInt4() (int, int, int, int) {
+
+func Read4Int() (int, int, int, int) {
 	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 

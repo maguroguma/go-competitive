@@ -20,3 +20,50 @@ options     head
   }
   ${3:boundaryIdx} := ok
 
+snippet     upperAndLowerBound
+abbr        func upperBound(A []int, a) int
+options     head
+  func upperBound(A []int, a int) int {
+    // m は中央を意味する何らかの値
+    isOK := func(m int) bool {
+      if A[m] > a {
+        return true
+      }
+      return false
+    }
+
+    ng, ok := -1, len(A)
+    for int(math.Abs(float64(ok-ng))) > 1 {
+      mid := (ok + ng) / 2
+      if isOK(mid) {
+        ok = mid
+      } else {
+        ng = mid
+      }
+    }
+
+    return ok
+  }
+
+  func lowerBound(A []int, a int) int {
+    // m は中央を意味する何らかの値
+    isOK := func(m int) bool {
+      if A[m] >= a {
+        return true
+      }
+      return false
+    }
+
+    ng, ok := -1, len(A)
+    for int(math.Abs(float64(ok-ng))) > 1 {
+      mid := (ok + ng) / 2
+      if isOK(mid) {
+        ok = mid
+      } else {
+        ng = mid
+      }
+    }
+
+    return ok
+  }
+
