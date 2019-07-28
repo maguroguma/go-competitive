@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -29,85 +30,69 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-	fmt.Println(int('8' - '0'))
+var n, w int
+var W, V []int
+
+type Item struct {
+	key           int
+	value, weight int
+}
+type ItemList []*Item
+type byKey struct {
+	ItemList
+}
+type byValue struct {
+	ItemList
+}
+type byWeight struct {
+	ItemList
 }
 
-type IntPQ []int
-
-func (pq IntPQ) Len() int           { return len(pq) }
-func (pq IntPQ) Less(i, j int) bool { return pq[i] < pq[j] } // <: ASC, >: DESC
-func (pq IntPQ) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
-func (pq *IntPQ) Push(x interface{}) {
-	*pq = append(*pq, x.(int))
+func (l ItemList) Len() int {
+	return len(l)
 }
-func (pq *IntPQ) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	x := old[n-1]
-	*pq = old[0 : n-1]
-	return x
+func (l ItemList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.ItemList[i].key < l.ItemList[j].key
+}
+func (l byValue) Less(i, j int) bool {
+	return l.ItemList[i].value < l.ItemList[j].value
+}
+func (l byWeight) Less(i, j int) bool {
+	return l.ItemList[i].weight < l.ItemList[j].weight
 }
 
 // how to use
-// pq := &IntPQ{3, 6, 1, 2}
-// heap.Init(pq)
-// heap.Push(pq, intValue)
-// poppedVal := heap.Pop(pq).(int)
+// L := make(ItemList, 0, 200000+5)
+// L = append(L, &Item{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
 
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
-	}
+func main() {
+	n = ReadInt()
+	W, V = ReadIntSlice(n), ReadIntSlice(n)
 
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
+	L := make(ItemList, 0, 200000)
+	// 前半分を全列挙
+	n2 := n / 2
+	for i := 0; i < 1<<uint(n2); i++ {
+		sw, sv := 0, 0
+		for j := 0; j < n2; j++ {
+			if (i>>uint(j))&1 == 1 {
+				sw += W[j]
+				sv += V[j]
+			}
 		}
+
+		// 前半分の品物の組み合わせが決定、リストに入れる
+		L = append(L, &Item{key: 0, value: sv, weight: sw})
 	}
 
-	return true
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
+	sort.Stable(byValue{L})
+	sort.Stable(byWeight{L})
 }
 
 // MODはとったか？
@@ -146,6 +131,15 @@ func newReadString(ior io.Reader) func() string {
 // ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
+}
+func ReadInt2() (int, int) {
+	return int(readInt64()), int(readInt64())
+}
+func ReadInt3() (int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64())
+}
+func ReadInt4() (int, int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
 func readInt64() int64 {
@@ -331,19 +325,10 @@ func Sum(integers ...int) int {
 	return s
 }
 
-// CeilInt returns the minimum integer larger than or equal to float(a/b).
-func CeilInt(a, b int) int {
-	res := a / b
-	if a%b > 0 {
-		res++
-	}
-	return res
-}
-
-// FloorInt returns the maximum integer smaller than or equal to float(a/b)
-func FloorInt(a, b int) int {
-	res := a / b
-	return res
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow

@@ -23,6 +23,7 @@ options     head
 snippet     upperAndLowerBound
 abbr        func upperBound(A []int, a) int
 options     head
+  // Aは昇順ソート済み
   func upperBound(A []int, a int) int {
     // m は中央を意味する何らかの値
     isOK := func(m int) bool {
@@ -45,6 +46,7 @@ options     head
     return ok
   }
 
+  // Aは昇順ソート済み
   func lowerBound(A []int, a int) int {
     // m は中央を意味する何らかの値
     isOK := func(m int) bool {
