@@ -30,116 +30,144 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n, w int
-var W, V []int
+// 入力
+var w, h, n int
+var X1, X2, Y1, Y2 []int
 
-type Item struct {
-	key           int
-	value, weight int
-}
-type ItemList []*Item
-type byKey struct {
-	ItemList
-}
-type byValue struct {
-	ItemList
-}
-type byWeight struct {
-	ItemList
-}
-
-func (l ItemList) Len() int {
-	return len(l)
-}
-func (l ItemList) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
-}
-
-func (l byKey) Less(i, j int) bool {
-	return l.ItemList[i].key < l.ItemList[j].key
-}
-func (l byValue) Less(i, j int) bool {
-	return l.ItemList[i].value < l.ItemList[j].value
-}
-func (l byWeight) Less(i, j int) bool {
-	return l.ItemList[i].weight < l.ItemList[j].weight
-}
-
-// how to use
-// L := make(ItemList, 0, 200000+5)
-// L = append(L, &Item{key: intValue})
-// sort.Stable(byKey{ L })                // Stable ASC
-// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+// 塗りつぶし用
+var fld [500 * 6][500 * 6]bool
 
 func main() {
-	n = ReadInt()
-	W, V = ReadIntSlice(n), ReadIntSlice(n)
-	w = ReadInt()
+	w, h, n = ReadInt3()
+	X1, X2, Y1, Y2 = ReadIntSlice(n), ReadIntSlice(n), ReadIntSlice(n), ReadIntSlice(n)
+	dx := []int{1, 0, -1, 0}
+	dy := []int{0, 1, 0, -1}
 
-	L := make(ItemList, 0, 200000)
-	// 前半分を全列挙
-	n2 := n / 2
-	for i := 0; i < 1<<uint(n2); i++ {
-		sw, sv := 0, 0
-		for j := 0; j < n2; j++ {
-			if (i>>uint(j))&1 == 1 {
-				sw += W[j]
-				sv += V[j]
-			}
-		}
+	// 座標圧縮
+	W := compress(X1, X2, w)
+	H := compress(Y1, Y2, h)
 
-		// 前半分の品物の組み合わせが決定、リストに入れる
-		L = append(L, &Item{key: 0, value: sv, weight: sw})
-	}
-
-	sort.Stable(byValue{L})
-	sort.Stable(byWeight{L})
-
-	// 無駄な部分を取り除く
-	// この部分のコードはぱっと見ると難しいが、おそらく配列再利用をしなければもっとわかりやすく書ける
-	m := 1 // m-1: 比較（元）対象, m: 塗りつぶし先
-	// Lはweightについて昇順、同じweightならばその中でvalueについて昇順ソートされている
-	for i := 0; i < (1 << uint(n2)); i++ { // len(L)をfor文の条件に使ったほうがわかりやすい気もする
-		if L[m-1].value < L[i].value {
-			L[m] = L[i]
-			m++
-		}
-	}
-
-	// 後ろ半分を全列挙し解を求める
-	res := 0
-	for i := 0; i < (1 << uint(n-n2)); i++ {
-		sw, sv := 0, 0
-		for j := 0; j < n-n2; j++ {
-			if (i>>uint(j))&1 == 1 {
-				sw += W[n2+j]
-				sv += V[n2+j]
-			}
-		}
-
-		if sw <= w {
-			idx := sub(L[:m], w-sw)
-			if idx == -1 {
-				ChMax(&res, sv)
-			} else {
-				ChMax(&res, sv+L[idx].value)
+	// 線のある部分を塗りつぶし
+	for i := 0; i < n; i++ {
+		for y := Y1[i]; y <= Y2[i]; y++ {
+			for x := X1[i]; x <= X2[i]; x++ {
+				fld[y][x] = true
 			}
 		}
 	}
 
-	fmt.Println(res)
+	// ここまで正しいか確認！
+	fmt.Println(X1)
+	fmt.Println(X2)
+	fmt.Println(Y1)
+	fmt.Println(Y2)
+	for y := 0; y < 10; y++ {
+		for x := 0; x < 10; x++ {
+			dot := 0
+			if fld[y][x] {
+				dot = 1
+			}
+			if x == 9 {
+				fmt.Println(dot)
+				continue
+			}
+			fmt.Printf("%d ", dot)
+		}
+	}
+
+	// 領域を数える
+	ans := 0
+	for y := 0; y < H; y++ {
+		for x := 0; x < W; x++ {
+			if fld[y][x] {
+				continue
+			}
+
+			ans++
+			// 幅優先探索
+			queue := []coord{}
+			queue = append(queue, coord{x: x, y: y})
+			for len(queue) > 0 {
+				co := queue[0]
+				sx, sy := co.x, co.y
+				queue = queue[1:]
+
+				for i := 0; i < 4; i++ {
+					tx, ty := sx+dx[i], sy+dy[i]
+					if tx < 0 || W <= tx || ty < 0 || H <= ty {
+						continue
+					}
+					if fld[ty][tx] {
+						continue
+					}
+					queue = append(queue, coord{x: tx, y: ty})
+					fld[ty][tx] = true
+				}
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
-func sub(L ItemList, w2 int) int {
+type coord struct {
+	x, y int
+}
+
+// X1, X2 を座標圧縮し、座標圧縮した際の幅を返す
+// ↑Golangでは実現が難しいので、ちょっとアレンジ
+func compress(x1, x2 []int, w int) int {
+	xs := []int{}
+
+	for i := 0; i < n; i++ {
+		// for d := -1; d <= 1; d++ {
+		for d := 0; d <= 1; d++ { // d == 0のみとした場合を見ておくと面白い
+			tx1, tx2 := x1[i]+d, x2[i]+d
+			if 1 <= tx1 && tx1 <= w {
+				xs = append(xs, tx1)
+			}
+			if 1 <= tx2 && tx2 <= w {
+				xs = append(xs, tx2)
+			}
+		}
+	}
+	// デバッグ
+	fmt.Println("xs: ")
+	fmt.Println(xs)
+
+	memo := make(map[int]int)
+	for _, v := range xs {
+		memo[v] = 1
+	}
+
+	res := []int{}
+	for k := range memo {
+		res = append(res, k)
+	}
+	sort.Sort(sort.IntSlice(res))
+	// デバッグ
+	fmt.Println("res: ")
+	fmt.Println(res)
+
+	for i := 0; i < n; i++ {
+		x1[i] = sub(res, x1[i])
+		x2[i] = sub(res, x2[i])
+	}
+
+	return len(res)
+}
+
+// Aはソート済み、かつ各要素はunique
+func sub(A []int, x int) int {
 	// m は中央を意味する何らかの値
 	isOK := func(m int) bool {
-		if L[m].weight <= w2 {
+		if A[m] >= x {
 			return true
 		}
 		return false
 	}
 
-	ng, ok := len(L), -1
+	ng, ok := -1, len(A)
 	for int(math.Abs(float64(ok-ng))) > 1 {
 		mid := (ok + ng) / 2
 		if isOK(mid) {
