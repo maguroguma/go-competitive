@@ -1,0 +1,63 @@
+snippet     segmentTreeRMQ
+abbr        NewSegTreeRMQ(n, INT_MAX)
+options     head
+  // RMQを高速で処理するセグメントツリー構造体
+  type SegTreeRMQ struct {
+    ElemNum    int               // 配列の要素数
+    Dat        [2*200005 - 1]int // セグメント木のノード集合
+    INIT_VALUE int               // 初期化用の値
+  }
+
+  // 配列の要素数と初期化用の値を渡す
+  func NewSegTreeRMQ(elemNum, initValue int) *SegTreeRMQ {
+    st := new(SegTreeRMQ)
+    st.INIT_VALUE = initValue
+
+    // 要素数を2べきの数に補正する
+    st.ElemNum = 1
+    for st.ElemNum < elemNum {
+      st.ElemNum *= 2
+    }
+
+    // すべての節点を初期化する
+    for i := 0; i < 2*st.ElemNum-1; i++ {
+      st.Dat[i] = st.INIT_VALUE
+    }
+
+    return st
+  }
+
+  // k番目の値（0-based）をaに変更する
+  func (st *SegTreeRMQ) Update(k, a int) {
+    // 葉の節点を変更
+    k += st.ElemNum - 1
+    st.Dat[k] = a
+
+    // 登りながら各節点を変更
+    for k > 0 {
+      k = (k - 1) / 2
+      st.Dat[k] = int(math.Min(float64(st.Dat[2*k+1]), float64(st.Dat[2*k+2])))
+    }
+  }
+
+  // [a, b)の区間の最小値を返す
+  // 再帰関数のラッパー関数
+  func (st *SegTreeRMQ) Query(a, b int) int {
+    return st.subQuery(a, b, 0, 0, st.ElemNum)
+  }
+
+  // [a, b)の区間の最小値を返す
+  // k: 検索先のセグメントツリーのノード番号(0-based)
+  // l, r: k番目のセグメントツリーノードの半開区間の左端と右端, [l, r)
+  func (st *SegTreeRMQ) subQuery(a, b, k, l, r int) int {
+    if r <= a || b <= l {
+      return st.INIT_VALUE
+    }
+
+    if a <= l && r <= b {
+      return st.Dat[k]
+    }
+
+    vl, vr := st.subQuery(a, b, 2*k+1, l, (l+r)/2), st.subQuery(a, b, 2*k+2, (l+r)/2, r)
+    return int(math.Min(float64(vl), float64(vr)))
+  }
