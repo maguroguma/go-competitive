@@ -29,8 +29,105 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var S []rune
+var n int
+var Lsum, Rsum []int
+
 func main() {
-	fmt.Println("ABC136 d.go")
+	S = ReadRuneSlice()
+	n = len(S)
+	Lsum, Rsum = make([]int, n), make([]int, n)
+
+	// 1文字目はR
+	for i := 1; i < n; i++ {
+		if S[i] == 'L' {
+			Lsum[i] = Lsum[i-1] + 1
+		} else {
+			Lsum[i] = Lsum[i-1]
+		}
+	}
+	Rsum[0] = 1
+	for i := 1; i < n; i++ {
+		if S[i] == 'R' {
+			Rsum[i] = Rsum[i-1] + 1
+		} else {
+			Rsum[i] = Rsum[i-1]
+		}
+	}
+	// fmt.Println(Lsum, Rsum)
+
+	ans := make([]int, n)
+	for i := 0; i < n; i++ {
+		if S[i] == 'R' {
+			idx := nearestRightL(Lsum[i])
+			diff := AbsInt(i - idx)
+
+			// 奇数なら1つ前
+			if diff%2 == 1 {
+				ans[idx-1]++
+			} else {
+				ans[idx]++
+			}
+		} else {
+			idx := nearestLeftR(Rsum[i]) + 1
+			diff := AbsInt(i - idx)
+
+			// 奇数なら1つ後
+			if diff%2 == 1 {
+				ans[idx+1]++
+			} else {
+				ans[idx]++
+			}
+		}
+	}
+
+	fmt.Println(PrintIntsLine(ans...))
+}
+
+// 自分の位置より右のもっとも近いLの位置を返す
+func nearestRightL(val int) int {
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if Lsum[m] > val {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := -1, len(Lsum)
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
+}
+
+// 自分の位置より左のもっとも近いRの位置を返す
+func nearestLeftR(val int) int {
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if Rsum[m] < val {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := len(Rsum), -1
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
 }
 
 // MODはとったか？

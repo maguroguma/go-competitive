@@ -29,8 +29,12 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, k int
+var A []int
+
 func main() {
-	fmt.Println("ABC136 e.go")
+	n, k = ReadInt2()
+	A = ReadIntSlice(n)
 }
 
 // MODはとったか？
