@@ -50,3 +50,15 @@ queryの方も関数のシグニチャ（方針）がわかれば自然とわか
 
 [AOJのこの問題](https://onlinejudge.u-aizu.ac.jp/problems/DSL_2_A)を素直にやるのがいいと思う。
 
+#### RSQセグメント木のverify
+
+RSQ: Range Sum Query
+
+基本はRMQと同じ。
+
+[AOJのこの問題](https://onlinejudge.u-aizu.ac.jp/problems/DSL_2_B)を素直にやるのがいいと思う。
+
+#### tsutajさんのブログ記事
+
+[このブログ記事](http://tsutaj.hatenablog.com/entry/2017/03/29/204841)は自分も考えたような内容が丁寧にトレースされておりとてもよかった。
+
