@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -29,98 +30,65 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-const ST_SIZE = (1 << 15) - 1
+// バケットのサイズ
+const B = 1000
 
 // 入力
-var N, C int
-var L []int
-var S, A []int
+var N, M int
+var A, I, J, K []int
 
-// セグメント木のデータ
-var vx, vy [ST_SIZE]float64 // 各節点のベクトル
-var ang [ST_SIZE]float64    // 各節点の角度
-// ベクトルは「最初の線分を垂直にしてつなげた際の最初の線分の端点から最後の線分の端点へのベクトル」
-// 角度は「右の子ノードの部分を回転させる角度」
-// 外から見た「絶対角度」であり、左子ノードに対する「相対角度」ではない！
-
-// 角度の変化を調べるため、現在の角度を保存しておく
-var prv []float64
-
-// prvとangの理解が重要！
-
-// セグメント木を初期化する
-// kは節点の番号、l, rはその節点が[l, r)に対応づいていることを表す
-// 再帰関数版の初期化関数
-// initialize(0, 0, n) で呼び出すと全体が初期化される
-// vyスライスの初期化にだけ注力する
-func initialize(k, l, r int) {
-	ang[k], vx[k] = 0.0, 0.0
-
-	if r-l == 1 {
-		// 葉
-		vy[k] = float64(L[l])
-	} else {
-		// 葉でない節点
-		chl, chr := 2*k+1, 2*k+2
-		initialize(chl, l, (l+r)/2)
-		initialize(chr, (l+r)/2, r)
-		vy[k] = vy[chl] + vy[chr]
-	}
-}
-
-// 場所sの角度がaだけ変更になった
-// vは節点の番号、l, rはその節点が[l, r)に対応づいていることを表す
-// change(s, 0, 0, N, a-prv[s]) のように呼び出される
-func change(s, v, l, r int, a float64) {
-	if s <= l {
-		return
-	} else if s < r {
-		chl, chr := v*2+1, v*2+2
-		m := (l + r) / 2
-		// 葉ノードまでの伝搬が先に行われる（子ノードの調整が終わってから親ノードを調整する）
-		change(s, chl, l, m, a)
-		change(s, chr, m, r, a)
-
-		// vノードの角度の変化は必要なときだけ行う
-		// vノードの中央が変化点sよりも大きければ角度調整を行う
-		// ang[]の定義が「右子ノードの回転角度」であるため、
-		// 右子と左子を分かつ中央とsとの関係を条件とする
-		if s <= m {
-			ang[v] += float64(a)
-		}
-
-		ds, dc := math.Sin(ang[v]), math.Cos(ang[v]) // ラジアンで受け取らない関数もあるかもしれないので、そこは気をつける
-		// 回転の一次変換を右子ノードのベクトルに作用させて、
-		// 左子ノードのベクトルに加算
-		vx[v] = vx[chl] + (dc*vx[chr] - ds*vy[chr])
-		vy[v] = vy[chl] + (ds*vx[chr] + dc*vy[chr])
-	}
-}
+var nums []int               // Aをソートしたもの
+var bucket [100000 / B][]int // 各バケットをソートしたもの
 
 func main() {
-	N, C = ReadInt2()
-	L = ReadIntSlice(N)
-	S = ReadIntSlice(C)
-	A = ReadIntSlice(C)
-
-	// 初期化
-	prv = make([]float64, N)
-	initialize(0, 0, N)
-	for i := 1; i < N; i++ {
-		prv[i] = math.Pi
+	N, M = ReadInt2()
+	A = ReadIntSlice(N)
+	I, J, K = make([]int, M), make([]int, M), make([]int, M)
+	for i := 0; i < M; i++ {
+		I[i], J[i], K[i] = ReadInt3()
 	}
 
-	// 各クエリを処理
-	for i := 0; i < C; i++ {
-		s := S[i]
-		// A[i]: S[i]とS[i+1]の間の角度をA[i]度に「セット」する
-		// A[i]度「傾ける」わけではないことに注意！
-		a := float64(A[i]) / 360.0 * 2.0 * math.Pi // ラジアンに直す
+	nums = make([]int, N)
+	for i := 0; i < N; i++ {
+		bucket[i/B] = append(bucket[i/B], A[i])
+		nums[i] = A[i]
+	}
+	sort.Sort(sort.IntSlice(nums))
+	// B個に満たない最後のバケットをソートしていないが、問題ない
+	for i := 0; i < N/B; i++ {
+		sort.Sort(sort.IntSlice(bucket[i]))
+	}
 
-		change(s, 0, 0, N, a-prv[s])
-		prv[s] = a
+	for i := 0; i < M; i++ {
+		// [l, r) のk番目の数を求める
+		l, r, k := I[i], J[i]+1, K[i]
 
-		fmt.Printf("%.2f %.2f\n", vx[0], vy[0])
+		lb, ub := -1, N-1
+		for ub-lb > 1 {
+			md := (lb + ub) / 2
+			x := nums[md]
+			tl, tr, c := l, r, 0
+
+			// バケットをはみ出す部分
+			for tl < tr && tl%B != 0 {
+				if A[tl] <= x {
+					c++
+				}
+				tl++
+			}
+			for tl < tr && tr%B != 0 {
+				if A[tr] <= x {
+					c++
+				}
+				tr--
+			}
+
+			// バケットごと
+			for tl < tr {
+				b := tl / B
+				// c +=
+			}
+		}
 	}
 }
 

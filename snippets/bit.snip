@@ -1,0 +1,34 @@
+snippet     binaryIndexedTree
+abbr        type BinaryIndexedTree struct
+options     head
+  type BinaryIndexedTree struct {
+    bit []int
+    n   int
+  }
+
+  func NewBIT(n int) *BinaryIndexedTree {
+    newBit := new(BinaryIndexedTree)
+
+    newBit.bit = make([]int, n+1)
+    newBit.n = n
+
+    return newBit
+  }
+
+  func (b *BinaryIndexedTree) Sum(i int) int {
+    s := 0
+
+    for i > 0 {
+      s += b.bit[i]
+      i -= i & (-i)
+    }
+
+    return s
+  }
+
+  func (b *BinaryIndexedTree) add(i, x int) {
+    for i <= b.n {
+      b.bit[i] += x
+      i += i & (-i)
+    }
+  }
