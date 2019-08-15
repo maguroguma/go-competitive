@@ -35,6 +35,8 @@ const DAT_SIZE = (1 << 18) - 1
 var n, q int
 
 // セグメント木
+// data: その節点の区間全体に一様に加えられた値
+// datb: その節点の区間に一様でなく加えられた値の和
 var data, datb [DAT_SIZE]int
 
 // [a, b)にxを加算する

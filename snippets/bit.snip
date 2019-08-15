@@ -26,7 +26,7 @@ options     head
     return s
   }
 
-  func (b *BinaryIndexedTree) add(i, x int) {
+  func (b *BinaryIndexedTree) Add(i, x int) {
     for i <= b.n {
       b.bit[i] += x
       i += i & (-i)

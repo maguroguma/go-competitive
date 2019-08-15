@@ -29,60 +29,127 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-// 入力
+type LazySegTreeRSQ struct {
+	n          int
+	node, lazy []int // 値配列, 遅延配列
+}
+
+func NewLazySegTreeRSQ(A []int) *LazySegTreeRSQ {
+	lst := new(LazySegTreeRSQ)
+
+	// ノード数の調整
+	sz := len(A)
+	lst.n = 1
+	for lst.n < sz {
+		lst.n *= 2
+	}
+	lst.node, lst.lazy = make([]int, 2*lst.n-1), make([]int, 2*lst.n-1)
+
+	// 値配列の葉ノードの初期化
+	for i := 0; i < sz; i++ {
+		lst.node[i+lst.n-1] = A[i]
+	}
+	// 値配列の中間ノードの初期化
+	for i := lst.n - 2; i >= 0; i-- {
+		lst.node[i] = lst.node[i*2+1] + lst.node[i*2+2]
+	}
+
+	return lst
+}
+
+// k番目のノードについて遅延評価を行う
+func (lst *LazySegTreeRSQ) eval(k, l, r int) {
+	// 遅延配列が空でない場合、自ノードおよび子ノードへの値の伝搬が起こる
+	if lst.lazy[k] != 0 {
+		// 自ノードの値配列に値を伝搬させる
+		lst.node[k] += lst.lazy[k]
+
+		// 中間ノードなら子ノードの遅延配列に伝搬させる
+		if r-l > 1 {
+			lst.lazy[2*k+1] += lst.lazy[k] / 2
+			lst.lazy[2*k+2] += lst.lazy[k] / 2
+		}
+
+		// 自ノードの遅延配列を空にする
+		lst.lazy[k] = 0
+	}
+}
+
+// 区間加算
+func (lst *LazySegTreeRSQ) add(a, b, x, k, l, r int) {
+	if r < 0 {
+		r = lst.n
+	}
+
+	// k番目のノードに対して遅延評価を行う
+	lst.eval(k, l, r)
+
+	// 範囲外なら何もしない
+	if b <= l || r <= a {
+		return
+	}
+
+	if a <= l && r <= b {
+		// 完全に被覆しているならば、遅延配列に値を入れた後に評価
+		lst.lazy[k] += (r - l) * x
+		lst.eval(k, l, r)
+	} else {
+		// そうでないならば、子ノードの値を再帰的に計算して、
+		// 計算済みの値をもらってくる
+		lst.add(a, b, x, 2*k+1, l, (l+r)/2)
+		lst.add(a, b, x, 2*k+2, (l+r)/2, r)
+		lst.node[k] = lst.node[2*k+1] + lst.node[2*k+2]
+	}
+}
+
+// 区間和の計算
+func (lst *LazySegTreeRSQ) getSum(a, b, k, l, r int) int {
+	if r < 0 {
+		r = lst.n
+	}
+
+	// 範囲外
+	if b <= l || r <= a {
+		return 0
+	}
+
+	// 関数が呼び出されたら評価
+	lst.eval(k, l, r)
+
+	if a <= l && r <= b {
+		return lst.node[k]
+	}
+
+	vl := lst.getSum(a, b, 2*k+1, l, (l+r)/2)
+	vr := lst.getSum(a, b, 2*k+2, (l+r)/2, r)
+
+	return vl + vr
+}
+
+// public methods
+func (lst *LazySegTreeRSQ) Add(a, b, x int) {
+	lst.add(a, b, x, 0, 0, -1)
+}
+func (lst *LazySegTreeRSQ) Sum(a, b int) int {
+	return lst.getSum(a, b, 0, 0, -1)
+}
+
 var n, q int
-
-type BinaryIndexedTree struct {
-	bit []int
-	n   int
-}
-
-func NewBIT(n int) *BinaryIndexedTree {
-	newBit := new(BinaryIndexedTree)
-
-	newBit.bit = make([]int, n+1)
-	newBit.n = n
-
-	return newBit
-}
-
-func (b *BinaryIndexedTree) Sum(i int) int {
-	s := 0
-
-	for i > 0 {
-		s += b.bit[i]
-		i -= i & (-i)
-	}
-
-	return s
-}
-
-func (b *BinaryIndexedTree) Add(i, x int) {
-	for i <= b.n {
-		b.bit[i] += x
-		i += i & (-i)
-	}
-}
 
 func main() {
 	n, q = ReadInt2()
 
-	bit0, bit1 := NewBIT(n), NewBIT(n)
-
+	lst := NewLazySegTreeRSQ(make([]int, n))
 	for i := 0; i < q; i++ {
 		c := ReadInt()
 		if c == 0 {
 			s, t, x := ReadInt3()
-			bit0.Add(s, -x*(s-1))
-			bit1.Add(s, x)
-			bit0.Add(t+1, x*t)
-			bit1.Add(t+1, -x)
+			s--
+			lst.Add(s, t, x)
 		} else {
 			s, t := ReadInt2()
-			res := 0
-			res += bit0.Sum(t) + bit1.Sum(t)*t
-			res -= bit0.Sum(s-1) + bit1.Sum(s-1)*(s-1)
-			fmt.Println(res)
+			s--
+			fmt.Println(lst.Sum(s, t))
 		}
 	}
 }

@@ -29,60 +29,116 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-// 入力
+type LazySegTreeRMQ struct {
+	n, INF     int
+	node, lazy []int
+	lazyFlag   []bool
+}
+
+func NewLazySegTreeRMQ(A []int) *LazySegTreeRMQ {
+	lst := new(LazySegTreeRMQ)
+	lst.INF = 1 << 60
+
+	sz := len(A)
+	lst.n = 1
+	for lst.n < sz {
+		lst.n *= 2
+	}
+
+	lst.node, lst.lazy = make([]int, 2*lst.n-1), make([]int, 2*lst.n-1)
+	lst.lazyFlag = make([]bool, 2*lst.n-1)
+	for i := range lst.lazy {
+		lst.lazy[i] = lst.INF
+	}
+
+	for i := 0; i < sz; i++ {
+		lst.node[i+lst.n-1] = A[i]
+	}
+	for i := lst.n - 2; i >= 0; i-- {
+		lst.node[i] = int(math.Min(float64(lst.node[i*2+1]), float64(lst.node[i*2+2])))
+	}
+
+	return lst
+}
+
+func (lst *LazySegTreeRMQ) eval(k, l, r int) {
+	if lst.lazyFlag[k] {
+		lst.node[k] = lst.lazy[k]
+		if r-l > 1 {
+			lst.lazy[2*k+1], lst.lazy[2*k+2] = lst.lazy[k], lst.lazy[k]
+			lst.lazyFlag[2*k+1], lst.lazyFlag[2*k+2] = true, true
+		}
+		lst.lazyFlag[k] = false
+	}
+}
+
+func (lst *LazySegTreeRMQ) update(a, b, x, k, l, r int) {
+	if r < 0 {
+		r = lst.n
+	}
+
+	lst.eval(k, l, r)
+
+	if b <= l || r <= a {
+		return
+	}
+
+	if a <= l && r <= b {
+		lst.lazy[k], lst.lazyFlag[k] = x, true
+		lst.eval(k, l, r)
+	} else {
+		lst.update(a, b, x, 2*k+1, l, (l+r)/2)
+		lst.update(a, b, x, 2*k+2, (l+r)/2, r)
+		lst.node[k] = int(math.Min(float64(lst.node[2*k+1]), float64(lst.node[2*k+2])))
+	}
+}
+
+func (lst *LazySegTreeRMQ) find(a, b, k, l, r int) int {
+	if r < 0 {
+		r = lst.n
+	}
+
+	lst.eval(k, l, r)
+
+	if b <= l || r <= a {
+		return lst.INF
+	}
+
+	if a <= l && r <= b {
+		return lst.node[k]
+	}
+
+	vl := lst.find(a, b, 2*k+1, l, (l+r)/2)
+	vr := lst.find(a, b, 2*k+2, (l+r)/2, r)
+	return int(math.Min(float64(vl), float64(vr)))
+}
+
+// public methods
+func (lst *LazySegTreeRMQ) Update(a, b, x int) {
+	lst.update(a, b, x, 0, 0, -1)
+}
+func (lst *LazySegTreeRMQ) Find(a, b int) int {
+	return lst.find(a, b, 0, 0, -1)
+}
+
 var n, q int
-
-type BinaryIndexedTree struct {
-	bit []int
-	n   int
-}
-
-func NewBIT(n int) *BinaryIndexedTree {
-	newBit := new(BinaryIndexedTree)
-
-	newBit.bit = make([]int, n+1)
-	newBit.n = n
-
-	return newBit
-}
-
-func (b *BinaryIndexedTree) Sum(i int) int {
-	s := 0
-
-	for i > 0 {
-		s += b.bit[i]
-		i -= i & (-i)
-	}
-
-	return s
-}
-
-func (b *BinaryIndexedTree) Add(i, x int) {
-	for i <= b.n {
-		b.bit[i] += x
-		i += i & (-i)
-	}
-}
 
 func main() {
 	n, q = ReadInt2()
+	A := make([]int, n)
+	for i := 0; i < n; i++ {
+		A[i] = 1<<31 - 1
+	}
 
-	bit0, bit1 := NewBIT(n), NewBIT(n)
-
+	lst := NewLazySegTreeRMQ(A)
 	for i := 0; i < q; i++ {
 		c := ReadInt()
 		if c == 0 {
 			s, t, x := ReadInt3()
-			bit0.Add(s, -x*(s-1))
-			bit1.Add(s, x)
-			bit0.Add(t+1, x*t)
-			bit1.Add(t+1, -x)
+			lst.Update(s, t+1, x)
 		} else {
 			s, t := ReadInt2()
-			res := 0
-			res += bit0.Sum(t) + bit1.Sum(t)*t
-			res -= bit0.Sum(s-1) + bit1.Sum(s-1)*(s-1)
-			fmt.Println(res)
+			fmt.Println(lst.Find(s, t+1))
 		}
 	}
 }
