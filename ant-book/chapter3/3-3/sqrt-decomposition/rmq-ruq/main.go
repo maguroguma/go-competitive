@@ -10,146 +10,6 @@ import (
 	"strconv"
 )
 
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
-/*******************************************************************/
-
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
-
-type LazySegTreeRMQ struct {
-	n, INF     int
-	node, lazy []int
-	lazyFlag   []bool
-}
-
-func NewLazySegTreeRMQ(A []int) *LazySegTreeRMQ {
-	lst := new(LazySegTreeRMQ)
-	lst.INF = 1 << 60
-
-	sz := len(A)
-	lst.n = 1
-	for lst.n < sz {
-		lst.n *= 2
-	}
-
-	lst.node, lst.lazy = make([]int, 2*lst.n-1), make([]int, 2*lst.n-1)
-	lst.lazyFlag = make([]bool, 2*lst.n-1)
-	for i := range lst.lazy {
-		lst.lazy[i] = lst.INF
-	}
-
-	for i := 0; i < sz; i++ {
-		lst.node[i+lst.n-1] = A[i]
-	}
-	for i := lst.n - 2; i >= 0; i-- {
-		lst.node[i] = int(math.Min(float64(lst.node[i*2+1]), float64(lst.node[i*2+2])))
-	}
-
-	return lst
-}
-
-func (lst *LazySegTreeRMQ) eval(k, l, r int) {
-	if lst.lazyFlag[k] {
-		lst.node[k] = lst.lazy[k]
-		if r-l > 1 {
-			lst.lazy[2*k+1], lst.lazy[2*k+2] = lst.lazy[k], lst.lazy[k]
-			lst.lazyFlag[2*k+1], lst.lazyFlag[2*k+2] = true, true
-		}
-		lst.lazyFlag[k] = false
-	}
-}
-
-func (lst *LazySegTreeRMQ) update(a, b, x, k, l, r int) {
-	if r < 0 {
-		r = lst.n
-	}
-
-	lst.eval(k, l, r)
-
-	if b <= l || r <= a {
-		return
-	}
-
-	if a <= l && r <= b {
-		lst.lazy[k], lst.lazyFlag[k] = x, true
-		lst.eval(k, l, r) // この部分の評価をコメントアウトするとWAしてしまう理由
-	} else {
-		lst.update(a, b, x, 2*k+1, l, (l+r)/2)
-		lst.update(a, b, x, 2*k+2, (l+r)/2, r)
-		// 多分ここがWAの原因！
-		// 子のノードの値配列が必ず更新されている必要がある（遅延配列が空である必要がある）
-		lst.node[k] = int(math.Min(float64(lst.node[2*k+1]), float64(lst.node[2*k+2])))
-	}
-}
-
-func (lst *LazySegTreeRMQ) find(a, b, k, l, r int) int {
-	if r < 0 {
-		r = lst.n
-	}
-
-	lst.eval(k, l, r)
-
-	if b <= l || r <= a {
-		return lst.INF
-	}
-
-	if a <= l && r <= b {
-		return lst.node[k]
-	}
-
-	vl := lst.find(a, b, 2*k+1, l, (l+r)/2)
-	vr := lst.find(a, b, 2*k+2, (l+r)/2, r)
-	return int(math.Min(float64(vl), float64(vr)))
-}
-
-// public methods
-func (lst *LazySegTreeRMQ) Update(a, b, x int) {
-	lst.update(a, b, x, 0, 0, -1)
-}
-func (lst *LazySegTreeRMQ) Find(a, b int) int {
-	return lst.find(a, b, 0, 0, -1)
-}
-
-var n, q int
-
-func main() {
-	n, q = ReadInt2()
-	A := make([]int, n)
-	for i := 0; i < n; i++ {
-		A[i] = 1<<31 - 1
-	}
-
-	lst := NewLazySegTreeRMQ(A)
-	for i := 0; i < q; i++ {
-		c := ReadInt()
-		if c == 0 {
-			s, t, x := ReadInt3()
-			lst.Update(s, t+1, x)
-		} else {
-			s, t := ReadInt2()
-			fmt.Println(lst.Find(s, t+1))
-		}
-	}
-}
-
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
-
-/*******************************************************************/
-
 /*********** I/O ***********/
 
 var (
@@ -473,3 +333,149 @@ func PrintIntsLine(A ...int) string {
 
 	return string(res)
 }
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*******************************************************************/
+
+const MOD = 1000000000 + 7
+const ALPHABET_NUM = 26
+const INF_INT64 = math.MaxInt64
+const INF_BIT60 = 1 << 60
+
+// [x]: https://onlinejudge.u-aizu.ac.jp/problems/DSL_2_F
+
+const sqrtN = 512
+
+type SqrtDecoRMQRUQ struct {
+	n, k                        int
+	data, bucketMin, lazyUpdate []int
+	lazyFlag                    []bool
+}
+
+func NewSqrtDecoRMQRUQ(A []int) *SqrtDecoRMQRUQ {
+	sd := new(SqrtDecoRMQRUQ)
+	sd.n = len(A)
+	sd.k = (sd.n + sqrtN - 1) / sqrtN
+
+	sd.data = make([]int, sd.k*sqrtN)
+	for i := 0; i < sd.n; i++ {
+		sd.data[i] = A[i]
+	}
+
+	sd.bucketMin, sd.lazyUpdate = make([]int, sd.k), make([]int, sd.k)
+	sd.lazyFlag = make([]bool, sd.k)
+	for k := 0; k < sd.k; k++ {
+		minVal := 1 << 60
+		for i := k * sqrtN; i < (k+1)*sqrtN; i++ {
+			minVal = int(math.Min(float64(minVal), float64(sd.data[i])))
+		}
+		sd.bucketMin[k] = minVal
+	}
+
+	return sd
+}
+
+func (sd *SqrtDecoRMQRUQ) eval(k int) {
+	if sd.lazyFlag[k] {
+		sd.lazyFlag[k] = false
+		for i := k * sqrtN; i < (k+1)*sqrtN; i++ {
+			sd.data[i] = sd.lazyUpdate[k]
+		}
+	}
+}
+
+// [s, t)
+func (sd *SqrtDecoRMQRUQ) Update(s, t, x int) {
+	for k := 0; k < sd.k; k++ {
+		l, r := k*sqrtN, (k+1)*sqrtN
+
+		if s >= r || t <= l {
+			continue
+		}
+
+		if s <= l && r <= t {
+			sd.bucketMin[k], sd.lazyUpdate[k], sd.lazyFlag[k] = x, x, true
+		} else {
+			sd.eval(k)
+			a := int(math.Max(float64(s), float64(l)))
+			b := int(math.Min(float64(t), float64(r)))
+			for i := a; i < b; i++ {
+				sd.data[i] = x
+				// sd.bucketMin[k] = int(math.Min(float64(sd.bucketMin[k]), float64(x)))
+			}
+
+			// 横着せずにバケット全体を更新し直す
+			minVal := 1 << 60
+			for i := l; i < r; i++ {
+				minVal = int(math.Min(float64(minVal), float64(sd.data[i])))
+			}
+			sd.bucketMin[k] = minVal
+		}
+	}
+}
+
+// [s, t)
+func (sd *SqrtDecoRMQRUQ) Find(s, t int) int {
+	minVal := 1 << 60
+
+	for k := 0; k < sd.k; k++ {
+		l, r := k*sqrtN, (k+1)*sqrtN
+
+		if s >= r || t <= l {
+			continue
+		}
+
+		if s <= l && r <= t {
+			minVal = int(math.Min(float64(minVal), float64(sd.bucketMin[k])))
+		} else {
+			sd.eval(k)
+			a := int(math.Max(float64(s), float64(l)))
+			b := int(math.Min(float64(t), float64(r)))
+			for i := a; i < b; i++ {
+				minVal = int(math.Min(float64(minVal), float64(sd.data[i])))
+			}
+		}
+	}
+
+	return minVal
+}
+
+var n, q int
+
+func main() {
+	n, q = ReadInt2()
+
+	A := make([]int, n)
+	for i := 0; i < n; i++ {
+		A[i] = (1 << 31) - 1
+	}
+
+	sd := NewSqrtDecoRMQRUQ(A)
+	for i := 0; i < q; i++ {
+		c := ReadInt()
+
+		if c == 0 {
+			s, t, x := ReadInt3()
+			sd.Update(s, t+1, x)
+		} else {
+			s, t := ReadInt2()
+			fmt.Println(sd.Find(s, t+1))
+		}
+	}
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/

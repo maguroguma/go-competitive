@@ -10,146 +10,6 @@ import (
 	"strconv"
 )
 
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
-/*******************************************************************/
-
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
-
-type LazySegTreeRMQ struct {
-	n, INF     int
-	node, lazy []int
-	lazyFlag   []bool
-}
-
-func NewLazySegTreeRMQ(A []int) *LazySegTreeRMQ {
-	lst := new(LazySegTreeRMQ)
-	lst.INF = 1 << 60
-
-	sz := len(A)
-	lst.n = 1
-	for lst.n < sz {
-		lst.n *= 2
-	}
-
-	lst.node, lst.lazy = make([]int, 2*lst.n-1), make([]int, 2*lst.n-1)
-	lst.lazyFlag = make([]bool, 2*lst.n-1)
-	for i := range lst.lazy {
-		lst.lazy[i] = lst.INF
-	}
-
-	for i := 0; i < sz; i++ {
-		lst.node[i+lst.n-1] = A[i]
-	}
-	for i := lst.n - 2; i >= 0; i-- {
-		lst.node[i] = int(math.Min(float64(lst.node[i*2+1]), float64(lst.node[i*2+2])))
-	}
-
-	return lst
-}
-
-func (lst *LazySegTreeRMQ) eval(k, l, r int) {
-	if lst.lazyFlag[k] {
-		lst.node[k] = lst.lazy[k]
-		if r-l > 1 {
-			lst.lazy[2*k+1], lst.lazy[2*k+2] = lst.lazy[k], lst.lazy[k]
-			lst.lazyFlag[2*k+1], lst.lazyFlag[2*k+2] = true, true
-		}
-		lst.lazyFlag[k] = false
-	}
-}
-
-func (lst *LazySegTreeRMQ) update(a, b, x, k, l, r int) {
-	if r < 0 {
-		r = lst.n
-	}
-
-	lst.eval(k, l, r)
-
-	if b <= l || r <= a {
-		return
-	}
-
-	if a <= l && r <= b {
-		lst.lazy[k], lst.lazyFlag[k] = x, true
-		lst.eval(k, l, r) // この部分の評価をコメントアウトするとWAしてしまう理由
-	} else {
-		lst.update(a, b, x, 2*k+1, l, (l+r)/2)
-		lst.update(a, b, x, 2*k+2, (l+r)/2, r)
-		// 多分ここがWAの原因！
-		// 子のノードの値配列が必ず更新されている必要がある（遅延配列が空である必要がある）
-		lst.node[k] = int(math.Min(float64(lst.node[2*k+1]), float64(lst.node[2*k+2])))
-	}
-}
-
-func (lst *LazySegTreeRMQ) find(a, b, k, l, r int) int {
-	if r < 0 {
-		r = lst.n
-	}
-
-	lst.eval(k, l, r)
-
-	if b <= l || r <= a {
-		return lst.INF
-	}
-
-	if a <= l && r <= b {
-		return lst.node[k]
-	}
-
-	vl := lst.find(a, b, 2*k+1, l, (l+r)/2)
-	vr := lst.find(a, b, 2*k+2, (l+r)/2, r)
-	return int(math.Min(float64(vl), float64(vr)))
-}
-
-// public methods
-func (lst *LazySegTreeRMQ) Update(a, b, x int) {
-	lst.update(a, b, x, 0, 0, -1)
-}
-func (lst *LazySegTreeRMQ) Find(a, b int) int {
-	return lst.find(a, b, 0, 0, -1)
-}
-
-var n, q int
-
-func main() {
-	n, q = ReadInt2()
-	A := make([]int, n)
-	for i := 0; i < n; i++ {
-		A[i] = 1<<31 - 1
-	}
-
-	lst := NewLazySegTreeRMQ(A)
-	for i := 0; i < q; i++ {
-		c := ReadInt()
-		if c == 0 {
-			s, t, x := ReadInt3()
-			lst.Update(s, t+1, x)
-		} else {
-			s, t := ReadInt2()
-			fmt.Println(lst.Find(s, t+1))
-		}
-	}
-}
-
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
-
-/*******************************************************************/
-
 /*********** I/O ***********/
 
 var (
@@ -473,3 +333,119 @@ func PrintIntsLine(A ...int) string {
 
 	return string(res)
 }
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*******************************************************************/
+
+const MOD = 1000000000 + 7
+const ALPHABET_NUM = 26
+const INF_INT64 = math.MaxInt64
+const INF_BIT60 = 1 << 60
+
+// [x]: https://onlinejudge.u-aizu.ac.jp/problems/DSL_2_B
+
+const sqrtN = 512 // バケットあたりのデータ数(512*512=262144)
+
+type SqrtDecompositionRSQ struct {
+	n, k            int   // n: データ数, k: バケット数
+	data, bucketSum []int // data: データ配列, bucketSum: バケット和
+}
+
+func NewSqrtDecompositionRSQ(A []int) *SqrtDecompositionRSQ {
+	sd := new(SqrtDecompositionRSQ)
+
+	// データ数とバケット数の初期化
+	sd.n = len(A)
+	sd.k = (sd.n + sqrtN - 1) / sqrtN // 切り上げでバケット数を計算
+
+	// 実データの初期化
+	sd.data = make([]int, sd.k*sqrtN) // 余分にとる
+	for i := 0; i < sd.n; i++ {
+		sd.data[i] = A[i]
+	}
+
+	// バケット和の初期化
+	sd.bucketSum = make([]int, sd.k)
+	for i := 0; i < sd.k; i++ {
+		sum := 0
+		for j := i * sqrtN; j < (i+1)*sqrtN; j++ {
+			sum += sd.data[j]
+		}
+		sd.bucketSum[i] = sum
+	}
+
+	return sd
+}
+
+func (sd *SqrtDecompositionRSQ) Add(x, y int) {
+	k := x / sqrtN // 更新データが所属するバケットIDを取得
+	sd.data[x] += y
+	sum := 0
+	// 対象バケット内を走査
+	for i := k * sqrtN; i < (k+1)*sqrtN; i++ {
+		sum += sd.data[i]
+	}
+	sd.bucketSum[k] = sum
+}
+
+// [x, y)
+func (sd *SqrtDecompositionRSQ) Sum(x, y int) int {
+	sum := 0
+
+	// すべてのバケットを見る
+	for k := 0; k < sd.k; k++ {
+		// バケットの左端と右端（[l, r)）
+		l, r := k*sqrtN, (k+1)*sqrtN
+
+		// クエリ範囲外のバケットはスルー
+		if r <= x || y <= l {
+			continue
+		}
+
+		if x <= l && r <= y {
+			// 完全被覆されるバケット
+			sum += sd.bucketSum[k]
+		} else {
+			// 交差するバケット
+			a := int(math.Max(float64(x), float64(l)))
+			b := int(math.Min(float64(y), float64(r)))
+			for i := a; i < b; i++ {
+				sum += sd.data[i]
+			}
+		}
+	}
+
+	return sum
+}
+
+var n, q int
+
+func main() {
+	n, q = ReadInt2()
+
+	sd := NewSqrtDecompositionRSQ(make([]int, n))
+	for i := 0; i < q; i++ {
+		c, x, y := ReadInt3()
+		if c == 0 {
+			sd.Add(x-1, y)
+		} else {
+			fmt.Println(sd.Sum(x-1, y))
+		}
+	}
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/

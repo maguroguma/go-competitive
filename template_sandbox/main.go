@@ -41,44 +41,16 @@ func main() {
 	// fmt.Println(gacha3(250, 1))
 	// fmt.Println("---")
 	// fmt.Println(gacha3(70+110+120+250, 4))
-	fmt.Println(int('8' - '0'))
-}
 
-type IntPQ []int
+	// fmt.Println(int('8' - '0'))
 
-func (pq IntPQ) Len() int           { return len(pq) }
-func (pq IntPQ) Less(i, j int) bool { return pq[i] < pq[j] } // <: ASC, >: DESC
-func (pq IntPQ) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
-func (pq *IntPQ) Push(x interface{}) {
-	*pq = append(*pq, x.(int))
-}
-func (pq *IntPQ) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	x := old[n-1]
-	*pq = old[0 : n-1]
-	return x
-}
+	// A := []int{5, 4, 3, 2, 1, 0, 0, 0}
+	// fmt.Println(A)
+	// sort.Sort(sort.IntSlice(A[2:]))
+	// fmt.Println(A)
 
-// how to use
-// pq := &IntPQ{3, 6, 1, 2}
-// heap.Init(pq)
-// heap.Push(pq, intValue)
-// poppedVal := heap.Pop(pq).(int)
-
-// IsPrime judges whether an argument integer is a prime number or not.
-func IsPrime(n int) bool {
-	if n == 1 {
-		return false
-	}
-
-	for i := 2; i*i <= n; i++ {
-		if n%i == 0 {
-			return false
-		}
-	}
-
-	return true
+	fmt.Println(math.Sqrt(float64(100000)))
+	fmt.Println(512 * 512)
 }
 
 func gacha(num int) float64 {
