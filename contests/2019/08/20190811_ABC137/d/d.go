@@ -2,96 +2,14 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
-
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
-/*******************************************************************/
-
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
-
-var n, k int
-var A []int
-
-func main() {
-	n, k = ReadInt2()
-	A = ReadIntSlice(n)
-
-	sum := Sum(A...)
-	ans := 1
-	for i := 1; i*i <= sum; i++ {
-		if sum%i != 0 {
-			continue
-		}
-
-		if sub(i) {
-			ChMax(&ans, i)
-		}
-		if sub(sum / i) {
-			ChMax(&ans, sum/i)
-		}
-	}
-
-	fmt.Println(ans)
-}
-
-func sub(x int) bool {
-	B := make([]int, n)
-
-	for i := 0; i < n; i++ {
-		B[i] = A[i] % x
-	}
-
-	sort.Sort(sort.IntSlice(B))
-
-	sums := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		sums[i+1] = sums[i] + B[i]
-	}
-	revSums := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		revSums[i+1] = revSums[i] + (x - B[i])
-	}
-
-	minNum := 1 << 60
-	for i := 0; i < n-1; i++ {
-		minusNum := sums[i+1]
-		plusNum := revSums[n] - revSums[i+1]
-		num := Max(minusNum, plusNum)
-		ChMin(&minNum, num)
-	}
-
-	if minNum <= k {
-		return true
-	} else {
-		return false
-	}
-}
-
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
-
-/*******************************************************************/
 
 /*********** I/O ***********/
 
@@ -307,6 +225,19 @@ func DigitSum(n int) int {
 	return res
 }
 
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -416,3 +347,139 @@ func PrintIntsLine(A ...int) string {
 
 	return string(res)
 }
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*******************************************************************/
+
+const MOD = 1000000000 + 7
+const ALPHABET_NUM = 26
+const INF_INT64 = math.MaxInt64
+const INF_BIT60 = 1 << 60
+
+var n, m int
+var A, B []int
+
+type Task struct {
+	pri        int
+	day, money int
+}
+type TaskPQ []*Task
+
+func (pq TaskPQ) Len() int           { return len(pq) }
+func (pq TaskPQ) Less(i, j int) bool { return pq[i].pri > pq[j].pri } // <: ASC, >: DESC
+func (pq TaskPQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *TaskPQ) Push(x interface{}) {
+	item := x.(*Task)
+	*pq = append(*pq, item)
+}
+func (pq *TaskPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
+}
+
+// how to use
+// temp := make(TaskPQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &Task{pri: intValue})
+// popped := heap.Pop(pq).(*Task)
+
+type Task2 struct {
+	pri        int
+	day, money int
+}
+type Task2PQ []*Task2
+
+func (pq Task2PQ) Len() int           { return len(pq) }
+func (pq Task2PQ) Less(i, j int) bool { return pq[i].pri > pq[j].pri } // <: ASC, >: DESC
+func (pq Task2PQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *Task2PQ) Push(x interface{}) {
+	item := x.(*Task2)
+	*pq = append(*pq, item)
+}
+func (pq *Task2PQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
+}
+
+// how to use
+// temp := make(Task2PQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &Task2{pri: intValue})
+// popped := heap.Pop(pq).(*Task2)
+
+func main() {
+	n, m = ReadInt2()
+	A, B = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		A[i], B[i] = ReadInt2()
+	}
+
+	temp := make(TaskPQ, 0, 100000+1)
+	pq := &temp
+	heap.Init(pq)
+	for i := 0; i < n; i++ {
+		heap.Push(pq, &Task{pri: B[i], day: A[i], money: B[i]})
+	}
+
+	temp2 := make(Task2PQ, 0, 100000+1)
+	pq2 := &temp2
+	heap.Init(pq2)
+	for i := 0; i < m; i++ {
+		if pq.Len() > 0 {
+			popped := heap.Pop(pq).(*Task)
+			heap.Push(pq2, &Task2{pri: popped.day, day: popped.day, money: popped.money})
+		}
+	}
+
+	ans := 0
+	keika := 0
+	for pq2.Len() > 0 {
+		ct := heap.Pop(pq2).(*Task2)
+		l := m - keika
+
+		if ct.day <= l {
+			ans += ct.money
+			keika++
+		}
+	}
+
+	for pq.Len() > 0 {
+		ct := heap.Pop(pq).(*Task)
+		l := m - keika
+
+		if ct.day <= l {
+			ans += ct.money
+			keika++
+		}
+	}
+
+	fmt.Println(ans)
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/

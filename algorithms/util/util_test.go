@@ -50,3 +50,11 @@ func Test整数型除算の切り上げ(t *testing.T) {
 	assert.Equal(t, 1, Kiriage(1, 1<<60))
 	assert.Equal(t, 0, Kiriage(0, 1<<60))
 }
+
+func Test10進数の桁数(t *testing.T) {
+	assert.Equal(t, 0, DigitNumOfDecimal(0))
+	assert.Equal(t, 1, DigitNumOfDecimal(1))
+	assert.Equal(t, 1, DigitNumOfDecimal(9))
+	assert.Equal(t, 2, DigitNumOfDecimal(10))
+	assert.Equal(t, 3, DigitNumOfDecimal(100))
+}

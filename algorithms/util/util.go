@@ -47,6 +47,19 @@ func Kiriage(a, b int) int {
 	return (a + (b - 1)) / b
 }
 
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // 任意のスライスを反転した、新しいスライスを返す
 
 // unshift

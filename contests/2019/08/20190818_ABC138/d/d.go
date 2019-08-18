@@ -7,91 +7,8 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
-
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
-/*******************************************************************/
-
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
-
-var n, k int
-var A []int
-
-func main() {
-	n, k = ReadInt2()
-	A = ReadIntSlice(n)
-
-	sum := Sum(A...)
-	ans := 1
-	for i := 1; i*i <= sum; i++ {
-		if sum%i != 0 {
-			continue
-		}
-
-		if sub(i) {
-			ChMax(&ans, i)
-		}
-		if sub(sum / i) {
-			ChMax(&ans, sum/i)
-		}
-	}
-
-	fmt.Println(ans)
-}
-
-func sub(x int) bool {
-	B := make([]int, n)
-
-	for i := 0; i < n; i++ {
-		B[i] = A[i] % x
-	}
-
-	sort.Sort(sort.IntSlice(B))
-
-	sums := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		sums[i+1] = sums[i] + B[i]
-	}
-	revSums := make([]int, n+1)
-	for i := 0; i < n; i++ {
-		revSums[i+1] = revSums[i] + (x - B[i])
-	}
-
-	minNum := 1 << 60
-	for i := 0; i < n-1; i++ {
-		minusNum := sums[i+1]
-		plusNum := revSums[n] - revSums[i+1]
-		num := Max(minusNum, plusNum)
-		ChMin(&minNum, num)
-	}
-
-	if minNum <= k {
-		return true
-	} else {
-		return false
-	}
-}
-
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
-
-/*******************************************************************/
 
 /*********** I/O ***********/
 
@@ -307,6 +224,19 @@ func DigitSum(n int) int {
 	return res
 }
 
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -416,3 +346,31 @@ func PrintIntsLine(A ...int) string {
 
 	return string(res)
 }
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*******************************************************************/
+
+const MOD = 1000000000 + 7
+const ALPHABET_NUM = 26
+const INF_INT64 = math.MaxInt64
+const INF_BIT60 = 1 << 60
+
+func main() {
+	fmt.Println("ABC138 d.go")
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/
