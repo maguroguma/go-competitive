@@ -366,8 +366,99 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var S, T []rune
+
 func main() {
-	fmt.Println("ABC138 e.go")
+	S = ReadRuneSlice()
+	T = ReadRuneSlice()
+
+	memoS, memoT := make(map[rune]int), make(map[rune]int)
+	for _, v := range S {
+		memoS[v]++
+	}
+	for _, v := range T {
+		memoT[v]++
+	}
+
+	for k := range memoT {
+		if _, ok := memoS[k]; ok {
+			continue
+		} else {
+			fmt.Println(-1)
+			return
+		}
+	}
+
+	memo := [30][]int{}
+	for i := 0; i < 30; i++ {
+		memo[i] = []int{}
+	}
+	for i := 0; i < len(S); i++ {
+		r := S[i]
+		memo[int(r-'a')] = append(memo[int(r-'a')], i)
+	}
+
+	m, current := 0, 0
+	bef := -1
+	// memo2 := make(map[rune]int)
+	i := 0
+	for i < len(T) {
+		r := T[i] // 現在見ているTの文字
+
+		// currR := memo2[r]
+		// memo2[r]++                          // 次同じ文字を見るときは次の出現位置を参照する
+		// if currR == len(memo[int(r-'a')]) { // m番目のSにrが存在しない場合はリセット
+		// 	bef = -1
+		// 	m++
+		// 	memo2 = make(map[rune]int) // 各文字について参照位置をリセット
+		// 	continue
+		// }
+
+		// current = memo[int(r-'a')][currR]
+
+		idx := sub(memo[int(r-'a')], bef)
+		if idx < len(memo[int(r-'a')]) {
+			current = memo[int(r-'a')][idx]
+			bef = current
+			i++
+		} else {
+			bef = -1
+			m++
+		}
+
+		// if current <= bef { // 前回の出現位置よりも前であればリセット
+		// 	bef = -1
+		// 	m++
+		// 	memo2 = make(map[rune]int) // 各文字について参照位置をリセット
+		// } else {
+		// 	bef = current
+		// 	i++
+		// }
+	}
+
+	fmt.Println(len(S)*m + current + 1)
+}
+
+func sub(A []int, bef int) int {
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if A[m] > bef {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := -1, len(A)
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
 }
 
 // MODはとったか？

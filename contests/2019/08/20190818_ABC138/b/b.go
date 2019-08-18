@@ -366,8 +366,19 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A []int
+
 func main() {
-	fmt.Println("ABC138 b.go")
+	n = ReadInt()
+	A = ReadIntSlice(n)
+
+	sum := 0.0
+	for i := 0; i < n; i++ {
+		sum += 1.0 / float64(A[i])
+	}
+
+	fmt.Println(1.0 / sum)
 }
 
 // MODはとったか？

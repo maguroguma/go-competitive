@@ -366,8 +366,53 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, q int
+var A, B, P, X []int
+
+var edges [200000 + 5][]int
+var parents [200000 + 5]int
+var adds [200000 + 5]int
+
 func main() {
-	fmt.Println("ABC138 d.go")
+	n, q = ReadInt2()
+	A, B = make([]int, n), make([]int, n)
+	P, X = make([]int, q), make([]int, q)
+	for i := 0; i < n-1; i++ {
+		A[i], B[i] = ReadInt2()
+		A[i]--
+		B[i]--
+	}
+
+	for i := 0; i < q; i++ {
+		P[i], X[i] = ReadInt2()
+		P[i]--
+	}
+
+	for i := 0; i < n; i++ {
+		edges[i] = []int{}
+	}
+	for i := 0; i < n-1; i++ {
+		a, b := A[i], B[i]
+		edges[a] = append(edges[a], b)
+		parents[b] = a
+	}
+
+	for i := 0; i < q; i++ {
+		p, x := P[i], X[i]
+		adds[p] += x
+	}
+
+	answers := []int{}
+	for i := 0; i < n; i++ {
+		if i == 0 {
+			answers = append(answers, adds[i])
+		} else {
+			adds[i] += adds[parents[i]]
+			answers = append(answers, adds[i])
+		}
+	}
+
+	fmt.Println(PrintIntsLine(answers...))
 }
 
 // MODはとったか？

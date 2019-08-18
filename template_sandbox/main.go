@@ -49,8 +49,10 @@ func main() {
 	// sort.Sort(sort.IntSlice(A[2:]))
 	// fmt.Println(A)
 
-	fmt.Println(math.Sqrt(float64(100000)))
-	fmt.Println(512 * 512)
+	// fmt.Println(math.Sqrt(float64(100000)))
+	// fmt.Println(512 * 512)
+
+	fmt.Println(int('z'))
 }
 
 func gacha(num int) float64 {

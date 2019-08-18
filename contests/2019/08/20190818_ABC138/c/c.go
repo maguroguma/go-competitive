@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -366,8 +367,22 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var V []int
+
 func main() {
-	fmt.Println("ABC138 c.go")
+	n = ReadInt()
+	V = ReadIntSlice(n)
+
+	sort.Sort(sort.IntSlice(V))
+	sum := 0.0
+	sum += float64(V[0])
+	for i := 1; i < n; i++ {
+		sum += float64(V[i])
+		sum /= 2.0
+	}
+
+	fmt.Println(sum)
 }
 
 // MODはとったか？

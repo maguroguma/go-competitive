@@ -366,8 +366,18 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var a int
+var S []rune
+
 func main() {
-	fmt.Println("ABC138 a.go")
+	a = ReadInt()
+	S = ReadRuneSlice()
+
+	if a >= 3200 {
+		fmt.Println(string(S))
+	} else {
+		fmt.Println("red")
+	}
 }
 
 // MODはとったか？
