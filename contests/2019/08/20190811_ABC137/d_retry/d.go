@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -366,105 +368,107 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n, m, p int
-var A, B, C []int
-var es []Edge  // 辺
-var dist []int // 最短距離
-var isRoop [3000]bool
+var n, m int
+var A, B []int
+
+type Task struct {
+	pri        int
+	day, money int
+}
+type TaskPQ []*Task
+
+func (pq TaskPQ) Len() int           { return len(pq) }
+func (pq TaskPQ) Less(i, j int) bool { return pq[i].pri > pq[j].pri } // <: ASC, >: DESC
+func (pq TaskPQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *TaskPQ) Push(x interface{}) {
+	item := x.(*Task)
+	*pq = append(*pq, item)
+}
+func (pq *TaskPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
+}
+
+// how to use
+// temp := make(TaskPQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &Task{pri: intValue})
+// popped := heap.Pop(pq).(*Task)
 
 func main() {
-	n, m, p = ReadInt3()
-	A, B, C = make([]int, m), make([]int, m), make([]int, m)
-	es = []Edge{}
-	for i := 0; i < m; i++ {
-		A[i], B[i], C[i] = ReadInt3()
-		es = append(es, Edge{from: A[i] - 1, to: B[i] - 1, cost: -C[i] + p})
+	n, m = ReadInt2()
+	A, B = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		A[i], B[i] = ReadInt2()
 	}
 
-	dist = make([]int, n)
+	L := make(ItemList, 0, 200000+5)
 	for i := 0; i < n; i++ {
-		dist[i] = INF_BIT60
+		L = append(L, &Item{key: A[i], day: A[i], money: B[i]})
 	}
-	dist[0] = 0
+	sort.Stable(byKey{L})
 
-	for i := 0; i < n; i++ {
-		isUpdate := false
-
-		for i := 0; i < m; i++ {
-			e := es[i]
-			if dist[e.from] != INF_BIT60 && dist[e.to] > dist[e.from]+e.cost {
-				dist[e.to] = dist[e.from] + e.cost
-				isUpdate = true
+	temp := make(TaskPQ, 0, 100000+1)
+	pq := &temp
+	heap.Init(pq)
+	i := 1
+	j := 0
+	ans := 0
+	for i <= m {
+		// i日の仕事のみをqueueに詰める
+		for j < n {
+			if L[j].day == i {
+				heap.Push(pq, &Task{pri: L[j].money, day: L[j].day, money: L[j].money})
+				j++
+			} else {
+				break
 			}
 		}
 
-		if !isUpdate {
-			break
+		i++
+		if pq.Len() == 0 {
+			// 選べる仕事がない
+			continue
 		}
+
+		popped := heap.Pop(pq).(*Task)
+		ans += popped.money
 	}
 
-	// 閉路チェック
-	for i := 0; i < n; i++ {
-		for _, e := range es {
-			if dist[e.from] != INF_BIT60 && dist[e.to] > dist[e.from]+e.cost {
-				dist[e.to] = dist[e.from] + e.cost
-				isRoop[e.to] = true
-			}
-
-			// ※ここをコメントアウトするとafter_contestのケースが通らない！
-			if isRoop[e.from] {
-				isRoop[e.to] = true
-			}
-		}
-	}
-
-	if isRoop[n-1] {
-		fmt.Println(-1)
-	} else {
-		if dist[n-1] > 0 {
-			fmt.Println(0)
-		} else {
-			fmt.Println(-dist[n-1])
-		}
-	}
+	fmt.Println(ans)
 }
 
-// 頂点fromから頂点toへのコストcostの辺
-type Edge struct {
-	from, to, cost int
+type Item struct {
+	key        int
+	day, money int
+}
+type ItemList []*Item
+type byKey struct {
+	ItemList
 }
 
-const INF = 1 << 60
+func (l ItemList) Len() int {
+	return len(l)
+}
+func (l ItemList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
 
-// var es []Edge  // 辺
-// var dist []int // 最短距離
-// var v, e int   // vは頂点数, eは辺数
+func (l byKey) Less(i, j int) bool {
+	return l.ItemList[i].key < l.ItemList[j].key
+}
 
-// // s番目の頂点から各頂点への最短距離を求める
-// func shortestPath(s int) {
-// 	// 初期化
-// 	for i := 0; i < v; i++ {
-// 		dist[i] = INF
-// 	}
-// 	dist[s] = 0
-
-// 	for {
-// 		isUpdate := false
-
-// 		for i := 0; i < e; i++ {
-// 			e := es[i]
-// 			if dist[e.from] != INF && dist[e.to] > dist[e.from]+e.cost {
-// 				dist[e.to] = dist[e.from] + e.cost
-// 				isUpdate = true
-// 			}
-// 		}
-
-// 		// 更新がなかったらループを抜ける
-// 		if !isUpdate {
-// 			break
-// 		}
-// 	}
-// }
+// how to use
+// L := make(ItemList, 0, 200000+5)
+// L = append(L, &Item{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？

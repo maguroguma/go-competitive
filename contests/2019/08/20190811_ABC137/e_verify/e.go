@@ -368,9 +368,6 @@ const INF_BIT60 = 1 << 60
 
 var n, m, p int
 var A, B, C []int
-var es []Edge  // 辺
-var dist []int // 最短距離
-var isRoop [3000]bool
 
 func main() {
 	n, m, p = ReadInt3()
@@ -381,42 +378,8 @@ func main() {
 		es = append(es, Edge{from: A[i] - 1, to: B[i] - 1, cost: -C[i] + p})
 	}
 
-	dist = make([]int, n)
-	for i := 0; i < n; i++ {
-		dist[i] = INF_BIT60
-	}
-	dist[0] = 0
-
-	for i := 0; i < n; i++ {
-		isUpdate := false
-
-		for i := 0; i < m; i++ {
-			e := es[i]
-			if dist[e.from] != INF_BIT60 && dist[e.to] > dist[e.from]+e.cost {
-				dist[e.to] = dist[e.from] + e.cost
-				isUpdate = true
-			}
-		}
-
-		if !isUpdate {
-			break
-		}
-	}
-
-	// 閉路チェック
-	for i := 0; i < n; i++ {
-		for _, e := range es {
-			if dist[e.from] != INF_BIT60 && dist[e.to] > dist[e.from]+e.cost {
-				dist[e.to] = dist[e.from] + e.cost
-				isRoop[e.to] = true
-			}
-
-			// ※ここをコメントアウトするとafter_contestのケースが通らない！
-			if isRoop[e.from] {
-				isRoop[e.to] = true
-			}
-		}
-	}
+	v, e = n, m
+	shortestPath(0)
 
 	if isRoop[n-1] {
 		fmt.Println(-1)
@@ -436,37 +399,51 @@ type Edge struct {
 
 const INF = 1 << 60
 
-// var es []Edge  // 辺
-// var dist []int // 最短距離
-// var v, e int   // vは頂点数, eは辺数
+var es []Edge         // 辺
+var dist [3000]int    // 最短距離
+var isRoop [3000]bool // 閉路チェック
+var v, e int          // vは頂点数, eは辺数
 
-// // s番目の頂点から各頂点への最短距離を求める
-// func shortestPath(s int) {
-// 	// 初期化
-// 	for i := 0; i < v; i++ {
-// 		dist[i] = INF
-// 	}
-// 	dist[s] = 0
+// s番目の頂点から各頂点への最短距離を求める
+func shortestPath(s int) {
+	// 初期化
+	for i := 0; i < v; i++ {
+		dist[i] = INF
+	}
+	dist[s] = 0
 
-// 	for {
-// 		isUpdate := false
+	// まずは普通に更新
+	for c := 0; c < v; c++ {
+		isUpdate := false
 
-// 		for i := 0; i < e; i++ {
-// 			e := es[i]
-// 			if dist[e.from] != INF && dist[e.to] > dist[e.from]+e.cost {
-// 				dist[e.to] = dist[e.from] + e.cost
-// 				isUpdate = true
-// 			}
-// 		}
+		for i := 0; i < e; i++ {
+			e := es[i]
+			if dist[e.from] != INF && dist[e.to] > dist[e.from]+e.cost {
+				dist[e.to] = dist[e.from] + e.cost
+				isUpdate = true
+			}
+		}
 
-// 		// 更新がなかったらループを抜ける
-// 		if !isUpdate {
-// 			break
-// 		}
-// 	}
-// }
+		// 更新がなかったらループを抜ける
+		if !isUpdate {
+			break
+		}
+	}
 
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+	// 閉路チェック
+	for c := 0; c < v; c++ {
+		for _, e := range es {
+			// 起こらないはずの更新が起こる
+			if dist[e.from] != INF_BIT60 && dist[e.to] > dist[e.from]+e.cost {
+				dist[e.to] = dist[e.from] + e.cost
+				isRoop[e.to] = true
+			}
+
+			if isRoop[e.from] {
+				isRoop[e.to] = true
+			}
+		}
+	}
+}
 
 /*******************************************************************/
