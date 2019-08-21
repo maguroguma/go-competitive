@@ -287,7 +287,108 @@ var n, a, b, c int
 func main() {
 	n, a, b, c = ReadInt(), ReadInt(), ReadInt(), ReadInt()
 
+	cf := NewCombFactorial()
+	cf.InitCF()
+
+	ans := 0
+	for i := n; i <= 2*n-1; i++ {
+		comb := cf.C(i-1, n-1)
+		en1 := cf.modpow(a, n)
+		en1 *= cf.modpow(b, i-n)
+		en1 %= MOD
+		en2 := cf.modpow(a, i-n)
+		en2 *= cf.modpow(b, n)
+		en2 %= MOD
+		en := en1 + en2
+		en %= MOD
+		en *= i
+		en %= MOD
+		en *= cf.modInv(cf.modpow(a+b, i))
+		en %= MOD
+		en *= 100
+		en %= MOD
+		en *= cf.modInv(100 - c)
+		en %= MOD
+
+		temp := comb * en
+		temp %= MOD
+
+		ans += temp
+		ans %= MOD
+	}
+
+	fmt.Println(ans)
 }
+
+type CombFactorial struct {
+	factorial, modFactorial [200001]int
+}
+
+func NewCombFactorial() *CombFactorial {
+	cf := new(CombFactorial)
+
+	return cf
+}
+func (c *CombFactorial) modInv(a int) int {
+	return c.modpow(a, MOD-2)
+}
+func (c *CombFactorial) modpow(a, e int) int {
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := c.modpow(a, halfE)
+		return half * half % MOD
+	}
+
+	return a * c.modpow(a, e-1) % MOD
+}
+func (c *CombFactorial) InitCF() {
+	for i := 0; i <= 200000; i++ {
+		if i == 0 {
+			c.factorial[i] = 1
+			c.modFactorial[i] = c.modInv(c.factorial[i])
+			continue
+		}
+
+		num := i * c.factorial[i-1]
+		num %= MOD
+		c.factorial[i] = num
+		c.modFactorial[i] = c.modInv(c.factorial[i])
+	}
+}
+func (c *CombFactorial) C(n, r int) int {
+	res := 1
+	res *= c.factorial[n]
+	res %= MOD
+	res *= c.modFactorial[r]
+	res %= MOD
+	res *= c.modFactorial[n-r]
+	res %= MOD
+
+	return res
+}
+func (c *CombFactorial) P(n, r int) int {
+	res := 1
+	res *= c.factorial[n]
+	res %= MOD
+	res *= c.modFactorial[n-r]
+	res %= MOD
+
+	return res
+}
+func (c *CombFactorial) H(n, r int) int {
+	return c.C(n-1+r, r)
+}
+
+// cf = NewCombFactorial()
+// cf.InitCF()
+// res := cf.C(n, r) 	// 組み合わせ
+// res := cf.H(n, r) 	// 重複組合せ
+// res := cf.P(n, r) 	// 順列
+var cf *CombFactorial
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？
