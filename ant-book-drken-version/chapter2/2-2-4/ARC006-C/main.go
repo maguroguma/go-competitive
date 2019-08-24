@@ -366,8 +366,41 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var W []int
+
+var mounts [][]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	W = ReadIntSlice(n)
+
+	for i := 0; i < n; i++ {
+		w := W[i]
+		midx := -1
+		mini := INF_BIT60
+		for j := 0; j < len(mounts); j++ {
+			M := mounts[j]
+			lastW := M[len(M)-1]
+
+			if lastW < w {
+				continue
+			}
+
+			if mini > lastW-w {
+				mini = lastW - w
+				midx = j
+			}
+		}
+
+		if midx == -1 {
+			mounts = append(mounts, []int{w})
+		} else {
+			mounts[midx] = append(mounts[midx], w)
+		}
+	}
+
+	fmt.Println(len(mounts))
 }
 
 // MODはとったか？
