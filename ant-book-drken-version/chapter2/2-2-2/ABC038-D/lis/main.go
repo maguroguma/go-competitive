@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -366,8 +367,95 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var H, W []int
+
+type Box struct {
+	key  int
+	w, h int
+}
+type BoxList []*Box
+type byKey struct {
+	BoxList
+}
+
+func (l BoxList) Len() int {
+	return len(l)
+}
+func (l BoxList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.BoxList[i].key < l.BoxList[j].key
+}
+
+type byH struct {
+	BoxList
+}
+
+func (l byH) Less(i, j int) bool {
+	return l.BoxList[i].h < l.BoxList[j].h
+}
+
+// how to use
+// L := make(BoxList, 0, 200000+5)
+// L = append(L, &Box{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+var dp [100000 + 5]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	H, W = make([]int, n), make([]int, n)
+	L := make(BoxList, 0, 200000+5)
+	for i := 0; i < n; i++ {
+		w, h := ReadInt2()
+		H[i], W[i] = h, w
+		L = append(L, &Box{key: w, w: w, h: h})
+	}
+	sort.Stable(sort.Reverse(byH{L}))
+	sort.Stable(byKey{L})
+
+	// 同じ幅のものは除去してしまう→ダメ！
+	heights := []int{}
+	for i := 0; i < n; i++ {
+		heights = append(heights, L[i].h)
+	}
+
+	for i := 0; i < len(dp); i++ {
+		dp[i] = INF_BIT60
+	}
+	for i := 0; i < len(heights); i++ {
+		idx := sub(heights[i])
+		dp[idx+1] = heights[i]
+	}
+
+	// fmt.Println(dp[:10])
+	fmt.Println(sub(INF_BIT60) + 1)
+}
+
+func sub(a int) int {
+	// m は中央を意味する何らかの値
+	isOK := func(m, a int) bool {
+		if dp[m] < a {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := len(dp), -1
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid, a) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
 }
 
 // MODはとったか？

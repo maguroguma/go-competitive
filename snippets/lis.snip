@@ -1,0 +1,42 @@
+snippet     lis
+abbr        func LIS() int
+options     head
+  var A []int
+  var dp [100000 + 5]int
+
+  // O( Nlog(N) )
+  func LIS() int {
+    for i := 0; i < len(dp); i++ {
+      dp[i] = INF_BIT60
+    }
+
+    for i := 0; i < n; i++ {
+      idx := sub(A[i])
+      dp[idx+1] = A[i]
+    }
+
+    return sub(INF_BIT60) + 1
+  }
+
+  func sub(a int) int {
+    // m は中央を意味する何らかの値
+    isOK := func(m, a int) bool {
+      if dp[m] < a {
+        return true
+      }
+      return false
+    }
+
+    ng, ok := len(dp), -1
+    for int(math.Abs(float64(ok-ng))) > 1 {
+      mid := (ok + ng) / 2
+      if isOK(mid, a) {
+        ok = mid
+      } else {
+        ng = mid
+      }
+    }
+    bIdx := ok
+
+    return bIdx
+  }
