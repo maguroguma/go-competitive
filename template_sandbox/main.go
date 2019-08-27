@@ -53,6 +53,7 @@ func main() {
 	// fmt.Println(512 * 512)
 
 	fmt.Println(int('z'))
+	fmt.Println("aaa")
 }
 
 func gacha(num int) float64 {

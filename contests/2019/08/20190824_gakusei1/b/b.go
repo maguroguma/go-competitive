@@ -366,8 +366,87 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, k int
+var A []int
+
 func main() {
-	fmt.Println("gakusei1 b.go")
+	n, k = ReadInt2()
+	A = ReadIntSlice(n)
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		bef, aft := 0, 0
+		for j := 0; j < n; j++ {
+			if j < i && A[i] > A[j] {
+				bef++
+			} else if j > i && A[i] > A[j] {
+				aft++
+			}
+		}
+
+		bef *= k
+		bef %= MOD
+		bef *= (k - 1)
+		bef %= MOD
+		bef *= ModInv(2, MOD)
+		bef %= MOD
+
+		aft *= k
+		aft %= MOD
+		aft *= (k + 1)
+		aft %= MOD
+		aft *= ModInv(2, MOD)
+		aft %= MOD
+
+		ans += bef + aft
+		ans %= MOD
+	}
+
+	fmt.Println(ans)
+}
+
+// ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
+func ModInv(a, m int) int {
+	return modpow(a, m-2, m)
+}
+
+func modpow(a, e, m int) int {
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := modpow(a, halfE, m)
+		return half * half % m
+	}
+
+	return a * modpow(a, e-1, m) % m
+}
+
+// [1, n]
+var bit [1000000 + 1]int
+
+// var n int
+// var A []int
+
+func sum(i int) int {
+	s := 0
+
+	for i > 0 {
+		s += bit[i]
+		i -= i & (-i)
+	}
+
+	return s
+}
+
+func add(i, x int) {
+	for i <= n {
+		bit[i] += x
+		i += i & (-i)
+	}
 }
 
 // MODはとったか？

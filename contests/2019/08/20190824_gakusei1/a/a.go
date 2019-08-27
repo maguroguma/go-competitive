@@ -366,8 +366,22 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var m, d int
+
 func main() {
-	fmt.Println("gakusei1 a.go")
+	m, d = ReadInt2()
+
+	ans := 0
+	for i := 1; i <= m; i++ {
+		for j := 1; j <= d; j++ {
+			d1 := j % 10
+			d10 := (j / 10) % 10
+			if d1 >= 2 && d10 >= 2 && i == d1*d10 {
+				ans++
+			}
+		}
+	}
+	fmt.Println(ans)
 }
 
 // MODはとったか？

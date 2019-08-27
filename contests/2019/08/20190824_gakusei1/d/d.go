@@ -366,8 +366,37 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+
+var answers [500 + 1][500 + 1]int
+
 func main() {
-	fmt.Println("gakusei1 d.go")
+	n = ReadInt()
+
+	k := 1
+	m := 1
+	for k < n {
+		k *= 2
+		m++
+	}
+
+	for i := 0; i < m; i++ {
+		// iがレベルに対応
+		for j := 0; j < n; j++ {
+			a := NthBit(j, i)
+			for l := j + 1; l < n; l++ {
+				b := NthBit(l, i)
+				if a != b {
+					answers[j][l] = i + 1
+					// answers[l][j] = i + 1
+				}
+			}
+		}
+	}
+
+	for i := 0; i < n; i++ {
+		fmt.Println(PrintIntsLine(answers[i][i+1 : n]...))
+	}
 }
 
 // MODはとったか？

@@ -366,8 +366,58 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var S []rune
+
 func main() {
-	fmt.Println("gakusei1 c.go")
+	n = ReadInt()
+	S = ReadRuneSlice()
+
+	memo := make([]rune, len(S))
+	for i := 0; i < 2*n; i++ {
+		if i%2 == 1 {
+			memo[i] = S[i]
+			continue
+		}
+
+		if S[i] == 'B' {
+			memo[i] = 'W'
+		} else {
+			memo[i] = 'B'
+		}
+	}
+
+	lc, rc := 0, 0
+	for i := 0; i < 2*n; i++ {
+		if memo[i] == 'B' {
+			rc++
+		} else {
+			lc++
+		}
+	}
+	if rc != lc {
+		fmt.Println(0)
+		return
+	}
+
+	ans := 1
+	lcounter := 0
+	for i := 0; i < 2*n; i++ {
+		if memo[i] == 'B' {
+			ans *= lcounter
+			ans %= MOD
+			lcounter--
+		} else {
+			lcounter++
+		}
+	}
+
+	for i := 1; i <= n; i++ {
+		ans *= i
+		ans %= MOD
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？
