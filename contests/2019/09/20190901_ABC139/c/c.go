@@ -366,8 +366,26 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var H []int
+
 func main() {
-	fmt.Println("ABC139 c.go")
+	n = ReadInt()
+	H = ReadIntSlice(n)
+
+	ans := 0
+	tempAns := 0
+	for i := 0; i < n-1; i++ {
+		if H[i] >= H[i+1] {
+			tempAns++
+		} else {
+			ans = Max(ans, tempAns)
+			tempAns = 0
+		}
+	}
+	ans = Max(ans, tempAns)
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

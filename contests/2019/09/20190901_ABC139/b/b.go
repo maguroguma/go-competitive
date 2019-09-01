@@ -366,8 +366,24 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var a, b int
+
 func main() {
-	fmt.Println("ABC139 b.go")
+	a, b = ReadInt2()
+
+	if b == 1 {
+		fmt.Println(0)
+		return
+	}
+
+	// ans := b / (a - 1)
+	// fmt.Println(ans)
+	for i := 0; i < 100; i++ {
+		if i*(a-1)+1 >= b {
+			fmt.Println(i)
+			return
+		}
+	}
 }
 
 // MODはとったか？

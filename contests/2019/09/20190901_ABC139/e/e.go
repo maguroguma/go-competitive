@@ -366,8 +366,31 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A [][]int
+var days [][]int
+
 func main() {
-	fmt.Println("ABC139 e.go")
+	n = ReadInt()
+	A = [][]int{}
+	for i := 0; i < n; i++ {
+		A = append(A, ReadIntSlice(n-1))
+	}
+	// fmt.Println(A)
+
+	days = make([][]int, n+1)
+	for i := 1; i <= n; i++ {
+		days[i] = make([]int, n*(n-1)/2)
+	}
+	// fmt.Println(days)
+
+	// 各行
+	for i := 1; i <= n; i++ {
+		for j := 0; j < n-1; j++ {
+			aite := A[i-1][j]
+
+		}
+	}
 }
 
 // MODはとったか？

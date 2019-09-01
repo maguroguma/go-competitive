@@ -54,6 +54,12 @@ func main() {
 
 	fmt.Println(int('z'))
 	fmt.Println("aaa")
+
+	sum := 0
+	for i := 1; i <= 13; i++ {
+		sum += (i - 1)
+	}
+	fmt.Println(sum)
 }
 
 func gacha(num int) float64 {
