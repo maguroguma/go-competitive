@@ -366,31 +366,132 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n int
-var A [][]int
-var days [][]int
+var n, q int
+var A []int
 
 func main() {
-	n = ReadInt()
-	A = [][]int{}
-	for i := 0; i < n; i++ {
-		A = append(A, ReadIntSlice(n-1))
-	}
-	// fmt.Println(A)
+	n, q = ReadInt2()
+	A = ReadIntSlice(n)
 
-	days = make([][]int, n+1)
-	for i := 1; i <= n; i++ {
-		days[i] = make([]int, n*(n-1)/2)
-	}
-	// fmt.Println(days)
-
-	// 各行
-	for i := 1; i <= n; i++ {
-		for j := 0; j < n-1; j++ {
-			aite := A[i-1][j]
-
+	lst := NewLazySegTree(A)
+	for i := 0; i < q; i++ {
+		c := ReadInt()
+		if c == 1 {
+			l, r, x := ReadInt3()
+			lst.Add(l-1, r, x)
+		} else {
+			l, r := ReadInt2()
+			if l == r {
+				fmt.Println(1)
+			} else {
+				fmt.Println(lst.Query(l-1, r))
+			}
 		}
 	}
+}
+
+type LazySegTree struct {
+	n                                             int
+	lnode, rnode, lazylnode, lazyrnode, lazy, ans []int
+}
+
+func NewLazySegTree(A []int) *LazySegTree {
+	lst := new(LazySegTree)
+
+	sz := len(A)
+	lst.n = 1
+	for lst.n < sz {
+		lst.n *= 2
+	}
+	lst.lnode, lst.rnode, lst.lazylnode, lst.lazyrnode, lst.ans =
+		make([]int, 2*lst.n-1), make([]int, 2*lst.n-1), make([]int, 2*lst.n-1), make([]int, 2*lst.n-1), make([]int, 2*lst.n-1)
+	lst.lazy = make([]int, 2*lst.n-1)
+
+	for i := 0; i < sz; i++ {
+		lst.lnode[i+lst.n-1], lst.rnode[i+lst.n-1] = A[i], A[i]
+		lst.ans[i+lst.n-1] = 1
+	}
+	for i := lst.n - 2; i >= 0; i-- {
+		lst.lnode[i] = lst.lnode[i*2+1]
+		lst.rnode[i] = lst.rnode[i*2+2]
+		lst.ans[i] = lst.ans[i*2+1] + lst.ans[i*2+2] - 1
+		if lst.rnode[i*2+1] != lst.lnode[i*2+2] {
+			lst.ans[i]++
+		}
+	}
+
+	return lst
+}
+
+// k番目のノードについて遅延評価を行う
+func (lst *LazySegTree) eval(k, l, r int) {
+	if lst.lazy[k] != 0 {
+		lst.lnode[k] += lst.lazy[k]
+		lst.rnode[k] += lst.lazy[k]
+
+		if r-l > 1 {
+			lst.lazy[2*k+1] += lst.lazy[k] / 2
+			lst.lazy[2*k+2] += lst.lazy[k] / 2
+		}
+
+		lst.lazy[k] = 0
+	}
+}
+
+// 区間加算
+func (lst *LazySegTree) add(a, b, x, k, l, r int) {
+	if r < 0 {
+		r = lst.n
+	}
+
+	lst.eval(k, l, r)
+
+	if b <= l || r <= a {
+		return
+	}
+
+	if a <= l && r <= b {
+		lst.lazy[k] += (r - l) * x
+		lst.eval(k, l, r)
+	} else {
+		lst.add(a, b, x, 2*k+1, l, (l+r)/2)
+		lst.add(a, b, x, 2*k+2, (l+r)/2, r)
+		lst.lnode[k] = lst.lnode[2*k+1]
+		lst.rnode[k] = lst.rnode[2*k+2]
+	}
+}
+
+// 関数の計算
+func (lst *LazySegTree) query(a, b, k, l, r int) int {
+	if r < 0 {
+		r = lst.n
+	}
+
+	if b <= l || r <= a {
+		return 0
+	}
+
+	lst.eval(k, l, r)
+
+	if a <= l && r <= b {
+		return lst.ans[k]
+	}
+
+	lans := lst.query(a, b, 2*k+1, l, (l+r)/2)
+	rans := lst.query(a, b, 2*k+2, (l+r)/2, r)
+	res := lans + rans - 1
+	if lst.rnode[2*k+1] != lst.lnode[2*k+2] {
+		res++
+	}
+
+	return res
+}
+
+func (lst *LazySegTree) Add(a, b, x int) {
+	lst.add(a, b, x, 0, 0, -1)
+}
+func (lst *LazySegTree) Query(a, b int) int {
+	return lst.query(a, b, 0, 0, -1)
 }
 
 // MODはとったか？
