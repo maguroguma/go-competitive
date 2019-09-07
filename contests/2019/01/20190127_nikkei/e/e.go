@@ -366,63 +366,28 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n int
-var A [][]int
-var memo [1005][1005]int
-var edges [1000000 + 5][]int
-var degin [1000000 + 5]int
-var B [1005][1005]int
-var dp [1000000 + 5]int
+var n, m int
+var edges [100000 + 5][]int
+var degin [100000 + 5]int
+
+var dp [100000 + 5]int
+var parents [100000 + 5]int
+var rootId int
 
 func main() {
-	n = ReadInt()
-	A = [][]int{}
-	for i := 0; i < n; i++ {
-		A = append(A, ReadIntSlice(n-1))
-	}
-	for i := 0; i < n; i++ {
-		for j := 0; j < n-1; j++ {
-			A[i][j]--
-		}
-	}
-
-	// ノード番号を作成するためのメモ
-	counter := 0
-	for i := 0; i < n; i++ {
-		for j := i + 1; j < n; j++ {
-			memo[i][j] = counter
-			counter++
-		}
-	}
-
-	// グラフを作成する
-	for i := 0; i < n; i++ {
-		for j := 0; j < n-1; j++ {
-			a, b := i, A[i][j]
-			if a > b {
-				a, b = b, a
-			}
-			nid := memo[a][b]
-			B[i][j] = nid
-		}
-	}
-	for i := 0; i < n; i++ {
-		for j := 0; j < n-2; j++ {
-			bef, aft := B[i][j], B[i][j+1]
-			edges[bef] = append(edges[bef], aft)
-		}
-	}
-
-	// 入次数を計算
-	for i := 0; i < n*(n-1)/2; i++ {
-		for _, nid := range edges[i] {
-			degin[nid]++
-		}
+	n, m = ReadInt2()
+	for i := 0; i < n-1+m; i++ {
+		a, b := ReadInt2()
+		a--
+		b--
+		edges[a] = append(edges[a], b)
+		degin[b]++
 	}
 
 	st := []int{}
-	for i := 0; i < n*(n-1)/2; i++ {
+	for i := 0; i < n; i++ {
 		if degin[i] == 0 {
+			rootId = i
 			st = append(st, i)
 		}
 	}
@@ -441,23 +406,23 @@ func main() {
 		}
 	}
 
-	if len(res) != n*(n-1)/2 {
-		fmt.Println(-1)
-		return
-	}
-
 	for i := 0; i < len(res); i++ {
 		cid := res[i]
 		for _, nid := range edges[cid] {
-			ChMax(&dp[nid], dp[cid]+1)
+			if dp[nid] < dp[cid]+1 {
+				dp[nid] = dp[cid] + 1
+				parents[nid] = cid
+			}
 		}
 	}
 
-	ans := 0
-	for i := 0; i < len(res); i++ {
-		ChMax(&ans, dp[i])
+	for i := 0; i < n; i++ {
+		if i == rootId {
+			fmt.Println(0)
+			continue
+		}
+		fmt.Println(parents[i] + 1)
 	}
-	fmt.Println(ans + 1)
 }
 
 // MODはとったか？
