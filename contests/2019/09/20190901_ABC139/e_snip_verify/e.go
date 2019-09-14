@@ -366,58 +366,164 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-// v: 頂点数, e: 辺の数
-var v, e int
+var n int
+var A [][]int
+var memo [1005][1005]int
+var edges [1000000 + 5][]int
+var degin [1000000 + 5]int
+var B [1005][1005]int
+var dp [1000000 + 5]int
 
-// 隣接リスト
-var edges [100000 + 5][]int
-
-// 頂点の入次数を管理
-var h [100000 + 5]int
-
-// O(v + e)
 func main() {
-	v, e = ReadInt2()
-	for i := 0; i < e; i++ {
-		s, t := ReadInt2()
-		edges[s] = append(edges[s], t)
-		h[t]++
+	n = ReadInt()
+	A = [][]int{}
+	for i := 0; i < n; i++ {
+		A = append(A, ReadIntSlice(n-1))
 	}
-
-	// 入次数が0の頂点の集合（スタックで管理）
-	st := []int{}
-
-	// 入次数が0の頂点であればスタックに追加
-	for i := 0; i < v; i++ {
-		if h[i] == 0 {
-			st = append(st, i)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n-1; j++ {
+			A[i][j]--
 		}
 	}
 
-	// ソートされた後のグラフ
-	ans := []int{}
-	// スタックが空になるまでループ
+	// ノード番号を作成するためのメモ
+	counter := 0
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			memo[i][j] = counter
+			counter++
+		}
+	}
+
+	// グラフを作成する
+	for i := 0; i < n; i++ {
+		for j := 0; j < n-1; j++ {
+			a, b := i, A[i][j]
+			if a > b {
+				a, b = b, a
+			}
+			nid := memo[a][b]
+			B[i][j] = nid
+		}
+	}
+	for i := 0; i < n; i++ {
+		for j := 0; j < n-2; j++ {
+			bef, aft := B[i][j], B[i][j+1]
+			edges[bef] = append(edges[bef], aft)
+		}
+	}
+
+	// // 入次数を計算
+	// for i := 0; i < n*(n-1)/2; i++ {
+	// 	for _, nid := range edges[i] {
+	// 		degin[nid]++
+	// 	}
+	// }
+
+	// st := []int{}
+	// for i := 0; i < n*(n-1)/2; i++ {
+	// 	if degin[i] == 0 {
+	// 		st = append(st, i)
+	// 	}
+	// }
+
+	// res := []int{}
+	// for len(st) > 0 {
+	// 	cid := st[len(st)-1]
+	// 	st = st[:len(st)-1]
+	// 	res = append(res, cid)
+
+	// 	for _, nid := range edges[cid] {
+	// 		degin[nid]--
+	// 		if degin[nid] == 0 {
+	// 			st = append(st, nid)
+	// 		}
+	// 	}
+	// }
+
+	// if len(res) != n*(n-1)/2 {
+	// 	fmt.Println(-1)
+	// 	return
+	// }
+	ok, res := tsort(n*(n-1)/2, edges[:])
+	if !ok {
+		fmt.Println(-1)
+		return
+	}
+
+	// for i := 0; i < len(res); i++ {
+	// 	cid := res[i]
+	// 	for _, nid := range edges[cid] {
+	// 		ChMax(&dp[nid], dp[cid]+1)
+	// 	}
+	// }
+
+	// ans := 0
+	// for i := 0; i < len(res); i++ {
+	// 	ChMax(&ans, dp[i])
+	// }
+	// fmt.Println(ans + 1)
+	fmt.Println(longestPath(res, edges[:]) + 1)
+}
+
+// O(|E| + |V|)
+// ノードIDは0-based
+// ok, ans := tsort(v, edges[:])
+// https://onlinejudge.u-aizu.ac.jp/problems/GRL_4_B
+func tsort(nn int, edges [][]int) (bool, []int) {
+	res := []int{}
+
+	degin := make([]int, nn)
+	for s := 0; s < nn; s++ {
+		for _, t := range edges[s] {
+			degin[t]++
+		}
+	}
+
+	st := []int{}
+	for nid := 0; nid < nn; nid++ {
+		if degin[nid] == 0 {
+			st = append(st, nid)
+		}
+	}
+
 	for len(st) > 0 {
 		cid := st[len(st)-1]
+		res = append(res, cid)
 		st = st[:len(st)-1]
 
-		ans = append(ans, cid)
 		for _, nid := range edges[cid] {
-			// 隣接する頂点の入次数をデクリメント
-			h[nid]--
-			// これによって入字数が0になればスタックに追加
-			if h[nid] == 0 {
+			degin[nid]--
+			if degin[nid] == 0 {
 				st = append(st, nid)
 			}
 		}
 	}
 
-	for _, a := range ans {
-		fmt.Println(a)
+	if len(res) != nn {
+		return false, nil
 	}
+
+	return true, res
 }
 
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+// トポロジカルソート済みリストから最長経路の長さを計算する
+// l := longestPath(res, edges[:])
+// https://atcoder.jp/contests/abc139/tasks/abc139_e
+func longestPath(tsortedNodes []int, edges [][]int) int {
+	dp := make([]int, len(tsortedNodes)+1)
 
-/*******************************************************************/
+	for i := 0; i < len(tsortedNodes); i++ {
+		cid := tsortedNodes[i]
+		for _, nid := range edges[cid] {
+			ChMax(&dp[nid], dp[cid]+1)
+		}
+	}
+
+	res := 0
+	for i := 0; i < len(tsortedNodes); i++ {
+		ChMax(&res, dp[i])
+	}
+
+	return res
+}

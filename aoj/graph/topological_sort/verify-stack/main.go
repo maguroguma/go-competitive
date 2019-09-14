@@ -366,55 +366,67 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-// v: 頂点数, e: 辺の数
+const MAX_EDGE_NUM = 100000 + 5
+const MAX_NODE_NUM = 10000 + 5
+
 var v, e int
+var edges [MAX_NODE_NUM][]int
 
-// 隣接リスト
-var edges [100000 + 5][]int
-
-// 頂点の入次数を管理
-var h [100000 + 5]int
-
-// O(v + e)
 func main() {
 	v, e = ReadInt2()
 	for i := 0; i < e; i++ {
 		s, t := ReadInt2()
 		edges[s] = append(edges[s], t)
-		h[t]++
 	}
 
-	// 入次数が0の頂点の集合（スタックで管理）
-	st := []int{}
+	ok, ans := tsort(v, edges[:])
 
-	// 入次数が0の頂点であればスタックに追加
-	for i := 0; i < v; i++ {
-		if h[i] == 0 {
-			st = append(st, i)
+	if ok {
+		for _, nid := range ans {
+			fmt.Println(nid)
+		}
+	}
+}
+
+// O(|E| + |V|)
+// ノードIDは0-based
+// ok, ans := tsort(v, edges[:])
+// https://onlinejudge.u-aizu.ac.jp/problems/GRL_4_B
+func tsort(nn int, edges [][]int) (bool, []int) {
+	res := []int{}
+
+	degin := make([]int, nn)
+	for s := 0; s < nn; s++ {
+		for _, t := range edges[s] {
+			degin[t]++
 		}
 	}
 
-	// ソートされた後のグラフ
-	ans := []int{}
-	// スタックが空になるまでループ
+	st := []int{}
+	for nid := 0; nid < nn; nid++ {
+		if degin[nid] == 0 {
+			st = append(st, nid)
+		}
+	}
+
 	for len(st) > 0 {
 		cid := st[len(st)-1]
+		res = append(res, cid)
 		st = st[:len(st)-1]
 
-		ans = append(ans, cid)
 		for _, nid := range edges[cid] {
-			// 隣接する頂点の入次数をデクリメント
-			h[nid]--
-			// これによって入字数が0になればスタックに追加
-			if h[nid] == 0 {
+			degin[nid]--
+			if degin[nid] == 0 {
 				st = append(st, nid)
 			}
 		}
 	}
 
-	for _, a := range ans {
-		fmt.Println(a)
+	if len(res) != nn {
+		return false, nil
 	}
+
+	return true, res
 }
 
 // MODはとったか？

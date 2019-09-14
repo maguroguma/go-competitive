@@ -373,7 +373,7 @@ var v, e int
 var edges [100000 + 5][]int
 var used [100000 + 5]bool
 
-// O(v*e)
+// O(v + e)
 func main() {
 	v, e = ReadInt2()
 	for i := 0; i < e; i++ {
