@@ -366,8 +366,35 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, k int
+var S []rune
+
 func main() {
-	fmt.Println("ABC140 d.go")
+	n, k = ReadInt2()
+	S = ReadRuneSlice()
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		if i == 0 {
+			if S[i] == 'R' && S[i+1] == 'R' {
+				ans++
+			}
+		} else if i < n-1 {
+			if S[i] == 'R' && S[i+1] == 'R' {
+				ans++
+			} else if S[i] == 'L' && S[i-1] == 'L' {
+				ans++
+			}
+		} else {
+			if S[i] == 'L' && S[i-1] == 'L' {
+				ans++
+			}
+		}
+	}
+
+	ans += k * 2
+
+	fmt.Println(Min(n-1, ans))
 }
 
 // MODはとったか？

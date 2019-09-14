@@ -366,8 +366,36 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A, B, C []int
+
 func main() {
-	fmt.Println("ABC140 b.go")
+	n = ReadInt()
+	A = ReadIntSlice(n)
+	B = ReadIntSlice(n)
+	C = ReadIntSlice(n - 1)
+	for i := 0; i < n; i++ {
+		A[i]--
+	}
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		// 食べたもの
+		a := A[i]
+
+		b := B[a]
+		ans += b
+
+		if i < n-1 {
+			// 次に食べるもの
+			na := A[i+1]
+			if na-a == 1 {
+				ans += C[a]
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？

@@ -366,8 +366,22 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var B []int
+var A []int
+
 func main() {
-	fmt.Println("ABC140 c.go")
+	n = ReadInt()
+	B = ReadIntSlice(n - 1)
+
+	A = make([]int, n)
+	A[0] = B[0]
+	for i := 1; i < n-1; i++ {
+		A[i] = Min(B[i-1], B[i])
+	}
+	A[n-1] = B[n-2]
+
+	fmt.Println(Sum(A...))
 }
 
 // MODはとったか？

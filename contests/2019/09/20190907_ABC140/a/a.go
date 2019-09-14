@@ -367,7 +367,9 @@ const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
 func main() {
-	fmt.Println("ABC140 a.go")
+	n := ReadInt()
+
+	fmt.Println(n * n * n)
 }
 
 // MODはとったか？
