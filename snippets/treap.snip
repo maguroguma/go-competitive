@@ -1,0 +1,182 @@
+snippet     treap
+abbr        func NewTreap() *Treap
+options     head
+  // Treap usage
+  // tr := NewTreap()
+  // tr.Insert(k, p)
+  // node := tr.Find(k)
+  // tr.Delete(k)
+  // fmt.Println(PrintIntsLine(tr.Inorder()...))
+  // fmt.Println(PrintIntsLine(tr.Preorder()...))
+
+  type Node struct {
+    key, priority int
+    right, left   *Node
+  }
+
+  type Treap struct {
+    root *Node
+  }
+
+  /*************************************/
+  // Public method
+  /*************************************/
+
+  // NewTreap returns a pointer of a Treap instance.
+  func NewTreap() *Treap {
+    tr := new(Treap)
+    tr.root = nil
+    return tr
+  }
+
+  // Insert method inserts a new node consisting of new key and priority.
+  // A duplicate key is ignored and nothing happens.
+  func (tr *Treap) Insert(key, priority int) {
+    tr.root = tr.insert(tr.root, key, priority)
+  }
+
+  // Find returns a node that has an argument key value.
+  // Find returns nil when there is no node that has an argument key value.
+  func (tr *Treap) Find(k int) *Node {
+    u := tr.root
+    for u != nil && k != u.key {
+      if k < u.key {
+        u = u.left
+      } else {
+        u = u.right
+      }
+    }
+    return u
+  }
+
+  // Delete method deletes a node that has an argument key value.
+  // A duplicate key is ignored and nothing happens.
+  func (tr *Treap) Delete(key int) {
+    tr.root = tr.delete(tr.root, key)
+  }
+
+  // Inorder returns a slice consisting of treap nodes in order of INORDER.
+  // The nodes are sorted by key values.
+  func (tr *Treap) Inorder() []int {
+    res := make([]int, 0, 200000+5)
+    tr.inorder(tr.root, &res)
+    return res
+  }
+
+  // Preorder returns a slice consisting of treap nodes in order of PREORDER.
+  func (tr *Treap) Preorder() []int {
+    res := make([]int, 0, 200000+5)
+    tr.preorder(tr.root, &res)
+    return res
+  }
+
+  /*************************************/
+  // Private method
+  /*************************************/
+
+  func (tr *Treap) insert(t *Node, key, priority int) *Node {
+    // 葉に到達したら新しい節点を生成して返す
+    if t == nil {
+      node := new(Node)
+      node.key, node.priority = key, priority
+      return node
+    }
+
+    // 重複したkeyは無視
+    if key == t.key {
+      return t
+    }
+
+    if key < t.key {
+      // 左の子へ移動
+      t.left = tr.insert(t.left, key, priority) // 左の子へのポインタを更新
+      // 左の子の方が優先度が高い場合右回転
+      if t.priority < t.left.priority {
+        t = tr.rightRotate(t)
+      }
+    } else {
+      // 右の子へ移動
+      t.right = tr.insert(t.right, key, priority) // 右の子へのポインタを更新
+      if t.priority < t.right.priority {
+        // 右の子の方が優先度が高い場合左回転
+        t = tr.leftRotate(t)
+      }
+    }
+
+    return t
+  }
+
+  // 削除対象の節点を回転によって葉まで移動させた後に削除する
+  func (tr *Treap) delete(t *Node, key int) *Node {
+    if t == nil {
+      return nil
+    }
+
+    // 削除対象を検索
+    if key < t.key {
+      t.left = tr.delete(t.left, key)
+    } else if key > t.key {
+      t.right = tr.delete(t.right, key)
+    } else {
+      // 削除対象を発見、葉ノードとなるように回転を繰り返す
+      return tr._delete(t, key)
+    }
+
+    return t
+  }
+
+  // 削除対象の節点の場合
+  func (tr *Treap) _delete(t *Node, key int) *Node {
+    if t.left == nil && t.right == nil {
+      // 葉の場合
+      return nil
+    } else if t.left == nil {
+      // 右の子のみを持つ場合は左回転
+      t = tr.leftRotate(t)
+    } else if t.right == nil {
+      // 左の子のみを持つ場合は右回転
+      t = tr.rightRotate(t)
+    } else {
+      // 優先度が高い方を持ち上げる
+      if t.left.priority > t.right.priority {
+        t = tr.rightRotate(t)
+      } else {
+        t = tr.leftRotate(t)
+      }
+    }
+
+    return tr.delete(t, key)
+  }
+
+  func (tr *Treap) rightRotate(t *Node) *Node {
+    s := t.left
+    t.left = s.right
+    s.right = t
+    return s
+  }
+
+  func (tr *Treap) leftRotate(t *Node) *Node {
+    s := t.right
+    t.right = s.left
+    s.left = t
+    return s
+  }
+
+  func (tr *Treap) inorder(u *Node, res *[]int) {
+    if u == nil {
+      return
+    }
+    tr.inorder(u.left, res)
+    *res = append(*res, u.key)
+    tr.inorder(u.right, res)
+  }
+
+  func (tr *Treap) preorder(u *Node, res *[]int) {
+    if u == nil {
+      return
+    }
+    *res = append(*res, u.key)
+    tr.preorder(u.left, res)
+    tr.preorder(u.right, res)
+  }
+
