@@ -3,11 +3,18 @@ abbr        func NewTreap() *Treap
 options     head
   // Treap usage
   // tr := NewTreap()
-  // tr.Insert(k, p)
+  // tr.Insert(k)
   // node := tr.Find(k)
+  // min := tr.FindMinimum()
+  // max := tr.FindMaximum()
   // tr.Delete(k)
+  // node := tr.BigggerLowerBound(x)
+  // node := tr.BiggerUpperBound(x)
+  // node := tr.SmallerUpperBound(x)
+  // node := tr.SmallerLowerBound(x)
   // fmt.Println(PrintIntsLine(tr.Inorder()...))
   // fmt.Println(PrintIntsLine(tr.Preorder()...))
+  // tr.InsertBySettingPri(k, p)
 
   type Node struct {
     key, priority int
@@ -29,10 +36,32 @@ options     head
     return tr
   }
 
-  // Insert method inserts a new node consisting of new key and priority.
+  // InsertBySettingPri method inserts a new node consisting of new key and priority.
   // A duplicate key is ignored and nothing happens.
-  func (tr *Treap) Insert(key, priority int) {
+  func (tr *Treap) InsertBySettingPri(key, priority int) {
     tr.root = tr.insert(tr.root, key, priority)
+  }
+
+  // for XorShift
+  var _gtx, _gty, _gtz, _gtw = 123456789, 362436069, 521288629, 88675123
+
+  // Insert method inserts a new node consisting o new key.
+  // The priority is automatically set by random value.
+  // A duplicate key is ignored and nothing happens.
+  func (tr *Treap) Insert(key int) {
+    // XorShiftによる乱数生成
+    // 下記URLを参考
+    // https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
+    randInt := func() int {
+      tt := (_gtx ^ (_gtx << 11))
+      _gtx = _gty
+      _gty = _gtz
+      _gtz = _gtw
+      _gtw = (_gtw ^ (_gtw >> 19)) ^ (tt ^ (tt >> 8))
+      return _gtw
+    }
+
+    tr.root = tr.insert(tr.root, key, randInt())
   }
 
   // Find returns a node that has an argument key value.
@@ -45,6 +74,26 @@ options     head
       } else {
         u = u.right
       }
+    }
+    return u
+  }
+
+  // FindMinimum returns a node that has the minimum key in the treap.
+  // FindMinimum returns nil when there is no nodes.
+  func (tr *Treap) FindMinimum() *Node {
+    u := tr.root
+    for u != nil && u.left != nil {
+      u = u.left
+    }
+    return u
+  }
+
+  // FindMaximum returns a node that has the maximum key in the treap.
+  // FindMaximum returns nil when there is no nodes.
+  func (tr *Treap) FindMaximum() *Node {
+    u := tr.root
+    for u != nil && u.right != nil {
+      u = u.right
     }
     return u
   }
@@ -68,6 +117,30 @@ options     head
     res := make([]int, 0, 200000+5)
     tr.preorder(tr.root, &res)
     return res
+  }
+
+  // BiggerLowerBound returns a node that has MINIMUM KEY MEETING key >= x.
+  // https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
+  func (tr *Treap) BiggerLowerBound(x int) *Node {
+    return tr.biggerLowerBound(tr.root, x)
+  }
+
+  // BiggerUpperBound returns a node that has MINIMUM KEY MEETING key > x.
+  // https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
+  func (tr *Treap) BiggerUpperBound(x int) *Node {
+    return tr.biggerUpperBound(tr.root, x)
+  }
+
+  // SmallerUpperBound returns a node that has MAXIMUM KEY MEETING key <= x.
+  // for AGC005-B
+  func (tr *Treap) SmallerUpperBound(x int) *Node {
+    return tr.smallerUpperBound(tr.root, x)
+  }
+
+  // SmallerLowerBound returns a node that has MAXIMUM KEY MEETING key < x.
+  // for AGC005-B
+  func (tr *Treap) SmallerLowerBound(x int) *Node {
+    return tr.smallerLowerBound(tr.root, x)
   }
 
   /*************************************/
@@ -160,6 +233,74 @@ options     head
     t.right = s.left
     s.left = t
     return s
+  }
+
+  // rootからスタートする
+  func (tr *Treap) biggerLowerBound(t *Node, x int) *Node {
+    if t == nil {
+      return nil
+    } else if t.key >= x {
+      // 探索キーxが現在のノードキー以下の場合、左を探索する
+      node := tr.biggerLowerBound(t.left, x)
+      if node != nil {
+        return node
+      } else {
+        return t
+      }
+    } else {
+      // 探索キーxが現在のノードキーより大きい場合、右を探索する
+      return tr.biggerLowerBound(t.right, x)
+    }
+  }
+
+  // rootからスタートする
+  func (tr *Treap) biggerUpperBound(t *Node, x int) *Node {
+    if t == nil {
+      return nil
+    } else if t.key > x {
+      // 探索キーxが現在のノードキーより小さい場合、左を探索する
+      node := tr.biggerUpperBound(t.left, x)
+      if node != nil {
+        return node
+      } else {
+        return t
+      }
+    } else {
+      // 探索キーxが現在のノードキー以上の場合、右を探索する
+      return tr.biggerUpperBound(t.right, x)
+    }
+  }
+
+  // rootからスタートする
+  func (tr *Treap) smallerUpperBound(t *Node, x int) *Node {
+    if t == nil {
+      return nil
+    } else if t.key <= x {
+      node := tr.smallerUpperBound(t.right, x)
+      if node != nil {
+        return node
+      } else {
+        return t
+      }
+    } else {
+      return tr.smallerUpperBound(t.left, x)
+    }
+  }
+
+  // rootからスタートする
+  func (tr *Treap) smallerLowerBound(t *Node, x int) *Node {
+    if t == nil {
+      return nil
+    } else if t.key < x {
+      node := tr.smallerLowerBound(t.right, x)
+      if node != nil {
+        return node
+      } else {
+        return t
+      }
+    } else {
+      return tr.smallerLowerBound(t.left, x)
+    }
   }
 
   func (tr *Treap) inorder(u *Node, res *[]int) {

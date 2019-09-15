@@ -1,5 +1,6 @@
 package bitope
 
+// FIXME: tx, ty, tz, twは静的変数として扱わないとダメ！
 func RandInt() int {
 	var tx, ty, tz, tw = 123456789, 362436069, 521288629, 88675123
 	tt := (tx ^ (tx << 11))

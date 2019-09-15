@@ -52,14 +52,28 @@ func main() {
 	// fmt.Println(math.Sqrt(float64(100000)))
 	// fmt.Println(512 * 512)
 
-	fmt.Println(int('z'))
-	fmt.Println("aaa")
+	// fmt.Println(int('z'))
+	// fmt.Println("aaa")
 
-	sum := 0
-	for i := 1; i <= 13; i++ {
-		sum += (i - 1)
+	// sum := 0
+	// for i := 1; i <= 13; i++ {
+	// 	sum += (i - 1)
+	// }
+	// fmt.Println(sum)
+
+	for i := 0; i < 100; i++ {
+		fmt.Println(RandInt())
 	}
-	fmt.Println(sum)
+}
+
+func RandInt() int {
+	var tx, ty, tz, tw = 123456789, 362436069, 521288629, 88675123
+	tt := (tx ^ (tx << 11))
+	tx = ty
+	ty = tz
+	tz = tw
+	tw = (tw ^ (tw >> 19)) ^ (tt ^ (tt >> 8))
+	return tw
 }
 
 func gacha(num int) float64 {

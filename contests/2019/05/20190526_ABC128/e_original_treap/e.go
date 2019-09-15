@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -42,15 +42,6 @@ func newReadString(ior io.Reader) func() string {
 func ReadInt() int {
 	return int(readInt64())
 }
-func ReadInt2() (int, int) {
-	return int(readInt64()), int(readInt64())
-}
-func ReadInt3() (int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64())
-}
-func ReadInt4() (int, int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
-}
 
 func readInt64() int64 {
 	i, err := strconv.ParseInt(ReadString(), 0, 64)
@@ -65,28 +56,6 @@ func ReadIntSlice(n int) []int {
 	b := make([]int, n)
 	for i := 0; i < n; i++ {
 		b[i] = ReadInt()
-	}
-	return b
-}
-
-// ReadFloat64 returns an float64.
-func ReadFloat64() float64 {
-	return float64(readFloat64())
-}
-
-func readFloat64() float64 {
-	f, err := strconv.ParseFloat(ReadString(), 64)
-	if err != nil {
-		panic(err.Error())
-	}
-	return f
-}
-
-// ReadFloatSlice returns an float64 slice that has n float64.
-func ReadFloat64Slice(n int) []float64 {
-	b := make([]float64, n)
-	for i := 0; i < n; i++ {
-		b[i] = ReadFloat64()
 	}
 	return b
 }
@@ -150,31 +119,6 @@ func NthBit(num, nth int) int {
 	return num >> uint(nth) & 1
 }
 
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int) int {
-	res := 0
-
-	for i := 0; i < 70; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
-		}
-	}
-
-	return res
-}
-
 /*********** Arithmetic ***********/
 
 // Max returns the max integer among input set.
@@ -224,19 +168,6 @@ func DigitSum(n int) int {
 	return res
 }
 
-// DigitNumOfDecimal returns digits number of n.
-// n is non negative number.
-func DigitNumOfDecimal(n int) int {
-	res := 0
-
-	for n > 0 {
-		n /= 10
-		res++
-	}
-
-	return res
-}
-
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -248,10 +179,19 @@ func Sum(integers ...int) int {
 	return s
 }
 
-// Kiriage returns Ceil(a/b)
-// a >= 0, b > 0
-func Kiriage(a, b int) int {
-	return (a + (b - 1)) / b
+// CeilInt returns the minimum integer larger than or equal to float(a/b).
+func CeilInt(a, b int) int {
+	res := a / b
+	if a%b > 0 {
+		res++
+	}
+	return res
+}
+
+// FloorInt returns the maximum integer smaller than or equal to float(a/b)
+func FloorInt(a, b int) int {
+	res := a / b
+	return res
 }
 
 // PowInt is integer version of math.Pow
@@ -331,131 +271,112 @@ func Strtoi(s string) int {
 	}
 }
 
-// PrintIntsLine returns integers string delimited by a space.
-func PrintIntsLine(A ...int) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
 /********** I/O usage **********/
 
 //str := ReadString()
 //i := ReadInt()
 //X := ReadIntSlice(n)
 //S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
 
 /*******************************************************************/
 
 const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
 
-// https://onlinejudge.u-aizu.ac.jp/courses/lesson/1/ALDS1/all/ALDS1_8_D
-/*
-input:
+var n, q int
+var S, T, X []int
+var D []int
 
-16
-insert 35 99
-insert 3 80
-insert 1 53
-insert 14 25
-insert 80 76
-insert 42 3
-insert 86 47
-insert 21 12
-insert 7 10
-insert 6 90
-print
-find 21
-find 22
-delete 35
-delete 99
-print
-*/
+type Item struct {
+	key            int
+	time, query, x int
+}
+type ItemList []*Item
+type byQuery struct {
+	ItemList
+}
+
+func (l ItemList) Len() int {
+	return len(l)
+}
+func (l ItemList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+func (l ItemList) Less(i, j int) bool {
+	return l[i].key < l[j].key
+}
+func (b byQuery) Less(i, j int) bool {
+	return b.ItemList[i].query < b.ItemList[j].query
+}
+
+// how to use
+// L := make(ItemList, 0, 100000+1)
+// L = append(L, &Item{key: intValue})
+// sort.Sort(L)               // ASC
+// sort.Sort(sort.Reverse(L)) // DESC
+
+var L ItemList
+
 func main() {
-	n := ReadInt()
-
-	tr := NewTreap()
+	n, q = ReadInt(), ReadInt()
+	S, T, X = make([]int, n), make([]int, n), make([]int, n)
+	L = make(ItemList, 0, 200005)
 	for i := 0; i < n; i++ {
-		s := ReadString()
-		if s == "insert" {
-			k, p := ReadInt2()
-			tr.InsertBySettingPri(k, p)
-		} else if s == "print" {
-			fmt.Printf(" ")
-			fmt.Println(PrintIntsLine(tr.Inorder()...))
-			fmt.Printf(" ")
-			fmt.Println(PrintIntsLine(tr.Preorder()...))
-		} else if s == "find" {
-			k := ReadInt()
-			n := tr.Find(k)
-			if n != nil {
-				fmt.Println("yes")
+		s, t, x := ReadInt(), ReadInt(), ReadInt()
+		S[i], T[i], X[i] = s, t, x
+
+		L = append(L, &Item{key: s - x, time: s - x, query: 1, x: x})
+		L = append(L, &Item{key: t - x, time: t - x, query: -1, x: x})
+	}
+	D = ReadIntSlice(q)
+
+	sort.Stable(L)
+
+	// sset = New()
+	tr := NewTreap()
+	curIdx := 0
+	for _, item := range L {
+
+		if D[curIdx] >= item.time {
+			if item.query == 1 {
+				// sset.AddOrUpdate(item.x, SCORE(item.x), 0)
+				tr.Insert(item.x)
 			} else {
-				fmt.Println("no")
+				// sset.Remove(item.x)
+				tr.Delete(item.x)
 			}
-		} else if s == "delete" {
-			k := ReadInt()
-			tr.Delete(k)
+			continue
+		}
+
+		for curIdx < q && D[curIdx] < item.time {
+			// lowest := sset.GetByRank(1, false)
+			lowest := tr.FindMinimum()
+			if lowest != nil {
+				// fmt.Println(lowest.score)
+				fmt.Println(lowest.key)
+			} else {
+				fmt.Println(-1)
+			}
+
+			curIdx++
+		}
+
+		if curIdx == q {
+			break
+		} else {
+			if item.query == 1 {
+				// sset.AddOrUpdate(item.x, SCORE(item.x), 0)
+				tr.Insert(item.x)
+			} else {
+				// sset.Remove(item.x)
+				tr.Delete(item.x)
+			}
 		}
 	}
 
-	// fmt.Println("Verification of tr.BiggerLowerBound")
-	// for _, x := range tr.Inorder() {
-	// 	node := tr.BiggerLowerBound(x)
-	// 	if node != nil {
-	// 		fmt.Printf("x: %d, blbx: %d\n", x, node.key)
-	// 	} else {
-	// 		fmt.Printf("x: %d, blbx: nil\n", x)
-	// 	}
-	// }
-	// fmt.Println("Verification of tr.BiggerUpperBound")
-	// for _, x := range tr.Inorder() {
-	// 	node := tr.BiggerUpperBound(x)
-	// 	if node != nil {
-	// 		fmt.Printf("x: %d, bubx: %d\n", x, node.key)
-	// 	} else {
-	// 		fmt.Printf("x: %d, bubx: nil\n", x)
-	// 	}
-	// }
-	// fmt.Println("Verification of tr.SmallerUpperBound")
-	// for _, x := range tr.Inorder() {
-	// 	node := tr.SmallerUpperBound(x)
-	// 	if node != nil {
-	// 		fmt.Printf("x: %d, subx: %d\n", x, node.key)
-	// 	} else {
-	// 		fmt.Printf("x: %d, subx: nil\n", x)
-	// 	}
-	// }
-	// fmt.Println("Verification of tr.SmallerLowerBound")
-	// for _, x := range tr.Inorder() {
-	// 	node := tr.SmallerLowerBound(x)
-	// 	if node != nil {
-	// 		fmt.Printf("x: %d, slbx: %d\n", x, node.key)
-	// 	} else {
-	// 		fmt.Printf("x: %d, slbx: nil\n", x)
-	// 	}
-	// }
-
-	// fmt.Println("Verification of tr.FindMinimum, tr.FindMaximum")
-	// fmt.Printf("Min: %d\n", tr.FindMinimum().key)
-	// fmt.Printf("Max: %d\n", tr.FindMaximum().key)
+	for i := curIdx; i < q; i++ {
+		fmt.Println(-1)
+	}
 }
 
 // Treap usage
@@ -777,3 +698,8 @@ func (tr *Treap) preorder(u *Node, res *[]int) {
 	tr.preorder(u.left, res)
 	tr.preorder(u.right, res)
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/

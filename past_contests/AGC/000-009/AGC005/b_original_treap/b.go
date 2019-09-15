@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -366,104 +367,74 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-// https://onlinejudge.u-aizu.ac.jp/courses/lesson/1/ALDS1/all/ALDS1_8_D
-/*
-input:
+type Item struct {
+	key      int
+	val, idx int
+}
+type ItemList []*Item
+type byKey struct {
+	ItemList
+}
 
-16
-insert 35 99
-insert 3 80
-insert 1 53
-insert 14 25
-insert 80 76
-insert 42 3
-insert 86 47
-insert 21 12
-insert 7 10
-insert 6 90
-print
-find 21
-find 22
-delete 35
-delete 99
-print
-*/
+func (l ItemList) Len() int {
+	return len(l)
+}
+func (l ItemList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.ItemList[i].key < l.ItemList[j].key
+}
+
+// how to use
+// L := make(ItemList, 0, 200000+5)
+// L = append(L, &Item{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+var n int
+var A []int
+
 func main() {
-	n := ReadInt()
+	n = ReadInt()
+	A = ReadIntSlice(n)
 
-	tr := NewTreap()
+	L := make(ItemList, 0, 200000)
 	for i := 0; i < n; i++ {
-		s := ReadString()
-		if s == "insert" {
-			k, p := ReadInt2()
-			tr.InsertBySettingPri(k, p)
-		} else if s == "print" {
-			fmt.Printf(" ")
-			fmt.Println(PrintIntsLine(tr.Inorder()...))
-			fmt.Printf(" ")
-			fmt.Println(PrintIntsLine(tr.Preorder()...))
-		} else if s == "find" {
-			k := ReadInt()
-			n := tr.Find(k)
-			if n != nil {
-				fmt.Println("yes")
-			} else {
-				fmt.Println("no")
-			}
-		} else if s == "delete" {
-			k := ReadInt()
-			tr.Delete(k)
+		L = append(L, &Item{key: A[i], val: A[i], idx: i})
+	}
+	sort.Stable(byKey{L})
+
+	// 数列の値が小さい順に処理
+	tr := NewTreap()
+	ans := 0
+	for _, item := range L {
+		right := tr.BiggerUpperBound(item.idx)
+		left := tr.SmallerLowerBound(item.idx)
+		r, l := 0, 0
+		if right == nil {
+			r = n
+		} else {
+			r = right.key
 		}
+		if left == nil {
+			l = -1
+		} else {
+			l = left.key
+		}
+
+		ans += item.val * ((r - item.idx) * (item.idx - l))
+		tr.Insert(item.idx, 0, true)
 	}
 
-	// fmt.Println("Verification of tr.BiggerLowerBound")
-	// for _, x := range tr.Inorder() {
-	// 	node := tr.BiggerLowerBound(x)
-	// 	if node != nil {
-	// 		fmt.Printf("x: %d, blbx: %d\n", x, node.key)
-	// 	} else {
-	// 		fmt.Printf("x: %d, blbx: nil\n", x)
-	// 	}
-	// }
-	// fmt.Println("Verification of tr.BiggerUpperBound")
-	// for _, x := range tr.Inorder() {
-	// 	node := tr.BiggerUpperBound(x)
-	// 	if node != nil {
-	// 		fmt.Printf("x: %d, bubx: %d\n", x, node.key)
-	// 	} else {
-	// 		fmt.Printf("x: %d, bubx: nil\n", x)
-	// 	}
-	// }
-	// fmt.Println("Verification of tr.SmallerUpperBound")
-	// for _, x := range tr.Inorder() {
-	// 	node := tr.SmallerUpperBound(x)
-	// 	if node != nil {
-	// 		fmt.Printf("x: %d, subx: %d\n", x, node.key)
-	// 	} else {
-	// 		fmt.Printf("x: %d, subx: nil\n", x)
-	// 	}
-	// }
-	// fmt.Println("Verification of tr.SmallerLowerBound")
-	// for _, x := range tr.Inorder() {
-	// 	node := tr.SmallerLowerBound(x)
-	// 	if node != nil {
-	// 		fmt.Printf("x: %d, slbx: %d\n", x, node.key)
-	// 	} else {
-	// 		fmt.Printf("x: %d, slbx: nil\n", x)
-	// 	}
-	// }
-
-	// fmt.Println("Verification of tr.FindMinimum, tr.FindMaximum")
-	// fmt.Printf("Min: %d\n", tr.FindMinimum().key)
-	// fmt.Printf("Max: %d\n", tr.FindMaximum().key)
+	fmt.Println(ans)
 }
 
 // Treap usage
 // tr := NewTreap()
-// tr.Insert(k)
+// tr.Insert(k, p, false)
 // node := tr.Find(k)
-// min := tr.FindMinimum()
-// max := tr.FindMaximum()
 // tr.Delete(k)
 // node := tr.BigggerLowerBound(x)
 // node := tr.BiggerUpperBound(x)
@@ -471,7 +442,6 @@ func main() {
 // node := tr.SmallerLowerBound(x)
 // fmt.Println(PrintIntsLine(tr.Inorder()...))
 // fmt.Println(PrintIntsLine(tr.Preorder()...))
-// tr.InsertBySettingPri(k, p)
 
 type Node struct {
 	key, priority int
@@ -493,19 +463,13 @@ func NewTreap() *Treap {
 	return tr
 }
 
-// InsertBySettingPri method inserts a new node consisting of new key and priority.
-// A duplicate key is ignored and nothing happens.
-func (tr *Treap) InsertBySettingPri(key, priority int) {
-	tr.root = tr.insert(tr.root, key, priority)
-}
-
 // for XorShift
 var _gtx, _gty, _gtz, _gtw = 123456789, 362436069, 521288629, 88675123
 
-// Insert method inserts a new node consisting o new key.
-// The priority is automatically set by random value.
+// Insert method inserts a new node consisting of new key and priority.
 // A duplicate key is ignored and nothing happens.
-func (tr *Treap) Insert(key int) {
+// The priority is automatically set by random value by setting isRandom true.
+func (tr *Treap) Insert(key, priority int, isRandom bool) {
 	// XorShiftによる乱数生成
 	// 下記URLを参考
 	// https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
@@ -518,7 +482,11 @@ func (tr *Treap) Insert(key int) {
 		return _gtw
 	}
 
-	tr.root = tr.insert(tr.root, key, randInt())
+	if isRandom {
+		tr.root = tr.insert(tr.root, key, randInt())
+	} else {
+		tr.root = tr.insert(tr.root, key, priority)
+	}
 }
 
 // Find returns a node that has an argument key value.
@@ -531,26 +499,6 @@ func (tr *Treap) Find(k int) *Node {
 		} else {
 			u = u.right
 		}
-	}
-	return u
-}
-
-// FindMinimum returns a node that has the minimum key in the treap.
-// FindMinimum returns nil when there is no nodes.
-func (tr *Treap) FindMinimum() *Node {
-	u := tr.root
-	for u != nil && u.left != nil {
-		u = u.left
-	}
-	return u
-}
-
-// FindMaximum returns a node that has the maximum key in the treap.
-// FindMaximum returns nil when there is no nodes.
-func (tr *Treap) FindMaximum() *Node {
-	u := tr.root
-	for u != nil && u.right != nil {
-		u = u.right
 	}
 	return u
 }
@@ -777,3 +725,8 @@ func (tr *Treap) preorder(u *Node, res *[]int) {
 	tr.preorder(u.left, res)
 	tr.preorder(u.right, res)
 }
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/
