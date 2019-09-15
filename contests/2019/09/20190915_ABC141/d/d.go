@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -366,8 +367,52 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m int
+var A []int
+
+type IntPQ []int
+
+func (pq IntPQ) Len() int           { return len(pq) }
+func (pq IntPQ) Less(i, j int) bool { return pq[i] > pq[j] } // <: ASC, >: DESC
+func (pq IntPQ) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
+func (pq *IntPQ) Push(x interface{}) {
+	*pq = append(*pq, x.(int))
+}
+func (pq *IntPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	x := old[n-1]
+	*pq = old[0 : n-1]
+	return x
+}
+
+// how to use
+// pq := &IntPQ{3, 6, 1, 2}
+// heap.Init(pq)
+// heap.Push(pq, intValue)
+// poppedVal := heap.Pop(pq).(int)
+
 func main() {
-	fmt.Println("ABC141 d.go")
+	n, m = ReadInt2()
+	A = ReadIntSlice(n)
+
+	pq := &IntPQ{}
+	heap.Init(pq)
+	for i := 0; i < n; i++ {
+		heap.Push(pq, A[i])
+	}
+
+	for i := 0; i < m; i++ {
+		maxVal := heap.Pop(pq).(int)
+		maxVal /= 2
+		heap.Push(pq, maxVal)
+	}
+
+	ans := 0
+	for pq.Len() > 0 {
+		ans += heap.Pop(pq).(int)
+	}
+	fmt.Println(ans)
 }
 
 // MODはとったか？

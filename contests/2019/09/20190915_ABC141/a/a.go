@@ -366,8 +366,18 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var S string
+
 func main() {
-	fmt.Println("ABC141 a.go")
+	S = ReadString()
+
+	if S == "Sunny" {
+		fmt.Println("Cloudy")
+	} else if S == "Cloudy" {
+		fmt.Println("Rainy")
+	} else {
+		fmt.Println("Sunny")
+	}
 }
 
 // MODはとったか？

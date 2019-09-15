@@ -366,8 +366,60 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var S []rune
+var gi, gj int
+
 func main() {
-	fmt.Println("ABC141 e.go")
+	n = ReadInt()
+	S = ReadRuneSlice()
+
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if C(m) {
+			return true
+		}
+		return false
+	}
+
+	gi, gj = 0, 0
+	ng, ok := n/2+1, 0
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	fmt.Println(ok)
+}
+
+// 長さmの条件を満たす文字列が存在するかどうか
+func C(m int) bool {
+	// for i := 0; i+m <= n; i++ {
+	for i := gi; i+m <= n; i++ {
+		leftRunes := S[i : i+m]
+		for j := i + m; j+m <= n; j++ {
+			rightRunes := S[j : j+m]
+			// if string(leftRunes) == string(rightRunes) {
+			// 	return true
+			// }
+			flag := true
+			for i := 0; i < len(leftRunes); i++ {
+				if leftRunes[i] != rightRunes[i] {
+					flag = false
+					break
+				}
+			}
+			if flag {
+				gi, gj = i, j
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // MODはとったか？

@@ -366,8 +366,29 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var S []rune
+
 func main() {
-	fmt.Println("ABC141 b.go")
+	S = ReadRuneSlice()
+
+	for i := 0; i < len(S); i++ {
+		r := S[i]
+		if (i+1)%2 == 0 {
+			// 偶数
+			if !(r == 'L' || r == 'U' || r == 'D') {
+				fmt.Println("No")
+				return
+			}
+		} else {
+			// 奇数
+			if !(r == 'R' || r == 'U' || r == 'D') {
+				fmt.Println("No")
+				return
+			}
+		}
+	}
+
+	fmt.Println("Yes")
 }
 
 // MODはとったか？

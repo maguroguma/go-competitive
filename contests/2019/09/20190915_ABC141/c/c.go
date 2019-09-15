@@ -366,8 +366,26 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, k, q int
+var A []int
+
 func main() {
-	fmt.Println("ABC141 c.go")
+	n, k, q = ReadInt3()
+	A = ReadIntSlice(q)
+	B := make([]int, n)
+
+	for i := 0; i < q; i++ {
+		a := A[i] - 1
+		B[a]++
+	}
+
+	for i := 0; i < n; i++ {
+		if q-B[i] >= k {
+			fmt.Println("No")
+		} else {
+			fmt.Println("Yes")
+		}
+	}
 }
 
 // MODはとったか？

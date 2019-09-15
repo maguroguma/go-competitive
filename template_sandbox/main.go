@@ -61,9 +61,11 @@ func main() {
 	// }
 	// fmt.Println(sum)
 
-	for i := 0; i < 100; i++ {
-		fmt.Println(RandInt())
-	}
+	// for i := 0; i < 100; i++ {
+	// 	fmt.Println(RandInt())
+	// }
+
+	fmt.Println(math.Log2(5000))
 }
 
 func RandInt() int {
