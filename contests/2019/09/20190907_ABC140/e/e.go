@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"math/rand"
 	"os"
 	"sort"
 	"strconv"
@@ -400,7 +399,6 @@ func (l byKey) Less(i, j int) bool {
 func main() {
 	n = ReadInt()
 	P = ReadIntSlice(n)
-	sset := NewSortedSet()
 
 	L := make(ItemList, n)
 	for i := 0; i < n; i++ {
@@ -409,608 +407,397 @@ func main() {
 	sort.Stable(sort.Reverse(byKey{L}))
 
 	ans := 0
+	tr := NewTreap()
 	for i := 0; i < n; i++ {
 		item := L[i]
-		sset.AddOrUpdate(item.idx, SCORE(item.idx), 0)
 
-		arank := sset.FindRank(item.idx)
+		right1 := tr.BiggerUpperBound(item.idx)
+		left1 := tr.SmallerLowerBound(item.idx)
 
-		left := 0
-		if arank > 1 {
-			lnode := sset.GetByRank(arank-1, false)
-			left = lnode.key + 1
-		}
-		right := n - 1
-		if arank < sset.GetCount() {
-			rnode := sset.GetByRank(arank+1, false)
-			right = rnode.key - 1
+		if right1 == nil && left1 == nil {
+			tr.Insert(item.idx)
+			continue
 		}
 
-		// ans += item.key * (item.idx - left + 1) * (right - item.idx + 1)
-		ans += item.key * 2 * (right - left + 1)
+		l, r := 0, 0
+		if right1 == nil && left1 != nil {
+			// 左側を含めれば右側はどこまでも伸ばせる
+			// 左側にさらに大きいものがあったら、それは含んではいけない
+			l = left1.key
+			left2 := tr.SmallerLowerBound(l)
+			l2 := 0
+			if left2 == nil {
+				l2 = -1
+			} else {
+				l2 = left2.key
+			}
+			r = n
+			ans += item.val * ((r - item.idx) * (l - l2))
+		} else if right1 != nil && left1 == nil {
+			// 右側を含めれば左側はどこまでも伸ばせる
+			// 右側にさらに大きいものがあったら、それは含んではいけない
+			l = -1
+			r = right1.key
+			right2 := tr.BiggerUpperBound(r)
+			r2 := 0
+			if right2 == nil {
+				r2 = n
+			} else {
+				r2 = right2.key
+			}
+			ans += item.val * ((item.idx - l) * (r2 - r))
+		} else {
+			// 右・左のどちらかを含める場合のすべてを数える
+			l = left1.key
+			r = right1.key
+			left2 := tr.SmallerLowerBound(l)
+			l2 := 0
+			if left2 == nil {
+				l2 = -1
+			} else {
+				l2 = left2.key
+			}
+			right2 := tr.BiggerUpperBound(r)
+			r2 := 0
+			if right2 == nil {
+				r2 = n
+			} else {
+				r2 = right2.key
+			}
+			// ans += item.val * ((r - item.idx) + (item.idx - l))
+			ans += item.val * ((r - item.idx) * (l - l2))
+			ans += item.val * ((r2 - r) * (item.idx - l))
+		}
+		// fmt.Printf("m: %d, l: %d, r: %d\n", item.idx, l, r)
+
+		// ans += item.val * ((r - item.idx) + (item.idx - l))
+		tr.Insert(item.idx)
 	}
 
 	fmt.Println(ans)
+}
+
+// Treap usage
+// tr := NewTreap()
+// tr.Insert(k)
+// node := tr.Find(k)
+// min := tr.FindMinimum()
+// max := tr.FindMaximum()
+// tr.Delete(k)
+// node := tr.BigggerLowerBound(x)
+// node := tr.BiggerUpperBound(x)
+// node := tr.SmallerUpperBound(x)
+// node := tr.SmallerLowerBound(x)
+// fmt.Println(PrintIntsLine(tr.Inorder()...))
+// fmt.Println(PrintIntsLine(tr.Preorder()...))
+// tr.InsertBySettingPri(k, p)
+
+type Node struct {
+	key, priority int
+	right, left   *Node
+}
+
+type Treap struct {
+	root *Node
+}
+
+/*************************************/
+// Public method
+/*************************************/
+
+// NewTreap returns a pointer of a Treap instance.
+func NewTreap() *Treap {
+	tr := new(Treap)
+	tr.root = nil
+	return tr
+}
+
+// InsertBySettingPri method inserts a new node consisting of new key and priority.
+// A duplicate key is ignored and nothing happens.
+func (tr *Treap) InsertBySettingPri(key, priority int) {
+	tr.root = tr.insert(tr.root, key, priority)
+}
+
+// for XorShift
+var _gtx, _gty, _gtz, _gtw = 123456789, 362436069, 521288629, 88675123
+
+// Insert method inserts a new node consisting o new key.
+// The priority is automatically set by random value.
+// A duplicate key is ignored and nothing happens.
+func (tr *Treap) Insert(key int) {
+	// XorShiftによる乱数生成
+	// 下記URLを参考
+	// https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
+	randInt := func() int {
+		tt := (_gtx ^ (_gtx << 11))
+		_gtx = _gty
+		_gty = _gtz
+		_gtz = _gtw
+		_gtw = (_gtw ^ (_gtw >> 19)) ^ (tt ^ (tt >> 8))
+		return _gtw
+	}
+
+	tr.root = tr.insert(tr.root, key, randInt())
+}
+
+// Find returns a node that has an argument key value.
+// Find returns nil when there is no node that has an argument key value.
+func (tr *Treap) Find(k int) *Node {
+	u := tr.root
+	for u != nil && k != u.key {
+		if k < u.key {
+			u = u.left
+		} else {
+			u = u.right
+		}
+	}
+	return u
+}
+
+// FindMinimum returns a node that has the minimum key in the treap.
+// FindMinimum returns nil when there is no nodes.
+func (tr *Treap) FindMinimum() *Node {
+	u := tr.root
+	for u != nil && u.left != nil {
+		u = u.left
+	}
+	return u
+}
+
+// FindMaximum returns a node that has the maximum key in the treap.
+// FindMaximum returns nil when there is no nodes.
+func (tr *Treap) FindMaximum() *Node {
+	u := tr.root
+	for u != nil && u.right != nil {
+		u = u.right
+	}
+	return u
+}
+
+// Delete method deletes a node that has an argument key value.
+// A duplicate key is ignored and nothing happens.
+func (tr *Treap) Delete(key int) {
+	tr.root = tr.delete(tr.root, key)
+}
+
+// Inorder returns a slice consisting of treap nodes in order of INORDER.
+// The nodes are sorted by key values.
+func (tr *Treap) Inorder() []int {
+	res := make([]int, 0, 200000+5)
+	tr.inorder(tr.root, &res)
+	return res
+}
+
+// Preorder returns a slice consisting of treap nodes in order of PREORDER.
+func (tr *Treap) Preorder() []int {
+	res := make([]int, 0, 200000+5)
+	tr.preorder(tr.root, &res)
+	return res
+}
+
+// BiggerLowerBound returns a node that has MINIMUM KEY MEETING key >= x.
+// https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
+func (tr *Treap) BiggerLowerBound(x int) *Node {
+	return tr.biggerLowerBound(tr.root, x)
+}
+
+// BiggerUpperBound returns a node that has MINIMUM KEY MEETING key > x.
+// https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
+func (tr *Treap) BiggerUpperBound(x int) *Node {
+	return tr.biggerUpperBound(tr.root, x)
+}
+
+// SmallerUpperBound returns a node that has MAXIMUM KEY MEETING key <= x.
+// for AGC005-B
+func (tr *Treap) SmallerUpperBound(x int) *Node {
+	return tr.smallerUpperBound(tr.root, x)
+}
+
+// SmallerLowerBound returns a node that has MAXIMUM KEY MEETING key < x.
+// for AGC005-B
+func (tr *Treap) SmallerLowerBound(x int) *Node {
+	return tr.smallerLowerBound(tr.root, x)
+}
+
+/*************************************/
+// Private method
+/*************************************/
+
+func (tr *Treap) insert(t *Node, key, priority int) *Node {
+	// 葉に到達したら新しい節点を生成して返す
+	if t == nil {
+		node := new(Node)
+		node.key, node.priority = key, priority
+		return node
+	}
+
+	// 重複したkeyは無視
+	if key == t.key {
+		return t
+	}
+
+	if key < t.key {
+		// 左の子へ移動
+		t.left = tr.insert(t.left, key, priority) // 左の子へのポインタを更新
+		// 左の子の方が優先度が高い場合右回転
+		if t.priority < t.left.priority {
+			t = tr.rightRotate(t)
+		}
+	} else {
+		// 右の子へ移動
+		t.right = tr.insert(t.right, key, priority) // 右の子へのポインタを更新
+		if t.priority < t.right.priority {
+			// 右の子の方が優先度が高い場合左回転
+			t = tr.leftRotate(t)
+		}
+	}
+
+	return t
+}
+
+// 削除対象の節点を回転によって葉まで移動させた後に削除する
+func (tr *Treap) delete(t *Node, key int) *Node {
+	if t == nil {
+		return nil
+	}
+
+	// 削除対象を検索
+	if key < t.key {
+		t.left = tr.delete(t.left, key)
+	} else if key > t.key {
+		t.right = tr.delete(t.right, key)
+	} else {
+		// 削除対象を発見、葉ノードとなるように回転を繰り返す
+		return tr._delete(t, key)
+	}
+
+	return t
+}
+
+// 削除対象の節点の場合
+func (tr *Treap) _delete(t *Node, key int) *Node {
+	if t.left == nil && t.right == nil {
+		// 葉の場合
+		return nil
+	} else if t.left == nil {
+		// 右の子のみを持つ場合は左回転
+		t = tr.leftRotate(t)
+	} else if t.right == nil {
+		// 左の子のみを持つ場合は右回転
+		t = tr.rightRotate(t)
+	} else {
+		// 優先度が高い方を持ち上げる
+		if t.left.priority > t.right.priority {
+			t = tr.rightRotate(t)
+		} else {
+			t = tr.leftRotate(t)
+		}
+	}
+
+	return tr.delete(t, key)
+}
+
+func (tr *Treap) rightRotate(t *Node) *Node {
+	s := t.left
+	t.left = s.right
+	s.right = t
+	return s
+}
+
+func (tr *Treap) leftRotate(t *Node) *Node {
+	s := t.right
+	t.right = s.left
+	s.left = t
+	return s
+}
+
+// rootからスタートする
+func (tr *Treap) biggerLowerBound(t *Node, x int) *Node {
+	if t == nil {
+		return nil
+	} else if t.key >= x {
+		// 探索キーxが現在のノードキー以下の場合、左を探索する
+		node := tr.biggerLowerBound(t.left, x)
+		if node != nil {
+			return node
+		} else {
+			return t
+		}
+	} else {
+		// 探索キーxが現在のノードキーより大きい場合、右を探索する
+		return tr.biggerLowerBound(t.right, x)
+	}
+}
+
+// rootからスタートする
+func (tr *Treap) biggerUpperBound(t *Node, x int) *Node {
+	if t == nil {
+		return nil
+	} else if t.key > x {
+		// 探索キーxが現在のノードキーより小さい場合、左を探索する
+		node := tr.biggerUpperBound(t.left, x)
+		if node != nil {
+			return node
+		} else {
+			return t
+		}
+	} else {
+		// 探索キーxが現在のノードキー以上の場合、右を探索する
+		return tr.biggerUpperBound(t.right, x)
+	}
+}
+
+// rootからスタートする
+func (tr *Treap) smallerUpperBound(t *Node, x int) *Node {
+	if t == nil {
+		return nil
+	} else if t.key <= x {
+		node := tr.smallerUpperBound(t.right, x)
+		if node != nil {
+			return node
+		} else {
+			return t
+		}
+	} else {
+		return tr.smallerUpperBound(t.left, x)
+	}
+}
+
+// rootからスタートする
+func (tr *Treap) smallerLowerBound(t *Node, x int) *Node {
+	if t == nil {
+		return nil
+	} else if t.key < x {
+		node := tr.smallerLowerBound(t.right, x)
+		if node != nil {
+			return node
+		} else {
+			return t
+		}
+	} else {
+		return tr.smallerLowerBound(t.left, x)
+	}
+}
+
+func (tr *Treap) inorder(u *Node, res *[]int) {
+	if u == nil {
+		return
+	}
+	tr.inorder(u.left, res)
+	*res = append(*res, u.key)
+	tr.inorder(u.right, res)
+}
+
+func (tr *Treap) preorder(u *Node, res *[]int) {
+	if u == nil {
+		return
+	}
+	*res = append(*res, u.key)
+	tr.preorder(u.left, res)
+	tr.preorder(u.right, res)
 }
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/
-
-// usage
-// var sset *SortedSet
-// sset = New()
-// // O(logN), (key, score, value)だがvalueは無視して良い
-// sset.AddOrUpdate(i, SCORE(i), 0)
-// // O(logN), 削除時はpopのように取得できる, 存在しないkeyを指定してもpanicは発生しない
-// sset.Remove(i)
-// // O(logN), removeしたくない場合はfalse, ランクは1-based, -1だと最大スコアのものを取得
-// lowest := sset.GetByRank(1, false)
-// // O(logN), スコアが小さいものほど小さいランクが1-basedで返る, 存在しないkeyを指定すると0が返る
-// irank := sset.FindRank(i)
-// // 要素数の取得
-// count := sset.GetCount()
-
-// Copyright (c) 2016, Jerry.Wang
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// * Redistributions of source code must retain the above copyright notice, this
-//  list of conditions and the following disclaimer.
-//
-// * Redistributions in binary form must reproduce the above copyright notice,
-//  this list of conditions and the following disclaimer in the documentation
-//  and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-// package sortedset
-
-type SortedSetLevel struct {
-	forward *SortedSetNode
-	span    int64
-}
-
-// Node in skip list
-type SortedSetNode struct {
-	key      int         // unique key of this node
-	Value    interface{} // associated data
-	score    SCORE       // score to determine the order of this node in the set
-	backward *SortedSetNode
-	level    []SortedSetLevel
-}
-
-// Get the key of the node
-func (this *SortedSetNode) Key() int {
-	return this.key
-}
-
-// Get the node of the node
-func (this *SortedSetNode) Score() SCORE {
-	return this.score
-}
-
-// Copyright (c) 2016, Jerry.Wang
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met:
-//
-// * Redistributions of source code must retain the above copyright notice, this
-//  list of conditions and the following disclaimer.
-//
-// * Redistributions in binary form must reproduce the above copyright notice,
-//  this list of conditions and the following disclaimer in the documentation
-//  and/or other materials provided with the distribution.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-// package sortedset
-
-// import (
-// 	"math/rand"
-// )
-
-type SCORE int64 // the type of score
-
-const SKIPLIST_MAXLEVEL = 32 /* Should be enough for 2^32 elements */
-const SKIPLIST_P = 0.25      /* Skiplist P = 1/4 */
-
-const RESERVED_MINIMUM_KEY = -2 * 1000000000000000000
-
-type SortedSet struct {
-	header *SortedSetNode
-	tail   *SortedSetNode
-	length int64
-	level  int
-	dict   map[int]*SortedSetNode
-}
-
-func createNode(level int, score SCORE, key int, value interface{}) *SortedSetNode {
-	node := SortedSetNode{
-		score: score,
-		key:   key,
-		Value: value,
-		level: make([]SortedSetLevel, level),
-	}
-	return &node
-}
-
-// Returns a random level for the new skiplist node we are going to create.
-// The return value of this function is between 1 and SKIPLIST_MAXLEVEL
-// (both inclusive), with a powerlaw-alike distribution where higher
-// levels are less likely to be returned.
-func randomLevel() int {
-	level := 1
-	for float64(rand.Int31()&0xFFFF) < float64(SKIPLIST_P*0xFFFF) {
-		level += 1
-	}
-	if level < SKIPLIST_MAXLEVEL {
-		return level
-	}
-
-	return SKIPLIST_MAXLEVEL
-}
-
-func (this *SortedSet) insertNode(score SCORE, key int, value interface{}) *SortedSetNode {
-	var update [SKIPLIST_MAXLEVEL]*SortedSetNode
-	var rank [SKIPLIST_MAXLEVEL]int64
-
-	x := this.header
-	for i := this.level - 1; i >= 0; i-- {
-		/* store rank that is crossed to reach the insert position */
-		if this.level-1 == i {
-			rank[i] = 0
-		} else {
-			rank[i] = rank[i+1]
-		}
-
-		for x.level[i].forward != nil &&
-			(x.level[i].forward.score < score ||
-				(x.level[i].forward.score == score && // score is the same but the key is different
-					x.level[i].forward.key < key)) {
-			rank[i] += x.level[i].span
-			x = x.level[i].forward
-		}
-		update[i] = x
-	}
-
-	/* we assume the key is not already inside, since we allow duplicated
-	* scores, and the re-insertion of score and redis object should never
-	* happen since the caller of Insert() should test in the hash table
-	* if the element is already inside or not. */
-	level := randomLevel()
-
-	if level > this.level { // add a new level
-		for i := this.level; i < level; i++ {
-			rank[i] = 0
-			update[i] = this.header
-			update[i].level[i].span = this.length
-		}
-		this.level = level
-	}
-
-	x = createNode(level, score, key, value)
-	for i := 0; i < level; i++ {
-		x.level[i].forward = update[i].level[i].forward
-		update[i].level[i].forward = x
-
-		/* update span covered by update[i] as x is inserted here */
-		x.level[i].span = update[i].level[i].span - (rank[0] - rank[i])
-		update[i].level[i].span = (rank[0] - rank[i]) + 1
-	}
-
-	/* increment span for untouched levels */
-	for i := level; i < this.level; i++ {
-		update[i].level[i].span++
-	}
-
-	if update[0] == this.header {
-		x.backward = nil
-	} else {
-		x.backward = update[0]
-	}
-	if x.level[0].forward != nil {
-		x.level[0].forward.backward = x
-	} else {
-		this.tail = x
-	}
-	this.length++
-	return x
-}
-
-/* Internal function used by delete, DeleteByScore and DeleteByRank */
-func (this *SortedSet) deleteNode(x *SortedSetNode, update [SKIPLIST_MAXLEVEL]*SortedSetNode) {
-	for i := 0; i < this.level; i++ {
-		if update[i].level[i].forward == x {
-			update[i].level[i].span += x.level[i].span - 1
-			update[i].level[i].forward = x.level[i].forward
-		} else {
-			update[i].level[i].span -= 1
-		}
-	}
-	if x.level[0].forward != nil {
-		x.level[0].forward.backward = x.backward
-	} else {
-		this.tail = x.backward
-	}
-	for this.level > 1 && this.header.level[this.level-1].forward == nil {
-		this.level--
-	}
-	this.length--
-	delete(this.dict, x.key)
-}
-
-/* Delete an element with matching score/key from the skiplist. */
-func (this *SortedSet) delete(score SCORE, key int) bool {
-	var update [SKIPLIST_MAXLEVEL]*SortedSetNode
-
-	x := this.header
-	for i := this.level - 1; i >= 0; i-- {
-		for x.level[i].forward != nil &&
-			(x.level[i].forward.score < score ||
-				(x.level[i].forward.score == score &&
-					x.level[i].forward.key < key)) {
-			x = x.level[i].forward
-		}
-		update[i] = x
-	}
-	/* We may have multiple elements with the same score, what we need
-	* is to find the element with both the right score and object. */
-	x = x.level[0].forward
-	if x != nil && score == x.score && x.key == key {
-		this.deleteNode(x, update)
-		// free x
-		return true
-	}
-	return false /* not found */
-}
-
-// Create a new SortedSet
-func NewSortedSet() *SortedSet {
-	sortedSet := SortedSet{
-		level: 1,
-		dict:  make(map[int]*SortedSetNode),
-	}
-	sortedSet.header = createNode(SKIPLIST_MAXLEVEL, RESERVED_MINIMUM_KEY, RESERVED_MINIMUM_KEY, nil)
-	return &sortedSet
-}
-
-// Get the number of elements
-func (this *SortedSet) GetCount() int {
-	return int(this.length)
-}
-
-// get the element with minimum score, nil if the set is empty
-//
-// Time complexity of this method is : O(log(N))
-func (this *SortedSet) PeekMin() *SortedSetNode {
-	return this.header.level[0].forward
-}
-
-// get and remove the element with minimal score, nil if the set is empty
-//
-// // Time complexity of this method is : O(log(N))
-func (this *SortedSet) PopMin() *SortedSetNode {
-	x := this.header.level[0].forward
-	if x != nil {
-		this.Remove(x.key)
-	}
-	return x
-}
-
-// get the element with maximum score, nil if the set is empty
-// Time Complexity : O(1)
-func (this *SortedSet) PeekMax() *SortedSetNode {
-	return this.tail
-}
-
-// get and remove the element with maximum score, nil if the set is empty
-//
-// Time complexity of this method is : O(log(N))
-func (this *SortedSet) PopMax() *SortedSetNode {
-	x := this.tail
-	if x != nil {
-		this.Remove(x.key)
-	}
-	return x
-}
-
-// Add an element into the sorted set with specific key / value / score.
-// if the element is added, this method returns true; otherwise false means updated
-//
-// Time complexity of this method is : O(log(N))
-func (this *SortedSet) AddOrUpdate(key int, score SCORE, value interface{}) bool {
-	var newNode *SortedSetNode = nil
-
-	found := this.dict[key]
-	if found != nil {
-		// score does not change, only update value
-		if found.score == score {
-			found.Value = value
-		} else { // score changes, delete and re-insert
-			this.delete(found.score, found.key)
-			newNode = this.insertNode(score, key, value)
-		}
-	} else {
-		newNode = this.insertNode(score, key, value)
-	}
-
-	if newNode != nil {
-		this.dict[key] = newNode
-	}
-	return found == nil
-}
-
-// Delete element specified by key
-//
-// Time complexity of this method is : O(log(N))
-func (this *SortedSet) Remove(key int) *SortedSetNode {
-	found := this.dict[key]
-	if found != nil {
-		this.delete(found.score, found.key)
-		return found
-	}
-	return nil
-}
-
-type GetByScoreRangeOptions struct {
-	Limit        int  // limit the max nodes to return
-	ExcludeStart bool // exclude start value, so it search in interval (start, end] or (start, end)
-	ExcludeEnd   bool // exclude end value, so it search in interval [start, end) or (start, end)
-}
-
-// Get the nodes whose score within the specific range
-//
-// If options is nil, it searchs in interval [start, end] without any limit by default
-//
-// Time complexity of this method is : O(log(N))
-func (this *SortedSet) GetByScoreRange(start SCORE, end SCORE, options *GetByScoreRangeOptions) []*SortedSetNode {
-
-	// prepare parameters
-	var limit int = 2147483648
-	if options != nil && options.Limit > 0 {
-		limit = options.Limit
-	}
-
-	excludeStart := options != nil && options.ExcludeStart
-	excludeEnd := options != nil && options.ExcludeEnd
-	reverse := start > end
-	if reverse {
-		start, end = end, start
-		excludeStart, excludeEnd = excludeEnd, excludeStart
-	}
-
-	//////////////////////////
-	var nodes []*SortedSetNode
-
-	//determine if out of range
-	if this.length == 0 {
-		return nodes
-	}
-	//////////////////////////
-
-	if reverse { // search from end to start
-		x := this.header
-
-		if excludeEnd {
-			for i := this.level - 1; i >= 0; i-- {
-				for x.level[i].forward != nil &&
-					x.level[i].forward.score < end {
-					x = x.level[i].forward
-				}
-			}
-		} else {
-			for i := this.level - 1; i >= 0; i-- {
-				for x.level[i].forward != nil &&
-					x.level[i].forward.score <= end {
-					x = x.level[i].forward
-				}
-			}
-		}
-
-		for x != nil && limit > 0 {
-			if excludeStart {
-				if x.score <= start {
-					break
-				}
-			} else {
-				if x.score < start {
-					break
-				}
-			}
-
-			next := x.backward
-
-			nodes = append(nodes, x)
-			limit--
-
-			x = next
-		}
-	} else {
-		// search from start to end
-		x := this.header
-		if excludeStart {
-			for i := this.level - 1; i >= 0; i-- {
-				for x.level[i].forward != nil &&
-					x.level[i].forward.score <= start {
-					x = x.level[i].forward
-				}
-			}
-		} else {
-			for i := this.level - 1; i >= 0; i-- {
-				for x.level[i].forward != nil &&
-					x.level[i].forward.score < start {
-					x = x.level[i].forward
-				}
-			}
-		}
-
-		/* Current node is the last with score < or <= start. */
-		x = x.level[0].forward
-
-		for x != nil && limit > 0 {
-			if excludeEnd {
-				if x.score >= end {
-					break
-				}
-			} else {
-				if x.score > end {
-					break
-				}
-			}
-
-			next := x.level[0].forward
-
-			nodes = append(nodes, x)
-			limit--
-
-			x = next
-		}
-	}
-
-	return nodes
-}
-
-// Get nodes within specific rank range [start, end]
-// Note that the rank is 1-based integer. Rank 1 means the first node; Rank -1 means the last node;
-//
-// If start is greater than end, the returned array is in reserved order
-// If remove is true, the returned nodes are removed
-//
-// Time complexity of this method is : O(log(N))
-func (this *SortedSet) GetByRankRange(start int, end int, remove bool) []*SortedSetNode {
-
-	/* Sanitize indexes. */
-	if start < 0 {
-		start = int(this.length) + start + 1
-	}
-	if end < 0 {
-		end = int(this.length) + end + 1
-	}
-	if start <= 0 {
-		start = 1
-	}
-	if end <= 0 {
-		end = 1
-	}
-
-	reverse := start > end
-	if reverse { // swap start and end
-		start, end = end, start
-	}
-
-	var update [SKIPLIST_MAXLEVEL]*SortedSetNode
-	var nodes []*SortedSetNode
-	var traversed int = 0
-
-	x := this.header
-	for i := this.level - 1; i >= 0; i-- {
-		for x.level[i].forward != nil &&
-			traversed+int(x.level[i].span) < start {
-			traversed += int(x.level[i].span)
-			x = x.level[i].forward
-		}
-		if remove {
-			update[i] = x
-		} else {
-			if traversed+1 == start {
-				break
-			}
-		}
-	}
-
-	traversed++
-	x = x.level[0].forward
-	for x != nil && traversed <= end {
-		next := x.level[0].forward
-
-		nodes = append(nodes, x)
-
-		if remove {
-			this.deleteNode(x, update)
-		}
-
-		traversed++
-		x = next
-	}
-
-	if reverse {
-		for i, j := 0, len(nodes)-1; i < j; i, j = i+1, j-1 {
-			nodes[i], nodes[j] = nodes[j], nodes[i]
-		}
-	}
-	return nodes
-}
-
-// Get node by rank.
-// Note that the rank is 1-based integer. Rank 1 means the first node; Rank -1 means the last node;
-//
-// If remove is true, the returned nodes are removed
-// If node is not found at specific rank, nil is returned
-//
-// Time complexity of this method is : O(log(N))
-func (this *SortedSet) GetByRank(rank int, remove bool) *SortedSetNode {
-	nodes := this.GetByRankRange(rank, rank, remove)
-	if len(nodes) == 1 {
-		return nodes[0]
-	}
-	return nil
-}
-
-// Get node by key
-//
-// If node is not found, nil is returned
-// Time complexity : O(1)
-func (this *SortedSet) GetByKey(key int) *SortedSetNode {
-	return this.dict[key]
-}
-
-// Find the rank of the node specified by key
-// Note that the rank is 1-based integer. Rank 1 means the first node
-//
-// If the node is not found, 0 is returned. Otherwise rank(> 0) is returned
-//
-// Time complexity of this method is : O(log(N))
-func (this *SortedSet) FindRank(key int) int {
-	var rank int = 0
-	node := this.dict[key]
-	if node != nil {
-		x := this.header
-		for i := this.level - 1; i >= 0; i-- {
-			for x.level[i].forward != nil &&
-				(x.level[i].forward.score < node.score ||
-					(x.level[i].forward.score == node.score &&
-						x.level[i].forward.key <= node.key)) {
-				rank += int(x.level[i].span)
-				x = x.level[i].forward
-			}
-
-			if x.key == key {
-				return rank
-			}
-		}
-	}
-	return 0
-}
