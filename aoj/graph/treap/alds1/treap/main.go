@@ -476,6 +476,32 @@ func _delete(t *Node, key int) *Node {
 	return delete(t, key)
 }
 
+// 削除のための回転処理が終わった後のdelete
+func Delete(t *Node, key int) {
+	var p *Node
+	p = nil
+	// 削除対象の葉ノードが見つかるまで下降する
+	for t.key != key {
+		p = t
+		if key < t.key {
+			t = t.left
+		} else if key > t.key {
+			t = t.right
+		}
+	}
+
+	if p == nil {
+		// 削除対象は根ノードなので、rootをnilにする
+		root = nil
+	} else {
+		if p.right != nil && p.right.key == key {
+			p.right = nil
+		} else if p.left != nil && p.left.key == key {
+			p.left = nil
+		}
+	}
+}
+
 func inorder(u *Node, res *[]int) {
 	if u == nil {
 		return
@@ -501,11 +527,12 @@ func main() {
 		s := ReadString()
 		if s == "insert" {
 			k, p := ReadInt2()
-			if root == nil {
-				root = Insert(root, k, p)
-			} else {
-				Insert(root, k, p)
-			}
+			// if root == nil {
+			// 	root = Insert(root, k, p)
+			// } else {
+			// 	Insert(root, k, p)
+			// }
+			root = Insert(root, k, p)
 		} else if s == "print" {
 			res := []int{}
 			inorder(root, &res)
@@ -525,7 +552,20 @@ func main() {
 			}
 		} else if s == "delete" {
 			k := ReadInt()
-			delete(root, k)
+			root = delete(root, k)
+			// node := delete(root, k)
+			// if node != nil {
+			// 	Delete(root, k)
+			// }
+
+			// res := []int{}
+			// inorder(root, &res)
+			// fmt.Printf(" ")
+			// fmt.Println(PrintIntsLine(res...))
+			// res = []int{}
+			// preorder(root, &res)
+			// fmt.Printf(" ")
+			// fmt.Println(PrintIntsLine(res...))
 		}
 	}
 }
