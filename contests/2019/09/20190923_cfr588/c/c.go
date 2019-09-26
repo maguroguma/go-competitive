@@ -10,112 +10,6 @@ import (
 	"strconv"
 )
 
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
-/*******************************************************************/
-
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
-
-func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-
-	// fmt.Println(int('8' - '0'))
-
-	// A := []int{5, 4, 3, 2, 1, 0, 0, 0}
-	// fmt.Println(A)
-	// sort.Sort(sort.IntSlice(A[2:]))
-	// fmt.Println(A)
-
-	// fmt.Println(math.Sqrt(float64(100000)))
-	// fmt.Println(512 * 512)
-
-	// fmt.Println(int('z'))
-	// fmt.Println("aaa")
-
-	// sum := 0
-	// for i := 1; i <= 13; i++ {
-	// 	sum += (i - 1)
-	// }
-	// fmt.Println(sum)
-
-	// for i := 0; i < 100; i++ {
-	// 	fmt.Println(RandInt())
-	// }
-
-	// fmt.Println(math.Log2(5000))
-
-	i, j := 1, 1000
-	i, j = j, i
-	fmt.Println(i, j)
-}
-
-func RandInt() int {
-	var tx, ty, tz, tw = 123456789, 362436069, 521288629, 88675123
-	tt := (tx ^ (tx << 11))
-	tx = ty
-	ty = tz
-	tz = tw
-	tw = (tw ^ (tw >> 19)) ^ (tt ^ (tt >> 8))
-	return tw
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
-}
-
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
-
-/*******************************************************************/
-
 /*********** I/O ***********/
 
 var (
@@ -131,7 +25,8 @@ func init() {
 
 func newReadString(ior io.Reader) func() string {
 	r := bufio.NewScanner(ior)
-	r.Buffer(make([]byte, 1024), int(1e+11))
+	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
+	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
 	// Split sets the split function for the Scanner. The default split function is ScanLines.
 	// Split panics if it is called after scanning has started.
 	r.Split(bufio.ScanWords)
@@ -147,6 +42,15 @@ func newReadString(ior io.Reader) func() string {
 // ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
+}
+func ReadInt2() (int, int) {
+	return int(readInt64()), int(readInt64())
+}
+func ReadInt3() (int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64())
+}
+func ReadInt4() (int, int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
 func readInt64() int64 {
@@ -321,6 +225,19 @@ func DigitSum(n int) int {
 	return res
 }
 
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -332,19 +249,10 @@ func Sum(integers ...int) int {
 	return s
 }
 
-// CeilInt returns the minimum integer larger than or equal to float(a/b).
-func CeilInt(a, b int) int {
-	res := a / b
-	if a%b > 0 {
-		res++
-	}
-	return res
-}
-
-// FloorInt returns the maximum integer smaller than or equal to float(a/b)
-func FloorInt(a, b int) int {
-	res := a / b
-	return res
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -439,3 +347,154 @@ func PrintIntsLine(A ...int) string {
 
 	return string(res)
 }
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*******************************************************************/
+
+const MOD = 1000000000 + 7
+const ALPHABET_NUM = 26
+const INF_INT64 = math.MaxInt64
+const INF_BIT60 = 1 << 60
+
+var n, m int
+
+var adjMatrix [10][10]int
+var dominoMatrix [7][7]int
+
+func main() {
+	n, m = ReadInt2()
+	for i := 0; i < m; i++ {
+		a, b := ReadInt2()
+		// 常にaをbより小さくする
+		if a > b {
+			a, b = b, a
+		}
+		adjMatrix[a][b] = 1
+		adjMatrix[b][a] = 1
+	}
+	// for i := 1; i <= n; i++ {
+	// 	fmt.Println(adjMatrix[i])
+	// }
+	// initialize()
+	// for i := 1; i <= 6; i++ {
+	// 	fmt.Println(dominoMatrix[i])
+	// }
+
+	if n == 7 {
+		ans := 0
+		for i := 1; i <= n; i++ {
+			initialize()
+			tmp := sub(i)
+			ChMax(&ans, tmp)
+		}
+		fmt.Println(ans)
+	} else {
+		fmt.Println(subsub())
+	}
+}
+
+func subsub() int {
+	res := 0
+	for i := 1; i <= n; i++ {
+		for j := i + 1; j <= n; j++ {
+			if adjMatrix[i][j] == 1 {
+				res++
+			}
+		}
+	}
+	return res
+}
+
+// sevenId を 7としたときの置けるドミノの数
+func sub(sevenId int) int {
+	res := 0
+
+	// memo: ノードIDからドミノの数へのマップ
+	memo := make(map[int]int)
+	dominoNum := 1
+	for i := 1; i <= n; i++ {
+		if i == sevenId {
+			continue
+		}
+		memo[i] = dominoNum
+		dominoNum++
+	}
+	memo[sevenId] = dominoNum
+	// memoの逆引き
+	revMemo := make(map[int]int)
+	for k, v := range memo {
+		revMemo[v] = k
+	}
+
+	// sevenId以外のノードについて、割り当てられたドミノ数に基づいてドミノをおいていく
+	for i := 1; i <= n; i++ {
+		for j := i + 1; j <= n; j++ {
+			// i, jは通常のノード番号
+			if i == sevenId || j == sevenId {
+				continue
+			}
+
+			if adjMatrix[i][j] == 1 {
+				res++
+
+				// i, jをドミノ数に変換
+				// diのほうを常に小さく
+				di := memo[i]
+				dj := memo[j]
+				if di > dj {
+					di, dj = dj, di
+				}
+				dominoMatrix[di][dj] = 0 // ドミノを消費
+			}
+		}
+	}
+
+	// i: sevenId のドミノ数をiとする
+	resres := 0
+	for i := 1; i <= 6; i++ {
+		di := i
+		tmpRes := 0
+
+		// 他方のノードすべてを調べる
+		for j := 1; j <= 6; j++ {
+			dj := j
+			ni, nj := sevenId, revMemo[dj]
+			if di > dj {
+				di, dj = dj, di
+			}
+
+			// ドミノが未使用かつエッジがアレばドミノを設置できる
+			if dominoMatrix[di][dj] == 1 && adjMatrix[ni][nj] == 1 {
+				tmpRes++
+			}
+		}
+
+		ChMax(&resres, tmpRes)
+	}
+
+	return res + resres
+}
+
+func initialize() {
+	for i := 1; i <= 6; i++ {
+		for j := i; j <= 6; j++ {
+			dominoMatrix[i][j] = 1
+		}
+	}
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/

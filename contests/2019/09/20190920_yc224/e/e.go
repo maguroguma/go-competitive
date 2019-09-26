@@ -10,112 +10,6 @@ import (
 	"strconv"
 )
 
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
-/*******************************************************************/
-
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
-
-func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-
-	// fmt.Println(int('8' - '0'))
-
-	// A := []int{5, 4, 3, 2, 1, 0, 0, 0}
-	// fmt.Println(A)
-	// sort.Sort(sort.IntSlice(A[2:]))
-	// fmt.Println(A)
-
-	// fmt.Println(math.Sqrt(float64(100000)))
-	// fmt.Println(512 * 512)
-
-	// fmt.Println(int('z'))
-	// fmt.Println("aaa")
-
-	// sum := 0
-	// for i := 1; i <= 13; i++ {
-	// 	sum += (i - 1)
-	// }
-	// fmt.Println(sum)
-
-	// for i := 0; i < 100; i++ {
-	// 	fmt.Println(RandInt())
-	// }
-
-	// fmt.Println(math.Log2(5000))
-
-	i, j := 1, 1000
-	i, j = j, i
-	fmt.Println(i, j)
-}
-
-func RandInt() int {
-	var tx, ty, tz, tw = 123456789, 362436069, 521288629, 88675123
-	tt := (tx ^ (tx << 11))
-	tx = ty
-	ty = tz
-	tz = tw
-	tw = (tw ^ (tw >> 19)) ^ (tt ^ (tt >> 8))
-	return tw
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
-}
-
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
-
-/*******************************************************************/
-
 /*********** I/O ***********/
 
 var (
@@ -147,6 +41,15 @@ func newReadString(ior io.Reader) func() string {
 // ReadInt returns an integer.
 func ReadInt() int {
 	return int(readInt64())
+}
+func ReadInt2() (int, int) {
+	return int(readInt64()), int(readInt64())
+}
+func ReadInt3() (int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64())
+}
+func ReadInt4() (int, int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
 func readInt64() int64 {
@@ -321,6 +224,19 @@ func DigitSum(n int) int {
 	return res
 }
 
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -332,19 +248,10 @@ func Sum(integers ...int) int {
 	return s
 }
 
-// CeilInt returns the minimum integer larger than or equal to float(a/b).
-func CeilInt(a, b int) int {
-	res := a / b
-	if a%b > 0 {
-		res++
-	}
-	return res
-}
-
-// FloorInt returns the maximum integer smaller than or equal to float(a/b)
-func FloorInt(a, b int) int {
-	res := a / b
-	return res
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -439,3 +346,90 @@ func PrintIntsLine(A ...int) string {
 
 	return string(res)
 }
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*******************************************************************/
+
+const MOD = 1000000000 + 7
+const ALPHABET_NUM = 26
+const INF_INT64 = math.MaxInt64
+const INF_BIT60 = 1 << 60
+
+var a, b, n int
+
+func main() {
+	a, b, n = ReadInt3()
+
+	A := newMat(2)
+	A[0][0] = a
+	A[0][1] = b
+	A[1][0] = 1
+	A[1][1] = 0
+	AA := powMat(A, n, MOD)
+	fmt.Println(AA[1][0])
+}
+
+// n*nのint型正方行列を生成する
+func newMat(n int) [][]int {
+	A := make([][]int, n)
+	for i := 0; i < n; i++ {
+		A[i] = make([]int, n)
+	}
+
+	return A
+}
+
+// 行列A, Bに関するA*Bの計算
+func mul(A, B [][]int, mod int) [][]int {
+	C := make([][]int, len(A))
+	for i := 0; i < len(A); i++ {
+		C[i] = make([]int, len(B[0]))
+	}
+
+	for i := 0; i < len(A); i++ {
+		for k := 0; k < len(B); k++ {
+			for j := 0; j < len(B[0]); j++ {
+				C[i][j] = (C[i][j] + A[i][k]*B[k][j]) % mod
+			}
+		}
+	}
+
+	return C
+}
+
+// 行列Aに関するA^nの計算
+func powMat(A [][]int, n, mod int) [][]int {
+	B := make([][]int, len(A))
+	for i := 0; i < len(A); i++ {
+		B[i] = make([]int, len(A))
+	}
+
+	for i := 0; i < len(A); i++ {
+		B[i][i] = 1
+	}
+	for n > 0 {
+		if n&1 == 1 {
+			B = mul(B, A, mod)
+		}
+		A = mul(A, A, mod)
+		n = (n >> 1)
+	}
+
+	return B
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/

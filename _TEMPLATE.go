@@ -25,7 +25,8 @@ func init() {
 
 func newReadString(ior io.Reader) func() string {
 	r := bufio.NewScanner(ior)
-	r.Buffer(make([]byte, 1024), int(1e+11))
+	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
+	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
 	// Split sets the split function for the Scanner. The default split function is ScanLines.
 	// Split panics if it is called after scanning has started.
 	r.Split(bufio.ScanWords)
@@ -52,6 +53,20 @@ func ReadInt4() (int, int, int, int) {
 	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
+// ReadInt64 returns as integer as int64.
+func ReadInt64() int64 {
+	return readInt64()
+}
+func ReadInt64_2() (int64, int64) {
+	return readInt64(), readInt64()
+}
+func ReadInt64_3() (int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64()
+}
+func ReadInt64_4() (int64, int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64(), readInt64()
+}
+
 func readInt64() int64 {
 	i, err := strconv.ParseInt(ReadString(), 0, 64)
 	if err != nil {
@@ -65,6 +80,15 @@ func ReadIntSlice(n int) []int {
 	b := make([]int, n)
 	for i := 0; i < n; i++ {
 		b[i] = ReadInt()
+	}
+	return b
+}
+
+// ReadInt64Slice returns as int64 slice that has n integers.
+func ReadInt64Slice(n int) []int64 {
+	b := make([]int64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt64()
 	}
 	return b
 }
