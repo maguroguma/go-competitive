@@ -390,8 +390,111 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m int
+var A, B []int
+var C [][]int
+
+var dp [1000 + 5][4100]int
+var masks []int
+
 func main() {
-	fmt.Println("ABC142 e.go")
+	n, m = ReadInt2()
+	A, B = make([]int, m), make([]int, m)
+	C = make([][]int, m)
+	for i := 0; i < m; i++ {
+		A[i], B[i] = ReadInt2()
+		C[i] = ReadIntSlice(B[i])
+	}
+	// fmt.Println(A, B)
+	// fmt.Println(C)
+	// for i := 0; i < m; i++ {
+	// 	mask := sub(C[i])
+	// 	S := fmt.Sprintf("%b", mask)
+	// 	fmt.Println(S)
+	// }
+	masks = make([]int, m)
+	for i := 0; i < m; i++ {
+		// masks = append(masks, sub(C[i]))
+		masks[i] = sub(C[i])
+	}
+
+	if !judge() {
+		fmt.Println(-1)
+		return
+	}
+
+	bitMax := PowInt(2, n)
+	for i := 0; i <= m; i++ {
+		for j := 0; j < bitMax; j++ {
+			dp[i][j] = INF_BIT60
+		}
+	}
+	dp[0][0] = 0
+
+	// for i := 0; i < m; i++ {
+	// 	mask := sub(C[i])
+	// 	for j := 0; j < bitMax; j++ {
+	// 		ChMin(&dp[i+1][j|mask], Min(dp[i][j]+A[i], dp[i][j|mask]))
+	// 	}
+	// }
+	for i := 0; i < m; i++ {
+		mask := masks[i]
+		for S := 0; S < bitMax; S++ {
+			// Sは鍵を選ぶまえの集合
+			// ChMin(&dp[i+1][S|mask], Min(dp[i][S]+A[i], dp[i][S|mask]))
+			ChMin(&dp[i+1][S|mask], dp[i][S]+A[i])
+			ChMin(&dp[i+1][S|mask], dp[i][S|mask])
+			ChMin(&dp[i+1][S], dp[i][S])
+		}
+	}
+
+	fmt.Println(dp[m][bitMax-1])
+
+	// dp[0] = 1 // 数え上げならこのような初期化
+
+	// // すべての「遷移前の」bit集合
+	// for S := 0; S < (1 << uint(n)); S++ {
+	// 	// すべての「最後に並べる対象」
+	// 	for j := 0; j < n; j++ {
+	// 		// 遷移前のbit集合に、最後に並べようとしている対象がまだ含まれていない場合のみ、
+	// 		// 遷移を考える
+	// 		if NthBit(S, j) == 0 {
+	// 			{
+	// 				{
+	// 					dp[S|(1<<uint(j))] <- dp[S]
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+}
+
+func sub(row []int) int {
+	res := 0
+
+	for i := 0; i < len(row); i++ {
+		b := row[i] - 1
+		res |= (1 << uint(b))
+	}
+
+	return res
+}
+
+func judge() bool {
+	memo := make(map[int]int)
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < B[i]; j++ {
+			memo[C[i][j]] = 1
+		}
+	}
+
+	kind := 0
+	for _, _ = range memo {
+		kind++
+	}
+
+	return kind == n
 }
 
 // MODはとったか？

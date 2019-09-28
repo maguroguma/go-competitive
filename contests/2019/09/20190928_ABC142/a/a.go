@@ -390,8 +390,20 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+
 func main() {
-	fmt.Println("ABC142 a.go")
+	n = ReadInt()
+
+	bunbo := float64(n)
+	bunshi := 0.0
+	for i := 1; i <= n; i++ {
+		if i%2 == 1 {
+			bunshi += 1.0
+		}
+	}
+
+	fmt.Println(bunshi / bunbo)
 }
 
 // MODはとったか？

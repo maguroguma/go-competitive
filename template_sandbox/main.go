@@ -67,9 +67,11 @@ func main() {
 
 	// fmt.Println(math.Log2(5000))
 
-	i, j := 1, 1000
-	i, j = j, i
-	fmt.Println(i, j)
+	// i, j := 1, 1000
+	// i, j = j, i
+	// fmt.Println(i, j)
+
+	fmt.Println(PowInt(2, 12))
 }
 
 func RandInt() int {

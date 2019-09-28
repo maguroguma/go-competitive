@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -390,9 +391,51 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A []int
+
 func main() {
-	fmt.Println("ABC142 c.go")
+	n = ReadInt()
+	A = ReadIntSlice(n)
+
+	L := make(ItemList, 0, 200000+5)
+	for i := 0; i < n; i++ {
+		L = append(L, &Item{key: A[i], idx: i, value: A[i]})
+	}
+	sort.Stable(byKey{L})
+
+	answers := []int{}
+	for i := 0; i < n; i++ {
+		answers = append(answers, L[i].idx+1)
+	}
+	fmt.Println(PrintIntsLine(answers...))
 }
+
+type Item struct {
+	key        int
+	idx, value int
+}
+type ItemList []*Item
+type byKey struct {
+	ItemList
+}
+
+func (l ItemList) Len() int {
+	return len(l)
+}
+func (l ItemList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.ItemList[i].key < l.ItemList[j].key
+}
+
+// how to use
+// L := make(ItemList, 0, 200000+5)
+// L = append(L, &Item{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？

@@ -390,8 +390,81 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var a, b int
+
 func main() {
-	fmt.Println("ABC142 d.go")
+	a, b = ReadInt2()
+
+	gcd := Gcd(a, b)
+
+	if gcd == 1 {
+		fmt.Println(1)
+		return
+	}
+
+	memo := TrialDivision(gcd)
+
+	ans := 0
+	for _, _ = range memo {
+		ans++
+	}
+	fmt.Println(ans + 1)
+}
+
+// TrialDivision returns the result of prime factorization of integer N.
+func TrialDivision(n int) map[int]int {
+	if n <= 1 {
+		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
+	}
+
+	p := map[int]int{}
+	for i := 2; i*i <= n; i++ {
+		exp := 0
+		for n%i == 0 {
+			exp++
+			n /= i
+		}
+
+		if exp == 0 {
+			continue
+		}
+		p[i] = exp
+	}
+	if n > 1 {
+		p[n] = 1
+	}
+
+	return p
+}
+
+// エラトステネスの篩: O(NloglogN)
+// n以下の素数の数と素数のスライスを返す
+func sieve(n int) (int, []int) {
+	// var prime [2000000 + 5]int
+	prime := []int{}
+	var isPrime [2000000 + 5 + 1]bool
+
+	p := 0
+	for i := 0; i <= n; i++ {
+		isPrime[i] = true
+	}
+	isPrime[0], isPrime[1] = false, false
+
+	for i := 2; i <= n; i++ {
+		// iがtrueで残っている場合は素数認定し、自分より大きい倍数を取り除いていく
+		if isPrime[i] {
+			// prime[p] = i
+			prime = append(prime, i)
+			p++
+
+			// 倍数の除去
+			for j := 2 * i; j <= n; j += i {
+				isPrime[j] = false
+			}
+		}
+	}
+
+	return p, prime
 }
 
 // MODはとったか？
