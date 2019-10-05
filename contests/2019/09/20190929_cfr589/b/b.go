@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -391,96 +390,71 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n int
-var A []int64
-var B []int
+var h, w int
+var R, C []int
 
-type group struct {
-	bits    int64
-	members []int
-}
-
-type Student struct {
-	key int64
-	a   int64
-	b   int
-	idx int
-}
-type StudentList []*Student
-type byKey struct {
-	StudentList
-}
-
-func (l StudentList) Len() int {
-	return len(l)
-}
-func (l StudentList) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
-}
-
-func (l byKey) Less(i, j int) bool {
-	return l.StudentList[i].key < l.StudentList[j].key
-}
-
-// how to use
-// L := make(StudentList, 0, 200000+5)
-// L = append(L, &Student{key: intValue})
-// sort.Stable(byKey{ L })                // Stable ASC
-// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
-
-var flags []bool
+var cells [1000 + 5][1000 + 5]int  // 1: 黒, 0: 白
+var dones [1000 + 5][1000 + 5]bool // true: 確定
 
 func main() {
-	n = ReadInt()
-	A = ReadInt64Slice(n)
-	B = ReadIntSlice(n)
-	flags = make([]bool, n)
+	h, w = ReadInt2()
+	R = ReadIntSlice(h)
+	C = ReadIntSlice(w)
 
-	if n == 1 {
-		fmt.Println(0)
-		return
+	// 行は無責任に決める
+	for i := 0; i < h; i++ {
+		r := R[i]
+		for j := 0; j < r; j++ {
+			cells[i][j] = 1
+			dones[i][j] = true
+		}
+
+		// 白で確定させる
+		cells[i][r] = 0
+		dones[i][r] = true
 	}
 
-	L := make(StudentList, 0, 200000)
-	for i := 0; i < n; i++ {
-		L = append(L, &Student{key: A[i], a: A[i], b: B[i], idx: i})
-	}
-	sort.Stable(byKey{L})
-
-	// 2以上のサイズのメモ
-	memo := make(map[int64]int)
-	for i := 0; i < len(L); i++ {
-		if i == 0 {
-			if L[i].a == L[i+1].a {
-				memo[L[i].a] = 1
+	// 列はチェックしながら決める
+	for j := 0; j < w; j++ {
+		c := C[j]
+		for i := 0; i < c; i++ {
+			if dones[i][j] {
+				// すでに決定済みかつ、白でないとダメなら矛盾
+				// 黒だったならOK
+				if cells[i][j] == 0 {
+					fmt.Println(0)
+					return
+				}
+			} else {
+				cells[i][j] = 1
+				dones[i][j] = true
 			}
-		} else if i == len(L)-1 {
-			if L[i-1].a == L[i].a {
-				memo[L[i].a] = 1
+		}
+
+		// 白で確定させる
+		if dones[c][j] {
+			// すでに決定済みかつ、黒でないとダメなら矛盾
+			// 白だったならOK
+			if cells[c][j] == 1 {
+				fmt.Println(0)
+				return
 			}
 		} else {
-			if L[i-1].a == L[i].a || L[i].a == L[i+1].a {
-				memo[L[i].a] = 1
+			cells[c][j] = 0
+			dones[c][j] = true
+		}
+	}
+
+	ans := int64(1)
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			if !dones[i][j] {
+				ans *= int64(2)
+				ans %= int64(MOD)
 			}
 		}
 	}
-
-	for bits := range memo {
-		for i := 0; i < n; i++ {
-			if bits|A[i] == bits {
-				flags[i] = true
-			}
-		}
-	}
-
-	sum := int64(0)
-	for i := 0; i < n; i++ {
-		if flags[i] {
-			sum += int64(B[i])
-		}
-	}
-
-	fmt.Println(sum)
+	fmt.Println(ans)
 }
 
 // MODはとったか？

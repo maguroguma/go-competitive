@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -262,23 +261,6 @@ func DigitNumOfDecimal(n int) int {
 	return res
 }
 
-// Sum returns multiple integers sum.
-func Sum(integers ...int) int {
-	s := 0
-
-	for _, i := range integers {
-		s += i
-	}
-
-	return s
-}
-
-// Kiriage returns Ceil(a/b)
-// a >= 0, b > 0
-func Kiriage(a, b int) int {
-	return (a + (b - 1)) / b
-}
-
 // PowInt is integer version of math.Pow
 // PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
 func PowInt(a, e int) int {
@@ -356,22 +338,6 @@ func Strtoi(s string) int {
 	}
 }
 
-// PrintIntsLine returns integers string delimited by a space.
-func PrintIntsLine(A ...int) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
 /********** I/O usage **********/
 
 //str := ReadString()
@@ -391,96 +357,105 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n int
-var A []int64
-var B []int
+var n, m int
+var X []int
 
-type group struct {
-	bits    int64
-	members []int
-}
-
-type Student struct {
-	key int64
-	a   int64
-	b   int
-	idx int
-}
-type StudentList []*Student
-type byKey struct {
-	StudentList
-}
-
-func (l StudentList) Len() int {
-	return len(l)
-}
-func (l StudentList) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
-}
-
-func (l byKey) Less(i, j int) bool {
-	return l.StudentList[i].key < l.StudentList[j].key
-}
-
-// how to use
-// L := make(StudentList, 0, 200000+5)
-// L = append(L, &Student{key: intValue})
-// sort.Stable(byKey{ L })                // Stable ASC
-// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
-
-var flags []bool
+var A, diff []int
+var C [][]int
+var cnt []int
 
 func main() {
-	n = ReadInt()
-	A = ReadInt64Slice(n)
-	B = ReadIntSlice(n)
-	flags = make([]bool, n)
+	n, m = ReadInt2()
+	X = ReadIntSlice(m)
 
-	if n == 1 {
-		fmt.Println(0)
-		return
+	// Xの階差を計算する、和がf(P1(n))となる
+	diff = make([]int, m-1)
+	for i := 0; i < m-1; i++ {
+		diff[i] = AbsInt(X[i] - X[i+1])
 	}
 
-	L := make(StudentList, 0, 200000)
-	for i := 0; i < n; i++ {
-		L = append(L, &Student{key: A[i], a: A[i], b: B[i], idx: i})
-	}
-	sort.Stable(byKey{L})
+	// X[i]が数列の先頭に来る場合の、前後のxとの位置の差の絶対値を計算しておく
+	A = make([]int, m)
+	for i := 0; i < m; i++ {
+		if i < m-1 {
+			if X[i+1] > X[i] {
+				A[i] += X[i+1] - 1
+			} else if X[i+1] < X[i] {
+				A[i] += X[i+1]
+			}
+		}
 
-	// 2以上のサイズのメモ
-	memo := make(map[int64]int)
-	for i := 0; i < len(L); i++ {
-		if i == 0 {
-			if L[i].a == L[i+1].a {
-				memo[L[i].a] = 1
+		if i > 0 {
+			if X[i-1] > X[i] {
+				A[i] += X[i-1] - 1
+			} else if X[i-1] < X[i] {
+				A[i] += X[i-1]
 			}
-		} else if i == len(L)-1 {
-			if L[i-1].a == L[i].a {
-				memo[L[i].a] = 1
-			}
+		}
+	}
+
+	// X中における、1<=i<=nのiが登場する位置を記憶しておく
+	C = make([][]int, n+1)
+	for i := 1; i <= n; i++ {
+		C[i] = []int{}
+	}
+	for i := 0; i < m; i++ {
+		C[X[i]] = append(C[X[i]], i)
+	}
+
+	// cnt[i]: 1<=i<=nのiについて、
+	// Xにおけるすべての隣接項間のうち、隣接項間にiが挟まるものの個数
+	cnt = make([]int, n+1)
+	for i := 0; i < m-1; i++ {
+		if AbsInt(X[i]-X[i+1]) < 2 {
+			continue
 		} else {
-			if L[i-1].a == L[i].a || L[i].a == L[i+1].a {
-				memo[L[i].a] = 1
-			}
+			cnt[Min(X[i], X[i+1])+1]++
+			cnt[Max(X[i], X[i+1])]--
 		}
 	}
-
-	for bits := range memo {
-		for i := 0; i < n; i++ {
-			if bits|A[i] == bits {
-				flags[i] = true
-			}
-		}
-	}
-
-	sum := int64(0)
 	for i := 0; i < n; i++ {
-		if flags[i] {
-			sum += int64(B[i])
+		cnt[i+1] = cnt[i+1] + cnt[i]
+	}
+
+	base := int64(0)
+	for _, d := range diff {
+		base += int64(d)
+	}
+	answers := []int64{}
+	for i := 1; i <= n; i++ {
+		ans := base
+		for _, idx := range C[i] {
+			if idx == 0 {
+				ans += int64(A[idx] - diff[idx])
+			} else if idx < m-1 {
+				ans += int64(A[idx] - diff[idx] - diff[idx-1])
+			} else {
+				ans += int64(A[idx] - diff[idx-1])
+			}
+		}
+		ans -= int64(cnt[i])
+		answers = append(answers, ans)
+	}
+
+	fmt.Println(PrintIntsLine(answers...))
+}
+
+// PrintIntsLine returns integers string delimited by a space.
+func PrintIntsLine(A ...int64) string {
+	res := []rune{}
+
+	for i := 0; i < len(A); i++ {
+		// str := strconv.Itoa(A[i])
+		str := strconv.FormatInt(A[i], 10)
+		res = append(res, []rune(str)...)
+
+		if i != len(A)-1 {
+			res = append(res, ' ')
 		}
 	}
 
-	fmt.Println(sum)
+	return string(res)
 }
 
 // MODはとったか？

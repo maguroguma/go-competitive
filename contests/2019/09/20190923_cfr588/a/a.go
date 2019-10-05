@@ -369,10 +369,32 @@ const INF_BIT60 = 1 << 60
 
 var A []int
 
+// コンテスト提出時:
+// func main() {
+// 	A = ReadIntSlice(4)
+
+// 	for i := 0; i < 16; i++ {
+// 		one, two := 0, 0
+// 		for j := 0; j < 4; j++ {
+// 			if NthBit(i, j) == 1 {
+// 				one += A[j]
+// 			} else {
+// 				two += A[j]
+// 			}
+// 		}
+// 		if one == two {
+// 			fmt.Println("YES")
+// 			return
+// 		}
+// 	}
+// 	fmt.Println("NO")
+// }
+
+// ブログ用
 func main() {
 	A = ReadIntSlice(4)
 
-	for i := 0; i < 16; i++ {
+	for i := 0; i < (1 << uint(4)); i++ {
 		one, two := 0, 0
 		for j := 0; j < 4; j++ {
 			if NthBit(i, j) == 1 {

@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -391,96 +390,8 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n int
-var A []int64
-var B []int
-
-type group struct {
-	bits    int64
-	members []int
-}
-
-type Student struct {
-	key int64
-	a   int64
-	b   int
-	idx int
-}
-type StudentList []*Student
-type byKey struct {
-	StudentList
-}
-
-func (l StudentList) Len() int {
-	return len(l)
-}
-func (l StudentList) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
-}
-
-func (l byKey) Less(i, j int) bool {
-	return l.StudentList[i].key < l.StudentList[j].key
-}
-
-// how to use
-// L := make(StudentList, 0, 200000+5)
-// L = append(L, &Student{key: intValue})
-// sort.Stable(byKey{ L })                // Stable ASC
-// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
-
-var flags []bool
-
 func main() {
-	n = ReadInt()
-	A = ReadInt64Slice(n)
-	B = ReadIntSlice(n)
-	flags = make([]bool, n)
-
-	if n == 1 {
-		fmt.Println(0)
-		return
-	}
-
-	L := make(StudentList, 0, 200000)
-	for i := 0; i < n; i++ {
-		L = append(L, &Student{key: A[i], a: A[i], b: B[i], idx: i})
-	}
-	sort.Stable(byKey{L})
-
-	// 2以上のサイズのメモ
-	memo := make(map[int64]int)
-	for i := 0; i < len(L); i++ {
-		if i == 0 {
-			if L[i].a == L[i+1].a {
-				memo[L[i].a] = 1
-			}
-		} else if i == len(L)-1 {
-			if L[i-1].a == L[i].a {
-				memo[L[i].a] = 1
-			}
-		} else {
-			if L[i-1].a == L[i].a || L[i].a == L[i+1].a {
-				memo[L[i].a] = 1
-			}
-		}
-	}
-
-	for bits := range memo {
-		for i := 0; i < n; i++ {
-			if bits|A[i] == bits {
-				flags[i] = true
-			}
-		}
-	}
-
-	sum := int64(0)
-	for i := 0; i < n; i++ {
-		if flags[i] {
-			sum += int64(B[i])
-		}
-	}
-
-	fmt.Println(sum)
+	fmt.Println("cf589 f.go")
 }
 
 // MODはとったか？
