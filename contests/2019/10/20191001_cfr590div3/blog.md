@@ -1,5 +1,4 @@
-# Codeforces Round No.590 (Div.3) 参加記録（A〜E解答）
-
+<a id="markdown-全体" name="全体"></a>
 ## 全体
 
 残り時間15分ぐらいで後回しにしたCが解けて5完でした。
@@ -8,12 +7,39 @@ Cに時間がかかりすぎてしまったのは悔やまれますが、実力�
 
 Eはコンテスト中に目を通せて「面白そう」と思ったので、後日解き直しました（解説ACになりましたが）。
 
+<!-- TOC -->
+
+- [全体](#%e5%85%a8%e4%bd%93)
+- [A. Equalize Prices Again](#a-equalize-prices-again)
+	- [問題](#%e5%95%8f%e9%a1%8c)
+	- [解答](#%e8%a7%a3%e7%ad%94)
+- [B1. Social Network (easy version)](#b1-social-network-easy-version)
+	- [問題](#%e5%95%8f%e9%a1%8c-1)
+	- [解答](#%e8%a7%a3%e7%ad%94-1)
+- [B2. Social Network (hard version)](#b2-social-network-hard-version)
+	- [問題](#%e5%95%8f%e9%a1%8c-2)
+	- [解答](#%e8%a7%a3%e7%ad%94-2)
+- [C. Pipes](#c-pipes)
+	- [問題](#%e5%95%8f%e9%a1%8c-3)
+	- [解答](#%e8%a7%a3%e7%ad%94-3)
+- [D. Distinct Characters Queries](#d-distinct-characters-queries)
+	- [問題](#%e5%95%8f%e9%a1%8c-4)
+	- [解答](#%e8%a7%a3%e7%ad%94-4)
+- [E. Special Permutations](#e-special-permutations)
+	- [問題](#%e5%95%8f%e9%a1%8c-5)
+	- [解答](#%e8%a7%a3%e7%ad%94-5)
+- [感想](#%e6%84%9f%e6%83%b3)
+
+<!-- /TOC -->
+
 ---
 
+<a id="markdown-a-equalize-prices-again" name="a-equalize-prices-again"></a>
 ## A. Equalize Prices Again
 
 [問題URL](https://codeforces.com/contest/1234/problem/A)
 
+<a id="markdown-問題" name="問題"></a>
 ### 問題
 
 ※やたらと長いので意訳。
@@ -25,9 +51,10 @@ Eはコンテスト中に目を通せて「面白そう」と思ったので、�
 
 制約: `1 <= q <= 100, 1 <= n[i] <= 100, 1 <= A[i] <= 10^7`
 
+<a id="markdown-解答" name="解答"></a>
 ### 解答
 
-各クエリの情報を読み込みながら、都度 `Floor(sum / n)` を計算すれば良い。
+各クエリの情報を読み込みながら、都度 `Ceil(sum / n)` を計算すれば良い。
 
 ```go
 var q int
@@ -46,14 +73,17 @@ func main() {
 
 特に言うことはないと思います。
 
+<a id="markdown-b1-social-network-easy-version" name="b1-social-network-easy-version"></a>
 ## B1. Social Network (easy version)
 
 [問題URL](https://codeforces.com/contest/1234/problem/B1)
 
+<a id="markdown-問題-1" name="問題-1"></a>
 ### 問題
 
 ※問題文があまりにも冗長なので省略。
 
+<a id="markdown-解答-1" name="解答-1"></a>
 ### 解答
 
 要するに、以下を守りながら、ディスプレイを配列でモデル化し、シミュレーションを行えば良い。
@@ -111,16 +141,19 @@ func isExist(id int) bool {
 正直英文読解が最大の敵だと思いました
 （サンプル見るまで確信が持てませんでしたし、なんならサンプル見るまで勘違いしている部分もありました）。
 
+<a id="markdown-b2-social-network-hard-version" name="b2-social-network-hard-version"></a>
 ## B2. Social Network (hard version)
 
 [問題URL](https://codeforces.com/contest/1234/problem/B2)
 
+<a id="markdown-問題-2" name="問題-2"></a>
 ### 問題
 
 ※easy versionと問題設定は全く同じ。
 
 制約: `1 <= n, k <= 2 * 10^5, 1 <= Id[i] <= 10^9`
 
+<a id="markdown-解答-2" name="解答-2"></a>
 ### 解答
 
 総メッセージ数とディスプレイサイズが大きくなったため、easy versionのコードは通らなくなった。
@@ -201,10 +234,12 @@ func rev() []int {
 }
 ```
 
+<a id="markdown-c-pipes" name="c-pipes"></a>
 ## C. Pipes
 
 [問題URL](https://codeforces.com/contest/1234/problem/C)
 
+<a id="markdown-問題-3" name="問題-3"></a>
 ### 問題
 
 2行n列のマス目に対して、各マスに6種類のパイプが設置されている。
@@ -218,6 +253,7 @@ func rev() []int {
 
 制約: `1 <= q <= 10^4, 1 <= n <= 2 * 10^5(n の総和は 2 * 10^5 を超えないことが保証される)`
 
+<a id="markdown-解答-3" name="解答-3"></a>
 ### 解答
 
 行列の列の総和がboundされているため、素直にクエリごとに各マスのパイプをチェックして問題ない。
@@ -227,7 +263,7 @@ func rev() []int {
 - パイプ1, 2は互いに同じで、パイプ3, 4, 5, 6はそれぞれ互いに同じ
 - 水を左方向に流す意味はない
 - 3, 4, 5, 6のパイプを経由して行方向を上・下に移動した後に1, 2のパイプに出会った場合は、確実に失敗する
-  - それぞれ行列を下・上に踏み外すか、水が流れなくなるかのいずれかのため
+  - それぞれ行列を上・下に踏み外すか、水が流れなくなるかのいずれかのため
 
 以上から、初期位置を `(0, 0)` とし、出会ったパイプの種類によって座標を変化させていけば良い。
 
@@ -281,14 +317,16 @@ func main() {
 ```
 
 It is guaranteed that the sum of `n` over all queries does not exceed `2 * 10^5`
-を見逃したため、無理だと思って先にDを解きました。
+を見落としたため、無理だと思って先にDを解きました。
 
 実装で手間取りすぎてこの問題だけで1時間弱使ってしまった結果を見ると、正しい動きでした。
 
+<a id="markdown-d-distinct-characters-queries" name="d-distinct-characters-queries"></a>
 ## D. Distinct Characters Queries
 
 [問題URL](https://codeforces.com/contest/1234/problem/D)
 
+<a id="markdown-問題-4" name="問題-4"></a>
 ### 問題
 
 英小文字のみからなる文字列 `s` と、この文字列に関する `q` 個のクエリが与えられる。
@@ -304,6 +342,7 @@ It is guaranteed that the sum of `n` over all queries does not exceed `2 * 10^5`
 
 制約: `1 <= |s| <= 10^5, 1 <= q <= 10^5`
 
+<a id="markdown-解答-4" name="解答-4"></a>
 ### 解答
 
 26種類の文字について累積和が計算できれば、与えられた区間内の各文字の個数は計算できるので、
@@ -385,10 +424,12 @@ func main() {
 あと提出し終わった後、長さ0の文字列がケースに入っていないかとても心配でした
 （プログラムがコケるから無いだろうと決め込みましたが。。）。
 
+<a id="markdown-e-special-permutations" name="e-special-permutations"></a>
 ## E. Special Permutations
 
 [問題URL](https://codeforces.com/contest/1234/problem/E)
 
+<a id="markdown-問題-5" name="問題-5"></a>
 ### 問題
 
 数列 `P(i, n)` を `[i, 1, 2, ..., i-1, i+1, ..., n]` のように定義する。
@@ -398,10 +439,11 @@ func main() {
 
 `pos(P, val)` は数列Pが与えられたときの、数列P中における `val` が位置する1-basedのインデックスである。
 
-ここで、関数 $f(P) = \sum_{i=1}^{m-1} |pos(P, X[i]) - pos(P, X[i+1])|$ を定義する。
+ここで、関数 `f(P) = Sum(|pos(P, X[i]) - pos(P, X[i+1])|)` を定義する。
 
-$f(P_{1}^{n}), f(P_{2}^{n}), ..., f(P_{n}^{n})$ を求めよ。
+`f(P(1, n), n), f(P(2, n), n), ..., f(P(n, n), n)` を求めよ。
 
+<a id="markdown-解答-5" name="解答-5"></a>
 ### 解答
 
 問題文でも言われている通り、先頭に何が移動しようが、もとの昇順に並んだ数列 `P(1, n)` とほとんど同じであることを踏まえると、
@@ -410,24 +452,15 @@ $f(P_{1}^{n}), f(P_{2}^{n}), ..., f(P_{n}^{n})$ を求めよ。
 
 実際、以下の図のように場合分けによって、項間の距離が計算できる。
 
-
+<figure class="figure-image figure-image-fotolife" title="E問題の整理">[f:id:maguroguma:20191005170041j:plain]<figcaption>E問題の整理</figcaption></figure>
 
 手順としては、以下のようなものとなる。
 
-1. 昇順に並んだ数列について関数値を求め、これをベースとする。
-  - これは、単純に `X` の階差の和で求まる。
-2. 各 `X[i]` について `X[i]` が先頭に来る場合の `X[i-1]` と `X[i+1]` との距離（ `A[i]` とする）を計算しておく。
-  - 先述の図示した内容に従って場合分けすれば良い。
-3. `X` 中における `1 <= i <= n` な `i` が登場する箇所をリスト形式（ `C[i]` とする）で記憶しておく。
-  - 後半でベースをもとに `f(P(i, n), n)` を計算する際、リスト `C[i]` の中身についてのみ、2で求めた値を参照する。
-  - もともとベースを計算するために用いた階差が、2で求めた値に置き換わることとなる。
-4. すべての `X` に置ける隣接項のペア（公式tutorialでは `segment` というワードが使われている）について、 `1 <= i <= n` な `i` が間に挟まるものの数を数える。
-  - `cnt[i]` とすると、これが求まればベースから `cnt[i]` を引くことで、「 `i` が先頭に来ることによってグループ1とグループ2の間の距離が1縮まる」という部分が、すべての `X` の隣接項ペアについて考慮できたことになる。
-  - 普通にやると `O(m * n)` なので、imos法により `O(m + n)` で賢く行う。
-5. これまでに前処理したデータを利用し、ベースを調整することで各 `f(P(i, n), n)` を求める。
-  - おおまかな方針は以下のようになる。
-    - `X[idx]` が先頭に移動する場合は、ベースを求めるのに使った階差の代わりに `A[idx]` を使うようにする。
-    - `cnt[i]` をベースから引く。
+1. 昇順に並んだ数列について関数値を求め、これをベースとする。これは、単純に `X` の階差の和で求まる。
+2. 各 `X[i]` について `X[i]` が先頭に来る場合の `X[i-1]` と `X[i+1]` との距離（ `A[i]` とする）を計算しておく。先述の図示した内容に従って場合分けすれば良い。
+3. `X` 中における `1 <= i <= n` な `i` が登場する箇所をリスト形式（ `C[i]` とする）で記憶しておく。後半でベースをもとに `f(P(i, n), n)` を計算する際、リスト `C[i]` の中身についてのみ、2で求めた値を参照する。もともとベースを計算するために用いた階差が、2で求めた値に置き換わることとなる。
+4. すべての `X` に置ける隣接項のペア（公式tutorialでは `segment` というワードが使われている）について、 `1 <= i <= n` な `i` が間に挟まるものの数を数える。`cnt[i]` とすると、これが求まればベースから `cnt[i]` を引くことで、「 `i` が先頭に来ることによってグループ1とグループ2の間の距離が1縮まる」という部分が、すべての `X` の隣接項ペアについて考慮できたことになる。普通にやると `O(m * n)` なので、imos法により `O(m + n)` で賢く行う。
+5. これまでに前処理したデータを利用し、ベースを調整することで各 `f(P(i, n), n)` を求める。おおまかな方針は以下のようになる。`X[idx]` が先頭に移動する場合は、ベースを求めるのに使った階差の代わりに `A[idx]` を使うようにする。`cnt[i]` をベースから引く。
 
 コードの最後で2重ループとなっているが、 `C` の要素数は全部で `m` であるため、
 計算量は `O(n + m)` となって十分間に合う。
@@ -546,9 +579,9 @@ func PrintIntsLine(A ...int64) string {
 
 ---
 
+<a id="markdown-感想" name="感想"></a>
 ## 感想
 
 Codeforcesってクエリ問題多いんですかね？
 
 今回Cでやらかした制約の見落としなんかはこれからもありそうなので気をつけたいと思います。
-
