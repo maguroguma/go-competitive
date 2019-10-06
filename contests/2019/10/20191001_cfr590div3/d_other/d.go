@@ -278,6 +278,26 @@ func Kiriage(a, b int) int {
 	return (a + (b - 1)) / b
 }
 
+// PowInt is integer version of math.Pow
+// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
+func PowInt(a, e int) int {
+	if a < 0 || e < 0 {
+		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
+	}
+
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := PowInt(a, halfE)
+		return half * half
+	}
+
+	return a * PowInt(a, e-1)
+}
+
 // AbsInt is integer version of math.Abs
 func AbsInt(a int) int {
 	if a < 0 {
@@ -366,93 +386,89 @@ func PrintIntsLine(A ...int) string {
 /*******************************************************************/
 
 const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var x, n int64
+const ALPHABET_NUM = 26
+
+var S []rune
+var q int
+var bits [ALPHABET_NUM]*BinaryIndexedTree
 
 func main() {
-	x, n = ReadInt64_2()
+	S = ReadRuneSlice()
+	q = ReadInt()
+	lenS := len(S)
 
-	primes := TrialDivision(int(x))
+	for i := 0; i < ALPHABET_NUM; i++ {
+		bits[i] = NewBIT(lenS)
+	}
 
-	ans := int64(1)
-	for p := range primes {
-		prod := int64(1)
-		for {
-			// if isOverflow(prod, int64(p)) {
-			// 	break
-			// }
-			if IsProductOverflow(prod, int64(p), math.MaxInt64) {
-				break
+	for i := 0; i < len(S); i++ {
+		r := S[i]
+		c := int(r - 'a')
+		bits[c].Add(i+1, 1)
+	}
+
+	for i := 0; i < q; i++ {
+		query := ReadInt()
+		if query == 1 {
+			idx := ReadInt()
+			R := ReadRuneSlice()
+			newc := R[0]
+			newcint := int(newc - 'a')
+			oldc := S[idx-1]
+			oldcint := int(oldc - 'a')
+
+			bits[newcint].Add(idx, 1)
+			bits[oldcint].Add(idx, -1)
+			S[idx-1] = newc
+		} else {
+			l, r := ReadInt2()
+			res := 0
+			for alpha := 0; alpha < ALPHABET_NUM; alpha++ {
+				ss := bits[alpha].Sum(r) - bits[alpha].Sum(l-1)
+				if ss > 0 {
+					res++
+				}
 			}
-
-			prod *= int64(p)
-			if n < prod {
-				break
-			}
-			num := int64(n / prod)
-
-			tmp := modpow(int64(p), num, MOD)
-			ans *= tmp
-			ans %= MOD
+			fmt.Println(res)
 		}
 	}
-
-	fmt.Println(ans % MOD)
 }
 
-func IsProductOverflow(i, j, m int64) bool {
-	return float64(i)*float64(j) > float64(m)
+type BinaryIndexedTree struct {
+	bit []int
+	n   int
 }
 
-func IsAddOverflow(i, j, m int64) bool {
-	return float64(i)+float64(j) > float64(m)
+func NewBIT(n int) *BinaryIndexedTree {
+	newBit := new(BinaryIndexedTree)
+
+	newBit.bit = make([]int, n+1)
+	newBit.n = n
+
+	return newBit
 }
 
-func isOverflow(i, j int64) bool {
-	return !(i < math.MaxInt64/j)
+// Sum of [1, i]
+func (b *BinaryIndexedTree) Sum(i int) int {
+	s := 0
+
+	for i > 0 {
+		s += b.bit[i]
+		i -= i & (-i)
+	}
+
+	return s
 }
 
-func modpow(a, e, m int64) int64 {
-	if e == 0 {
-		return 1
+// Add x to i(1-based)
+func (b *BinaryIndexedTree) Add(i, x int) {
+	for i <= b.n {
+		b.bit[i] += x
+		i += i & (-i)
 	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := modpow(a, halfE, m)
-		return half * half % m
-	}
-
-	return a * modpow(a, e-1, m) % m
-}
-
-// TrialDivision returns the result of prime factorization of integer N.
-func TrialDivision(n int) map[int]int {
-	if n <= 1 {
-		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
-	}
-
-	p := map[int]int{}
-	for i := 2; i*i <= n; i++ {
-		exp := 0
-		for n%i == 0 {
-			exp++
-			n /= i
-		}
-
-		if exp == 0 {
-			continue
-		}
-		p[i] = exp
-	}
-	if n > 1 {
-		p[n] = 1
-	}
-
-	return p
 }
 
 // MODはとったか？
