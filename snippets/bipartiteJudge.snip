@@ -1,0 +1,38 @@
+snippet     bipartiteJudge
+abbr        func dfs(v, c int) bool
+options     head
+  // v: ノード数
+  // 隣接リストedgesをグローバルに設定する必要がある
+  func BipartiteJudge(v int) bool {
+    colors := make([]int, v)
+
+    for i := 0; i < v; i++ {
+      if colors[i] == 0 {
+        // まだ頂点iが塗られていなければ1で塗る
+        if !dfs(i, 1, colors) {
+          return false
+        }
+      }
+    }
+
+    return true
+  }
+
+  // 頂点を1, -1で塗っていく
+  func dfs(v, c int, colors []int) bool {
+    colors[v] = c
+    for _, nid := range edges[v] {
+      // 隣接している頂点が同じ色ならfalse
+      if colors[nid] == c {
+        return false
+      }
+      // 隣接している頂点がまだ塗られていないなら-cで塗る
+      if colors[nid] == 0 && !dfs(nid, -c, colors) {
+        return false
+      }
+    }
+
+    // すべての頂点を塗れたらtrue
+    return true
+  }
+

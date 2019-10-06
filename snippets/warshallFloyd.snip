@@ -1,12 +1,13 @@
 snippet     warshallFloyd
 abbr        dp[i][j] = Min(dp[i][j], dp[i][k]+dp[k][j])
 options     head
-  func warshallFloyd() {
+  // dpをグローバルに設定する必要がある
+  func warshallFloyd(n int) {
     // dp[u][v] = e[u][v] or INF
     // dp[i][i] = 0
-    for k := 0; k < ${1:#:|V|}; k++ {
-      for i := 0; i < $1; i++ {
-        for j := 0; j < $1; j++ {
+    for k := 0; k < n; k++ {
+      for i := 0; i < n; i++ {
+        for j := 0; j < n; j++ {
           // 1. 頂点kをちょうど一度通る場合
           // 2. 頂点kを全く通らない場合
           // の排反な2ケースを加味したもの
@@ -19,6 +20,7 @@ options     head
 snippet     warshallFloydEx
 abbr        dp[k+1][i][j] = Min(dp[k][i][j], dp[k][i][k]+dp[k][k][j])
 options     head
+  // dpをグローバルに設定する必要がある
   func warshallFloyd() {
     // dp[0][u][v] = e[u][v] or INF
     // dp[0][i][i] = 0
