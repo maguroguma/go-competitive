@@ -395,8 +395,62 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m int
+
+var ans int
+var edges []Edge
+
+type Edge struct {
+	s, t int
+}
+
 func main() {
-	fmt.Println("Hello World.")
+	n, m = ReadInt2()
+	for i := 0; i < m; i++ {
+		s, t := ReadInt2()
+		s--
+		t--
+		edges = append(edges, Edge{s, t})
+	}
+
+	v := []int{}
+	dfs(v)
+	fmt.Println(ans)
+}
+
+func dfs(v []int) {
+	if len(v) == n {
+		A := [6][6]int{}
+		for i := 0; i < 6; i++ {
+			for j := 0; j < 6; j++ {
+				A[i][j] = 1
+			}
+		}
+
+		cnt := 0
+		for _, e := range edges {
+			l, r := v[e.s], v[e.t]
+			if A[l][r] == 1 {
+				A[l][r], A[r][l] = 0, 0
+				cnt++
+			}
+		}
+		ChMax(&ans, cnt)
+	} else {
+		for i := 0; i <= 5; i++ {
+			tmp := CopySlice(v)
+			tmp = append(tmp, i)
+			dfs(tmp)
+		}
+	}
+}
+
+func CopySlice(v []int) []int {
+	res := make([]int, len(v))
+	for i := 0; i < len(v); i++ {
+		res[i] = v[i]
+	}
+	return res
 }
 
 // MODはとったか？

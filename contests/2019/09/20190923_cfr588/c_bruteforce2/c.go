@@ -395,9 +395,104 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	fmt.Println("Hello World.")
+var n, m int
+
+var edges []Edge
+
+type Edge struct {
+	s, t int
 }
+
+func main() {
+	n, m = ReadInt2()
+	for i := 0; i < m; i++ {
+		s, t := ReadInt2()
+		s--
+		t--
+		edges = append(edges, Edge{s, t})
+	}
+
+	ans := 0
+	patterns := DuplicatePatterns([]int{0, 1, 2, 3, 4, 5}, n)
+	for _, p := range patterns {
+		A := [6][6]int{}
+		for i := 0; i < 6; i++ {
+			for j := 0; j < 6; j++ {
+				A[i][j] = 1
+			}
+		}
+
+		cnt := 0
+		for _, e := range edges {
+			l, r := p[e.s], p[e.t]
+			if A[l][r] == 1 {
+				A[l][r], A[r][l] = 0, 0
+				cnt++
+			}
+		}
+		ChMax(&ans, cnt)
+	}
+
+	fmt.Println(ans)
+}
+
+// DuplicatePatterns returns all patterns of n^k of elems([]int).
+func DuplicatePatterns(elems []int, k int) [][]int {
+	return dupliRec([]int{}, elems, k)
+}
+
+// DFS function for DuplicatePatterns.
+func dupliRec(pattern, elems []int, k int) [][]int {
+	if len(pattern) == k {
+		return [][]int{pattern}
+	}
+
+	res := [][]int{}
+	for _, e := range elems {
+		newPattern := make([]int, len(pattern))
+		copy(newPattern, pattern)
+		newPattern = append(newPattern, e)
+
+		res = append(res, dupliRec(newPattern, elems, k)...)
+	}
+
+	return res
+}
+
+// func dfs(v []int) {
+// 	if len(v) == n {
+// 		A := [6][6]int{}
+// 		for i := 0; i < 6; i++ {
+// 			for j := 0; j < 6; j++ {
+// 				A[i][j] = 1
+// 			}
+// 		}
+
+// 		cnt := 0
+// 		for _, e := range edges {
+// 			l, r := v[e.s], v[e.t]
+// 			if A[l][r] == 1 {
+// 				A[l][r], A[r][l] = 0, 0
+// 				cnt++
+// 			}
+// 		}
+// 		ChMax(&ans, cnt)
+// 	} else {
+// 		for i := 0; i <= 5; i++ {
+// 			tmp := CopySlice(v)
+// 			tmp = append(tmp, i)
+// 			dfs(tmp)
+// 		}
+// 	}
+// }
+
+// func CopySlice(v []int) []int {
+// 	res := make([]int, len(v))
+// 	for i := 0; i < len(v); i++ {
+// 		res[i] = v[i]
+// 	}
+// 	return res
+// }
 
 // MODはとったか？
 // 遷移だけじゃなくて最後の最後でちゃんと取れよ？

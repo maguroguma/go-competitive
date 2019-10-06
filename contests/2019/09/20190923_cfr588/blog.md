@@ -14,6 +14,7 @@ CodeforcesはAtCoderほど日本語の記事が見当たらなかったので、
 - [C. Anadi and Domino](#c-anadi-and-domino)
 	- [問題](#%e5%95%8f%e9%a1%8c-2)
 	- [解答](#%e8%a7%a3%e7%ad%94-2)
+		- [全探索による別解（2019-10-06追記）](#%e5%85%a8%e6%8e%a2%e7%b4%a2%e3%81%ab%e3%82%88%e3%82%8b%e5%88%a5%e8%a7%a32019-10-06%e8%bf%bd%e8%a8%98)
 - [D. Marcin and Training Camp](#d-marcin-and-training-camp)
 	- [問題](#%e5%95%8f%e9%a1%8c-3)
 	- [解答](#%e8%a7%a3%e7%ad%94-3)
@@ -279,6 +280,86 @@ func initialize() {
 
 ごちゃごちゃ考えずに、`n` の値によらずに全探索する方法もあるらしい。
 そちらのほうが確実そうな一方で、実装方法がよくわかっていない（のでどなたか教えて下さい）。
+
+<a id="markdown-全探索による別解2019-10-06追記" name="全探索による別解2019-10-06追記"></a>
+#### 全探索による別解（2019-10-06追記）
+
+この記事を読んでくださった[くる](https://ningenme.hatenablog.com/)さんから、
+全探索のコードを提供していただいたので、Goで書き直してみました（くるさんありがとうございます。。！呟いてみるもんですね）。
+
+頂点数が7のときが〜とかかぶらせる数字は2個まで〜とか、そんな面倒な採番を考えなくても、
+1〜6まで重複順列で全パターン洗い出してしまえばいいじゃないか、という解法です。
+
+`6^7*21 = 5878656` なので問題なく間に合いますね。
+
+重複順列はスニペットにしているので、せっかくなので久しぶりにそれを使って書いてみました。
+シンプルでバグらせようがなくてベストな解法だと思いました。
+
+```go
+var n, m int
+
+var edges []Edge
+
+type Edge struct {
+	s, t int
+}
+
+func main() {
+	n, m = ReadInt2()
+	for i := 0; i < m; i++ {
+		s, t := ReadInt2()
+		s--
+		t--
+		edges = append(edges, Edge{s, t})
+	}
+
+	ans := 0
+	patterns := DuplicatePatterns([]int{0, 1, 2, 3, 4, 5}, n)
+	for _, p := range patterns {
+		A := [6][6]int{}
+		for i := 0; i < 6; i++ {
+			for j := 0; j < 6; j++ {
+				A[i][j] = 1
+			}
+		}
+
+		cnt := 0
+		for _, e := range edges {
+			l, r := p[e.s], p[e.t]
+			if A[l][r] == 1 {
+				A[l][r], A[r][l] = 0, 0
+				cnt++
+			}
+		}
+		ChMax(&ans, cnt)
+	}
+
+	fmt.Println(ans)
+}
+
+// DuplicatePatterns returns all patterns of n^k of elems([]int).
+func DuplicatePatterns(elems []int, k int) [][]int {
+	return dupliRec([]int{}, elems, k)
+}
+
+// DFS function for DuplicatePatterns.
+func dupliRec(pattern, elems []int, k int) [][]int {
+	if len(pattern) == k {
+		return [][]int{pattern}
+	}
+
+	res := [][]int{}
+	for _, e := range elems {
+		newPattern := make([]int, len(pattern))
+		copy(newPattern, pattern)
+		newPattern = append(newPattern, e)
+
+		res = append(res, dupliRec(newPattern, elems, k)...)
+	}
+
+	return res
+}
+```
 
 <a id="markdown-d-marcin-and-training-camp" name="d-marcin-and-training-camp"></a>
 ## D. Marcin and Training Camp
