@@ -25,7 +25,8 @@ func init() {
 
 func newReadString(ior io.Reader) func() string {
 	r := bufio.NewScanner(ior)
-	r.Buffer(make([]byte, 1024), int(1e+11))
+	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
+	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
 	// Split sets the split function for the Scanner. The default split function is ScanLines.
 	// Split panics if it is called after scanning has started.
 	r.Split(bufio.ScanWords)
@@ -52,6 +53,20 @@ func ReadInt4() (int, int, int, int) {
 	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
 }
 
+// ReadInt64 returns as integer as int64.
+func ReadInt64() int64 {
+	return readInt64()
+}
+func ReadInt64_2() (int64, int64) {
+	return readInt64(), readInt64()
+}
+func ReadInt64_3() (int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64()
+}
+func ReadInt64_4() (int64, int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64(), readInt64()
+}
+
 func readInt64() int64 {
 	i, err := strconv.ParseInt(ReadString(), 0, 64)
 	if err != nil {
@@ -65,6 +80,15 @@ func ReadIntSlice(n int) []int {
 	b := make([]int, n)
 	for i := 0; i < n; i++ {
 		b[i] = ReadInt()
+	}
+	return b
+}
+
+// ReadInt64Slice returns as int64 slice that has n integers.
+func ReadInt64Slice(n int) []int64 {
+	b := make([]int64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt64()
 	}
 	return b
 }
@@ -321,8 +345,8 @@ func Lcm(a, b int) int {
 	return (a / gcd) * b
 }
 
-// Strtoi is a wrapper of `strconv.Atoi()`.
-// If `strconv.Atoi()` returns an error, Strtoi calls panic.
+// Strtoi is a wrapper of strconv.Atoi().
+// If strconv.Atoi() returns an error, Strtoi calls panic.
 func Strtoi(s string) int {
 	if i, err := strconv.Atoi(s); err != nil {
 		panic(errors.New("[argument error]: Strtoi only accepts integer string"))
@@ -337,6 +361,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -346,6 +371,10 @@ func PrintIntsLine(A ...int) string {
 
 	return string(res)
 }
+
+/********** FAU standard libraries **********/
+
+//fmt.Sprintf("%b\n", 255) 	// binary expression
 
 /********** I/O usage **********/
 
@@ -368,65 +397,33 @@ const INF_BIT60 = 1 << 60
 
 var n int
 var S []rune
-var gi, gj int
+
+var dp [5005][5005]int
 
 func main() {
 	n = ReadInt()
 	S = ReadRuneSlice()
 
-	// m は中央を意味する何らかの値
-	isOK := func(m int) bool {
-		if C(m) {
-			return true
-		}
-		return false
-	}
-
-	gi, gj = 0, 0
-	ng, ok := n/2+1, 0
-	for int(math.Abs(float64(ok-ng))) > 1 {
-		mid := (ok + ng) / 2
-		if isOK(mid) {
-			ok = mid
-		} else {
-			ng = mid
-		}
-	}
-
-	fmt.Println(ok)
-}
-
-// 長さmの条件を満たす文字列が存在するかどうか
-func C(m int) bool {
-	// for i := 0; i+m <= n; i++ {
-	for i := gi; i+m <= n; i++ {
-		leftRunes := S[i : i+m]
-		for j := i + m; j+m <= n; j++ {
-			rightRunes := S[j : j+m]
-			// if string(leftRunes) == string(rightRunes) {
-			// 	return true
-			// }
-
-			// flag := true
-			// for i := 0; i < len(leftRunes); i++ {
-			// 	if leftRunes[i] != rightRunes[i] {
-			// 		flag = false
-			// 		break
-			// 	}
-			// }
-			// if flag {
-			// 	gi, gj = i, j
-			// 	return true
-			// }
-
-			tmpMap := make(map[string]int)
-			tmpMap[string(leftRunes)] = 1
-			if _, ok := tmpMap[string(rightRunes)]; ok {
-				return true
+	for i := n - 1; i >= 0; i-- {
+		for j := n - 1; j >= 0; j-- {
+			if S[i] == S[j] {
+				dp[i][j] = dp[i+1][j+1] + 1
 			}
 		}
 	}
-	return false
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			if i >= j {
+				continue
+			}
+
+			now := Min(dp[i][j], j-i) // ここが重なってはダメという条件をクリアする部分！
+			ChMax(&ans, now)
+		}
+	}
+	fmt.Println(ans)
 }
 
 // MODはとったか？

@@ -1,25 +1,81 @@
 snippet     dijkstra
 abbr        for pq.Len() > 0 {
 options     head
-  // 全頂点について、始点からの距離は無限大としておく
-  for (すべての頂点) {
-    dp[i] = INF
-  }
-  // 始点は当然0
-  dp[0] = 0
+  // 蟻本/AOJ
+  // 隣接リストで辺を管理
+  // node idは0-based
 
-  // queueの初期化
-  heap.Push(pq, &Node{priority: dp[0], id: 0})
-  for pq.Len() > 0 {
-    // この時点でノードの最短距離が確定（フラグ立てができる）
-    node := heap.Pop(pq).(*Node)
+  const MAX_NODE_NUM = 200000 // 最大ノード数
+  const INF_30 = 1 << 30 // dpテーブル初期化用
 
-    // 選択中のノードのエッジをすべて見る
-    for _, next := range edges[node.id] {
-      // 選択中のノードを経由した場合のコストが暫定よりも小さかった場合、更新してqueueに突っ込む
-      if dp[next.tid] > node.priority + next.cost {
-        dp[next.tid] = node.priority + next.cost
-        heap.Push(pq, &Node{priority: dp[next.tid], id: next.tid})
+  var v, e int                   // v: 頂点数, e: 辺数
+  var G [MAX_NODE_NUM + 5][]Edge // G: 隣接リストによるグラフ
+  var dp [MAX_NODE_NUM + 5]int   // dp: 単一始点からの距離
+
+  // sidを始点としてダイクストラ法を実行
+  // O(|E| * log|V|)
+  func Dijkstra(sid int) {
+    // 昇順で取り出せるpriority queue
+    temp := make(NodePQ, 0, 200000+5)
+    pq := &temp
+    heap.Init(pq)
+
+    // 初期化
+    for i := 0; i < v; i++ {
+      dp[i] = INF_30
+    }
+    dp[sid] = 0
+    heap.Push(pq, &Node{pri: dp[sid], dist: dp[sid], id: sid})
+
+    for pq.Len() > 0 {
+      node := heap.Pop(pq).(*Node)
+      v := node.id
+
+      // 最短距離でなければ無視する
+      if dp[v] < node.dist {
+        continue
+      }
+
+      for _, e := range G[v] {
+        if dp[e.to] > dp[v]+e.cost {
+          dp[e.to] = dp[v] + e.cost
+          heap.Push(pq, &Node{pri: dp[e.to], dist: dp[e.to], id: e.to})
+        }
       }
     }
   }
+
+  type Edge struct {
+    to   int
+    cost int
+  }
+
+  type Node struct {
+    pri      int
+    dist, id int
+  }
+  type NodePQ []*Node
+
+  func (pq NodePQ) Len() int           { return len(pq) }
+  func (pq NodePQ) Less(i, j int) bool { return pq[i].pri < pq[j].pri } // <: ASC, >: DESC
+  func (pq NodePQ) Swap(i, j int) {
+    pq[i], pq[j] = pq[j], pq[i]
+  }
+  func (pq *NodePQ) Push(x interface{}) {
+    item := x.(*Node)
+    *pq = append(*pq, item)
+  }
+  func (pq *NodePQ) Pop() interface{} {
+    old := *pq
+    n := len(old)
+    item := old[n-1]
+    *pq = old[0 : n-1]
+    return item
+  }
+
+  // how to use
+  // temp := make(NodePQ, 0, 100000+1)
+  // pq := &temp
+  // heap.Init(pq)
+  // heap.Push(pq, &Node{pri: intValue})
+  // popped := heap.Pop(pq).(*Node)

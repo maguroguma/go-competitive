@@ -1,6 +1,17 @@
 snippet     warshallFloyd
 abbr        dp[i][j] = Min(dp[i][j], dp[i][k]+dp[k][j])
 options     head
+  // AOJ
+  // node idは0-based
+  // dp[i][i]が負ならばノードiは負の閉路に含まれる
+  // dpテーブルの更新に条件がないことに注意（負のコストがある場合初期値の同値判定は不可）
+
+  const MNN = 300
+  const INF_30 = 1 << 30
+
+  var v, e int
+  var dp [MNN + 5][MNN + 5]int
+
   // dpをグローバルに設定する必要がある
   func warshallFloyd(n int) {
     // dp[u][v] = e[u][v] or INF

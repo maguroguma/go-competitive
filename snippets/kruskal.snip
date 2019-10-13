@@ -13,6 +13,7 @@ options     head
   var es []Edge // 辺
   var v, e int  // vは頂点数, eは辺数
 
+  // O(|E| * log|V|)
   func kruskal() int {
     L := EdgeList{}
     sort.Stable(byKey{L})
