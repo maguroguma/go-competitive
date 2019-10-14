@@ -231,6 +231,36 @@ func Min(integers ...int) int {
 	return m
 }
 
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
+func DigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -240,6 +270,12 @@ func Sum(integers ...int) int {
 	}
 
 	return s
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -360,7 +396,42 @@ const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
 func main() {
-	fmt.Println("Hello World.")
+	n := ReadInt()
+
+	taro, hanako := 0, 0
+	for i := 0; i < n; i++ {
+		S, T := ReadRuneSlice(), ReadRuneSlice()
+
+		res := sub(S, T)
+		if res == 1 {
+			taro += 3
+		} else if res == -1 {
+			hanako += 3
+		} else {
+			taro++
+			hanako++
+		}
+	}
+	fmt.Println(taro, hanako)
+}
+
+func sub(S, T []rune) int {
+	m := Min(len(S), len(T))
+	for i := 0; i < m; i++ {
+		if S[i] > T[i] {
+			return 1
+		} else if S[i] < T[i] {
+			return -1
+		}
+	}
+
+	if len(S) == len(T) {
+		return 0
+	} else if len(S) > len(T) {
+		return 1
+	} else {
+		return -1
+	}
 }
 
 // MODはとったか？

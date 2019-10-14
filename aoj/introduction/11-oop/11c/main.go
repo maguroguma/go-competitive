@@ -231,6 +231,36 @@ func Min(integers ...int) int {
 	return m
 }
 
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
+func DigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -240,6 +270,12 @@ func Sum(integers ...int) int {
 	}
 
 	return s
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -359,8 +395,81 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+type Dice struct {
+	faces []int
+}
+
+func NewDice(A []int) *Dice {
+	dice := new(Dice)
+	dice.faces = []int{}
+
+	for i := 0; i < len(A); i++ {
+		dice.faces = append(dice.faces, A[i])
+	}
+
+	return dice
+}
+
+func (d *Dice) Throw(r rune) {
+	switch r {
+	case 'E':
+		d.faces[0], d.faces[2], d.faces[5], d.faces[3] =
+			d.faces[3], d.faces[0], d.faces[2], d.faces[5]
+	case 'W':
+		d.faces[0], d.faces[2], d.faces[5], d.faces[3] =
+			d.faces[2], d.faces[5], d.faces[3], d.faces[0]
+	case 'N':
+		d.faces[0], d.faces[1], d.faces[5], d.faces[4] =
+			d.faces[1], d.faces[5], d.faces[4], d.faces[0]
+	case 'S':
+		d.faces[0], d.faces[1], d.faces[5], d.faces[4] =
+			d.faces[4], d.faces[0], d.faces[1], d.faces[5]
+	}
+}
+
 func main() {
-	fmt.Println("Hello World.")
+	A := ReadIntSlice(6)
+	B := ReadIntSlice(6)
+	diceA := NewDice(A)
+	diceB := NewDice(B)
+
+	top, front, right := diceA.faces[0], diceA.faces[1], diceA.faces[2]
+
+	flag1 := false
+loop:
+	for j := 0; j < 4; j++ {
+		for k := 0; k < 4; k++ {
+			if diceB.faces[1] == front {
+				flag1 = true
+				break loop
+			}
+			diceB.Throw('N')
+		}
+		diceB.Throw('W')
+	}
+	if !flag1 {
+		fmt.Println("No")
+		return
+	}
+
+	flag2 := false
+	for j := 0; j < 4; j++ {
+		if diceB.faces[0] == top {
+			flag2 = true
+			break
+		}
+		diceB.Throw('W')
+	}
+	if !flag2 {
+		fmt.Println("No")
+		return
+	}
+
+	if right == diceB.faces[2] {
+		fmt.Println("Yes")
+	} else {
+		fmt.Println("No")
+	}
 }
 
 // MODはとったか？

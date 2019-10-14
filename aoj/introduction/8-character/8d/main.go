@@ -231,6 +231,36 @@ func Min(integers ...int) int {
 	return m
 }
 
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
+func DigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -240,6 +270,12 @@ func Sum(integers ...int) int {
 	}
 
 	return s
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -359,8 +395,39 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var S []rune
+var P []rune
+
 func main() {
-	fmt.Println("Hello World.")
+	S = ReadRuneSlice()
+	P = ReadRuneSlice()
+	n, m := len(S), len(P)
+
+	for i := 0; i < n; i++ {
+		var SS []rune
+		if i+m > n {
+			SS = append(SS, S[i:]...)
+			l := m - len(S[i:])
+			SS = append(SS, S[0:l]...)
+		} else {
+			SS = S[i : i+m]
+		}
+
+		if sub(SS, P) {
+			fmt.Println("Yes")
+			return
+		}
+	}
+	fmt.Println("No")
+}
+
+func sub(s, t []rune) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] != t[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // MODはとったか？

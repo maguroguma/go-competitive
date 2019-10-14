@@ -231,6 +231,36 @@ func Min(integers ...int) int {
 	return m
 }
 
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
+func DigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -240,6 +270,12 @@ func Sum(integers ...int) int {
 	}
 
 	return s
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -359,8 +395,72 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var A, B [][]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, m, l := ReadInt3()
+
+	for i := 0; i < n; i++ {
+		row := ReadIntSlice(m)
+		A = append(A, row)
+	}
+	for i := 0; i < m; i++ {
+		row := ReadIntSlice(l)
+		B = append(B, row)
+	}
+	C := mul(A, B, INF_INT64)
+	for i := 0; i < n; i++ {
+		fmt.Println(PrintIntsLine(C[i]...))
+	}
+}
+
+// n*nのint型正方行列を生成する
+func newMat(n int) [][]int {
+	A := make([][]int, n)
+	for i := 0; i < n; i++ {
+		A[i] = make([]int, n)
+	}
+
+	return A
+}
+
+// 行列A, Bに関するA*Bの計算
+func mul(A, B [][]int, mod int) [][]int {
+	C := make([][]int, len(A))
+	for i := 0; i < len(A); i++ {
+		C[i] = make([]int, len(B[0]))
+	}
+
+	for i := 0; i < len(A); i++ {
+		for k := 0; k < len(B); k++ {
+			for j := 0; j < len(B[0]); j++ {
+				C[i][j] = (C[i][j] + A[i][k]*B[k][j]) % mod
+			}
+		}
+	}
+
+	return C
+}
+
+// 行列Aに関するA^nの計算
+func powMat(A [][]int, n, mod int) [][]int {
+	B := make([][]int, len(A))
+	for i := 0; i < len(A); i++ {
+		B[i] = make([]int, len(A))
+	}
+
+	for i := 0; i < len(A); i++ {
+		B[i][i] = 1
+	}
+	for n > 0 {
+		if n&1 == 1 {
+			B = mul(B, A, mod)
+		}
+		A = mul(A, A, mod)
+		n = (n >> 1)
+	}
+
+	return B
 }
 
 // MODはとったか？

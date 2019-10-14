@@ -231,6 +231,36 @@ func Min(integers ...int) int {
 	return m
 }
 
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
+func DigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -240,6 +270,12 @@ func Sum(integers ...int) int {
 	}
 
 	return s
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -360,7 +396,35 @@ const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
 func main() {
-	fmt.Println("Hello World.")
+	for {
+		h, w := ReadInt2()
+
+		if h == 0 && w == 0 {
+			return
+		}
+
+		for i := 0; i < h; i++ {
+			row := []rune{}
+
+			for j := 0; j < w; j++ {
+				if i%2 == 0 {
+					if j%2 == 0 {
+						row = append(row, '#')
+					} else {
+						row = append(row, '.')
+					}
+				} else {
+					if j%2 == 0 {
+						row = append(row, '.')
+					} else {
+						row = append(row, '#')
+					}
+				}
+			}
+			fmt.Println(string(row))
+		}
+		fmt.Println("")
+	}
 }
 
 // MODはとったか？

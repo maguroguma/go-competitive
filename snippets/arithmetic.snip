@@ -1,0 +1,36 @@
+snippet     digitSum
+abbr        func DigitSum(n int) int
+options     head
+  // DigitSum returns digit sum of a decimal number.
+  // DigitSum only accept a positive integer.
+  func DigitSum(n int) int {
+    if n < 0 {
+      return -1
+    }
+
+    res := 0
+
+    for n > 0 {
+      res += n % 10
+      n /= 10
+    }
+
+    return res
+  }
+
+snippet     digitNum
+abbr        func DigitNumOfDecimal(n int) int
+options     head
+  // DigitNumOfDecimal returns digits number of n.
+  // n is non negative number.
+  func DigitNumOfDecimal(n int) int {
+    res := 0
+
+    for n > 0 {
+      n /= 10
+      res++
+    }
+
+    return res
+  }
+

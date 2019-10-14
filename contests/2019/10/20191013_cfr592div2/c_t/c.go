@@ -231,6 +231,36 @@ func Min(integers ...int) int {
 	return m
 }
 
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
+func DigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -240,6 +270,12 @@ func Sum(integers ...int) int {
 	}
 
 	return s
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -359,8 +395,33 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, p, w, d int64
+
 func main() {
-	fmt.Println("Hello World.")
+	n, p, w, d = ReadInt64_4()
+
+	// for y := int64(0); y < w; y++ {
+	// 	if (p-d*y)%w == 0 {
+	// 		x := (p - d*y) / w
+	// 		z := n - x - y
+
+	// 		if x >= 0 && y >= 0 && z >= 0 {
+	// 			fmt.Println(x, y, z)
+	// 			return
+	// 		}
+	// 	}
+	// }
+	for x := int64(0); x < d; x++ {
+		if (p-w*x)%d == 0 {
+			y := (p - w*x) / d
+			z := n - x - y
+			if x >= 0 && y >= 0 && z >= 0 {
+				fmt.Println(x, y, z)
+				return
+			}
+		}
+	}
+	fmt.Println(-1)
 }
 
 // MODはとったか？

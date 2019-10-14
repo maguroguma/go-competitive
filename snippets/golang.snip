@@ -30,3 +30,40 @@ snippet     splitString
 abbr        strings.Split("aaa,bbb,ccc", ",")
 options     head
   ${1:strSlice} := strings.Split("aaa,bbb,ccc", ",")
+
+snippet     reverseAnySlice
+abbr        Reverse(A []Xxx) []Xxx
+options     head
+  func Reverse(A []${1:#:type}) []$1 {
+    res := []$1{}
+
+    n := len(A)
+    for i := n - 1; i >= 0; i-- {
+      res = append(res, A[i])
+    }
+
+    return res
+  }
+
+snippet     readFullLineAsString
+abbr        var sc = bufio.NewScanner(os.Stdin)
+options     head
+  var sc = bufio.NewScanner(os.Stdin)
+  if sc.Scan() {
+    // 空行が読み込まれたら終了
+    str = sc.Text()
+  }
+
+snippet     toggleLowerAndUpper
+abbr        c - ('a' - 'A')
+options     head
+  if 'a' <= c && c <= 'z' {
+    // toUpper
+    // c-('a'-'A')
+  } else if 'A' <= c && c <= 'Z' {
+    // toLower
+    // c+('a'-'A')
+  } else {
+    // stay
+    // c
+  }

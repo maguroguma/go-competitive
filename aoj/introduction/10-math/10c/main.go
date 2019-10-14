@@ -231,6 +231,36 @@ func Min(integers ...int) int {
 	return m
 }
 
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
+func DigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -240,6 +270,12 @@ func Sum(integers ...int) int {
 	}
 
 	return s
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -359,8 +395,32 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var S []int
+
 func main() {
-	fmt.Println("Hello World.")
+	for {
+		n = ReadInt()
+
+		if n == 0 {
+			return
+		}
+
+		S = ReadIntSlice(n)
+
+		avg := 0.0
+		for _, s := range S {
+			avg += float64(s)
+		}
+		avg /= float64(n)
+
+		sdv := 0.0
+		for _, s := range S {
+			ss := float64(s)
+			sdv += math.Pow(ss-avg, 2.0)
+		}
+		fmt.Printf("%f\n", math.Sqrt(sdv/float64(n)))
+	}
 }
 
 // MODはとったか？

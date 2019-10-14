@@ -231,6 +231,36 @@ func Min(integers ...int) int {
 	return m
 }
 
+// DigitSum returns digit sum of a decimal number.
+// DigitSum only accept a positive integer.
+func DigitSum(n int) int {
+	if n < 0 {
+		return -1
+	}
+
+	res := 0
+
+	for n > 0 {
+		res += n % 10
+		n /= 10
+	}
+
+	return res
+}
+
+// DigitNumOfDecimal returns digits number of n.
+// n is non negative number.
+func DigitNumOfDecimal(n int) int {
+	res := 0
+
+	for n > 0 {
+		n /= 10
+		res++
+	}
+
+	return res
+}
+
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -240,6 +270,12 @@ func Sum(integers ...int) int {
 	}
 
 	return s
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 // PowInt is integer version of math.Pow
@@ -359,8 +395,47 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+type Dice struct {
+	faces []int
+}
+
+func NewDice(A []int) *Dice {
+	dice := new(Dice)
+	dice.faces = []int{}
+
+	for i := 0; i < len(A); i++ {
+		dice.faces = append(dice.faces, A[i])
+	}
+
+	return dice
+}
+
+func (d *Dice) Throw(r rune) {
+	switch r {
+	case 'E':
+		d.faces[0], d.faces[2], d.faces[5], d.faces[3] =
+			d.faces[3], d.faces[0], d.faces[2], d.faces[5]
+	case 'W':
+		d.faces[0], d.faces[2], d.faces[5], d.faces[3] =
+			d.faces[2], d.faces[5], d.faces[3], d.faces[0]
+	case 'N':
+		d.faces[0], d.faces[1], d.faces[5], d.faces[4] =
+			d.faces[1], d.faces[5], d.faces[4], d.faces[0]
+	case 'S':
+		d.faces[0], d.faces[1], d.faces[5], d.faces[4] =
+			d.faces[4], d.faces[0], d.faces[1], d.faces[5]
+	}
+}
+
 func main() {
-	fmt.Println("Hello World.")
+	A := ReadIntSlice(6)
+
+	dice := NewDice(A)
+	S := ReadRuneSlice()
+	for _, r := range S {
+		dice.Throw(r)
+	}
+	fmt.Println(dice.faces[0])
 }
 
 // MODはとったか？
