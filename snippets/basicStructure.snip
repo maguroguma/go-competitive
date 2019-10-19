@@ -1,0 +1,160 @@
+snippet     stack
+abbr        type Stack struct
+options     head
+  const MAX_STACK_SIZE = 2000000
+
+  type ${1:Stack} struct {
+    dat [MAX_STACK_SIZE]${2:#:typeName}
+    top int
+  }
+
+  func New$1() *$1 {
+    s := new($1)
+    s.top = 0
+    return s
+  }
+
+  func (s *$1) IsEmpty() bool {
+    return s.top == 0
+  }
+
+  func (s *$1) IsFull() bool {
+    return s.top >= MAX_STACK_SIZE-1
+  }
+
+  func (s *$1) Push(x $2) {
+    // check IsFull()
+    s.top++
+    s.dat[s.top] = x
+  }
+
+  func (s *$1) Pop() $2 {
+    // check IsEmpty()
+    s.top--
+    return s.dat[s.top+1]
+  }
+
+snippet     queue
+abbr        type Queue struct
+options     head
+  const MAX_QUEUE_SIZE = 2000000
+
+  type Queue struct {
+    dat        [MAX_QUEUE_SIZE]${1:#:typeName}
+    head, tail int
+  }
+
+  func NewQueue() *Queue {
+    q := new(Queue)
+    q.head, q.tail = 0, 0
+    return q
+  }
+
+  func (q *Queue) IsEmpty() bool {
+    return q.head == q.tail
+  }
+
+  func (q *Queue) IsFull() bool {
+    return q.head == (q.tail+1)%MAX_QUEUE_SIZE
+  }
+
+  func (q *Queue) Enqueue(x $1) {
+    // check IsFull()
+    q.dat[q.tail] = x
+    if q.tail+1 == MAX_QUEUE_SIZE {
+      q.tail = 0
+    } else {
+      q.tail++
+    }
+  }
+
+  func (q *Queue) Dequeue() $1 {
+    // check IsEmpty()
+    x := q.dat[q.head]
+    if q.head+1 == MAX_QUEUE_SIZE {
+      q.head = 0
+    } else {
+      q.head++
+    }
+    return x
+  }
+
+snippet     linkedList
+abbr        type LinkedList struct
+options     head
+  type LinkedList struct {
+    nilNode *Node // 番兵
+  }
+
+  func NewLinkedList() *LinkedList {
+    l := new(LinkedList)
+    nilNode := new(Node)
+    nilNode.next, nilNode.prev = nilNode, nilNode
+    l.nilNode = nilNode
+    return l
+  }
+
+  type Node struct {
+    key        int
+    next, prev *Node
+  }
+
+  func (l *LinkedList) ListSearch(key int) *Node {
+    cur := l.nilNode.next // 番兵の次の要素からたどる
+    for cur != l.nilNode && cur.key != key {
+      cur = cur.next
+    }
+    return cur
+  }
+
+  func (l *LinkedList) PrintList() {
+    S := []rune{}
+    cur := l.nilNode.next
+    isf := 0
+    for {
+      if cur == l.nilNode {
+        break
+      }
+      if isf > 0 {
+        // fmt.Printf(" ")
+        S = append(S, ' ')
+      }
+      isf++
+      // fmt.Printf("%d", cur.key)
+      S = append(S, []rune(strconv.Itoa(cur.key))...)
+      cur = cur.next
+    }
+    // fmt.Printf("\n")
+    fmt.Println(string(S))
+  }
+
+  func (l *LinkedList) deleteNode(t *Node) {
+    if t == l.nilNode {
+      return // tが番兵の場合は処理しない
+    }
+    t.prev.next = t.next
+    t.next.prev = t.prev
+  }
+
+  func (l *LinkedList) DeleteFirst() {
+    l.deleteNode(l.nilNode.next)
+  }
+
+  func (l *LinkedList) DeleteLast() {
+    l.deleteNode(l.nilNode.prev)
+  }
+
+  func (l *LinkedList) DeleteKey(key int) {
+    // 検索したノードを削除
+    l.deleteNode(l.ListSearch(key))
+  }
+
+  func (l *LinkedList) Insert(key int) {
+    x := new(Node)
+    x.key = key
+    // 番兵の直後に要素を追加
+    x.next = l.nilNode.next
+    l.nilNode.next.prev = x
+    l.nilNode.next = x
+    x.prev = l.nilNode
+  }
