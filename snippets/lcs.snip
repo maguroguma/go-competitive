@@ -1,10 +1,11 @@
 snippet     lcs
 abbr        func LCS(S, T []rune) []rune
 options     head
+  const MAX_LENGTH = 5000
   // LCS returns one of the Longest Common Subsequence of S and T.
-  // LCS only accepts len(S) and len(T) <= 5000.
+  // LCS only accepts len(S) and len(T) <= MAX_LENGTH.
   func LCS(S, T []rune) []rune {
-    dp := [5001][5001]int{}
+    dp := [MAX_LENGTH+1][MAX_LENGTH+1]int{}
 
     for i := 0; i < len(S); i++ {
       for j := 0; j < len(T); j++ {
