@@ -10,143 +10,6 @@ import (
 	"strconv"
 )
 
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
-/*******************************************************************/
-
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
-
-func main() {
-	// fmt.Println(gacha(70))
-	// fmt.Println(gacha(110))
-	// fmt.Println(gacha(120))
-	// fmt.Println(gacha(250))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70, 1))
-	// fmt.Println(gacha3(110, 1))
-	// fmt.Println(gacha3(120, 1))
-	// fmt.Println(gacha3(250, 1))
-	// fmt.Println("---")
-	// fmt.Println(gacha3(70+110+120+250, 4))
-
-	// fmt.Println(int('8' - '0'))
-
-	// A := []int{5, 4, 3, 2, 1, 0, 0, 0}
-	// fmt.Println(A)
-	// sort.Sort(sort.IntSlice(A[2:]))
-	// fmt.Println(A)
-
-	// fmt.Println(math.Sqrt(float64(100000)))
-	// fmt.Println(512 * 512)
-
-	// fmt.Println(int('z'))
-	// fmt.Println("aaa")
-
-	// sum := 0
-	// for i := 1; i <= 13; i++ {
-	// 	sum += (i - 1)
-	// }
-	// fmt.Println(sum)
-
-	// for i := 0; i < 100; i++ {
-	// 	fmt.Println(RandInt())
-	// }
-
-	// fmt.Println(math.Log2(5000))
-
-	// i, j := 1, 1000
-	// i, j = j, i
-	// fmt.Println(i, j)
-
-	// fmt.Println(PowInt(2, 12))
-	// fmt.Println(300000.0 * math.Log2(300000.0))
-
-	for i := 0; i < 45; i++ {
-		p := PowInt64(3, int64(i))
-		// if p > maxi {
-		// 	break
-		// }
-		fmt.Printf("3^%d: %d\n", i, p)
-	}
-}
-
-// PowInt is integer version of math.Pow
-// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
-func PowInt64(a, e int64) int64 {
-	if a < 0 || e < 0 {
-		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
-	}
-
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := PowInt64(a, halfE)
-		return half * half
-	}
-
-	return a * PowInt64(a, e-1)
-}
-
-func RandInt() int {
-	var tx, ty, tz, tw = 123456789, 362436069, 521288629, 88675123
-	tt := (tx ^ (tx << 11))
-	tx = ty
-	ty = tz
-	tz = tw
-	tw = (tw ^ (tw >> 19)) ^ (tt ^ (tt >> 8))
-	return tw
-}
-
-func gacha(num int) float64 {
-	return (1.0 - math.Pow(0.99, float64(num)))
-}
-
-func gacha2(total, num int) float64 {
-	comb := 1
-	for i := total; i >= total-(num-1); i-- {
-		comb *= i
-	}
-	for i := num; i > 0; i-- {
-		comb /= i
-	}
-
-	res := 1.0
-	res *= float64(comb)
-	res *= math.Pow(0.01, float64(num))
-	res *= math.Pow(0.99, float64(total-num))
-
-	return res
-}
-
-func gacha3(total, num int) float64 {
-	res := 0.0
-	for i := 0; i < num; i++ {
-		res += gacha2(total, i)
-	}
-	return 1.0 - res
-}
-
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
-
-/*******************************************************************/
-
 /*********** I/O ***********/
 
 var (
@@ -162,7 +25,8 @@ func init() {
 
 func newReadString(ior io.Reader) func() string {
 	r := bufio.NewScanner(ior)
-	r.Buffer(make([]byte, 1024), int(1e+11))
+	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
+	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
 	// Split sets the split function for the Scanner. The default split function is ScanLines.
 	// Split panics if it is called after scanning has started.
 	r.Split(bufio.ScanWords)
@@ -179,6 +43,29 @@ func newReadString(ior io.Reader) func() string {
 func ReadInt() int {
 	return int(readInt64())
 }
+func ReadInt2() (int, int) {
+	return int(readInt64()), int(readInt64())
+}
+func ReadInt3() (int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64())
+}
+func ReadInt4() (int, int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
+}
+
+// ReadInt64 returns as integer as int64.
+func ReadInt64() int64 {
+	return readInt64()
+}
+func ReadInt64_2() (int64, int64) {
+	return readInt64(), readInt64()
+}
+func ReadInt64_3() (int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64()
+}
+func ReadInt64_4() (int64, int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64(), readInt64()
+}
 
 func readInt64() int64 {
 	i, err := strconv.ParseInt(ReadString(), 0, 64)
@@ -193,6 +80,15 @@ func ReadIntSlice(n int) []int {
 	b := make([]int, n)
 	for i := 0; i < n; i++ {
 		b[i] = ReadInt()
+	}
+	return b
+}
+
+// ReadInt64Slice returns as int64 slice that has n integers.
+func ReadInt64Slice(n int) []int64 {
+	b := make([]int64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt64()
 	}
 	return b
 }
@@ -335,23 +231,6 @@ func Min(integers ...int) int {
 	return m
 }
 
-// DigitSum returns digit sum of a decimal number.
-// DigitSum only accept a positive integer.
-func DigitSum(n int) int {
-	if n < 0 {
-		return -1
-	}
-
-	res := 0
-
-	for n > 0 {
-		res += n % 10
-		n /= 10
-	}
-
-	return res
-}
-
 // Sum returns multiple integers sum.
 func Sum(integers ...int) int {
 	s := 0
@@ -361,21 +240,6 @@ func Sum(integers ...int) int {
 	}
 
 	return s
-}
-
-// CeilInt returns the minimum integer larger than or equal to float(a/b).
-func CeilInt(a, b int) int {
-	res := a / b
-	if a%b > 0 {
-		res++
-	}
-	return res
-}
-
-// FloorInt returns the maximum integer smaller than or equal to float(a/b)
-func FloorInt(a, b int) int {
-	res := a / b
-	return res
 }
 
 // PowInt is integer version of math.Pow
@@ -445,8 +309,8 @@ func Lcm(a, b int) int {
 	return (a / gcd) * b
 }
 
-// Strtoi is a wrapper of `strconv.Atoi()`.
-// If `strconv.Atoi()` returns an error, Strtoi calls panic.
+// Strtoi is a wrapper of strconv.Atoi().
+// If strconv.Atoi() returns an error, Strtoi calls panic.
 func Strtoi(s string) int {
 	if i, err := strconv.Atoi(s); err != nil {
 		panic(errors.New("[argument error]: Strtoi only accepts integer string"))
@@ -461,6 +325,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -470,3 +335,35 @@ func PrintIntsLine(A ...int) string {
 
 	return string(res)
 }
+
+/********** FAU standard libraries **********/
+
+//fmt.Sprintf("%b\n", 255) 	// binary expression
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*******************************************************************/
+
+const MOD = 1000000000 + 7
+const ALPHABET_NUM = 26
+const INF_INT64 = math.MaxInt64
+const INF_BIT60 = 1 << 60
+
+func main() {
+	fmt.Println("Hello World.")
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+
+/*******************************************************************/
