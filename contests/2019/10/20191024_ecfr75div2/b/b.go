@@ -362,52 +362,144 @@ const INF_BIT60 = 1 << 60
 
 var q int
 var n int
-var G []int
-var pows [20]int
+var S [][]rune
 
 func main() {
 	q = ReadInt()
 
-	for i := 0; i < 10; i++ {
-		pows[i] = PowInt(3, i)
-	}
-
-	G = []int{}
-	// すべてのgood numbersを集めておく
-	for i := 0; i < 1<<10; i++ {
-		val := 0
-		for j := 0; j < 10; j++ {
-			if NthBit(i, j) == 1 {
-				val += pows[j]
-			}
-		}
-
-		G = append(G, val)
-	}
-
-	sort.Sort(sort.IntSlice(G))
 	for i := 0; i < q; i++ {
 		n = ReadInt()
-
-		// m は中央を意味する何らかの値
-		isOK := func(m int) bool {
-			if G[m] >= n {
-				return true
-			}
-			return false
+		S = [][]rune{}
+		for j := 0; j < n; j++ {
+			S = append(S, ReadRuneSlice())
 		}
 
-		ng, ok := -1, len(G)
-		for int(math.Abs(float64(ok-ng))) > 1 {
-			mid := (ok + ng) / 2
-			if isOK(mid) {
-				ok = mid
+		one, zero := 0, 0
+		for j := 0; j < n; j++ {
+			for k := 0; k < len(S[j]); k++ {
+				if S[j][k] == '1' {
+					one++
+				} else {
+					zero++
+				}
+			}
+		}
+
+		evens := []int{}
+		odds := []int{}
+		for j := 0; j < n; j++ {
+			if len(S[j])%2 == 0 {
+				evens = append(evens, len(S[j]))
 			} else {
-				ng = mid
+				odds = append(odds, len(S[j]))
 			}
 		}
-		fmt.Println(G[ok])
+		sort.Sort(sort.IntSlice(evens))
+		sort.Sort(sort.IntSlice(odds))
+
+		ans := solve(evens, odds, one, zero)
+		fmt.Println(ans)
 	}
+}
+
+func solve(evens, odds []int, one, zero int) int {
+	ans := 0
+
+	// 偶数から
+	for i := 0; i < len(evens); i++ {
+		enum := evens[i]
+		for enum > 0 {
+			if one < 2 && zero < 2 {
+				break
+			}
+
+			enum -= 2
+			if one > zero {
+				one -= 2
+			} else {
+				zero -= 2
+			}
+		}
+
+		if enum == 0 {
+			ans++
+		}
+	}
+
+	// 次に奇数
+	for i := 0; i < len(odds); i++ {
+		onum := odds[i]
+		if one == 0 && zero == 0 {
+			break
+		}
+		onum--
+		if one%2 == 1 {
+			one--
+		} else {
+			zero--
+		}
+
+		// onumは偶数が確定
+		for onum > 0 {
+			if one < 2 && zero < 2 {
+				break
+			}
+
+			onum -= 2
+			if one > zero {
+				one -= 2
+			} else {
+				zero -= 2
+			}
+		}
+
+		if onum == 0 {
+			ans++
+		}
+	}
+
+	return ans
+}
+
+func sub(L []int, one, zero int) int {
+	ans := 0
+	for j := 0; j < len(L); j++ {
+		l := L[j]
+
+		for l > 0 {
+			if l >= 2 {
+				l -= 2
+				if one > zero {
+					if one-2 < 0 {
+						return ans
+					}
+					one -= 2
+				} else {
+					if zero-2 < 0 {
+						return ans
+					}
+					zero -= 2
+				}
+			} else {
+				l--
+				if one > zero {
+					if one-1 < 0 {
+						return ans
+					}
+					one--
+				} else {
+					if zero-1 < 0 {
+						return ans
+					}
+					zero--
+				}
+			}
+		}
+
+		ans++
+	}
+
+	return ans
 }
 
 // MODはとったか？

@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -361,52 +360,51 @@ const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
 var q int
-var n int
-var G []int
-var pows [20]int
+var pows [40]int64
 
 func main() {
 	q = ReadInt()
 
-	for i := 0; i < 10; i++ {
-		pows[i] = PowInt(3, i)
+	pows[0] = 1
+	for i := 1; i < 40; i++ {
+		pows[i] = pows[i-1] * 3
 	}
 
-	G = []int{}
-	// すべてのgood numbersを集めておく
-	for i := 0; i < 1<<10; i++ {
-		val := 0
-		for j := 0; j < 10; j++ {
-			if NthBit(i, j) == 1 {
-				val += pows[j]
+	for tc := 0; tc < q; tc++ {
+		inn := ReadInt64()
+		n := inn
+
+		ternary := [40]int{}
+		for i := 0; i < 40; i++ {
+			ternary[i] = int(n % 3)
+			n /= 3
+		}
+
+		twoIdx, zeroIdx := -1, -1
+		for i := 0; i < 40; i++ {
+			if ternary[i] == 2 {
+				twoIdx = i
+			}
+		}
+		if twoIdx == -1 {
+			fmt.Println(inn)
+			continue
+		}
+
+		for i := twoIdx + 1; i < 40; i++ {
+			if ternary[i] == 0 {
+				zeroIdx = i
+				ternary[i] = 1
+				break
 			}
 		}
 
-		G = append(G, val)
-	}
-
-	sort.Sort(sort.IntSlice(G))
-	for i := 0; i < q; i++ {
-		n = ReadInt()
-
-		// m は中央を意味する何らかの値
-		isOK := func(m int) bool {
-			if G[m] >= n {
-				return true
-			}
-			return false
+		ans := int64(0)
+		for i := zeroIdx; i < 40; i++ {
+			ans += pows[i] * int64(ternary[i])
 		}
 
-		ng, ok := -1, len(G)
-		for int(math.Abs(float64(ok-ng))) > 1 {
-			mid := (ok + ng) / 2
-			if isOK(mid) {
-				ok = mid
-			} else {
-				ng = mid
-			}
-		}
-		fmt.Println(G[ok])
+		fmt.Println(ans)
 	}
 }
 

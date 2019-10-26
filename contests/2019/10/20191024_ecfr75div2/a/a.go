@@ -360,54 +360,83 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var q int
-var n int
-var G []int
-var pows [20]int
+var t int
+var S []rune
+
+type DirRange []rune
+
+func (a DirRange) Len() int           { return len(a) }
+func (a DirRange) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a DirRange) Less(i, j int) bool { return a[i] < a[j] }
 
 func main() {
-	q = ReadInt()
+	t = ReadInt()
 
-	for i := 0; i < 10; i++ {
-		pows[i] = PowInt(3, i)
-	}
+	for i := 0; i < t; i++ {
+		S = ReadRuneSlice()
+		memo := make(map[rune]int)
 
-	G = []int{}
-	// すべてのgood numbersを集めておく
-	for i := 0; i < 1<<10; i++ {
-		val := 0
-		for j := 0; j < 10; j++ {
-			if NthBit(i, j) == 1 {
-				val += pows[j]
+		SS, L := RunLengthEncoding(S)
+		for i := 0; i < len(L); i++ {
+			if L[i]%2 == 1 {
+				memo[SS[i]] = 1
 			}
 		}
 
-		G = append(G, val)
-	}
-
-	sort.Sort(sort.IntSlice(G))
-	for i := 0; i < q; i++ {
-		n = ReadInt()
-
-		// m は中央を意味する何らかの値
-		isOK := func(m int) bool {
-			if G[m] >= n {
-				return true
-			}
-			return false
+		answers := DirRange{}
+		for key := range memo {
+			answers = append(answers, key)
 		}
 
-		ng, ok := -1, len(G)
-		for int(math.Abs(float64(ok-ng))) > 1 {
-			mid := (ok + ng) / 2
-			if isOK(mid) {
-				ok = mid
-			} else {
-				ng = mid
-			}
-		}
-		fmt.Println(G[ok])
+		sort.Sort(answers)
+		fmt.Println(string(answers))
 	}
+}
+
+// RunLengthEncoding returns encoded slice of an input.
+func RunLengthEncoding(S []rune) ([]rune, []int) {
+	runes := []rune{}
+	lengths := []int{}
+
+	l := 0
+	for i := 0; i < len(S); i++ {
+		// 1文字目の場合保持
+		if i == 0 {
+			l = 1
+			continue
+		}
+
+		if S[i-1] == S[i] {
+			// 直前の文字と一致していればインクリメント
+			l++
+		} else {
+			// 不一致のタイミングで追加し、長さをリセットする
+			runes = append(runes, S[i-1])
+			lengths = append(lengths, l)
+			l = 1
+		}
+	}
+	runes = append(runes, S[len(S)-1])
+	lengths = append(lengths, l)
+
+	return runes, lengths
+}
+
+// RunLengthDecoding decodes RLE results.
+func RunLengthDecoding(S []rune, L []int) []rune {
+	if len(S) != len(L) {
+		panic("S, L are not RunLengthEncoding results")
+	}
+
+	res := []rune{}
+
+	for i := 0; i < len(S); i++ {
+		for j := 0; j < L[i]; j++ {
+			res = append(res, S[i])
+		}
+	}
+
+	return res
 }
 
 // MODはとったか？

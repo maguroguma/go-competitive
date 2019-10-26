@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -360,53 +359,60 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var q int
-var n int
-var G []int
-var pows [20]int
+var t int
+var S []rune
 
 func main() {
-	q = ReadInt()
+	t = ReadInt()
 
-	for i := 0; i < 10; i++ {
-		pows[i] = PowInt(3, i)
-	}
+	for i := 0; i < t; i++ {
+		S = ReadRuneSlice()
+		// for j := 0; j < 150000; j++ {
+		// 	S = append(S, '0')
+		// }
+		// for j := 0; j < 150000; j++ {
+		// 	S = append(S, '9')
+		// }
 
-	G = []int{}
-	// すべてのgood numbersを集めておく
-	for i := 0; i < 1<<10; i++ {
-		val := 0
-		for j := 0; j < 10; j++ {
-			if NthBit(i, j) == 1 {
-				val += pows[j]
-			}
-		}
-
-		G = append(G, val)
-	}
-
-	sort.Sort(sort.IntSlice(G))
-	for i := 0; i < q; i++ {
-		n = ReadInt()
-
-		// m は中央を意味する何らかの値
-		isOK := func(m int) bool {
-			if G[m] >= n {
-				return true
-			}
-			return false
-		}
-
-		ng, ok := -1, len(G)
-		for int(math.Abs(float64(ok-ng))) > 1 {
-			mid := (ok + ng) / 2
-			if isOK(mid) {
-				ok = mid
+		// evens := make([]rune, 0, 300000+5)
+		// odds := make([]rune, 0, 300000+5)
+		evens := []rune{}
+		odds := []rune{}
+		for j := 0; j < len(S); j++ {
+			if (S[j]-'0')%2 == 0 {
+				evens = append(evens, S[j])
 			} else {
-				ng = mid
+				odds = append(odds, S[j])
 			}
 		}
-		fmt.Println(G[ok])
+
+		// answers := make([]rune, 0, 300000+5)
+		answers := []rune{}
+		e, o := 0, 0
+		for e < len(evens) || o < len(odds) {
+			if e == len(evens) {
+				answers = append(answers, odds[o])
+				o++
+			} else if o == len(odds) {
+				answers = append(answers, evens[e])
+				e++
+			} else if evens[e] < odds[o] {
+				answers = append(answers, evens[e])
+				e++
+			} else {
+				answers = append(answers, odds[o])
+				o++
+			}
+		}
+
+		fmt.Println(string(answers))
+		// for j := 0; j < len(answers); j++ {
+		// 	if j == len(answers)-1 {
+		// 		fmt.Printf("%c\n", answers[j])
+		// 	} else {
+		// 		fmt.Printf("%c", answers[j])
+		// 	}
+		// }
 	}
 }
 

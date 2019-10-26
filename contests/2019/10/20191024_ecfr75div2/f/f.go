@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -360,54 +359,8 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var q int
-var n int
-var G []int
-var pows [20]int
-
 func main() {
-	q = ReadInt()
-
-	for i := 0; i < 10; i++ {
-		pows[i] = PowInt(3, i)
-	}
-
-	G = []int{}
-	// すべてのgood numbersを集めておく
-	for i := 0; i < 1<<10; i++ {
-		val := 0
-		for j := 0; j < 10; j++ {
-			if NthBit(i, j) == 1 {
-				val += pows[j]
-			}
-		}
-
-		G = append(G, val)
-	}
-
-	sort.Sort(sort.IntSlice(G))
-	for i := 0; i < q; i++ {
-		n = ReadInt()
-
-		// m は中央を意味する何らかの値
-		isOK := func(m int) bool {
-			if G[m] >= n {
-				return true
-			}
-			return false
-		}
-
-		ng, ok := -1, len(G)
-		for int(math.Abs(float64(ok-ng))) > 1 {
-			mid := (ok + ng) / 2
-			if isOK(mid) {
-				ok = mid
-			} else {
-				ng = mid
-			}
-		}
-		fmt.Println(G[ok])
-	}
+	fmt.Println("Hello World.")
 }
 
 // MODはとったか？
