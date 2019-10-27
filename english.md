@@ -6,4 +6,6 @@
   - 上位桁の不要な0のこと。
 - ternary numeral system
   - 3進数表現。
--
+- summand
+  - 被加数。
+  - 和をなす各項のこと。
