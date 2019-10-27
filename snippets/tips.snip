@@ -1,0 +1,15 @@
+snippet     zigzagSliceSan
+abbr        l, r := 0, n-1
+options     head
+  l, r := 0, n-1
+  for i := 0; i < n; i++ {
+    if i%2 == 0 {
+      // 後から
+      a := A[r]
+      r--
+    } else {
+      // 前から
+      a := A[l]
+      l++
+    }
+  }

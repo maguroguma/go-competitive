@@ -57,6 +57,17 @@ options     head
   // sort.Stable(byKey{ L })                // Stable ASC
   // sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
 
+snippet     sortedAnyPrimitiveSlice
+abbr        type TypeName []any
+options     head
+  type ${1:AnyTypeName} []${2:rune}
+
+  func (a $1) Len() int           { return len(a) }
+  func (a $1) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+  func (a $1) Less(i, j int) bool { return a[i] < a[j] }
+
+  // S := $1{'a', 'b', 'c'}
+
 snippet     sortNeo
 abbr        sss
 options     head
