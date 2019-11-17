@@ -375,7 +375,12 @@ const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
 func main() {
-	fmt.Println("Hello World.")
+	r := ReadInt()
+	memo := make(map[int]int)
+	memo[r] = 1
+	delete(memo, r)
+	delete(memo, 100)
+	fmt.Println(r * r)
 }
 
 /*

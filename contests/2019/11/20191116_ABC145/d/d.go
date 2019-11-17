@@ -325,22 +325,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
-// PrintIntsLine returns integers string delimited by a space.
-func PrintInts64Line(A ...int64) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.FormatInt(A[i], 10) // 64bit int version
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -374,14 +359,109 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var x, y int
+
+// var dp [1000000 + 5]int
+
 func main() {
-	fmt.Println("Hello World.")
+	x, y = ReadInt2()
+
+	c := x + y
+	if c%3 != 0 {
+		fmt.Println(0)
+		return
+	}
+
+	c /= 3
+
+	cf := NewCombFactorial()
+	cf.InitCF()
+	ans := 0
+	for a := 0; a <= c; a++ {
+		if (x-a)%2 == 0 {
+			b := (x - a) / 2
+			if y == 2*a+b {
+				ans += cf.C(a+b, a)
+				ans %= MOD
+			}
+		}
+	}
+
+	fmt.Println(ans)
 }
 
-/*
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-*/
+type CombFactorial struct {
+	// factorial, modFactorial [200001]int
+	factorial, modFactorial [2000000 + 5]int
+}
+
+func NewCombFactorial() *CombFactorial {
+	cf := new(CombFactorial)
+
+	return cf
+}
+func (c *CombFactorial) modInv(a int) int {
+	return c.modpow(a, MOD-2)
+}
+func (c *CombFactorial) modpow(a, e int) int {
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := c.modpow(a, halfE)
+		return half * half % MOD
+	}
+
+	return a * c.modpow(a, e-1) % MOD
+}
+func (c *CombFactorial) InitCF() {
+	for i := 0; i <= 2000000+3; i++ {
+		if i == 0 {
+			c.factorial[i] = 1
+			c.modFactorial[i] = c.modInv(c.factorial[i])
+			continue
+		}
+
+		num := i * c.factorial[i-1]
+		num %= MOD
+		c.factorial[i] = num
+		c.modFactorial[i] = c.modInv(c.factorial[i])
+	}
+}
+func (c *CombFactorial) C(n, r int) int {
+	res := 1
+	res *= c.factorial[n]
+	res %= MOD
+	res *= c.modFactorial[r]
+	res %= MOD
+	res *= c.modFactorial[n-r]
+	res %= MOD
+
+	return res
+}
+func (c *CombFactorial) P(n, r int) int {
+	res := 1
+	res *= c.factorial[n]
+	res %= MOD
+	res *= c.modFactorial[n-r]
+	res %= MOD
+
+	return res
+}
+func (c *CombFactorial) H(n, r int) int {
+	return c.C(n-1+r, r)
+}
+
+// cf = NewCombFactorial()
+// cf.InitCF()
+// res := cf.C(n, r) 	// 組み合わせ
+// res := cf.H(n, r) 	// 重複組合せ
+// res := cf.P(n, r) 	// 順列
+var cf *CombFactorial
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/

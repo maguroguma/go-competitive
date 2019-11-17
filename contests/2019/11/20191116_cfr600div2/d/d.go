@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -325,22 +326,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
-// PrintIntsLine returns integers string delimited by a space.
-func PrintInts64Line(A ...int64) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.FormatInt(A[i], 10) // 64bit int version
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -374,14 +360,148 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	fmt.Println("Hello World.")
+var n, m int
+
+type Component struct {
+	key  int
+	l, r int
+}
+type ComponentList []*Component
+type byKey struct {
+	ComponentList
 }
 
-/*
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-*/
+func (l ComponentList) Len() int {
+	return len(l)
+}
+func (l ComponentList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.ComponentList[i].key < l.ComponentList[j].key
+}
+
+// how to use
+// L := make(ComponentList, 0, 200000+5)
+// L = append(L, &Component{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+func main() {
+	n, m = ReadInt2()
+
+	uf := NewUnionFind(n)
+	for i := 0; i < m; i++ {
+		x, y := ReadInt2()
+		x--
+		y--
+		uf.Unite(x, y)
+	}
+
+	memo := make(map[int]Component)
+	for i := 0; i < n; i++ {
+		// p := uf.parents[i]
+		p := uf.Root(i)
+		if _, ok := memo[p]; ok {
+			c := memo[p]
+			c.r = i
+			memo[p] = c
+		} else {
+			memo[p] = Component{key: i, l: i, r: i}
+		}
+	}
+	// fmt.Println(len(memo))
+
+	L := make(ComponentList, 0)
+	for _, v := range memo {
+		// fmt.Printf("left: %d, right: %d\n", v.l, v.r)
+		newC := &Component{key: v.key, l: v.l, r: v.r}
+		// L = append(L, &v)
+		L = append(L, newC)
+	}
+	sort.Stable(byKey{L})
+	// for i := 0; i < len(L); i++ {
+	// 	fmt.Printf("left: %d, right: %d\n", L[i].l, L[i].r)
+	// }
+
+	ans := 0
+	biggest := L[0].r
+	for i := 1; i < len(L); i++ {
+		if L[i].l <= biggest {
+			ans++
+			ChMax(&biggest, L[i].r)
+		} else {
+			biggest = L[i].r
+		}
+	}
+
+	fmt.Println(ans)
+}
+
+// UnionFind provides disjoint set algorithm.
+// It accepts both 0-based and 1-based setting.
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n+1)
+
+	for i := 0; i <= n; i++ {
+		uf.parents[i] = -1
+	}
+
+	return uf
+}
+
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
+		return x
+	}
+
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
+		return false
+	}
+
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
+	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
+
+	return true
+}
+
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/

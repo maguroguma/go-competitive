@@ -325,22 +325,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
-// PrintIntsLine returns integers string delimited by a space.
-func PrintInts64Line(A ...int64) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.FormatInt(A[i], 10) // 64bit int version
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -374,14 +359,73 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A []int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	A = ReadIntSlice(n)
+
+	if n%2 == 1 {
+		fmt.Println(-1)
+		return
+	}
+
+	// memo := [1000000+5]int{}
+	memo := make(map[int]int)  // オフィス
+	times := make(map[int]int) // ある一日の入場回数
+	answers := []int{}
+	count := 0
+	for i := 0; i < n; i++ {
+		a := A[i]
+
+		if a < 0 {
+			a = -a
+			// 退出
+			if _, ok := memo[a]; ok {
+				delete(memo, a)
+			} else {
+				// 入場前退出のためアウト
+				fmt.Println(-1)
+				return
+			}
+		} else {
+			// 入場
+			if times[a] == 0 {
+				memo[a] = 1
+				times[a] = 1
+			} else {
+				// 一日に2回登場したのでアウト
+				fmt.Println(-1)
+				return
+			}
+		}
+
+		count++
+		// 空室判定
+		if len(memo) == 0 {
+			// 空室なので次の日へリセット
+			answers = append(answers, count)
+			count = 0
+			memo = make(map[int]int)
+			times = make(map[int]int)
+		}
+		// else {
+		// 	// 継続
+		// 	count++
+		// }
+	}
+
+	if len(memo) != 0 {
+		fmt.Println(-1)
+		return
+	}
+
+	fmt.Println(len(answers))
+	fmt.Println(PrintIntsLine(answers...))
 }
 
-/*
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-*/
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/

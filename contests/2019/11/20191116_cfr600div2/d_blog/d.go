@@ -325,22 +325,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
-// PrintIntsLine returns integers string delimited by a space.
-func PrintInts64Line(A ...int64) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.FormatInt(A[i], 10) // 64bit int version
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -374,14 +359,88 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m int
+var G [200000 + 5][]int
+var colors [200000 + 5]int
+var left, right int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, m = ReadInt2()
+
+	for i := 0; i < m; i++ {
+		x, y := ReadInt2()
+		x--
+		y--
+		G[x] = append(G[x], y)
+		G[y] = append(G[y], x)
+	}
+
+	L := make(ComponentList, 0)
+	for i := 0; i < n; i++ {
+		colors[i] = -1
+	}
+	for i := 0; i < n; i++ {
+		if colors[i] == -1 {
+			left, right = i, i
+			dfs(i, i)
+			L = append(L, &Component{key: left, l: left, r: right})
+		}
+	}
+	// sort.Stable(byKey{L})
+
+	ans := 0
+	biggest := L[0].r
+	for i := 1; i < len(L); i++ {
+		if L[i].l <= biggest {
+			ans++
+			ChMax(&biggest, L[i].r)
+		} else {
+			biggest = L[i].r
+		}
+	}
+
+	fmt.Println(ans)
 }
 
-/*
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-*/
+func dfs(i, c int) {
+	colors[i] = c
+
+	for _, nid := range G[i] {
+		if colors[nid] == -1 {
+			ChMin(&left, nid)
+			ChMax(&right, nid)
+			dfs(nid, c)
+		}
+	}
+}
+
+type Component struct {
+	key  int
+	l, r int
+}
+type ComponentList []*Component
+type byKey struct {
+	ComponentList
+}
+
+func (l ComponentList) Len() int {
+	return len(l)
+}
+func (l ComponentList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.ComponentList[i].key < l.ComponentList[j].key
+}
+
+// how to use
+// L := make(ComponentList, 0, 200000+5)
+// L = append(L, &Component{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/

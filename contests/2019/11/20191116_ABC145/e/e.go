@@ -325,22 +325,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
-// PrintIntsLine returns integers string delimited by a space.
-func PrintInts64Line(A ...int64) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.FormatInt(A[i], 10) // 64bit int version
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -374,14 +359,63 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, t int
+var A, B []int
+
+var dp [3000 + 5][3000 + 5]int
+var flags [3000 + 5]bool
+
 func main() {
-	fmt.Println("Hello World.")
+	n, t = ReadInt2()
+	A, B = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		a, b := ReadInt2()
+		A[i], B[i] = a, b
+	}
+
+	for i := 0; i < n; i++ {
+		for j := 0; j <= t; j++ {
+			// dp[i+1][j] = dp[i][j]
+			// dp[i+1][j] = dp[i][j-A[i]] + B[i]
+
+			ChMax(&dp[i+1][j], dp[i][j])
+			if j+A[i] <= t {
+				ChMax(&dp[i+1][j+A[i]], dp[i][j]+B[i])
+			}
+		}
+	}
+
+	ans := dp[n][t]
+
+	time := 0
+	maxi := 0
+	for j := t - 1; j >= 0; j-- {
+		if maxi < dp[n][j] {
+			maxi = dp[n][j]
+			time = j
+		}
+	}
+	for i := n; i >= 1; i-- {
+		if time-A[i-1] < 0 {
+			continue
+		}
+		if dp[i-1][time-A[i-1]]+B[i-1] == dp[i][time] {
+			flags[i-1] = true
+			time -= A[i-1]
+		}
+	}
+
+	tmp := 0
+	for i := 0; i < n; i++ {
+		if !flags[i] {
+			ChMax(&tmp, B[i])
+		}
+	}
+
+	fmt.Println(Max(ans, maxi+tmp))
 }
 
-/*
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-*/
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/

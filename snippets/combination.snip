@@ -18,8 +18,15 @@ options     head
 snippet     combinationFactorial
 abbr        cf.C(n, r)
 options     head
+  // cf = NewCombFactorial()
+  // cf.InitCF()
+  // res := cf.C(n, r) 	// 組み合わせ
+  // res := cf.H(n, r) 	// 重複組合せ
+  // res := cf.P(n, r) 	// 順列
+  var cf *CombFactorial
+  const MAX_NUM = 1000000
   type CombFactorial struct {
-    factorial, modFactorial [200001]int
+    factorial, modFactorial [MAX_NUM+5]int
   }
 
   func NewCombFactorial() *CombFactorial {
@@ -44,7 +51,7 @@ options     head
     return a * c.modpow(a, e-1) % MOD
   }
   func (c *CombFactorial) InitCF() {
-    for i := 0; i <= 200000; i++ {
+    for i := 0; i <= MAX_NUM; i++ {
       if i == 0 {
         c.factorial[i] = 1
         c.modFactorial[i] = c.modInv(c.factorial[i])
@@ -81,9 +88,3 @@ options     head
     return c.C(n-1+r, r)
   }
 
-  // cf = NewCombFactorial()
-  // cf.InitCF()
-  // res := cf.C(n, r) 	// 組み合わせ
-  // res := cf.H(n, r) 	// 重複組合せ
-  // res := cf.P(n, r) 	// 順列
-  var cf *CombFactorial

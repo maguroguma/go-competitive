@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -325,22 +326,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
-// PrintIntsLine returns integers string delimited by a space.
-func PrintInts64Line(A ...int64) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.FormatInt(A[i], 10) // 64bit int version
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -374,14 +360,106 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-func main() {
-	fmt.Println("Hello World.")
+var n, t int
+var A, B []int
+
+var dp [3000 + 5][3000 + 5]int
+var flags [3000 + 5]bool
+
+type Food struct {
+	key  int
+	a, b int
+}
+type FoodList []*Food
+type byKey struct {
+	FoodList
 }
 
-/*
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-*/
+func (l FoodList) Len() int {
+	return len(l)
+}
+func (l FoodList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.FoodList[i].key < l.FoodList[j].key
+}
+
+// how to use
+// L := make(FoodList, 0, 200000+5)
+// L = append(L, &Food{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+func main() {
+	n, t = ReadInt2()
+	A, B = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		a, b := ReadInt2()
+		A[i], B[i] = a, b
+	}
+
+	L := make(FoodList, 0)
+	for i := 0; i < n; i++ {
+		a, b := A[i], B[i]
+		L = append(L, &Food{key: a, a: a, b: b})
+	}
+	sort.Stable(byKey{L})
+
+	A, B = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		A[i], B[i] = L[i].a, L[i].b
+	}
+
+	for i := 0; i < n; i++ {
+		for j := 0; j <= t; j++ {
+			ChMax(&dp[i+1][j], dp[i][j])
+			if j+A[i] <= t {
+				ChMax(&dp[i+1][j+A[i]], dp[i][j]+B[i])
+			}
+		}
+	}
+
+	// ans := dp[n][t]
+
+	// time := 0
+	// maxi := 0
+	// for j := t - 1; j >= 0; j-- {
+	// 	if maxi < dp[n][j] {
+	// 		maxi = dp[n][j]
+	// 		time = j
+	// 	}
+	// }
+	// for i := n; i >= 1; i-- {
+	// 	if time-A[i-1] < 0 {
+	// 		continue
+	// 	}
+	// 	if dp[i-1][time-A[i-1]]+B[i-1] == dp[i][time] {
+	// 		flags[i-1] = true
+	// 		time -= A[i-1]
+	// 	}
+	// }
+
+	// tmp := 0
+	// for i := 0; i < n; i++ {
+	// 	if !flags[i] {
+	// 		ChMax(&tmp, B[i])
+	// 	}
+	// }
+
+	// fmt.Println(Max(ans, maxi+tmp))
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		for j := 0; j < t; j++ {
+			ChMax(&ans, dp[i][j]+B[i])
+		}
+	}
+	fmt.Println(ans)
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/

@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -320,36 +321,21 @@ func Strtoi(s string) int {
 }
 
 // PrintIntsLine returns integers string delimited by a space.
-func PrintIntsLine(A ...int) string {
-	res := []rune{}
+// func PrintIntsLine(A ...int) string {
+// 	res := []rune{}
 
-	for i := 0; i < len(A); i++ {
-		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
+// 	for i := 0; i < len(A); i++ {
+// 		str := strconv.Itoa(A[i])
+// 		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
+// 		res = append(res, []rune(str)...)
 
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
+// 		if i != len(A)-1 {
+// 			res = append(res, ' ')
+// 		}
+// 	}
 
-	return string(res)
-}
-
-// PrintIntsLine returns integers string delimited by a space.
-func PrintInts64Line(A ...int64) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.FormatInt(A[i], 10) // 64bit int version
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
+// 	return string(res)
+// }
 
 /********** FAU standard libraries **********/
 
@@ -374,14 +360,58 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m int
+var A []int
+var answers []int64
+
 func main() {
-	fmt.Println("Hello World.")
+	n, m = ReadInt2()
+	A = ReadIntSlice(n)
+	// answers = []int64{}
+	answers = make([]int64, n)
+
+	sort.Sort(sort.IntSlice(A))
+	// fmt.Println(A)
+
+	memo := make([]int64, n)
+	for i := 0; i < m; i++ {
+		memo[i] = int64(A[i])
+	}
+	for i := m; i < n; i++ {
+		memo[i] = memo[i-m] + int64(A[i])
+	}
+
+	answers[0] = int64(A[0])
+	for i := 1; i < n; i++ {
+		answers[i] = answers[i-1] + memo[i]
+	}
+	// for i := 0; i < n; i++ {
+	// 	if i == n {
+	// 		fmt.Printf("%d\n", answers[i])
+	// 	} else {
+	// 		fmt.Printf("%d ", answers[i])
+	// 	}
+	// }
+	fmt.Println(PrintIntsLine(answers...))
 }
 
-/*
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-*/
+func PrintIntsLine(A ...int64) string {
+	res := []rune{}
+
+	for i := 0; i < len(A); i++ {
+		// str := strconv.Itoa(A[i])
+		str := strconv.FormatInt(A[i], 10) // 64bit int version
+		res = append(res, []rune(str)...)
+
+		if i != len(A)-1 {
+			res = append(res, ' ')
+		}
+	}
+
+	return string(res)
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/

@@ -1,5 +1,5 @@
-snippet     template
-abbr        template
+snippet     templateSnippet
+abbr        package main
 options     head
   package main
 
@@ -328,7 +328,22 @@ options     head
 
     for i := 0; i < len(A); i++ {
       str := strconv.Itoa(A[i])
-      // str := strconv.FormatInt(A[i], 10)  // 64bit int version
+      res = append(res, []rune(str)...)
+
+      if i != len(A)-1 {
+        res = append(res, ' ')
+      }
+    }
+
+    return string(res)
+  }
+
+  // PrintIntsLine returns integers string delimited by a space.
+  func PrintInts64Line(A ...int64) string {
+    res := []rune{}
+
+    for i := 0; i < len(A); i++ {
+      str := strconv.FormatInt(A[i], 10) // 64bit int version
       res = append(res, []rune(str)...)
 
       if i != len(A)-1 {
@@ -366,7 +381,10 @@ options     head
     fmt.Println("Hello World.")
   }
 
-  // MODはとったか？
-  // 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+  /*
+  - MODは最後にとりましたか？
+  - ループを抜けた後も処理が必要じゃありませんか？
+  - 和・積・あまりを求められたらint64が必要ではありませんか？
+  */
 
   /*******************************************************************/

@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -374,8 +375,31 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n, m int
+var A []int
+var answers []int64
+
 func main() {
-	fmt.Println("Hello World.")
+	n, m = ReadInt2()
+	A = ReadIntSlice(n)
+	answers = make([]int64, n)
+
+	sort.Sort(sort.IntSlice(A))
+
+	sums := make([]int64, n+1)
+	for i := 0; i < n; i++ {
+		sums[i+1] = sums[i] + int64(A[i])
+	}
+
+	for i := 0; i < n; i++ {
+		if i < m {
+			answers[i] = sums[i+1]
+			continue
+		}
+
+		answers[i] = answers[i-m] + sums[i+1]
+	}
+	fmt.Println(PrintInts64Line(answers...))
 }
 
 /*

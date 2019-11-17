@@ -325,22 +325,7 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		res = append(res, []rune(str)...)
-
-		if i != len(A)-1 {
-			res = append(res, ' ')
-		}
-	}
-
-	return string(res)
-}
-
-// PrintIntsLine returns integers string delimited by a space.
-func PrintInts64Line(A ...int64) string {
-	res := []rune{}
-
-	for i := 0; i < len(A); i++ {
-		str := strconv.FormatInt(A[i], 10) // 64bit int version
+		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -374,14 +359,68 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var X, Y []int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	X, Y = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		x, y := ReadInt2()
+		X[i], Y[i] = x, y
+	}
+
+	tmp := make([]int, n)
+	for i := 0; i < n; i++ {
+		tmp[i] = i
+	}
+
+	patterns := FactorialPatterns(tmp)
+
+	ans := 0.0
+	for _, p := range patterns {
+		for i := 1; i < len(p); i++ {
+			a, b := p[i-1], p[i]
+			x1, y1 := float64(X[a]), float64(Y[a])
+			x2, y2 := float64(X[b]), float64(Y[b])
+			ans += math.Sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1))
+		}
+	}
+
+	fmt.Println(ans / float64(len(patterns)))
 }
 
-/*
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-*/
+// FactorialPatterns returns all patterns of n! of elems([]int).
+func FactorialPatterns(elems []int) [][]int {
+	newResi := make([]int, len(elems))
+	copy(newResi, elems)
+
+	return factRec([]int{}, newResi)
+}
+
+// DFS function for FactorialPatterns.
+func factRec(pattern, residual []int) [][]int {
+	if len(residual) == 0 {
+		return [][]int{pattern}
+	}
+
+	res := [][]int{}
+	for i, e := range residual {
+		newPattern := make([]int, len(pattern))
+		copy(newPattern, pattern)
+		newPattern = append(newPattern, e)
+
+		newResi := []int{}
+		newResi = append(newResi, residual[:i]...)
+		newResi = append(newResi, residual[i+1:]...)
+
+		res = append(res, factRec(newPattern, newResi)...)
+	}
+
+	return res
+}
+
+// MODはとったか？
+// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
 
 /*******************************************************************/
