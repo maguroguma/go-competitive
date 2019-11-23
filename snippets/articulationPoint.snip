@@ -1,0 +1,66 @@
+snippet     articulationPoint
+abbr        func ArtPoints() []int
+options     head
+  const MAX = 100000
+
+  var G [MAX + 5][]int
+  var n int
+  var visited [MAX + 5]bool
+  var preNum, parent, lowest [MAX + 5]int
+  var timer int
+
+  // 0-basedかつ、隣接リストによるグラフで動作
+  // 関節点を未ソートで列挙
+  func ArtPoints() []int {
+    for i := 0; i < n; i++ {
+      visited[i] = false
+    }
+    timer = 1
+    // lowest の計算
+    dfs(0, -1) // 0: root
+
+    ap := make(map[int]bool)
+    np := 0
+    for i := 1; i < n; i++ {
+      p := parent[i]
+      if p == 0 {
+        np++
+      } else if preNum[p] <= lowest[i] {
+        ap[p] = true
+      }
+    }
+    if np > 1 {
+      ap[0] = true
+    }
+
+    res := []int{}
+    for k := range ap {
+      res = append(res, k)
+    }
+    return res
+  }
+
+  func dfs(current, prev int) {
+    // ノード current を訪問した直後の処理
+    preNum[current], lowest[current] = timer, timer
+    timer++
+
+    visited[current] = true
+
+    for _, next := range G[current] {
+      if !visited[next] {
+        // ノード current からノード next へ訪問する直前の処理
+        parent[next] = current
+
+        dfs(next, current)
+
+        // ノード next の探索が終了した直後の処理
+        ChMin(&lowest[current], lowest[next])
+      } else if next != prev {
+        // エッジ current --> next が BackEdgeの場合の処理
+        ChMin(&lowest[current], preNum[next])
+      }
+    }
+
+    // ノード current の探索が終了した直後の処理
+  }
