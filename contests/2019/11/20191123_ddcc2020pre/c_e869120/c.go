@@ -325,7 +325,22 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
+		res = append(res, []rune(str)...)
+
+		if i != len(A)-1 {
+			res = append(res, ' ')
+		}
+	}
+
+	return string(res)
+}
+
+// PrintIntsLine returns integers string delimited by a space.
+func PrintInts64Line(A ...int64) string {
+	res := []rune{}
+
+	for i := 0; i < len(A); i++ {
+		str := strconv.FormatInt(A[i], 10) // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -359,96 +374,68 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n, m, l int
-var A, B, C []int
-var q int
+var h, w, k int
+var S [][]rune
 
-// var answers [300 + 5][300 + 5]int
-var G [300 + 5][300 + 5]int
+var cnt []int
+var answers [][]int
 
 func main() {
-	n, m, l = ReadInt3()
-	v, e = n, m
-	for i := 0; i < n; i++ {
-		G[i][i] = 0
-		for j := i + 1; j < n; j++ {
-			G[i][j] = INF_BIT60
-			G[j][i] = INF_BIT60
-		}
-	}
-	for i := 0; i < m; i++ {
-		a, b, c := ReadInt3()
-		a--
-		b--
-		G[a][b] = c
-		G[b][a] = c
+	h, w, k = ReadInt3()
+	for i := 0; i < h; i++ {
+		row := ReadRuneSlice()
+		S = append(S, row)
 	}
 
-	dp := initDP(n)
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			dp[i][j] = G[i][j]
-		}
-	}
-	warshallFloyd(n, dp)
-
-	dp2 := initDP(n)
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			if dp[i][j] <= l {
-				dp2[i][j] = 1
-			} else {
-				dp2[i][j] = INF_BIT60
+	cnt = make([]int, h)
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			if S[y][x] == '#' {
+				cnt[y]++
 			}
 		}
 	}
-	warshallFloyd(n, dp2)
 
-	q = ReadInt()
-	for i := 0; i < q; i++ {
-		s, t := ReadInt2()
-		s--
-		t--
-		if dp2[s][t] == INF_BIT60 {
-			fmt.Println(-1)
-		} else {
-			fmt.Println(dp2[s][t] - 1)
+	// いちごが1つ以上乗っている行を抽出
+	vec := []int{}
+	for y := 0; y < h; y++ {
+		if cnt[y] > 0 {
+			vec = append(vec, y)
 		}
+	}
+
+	answers = make([][]int, h)
+	for i := 0; i < h; i++ {
+		answers[i] = make([]int, w)
+	}
+	for i := 0; i < len(vec); i++ {
+		v1, v2 := 0, h-1
+		if i > 0 {
+			v1 = vec[i-1] + 1
+		}
+		if i < len(vec)-1 {
+			v2 = vec[i]
+		}
+
+		solve(v1, v2)
 	}
 }
 
-// AOJ
-// node idは0-based
-// dp[i][i]が負ならばノードiは負の閉路に含まれる
-// dpテーブルの更新に条件がないことに注意（負のコストがある場合初期値の同値判定は不可）
-
-const MNN = 300
-const INF_30 = 1 << 30
-
-var v, e int
-
-// var dp [MNN + 5][MNN + 5]int
-
-// dpをグローバルに設定する必要がある
-func warshallFloyd(n int, dp [][]int) {
-	// dp[u][v] = e[u][v] or INF
-	// dp[i][i] = 0
-	for k := 0; k < n; k++ {
-		for i := 0; i < n; i++ {
-			for j := 0; j < n; j++ {
-				// 1. 頂点kをちょうど一度通る場合
-				// 2. 頂点kを全く通らない場合
-				// の排反な2ケースを加味したもの
-				dp[i][j] = Min(dp[i][j], dp[i][k]+dp[k][j])
+func solve(cl, cr int) {
+	P := []int{}
+	for i := cl; i <= cr; i++ {
+		for j := 0; j < w; j++ {
+			if S[i][j] == '#' {
+				P = append(P, j)
 			}
 		}
 	}
 }
 
-func initDP(n int) [][]int {
-	res := make([][]int, n)
-	for i := 0; i < n; i++ {
-		res[i] = make([]int, n)
-	}
-	return res
-}
+/*
+- MODは最後にとりましたか？
+- ループを抜けた後も処理が必要じゃありませんか？
+- 和・積・あまりを求められたらint64が必要ではありませんか？
+*/
+
+/*******************************************************************/

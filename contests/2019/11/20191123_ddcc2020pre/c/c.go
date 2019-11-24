@@ -325,7 +325,22 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
+		res = append(res, []rune(str)...)
+
+		if i != len(A)-1 {
+			res = append(res, ' ')
+		}
+	}
+
+	return string(res)
+}
+
+// PrintIntsLine returns integers string delimited by a space.
+func PrintInts64Line(A ...int64) string {
+	res := []rune{}
+
+	for i := 0; i < len(A); i++ {
+		str := strconv.FormatInt(A[i], 10) // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -359,96 +374,139 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n, m, l int
-var A, B, C []int
-var q int
-
-// var answers [300 + 5][300 + 5]int
-var G [300 + 5][300 + 5]int
+var h, w, k int
+var S [][]rune
+var answers [][]int
 
 func main() {
-	n, m, l = ReadInt3()
-	v, e = n, m
-	for i := 0; i < n; i++ {
-		G[i][i] = 0
-		for j := i + 1; j < n; j++ {
-			G[i][j] = INF_BIT60
-			G[j][i] = INF_BIT60
-		}
-	}
-	for i := 0; i < m; i++ {
-		a, b, c := ReadInt3()
-		a--
-		b--
-		G[a][b] = c
-		G[b][a] = c
+	h, w, k = ReadInt3()
+	for i := 0; i < h; i++ {
+		row := ReadRuneSlice()
+		S = append(S, row)
 	}
 
-	dp := initDP(n)
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			dp[i][j] = G[i][j]
+	for i := 0; i < h; i++ {
+		row := make([]int, w)
+		answers = append(answers, row)
+	}
+
+	topR, bottomR := -1, -1
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			if S[i][j] == '#' {
+				topR = i
+				break
+			}
+		}
+		if topR != -1 {
+			break
 		}
 	}
-	warshallFloyd(n, dp)
+	for i := h - 1; i >= 0; i-- {
+		for j := 0; j < w; j++ {
+			if S[i][j] == '#' {
+				bottomR = i
+				break
+			}
+		}
+		if bottomR != -1 {
+			break
+		}
+	}
+	// leftR, rightR := -1, -1
+	// for x := 0; x < w; x++ {
+	// 	for y := 0; y < h; y++ {
+	// 		if S[y][x] == '#' {
+	// 			leftR = x
+	// 			break
+	// 		}
+	// 	}
+	// 	if leftR != -1 {
+	// 		break
+	// 	}
+	// }
+	// for x := w - 1; x >= 0; x-- {
+	// 	for y := 0; y < h; y++ {
+	// 		if S[y][x] == '#' {
+	// 			rightR = x
+	// 			break
+	// 		}
+	// 	}
+	// 	if rightR != -1 {
+	// 		break
+	// 	}
+	// }
 
-	dp2 := initDP(n)
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			if dp[i][j] <= l {
-				dp2[i][j] = 1
+	// topRからbottomRまでの行を決める
+	ck := 1
+	for y := topR; y <= bottomR; y++ {
+		for x := 0; x < w; x++ {
+			answers[y][x] = ck
+			if S[y][x] == '#' {
+				ck++
+			}
+		}
+	}
+	// subOut()
+
+	// 右端を修正
+	for y := topR; y <= bottomR; y++ {
+		for x := w - 1; x >= 0; x-- {
+			if S[y][x] == '.' {
+				answers[y][x]--
 			} else {
-				dp2[i][j] = INF_BIT60
+				break
 			}
 		}
 	}
-	warshallFloyd(n, dp2)
+	// subOut()
 
-	q = ReadInt()
-	for i := 0; i < q; i++ {
-		s, t := ReadInt2()
-		s--
-		t--
-		if dp2[s][t] == INF_BIT60 {
-			fmt.Println(-1)
-		} else {
-			fmt.Println(dp2[s][t] - 1)
+	// 上側と下側を修正
+	// h >= 2 を仮定している
+	for y := topR - 1; y >= 0; y-- {
+		for x := 0; x < w; x++ {
+			answers[y][x] = answers[y+1][x]
 		}
 	}
-}
-
-// AOJ
-// node idは0-based
-// dp[i][i]が負ならばノードiは負の閉路に含まれる
-// dpテーブルの更新に条件がないことに注意（負のコストがある場合初期値の同値判定は不可）
-
-const MNN = 300
-const INF_30 = 1 << 30
-
-var v, e int
-
-// var dp [MNN + 5][MNN + 5]int
-
-// dpをグローバルに設定する必要がある
-func warshallFloyd(n int, dp [][]int) {
-	// dp[u][v] = e[u][v] or INF
-	// dp[i][i] = 0
-	for k := 0; k < n; k++ {
-		for i := 0; i < n; i++ {
-			for j := 0; j < n; j++ {
-				// 1. 頂点kをちょうど一度通る場合
-				// 2. 頂点kを全く通らない場合
-				// の排反な2ケースを加味したもの
-				dp[i][j] = Min(dp[i][j], dp[i][k]+dp[k][j])
+	for y := bottomR + 1; y < h; y++ {
+		for x := 0; x < w; x++ {
+			answers[y][x] = answers[y-1][x]
+		}
+	}
+	// 間を修正
+	for y := topR + 1; y <= bottomR-1; y++ {
+		row := S[y]
+		if isAllEqual(row) && y-1 >= topR {
+			for x := 0; x < w; x++ {
+				answers[y][x] = answers[y-1][x]
 			}
 		}
 	}
+
+	subOut()
 }
 
-func initDP(n int) [][]int {
-	res := make([][]int, n)
-	for i := 0; i < n; i++ {
-		res[i] = make([]int, n)
+func subOut() {
+	for i := 0; i < h; i++ {
+		fmt.Println(PrintIntsLine(answers[i]...))
 	}
-	return res
 }
+
+// 行がすべて等しいならtrue
+func isAllEqual(row []rune) bool {
+	memo := make(map[rune]int)
+	for x := 0; x < w; x++ {
+		r := row[x]
+		memo[r] = 1
+	}
+
+	return len(memo) == 1 && memo['#'] == 0
+}
+
+/*
+- MODは最後にとりましたか？
+- ループを抜けた後も処理が必要じゃありませんか？
+- 和・積・あまりを求められたらint64が必要ではありませんか？
+*/
+
+/*******************************************************************/
