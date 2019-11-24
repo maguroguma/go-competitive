@@ -360,8 +360,8 @@ const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
 const (
-	MAX   = 100
-	INFTY = 1 << 21
+	MAX   = 500 + 5
+	INFTY = 1 << 30
 	WHITE = 0
 	GRAY  = 1
 	BLACK = 2
@@ -383,7 +383,7 @@ func prim() int {
 
 	d[0] = 0
 
-	// すべてのノードががBLACKになるまで続くのでn回ループする
+	// すべてのノードがBLACKになるまで続くのでn回ループする
 	for {
 		// 次にTに加えるべきノードuを選定する
 		minv = INFTY
@@ -405,7 +405,7 @@ func prim() int {
 				if d[v] > M[u][v] {
 					d[v] = M[u][v]
 					p[v] = u
-					// color[v] = GRAY 		// ここをコメントアウトしてもACする
+					color[v] = GRAY // ここをコメントアウトしてもACする
 				}
 			}
 		}
@@ -413,10 +413,10 @@ func prim() int {
 
 	sum := 0
 	for i := 0; i < n; i++ {
-		// if p[i] != -1 {
-		// 	sum += M[i][p[i]]
-		// }
-		sum += d[i] // これでもACする（螺旋本はなんでこうしないんだろう？）
+		if p[i] != -1 {
+			sum += M[i][p[i]]
+		}
+		// sum += d[i] // これでもACする
 	}
 	return sum
 }

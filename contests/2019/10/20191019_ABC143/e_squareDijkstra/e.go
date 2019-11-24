@@ -325,7 +325,22 @@ func PrintIntsLine(A ...int) string {
 
 	for i := 0; i < len(A); i++ {
 		str := strconv.Itoa(A[i])
-		// str := strconv.FormatInt(A[i], 10)  // 64bit int version
+		res = append(res, []rune(str)...)
+
+		if i != len(A)-1 {
+			res = append(res, ' ')
+		}
+	}
+
+	return string(res)
+}
+
+// PrintIntsLine returns integers string delimited by a space.
+func PrintInts64Line(A ...int64) string {
+	res := []rune{}
+
+	for i := 0; i < len(A); i++ {
+		str := strconv.FormatInt(A[i], 10) // 64bit int version
 		res = append(res, []rune(str)...)
 
 		if i != len(A)-1 {
@@ -359,32 +374,40 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var m, l int
+var q int
+var answers [MAX][MAX]int
+
 func main() {
-	n = ReadInt()
-
+	n, m, l = ReadInt3()
 	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
+		M[i][i] = 0
+		for j := i + 1; j < n; j++ {
 			M[i][j] = INFTY
+			M[j][i] = INFTY
 		}
 	}
-
+	for i := 0; i < m; i++ {
+		a, b, c := ReadInt3()
+		a--
+		b--
+		M[a][b] = c
+		M[b][a] = c
+	}
+	// 答えを前計算しておく
 	for i := 0; i < n; i++ {
-		u, k := ReadInt2()
-		for j := 0; j < k; j++ {
-			v, c := ReadInt2()
-			M[u][v] = c
+		res := dijkstra(i)
+		for j := i + 1; j < n; j++ {
+			answers[i][j] = res[j]
+			answers[j][i] = answers[i][j]
 		}
 	}
-
-	d := dijkstra()
-
-	for i := 0; i < n; i++ {
-		fmt.Printf("%d ", i)
-		if d[i] == INFTY {
-			fmt.Println(-1)
-		} else {
-			fmt.Println(d[i])
-		}
+	q = ReadInt()
+	for i := 0; i < q; i++ {
+		s, t := ReadInt2()
+		s--
+		t--
+		fmt.Println(answers[s][t])
 	}
 }
 
@@ -399,26 +422,36 @@ const (
 var n int
 var M [MAX][MAX]int
 
+type Vertex struct {
+	times, gas int
+}
+
 // O(|V|^2)
 // 各ノードの最短路の長さを返す
-func dijkstra() []int {
-	var minv int
-	d, color := make([]int, MAX), make([]int, MAX)
+func dijkstra(s int) []int {
+	var minv Vertex
+	d, color := make([]Vertex, MAX), make([]int, MAX)
 
 	for i := 0; i < n; i++ {
-		d[i] = INFTY
+		d[i] = Vertex{times: INFTY, gas: -1}
 		color[i] = WHITE
 	}
 
-	d[0] = 0
-	color[0] = GRAY
+	// d[0].times, d[0].gas = 0, l
+	// color[0] = GRAY
+	d[s].times, d[s].gas = 0, l
+	color[s] = GRAY
 	for {
-		minv = INFTY
+		minv = Vertex{times: INFTY, gas: -1}
 		u := -1
 		for i := 0; i < n; i++ {
-			if minv > d[i] && color[i] != BLACK {
-				u = i
-				minv = d[i]
+			if color[i] == BLACK {
+				continue
+			}
+			if minv.times > d[i].times {
+				u, minv = i, d[i]
+			} else if (minv.times == d[i].times) && (minv.gas < d[i].gas) {
+				u, minv = i, d[i]
 			}
 		}
 		if u == -1 {
@@ -428,19 +461,51 @@ func dijkstra() []int {
 		color[u] = BLACK
 
 		for v := 0; v < n; v++ {
+			// vへの移動を検討
 			if color[v] != BLACK && M[u][v] != INFTY {
-				if d[v] > d[u]+M[u][v] {
-					d[v] = d[u] + M[u][v]
-					color[v] = GRAY
+				dist := M[u][v]
+				resGas := d[u].gas
+				curTimes := d[u].times
+
+				if resGas >= dist {
+					// 補給の必要なし
+					if d[v].times > curTimes {
+						d[v].times, d[v].gas = curTimes, resGas-dist
+					} else if d[v].times == curTimes && d[v].gas < resGas-dist {
+						d[v].gas = resGas - dist
+					}
+				} else {
+					// 補給が必要
+					// 補給しても通れない場合はパス
+					if l < dist {
+						continue
+					}
+
+					if d[v].times > curTimes+1 {
+						d[v].times, d[v].gas = curTimes+1, l-dist
+					} else if d[v].times == curTimes+1 && d[v].gas < l-dist {
+						d[v].gas = l - dist
+					}
 				}
 			}
 		}
 	}
 
-	return d
+	res := make([]int, n)
+	for i := 0; i < n; i++ {
+		if color[i] != BLACK {
+			res[i] = -1
+		} else {
+			res[i] = d[i].times
+		}
+	}
+	return res
 }
 
-// MODはとったか？
-// 遷移だけじゃなくて最後の最後でちゃんと取れよ？
+/*
+- MODは最後にとりましたか？
+- ループを抜けた後も処理が必要じゃありませんか？
+- 和・積・あまりを求められたらint64が必要ではありませんか？
+*/
 
 /*******************************************************************/

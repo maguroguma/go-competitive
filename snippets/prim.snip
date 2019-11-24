@@ -84,3 +84,67 @@ options     head
   // heap.Push(pq, &Node{pri: intValue})
   // popped := heap.Pop(pq).(*Node)
 
+snippet     primSquareOrderVer
+abbr        func
+options     head
+  const (
+    MAX   = 500 + 5
+    INFTY = 1 << 30
+    WHITE = 0
+    GRAY  = 1
+    BLACK = 2
+  )
+
+  var n int
+  var M [MAX][MAX]int
+
+  // O(|V|^2)
+  func prim() int {
+    var u, minv int
+    var d, p, color [MAX]int
+
+    for i := 0; i < n; i++ {
+      d[i] = INFTY
+      p[i] = -1
+      color[i] = WHITE
+    }
+
+    d[0] = 0
+
+    // すべてのノードがBLACKになるまで続くのでn回ループする
+    for {
+      // 次にTに加えるべきノードuを選定する
+      minv = INFTY
+      u = -1
+      for i := 0; i < n; i++ {
+        if minv > d[i] && color[i] != BLACK {
+          u = i
+          minv = d[i]
+        }
+      }
+      if u == -1 {
+        break // すべての頂点がTに属していたら終了
+      }
+
+      color[u] = BLACK // uをTに所属させる
+
+      for v := 0; v < n; v++ {
+        if color[v] != BLACK && M[u][v] != INFTY {
+          if d[v] > M[u][v] {
+            d[v] = M[u][v]
+            p[v] = u
+            color[v] = GRAY // ここをコメントアウトしてもACする
+          }
+        }
+      }
+    }
+
+    sum := 0
+    for i := 0; i < n; i++ {
+      if p[i] != -1 {
+        sum += M[i][p[i]]
+      }
+      // sum += d[i] // これでもACする
+    }
+    return sum
+  }

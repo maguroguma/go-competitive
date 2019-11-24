@@ -79,3 +79,149 @@ options     head
   // heap.Init(pq)
   // heap.Push(pq, &Node{pri: intValue})
   // popped := heap.Pop(pq).(*Node)
+
+snippet     dijkstraRasenVer
+abbr        func dijkstra() []int
+options     head
+  const (
+    MAX   = 200000 + 5
+    INFTY = 1 << 30
+    WHITE = 0
+    GRAY  = 1
+    BLACK = 2
+  )
+
+  var n int
+  var adj [MAX][]Edge // 重み付き有向グラフの隣接リスト表現
+
+  // O( (|V| + |E|) * log(|V|) )
+  // 各ノードの最短路の長さを返す
+  func dijkstra() []int {
+    temp := make(NodePQ, 0)
+    pq := &temp
+    heap.Init(pq)
+    color, d := make([]int, MAX), make([]int, MAX)
+    for i := 0; i < n; i++ {
+      d[i] = INFTY
+      color[i] = WHITE
+    }
+
+    d[0] = 0
+    heap.Push(pq, &Node{pri: 0, id: 0})
+    color[0] = GRAY // この段階ではまだ最短経路木Sには含めない
+
+    for pq.Len() > 0 {
+      f := heap.Pop(pq).(*Node)
+      u := f.id
+      color[u] = BLACK // pqから取り出された段階でSに加えられる
+
+      // 最小値を取り出し、それが最短でなければ無視
+      if d[u] < f.pri {
+        continue
+      }
+
+      for j := 0; j < len(adj[u]); j++ {
+        v := adj[u][j].to
+        // 余計なPushを防いでいる
+        if color[v] == BLACK {
+          continue
+        }
+        if d[v] > d[u]+adj[u][j].cost {
+          d[v] = d[u] + adj[u][j].cost
+          heap.Push(pq, &Node{pri: d[v], id: v})
+          color[v] = GRAY
+        }
+      }
+    }
+
+    return d
+  }
+
+  type Edge struct {
+    to, cost int
+  }
+
+  type Node struct {
+    pri int
+    id  int
+  }
+  type NodePQ []*Node
+
+  func (pq NodePQ) Len() int           { return len(pq) }
+  func (pq NodePQ) Less(i, j int) bool { return pq[i].pri < pq[j].pri } // <: ASC, >: DESC
+  func (pq NodePQ) Swap(i, j int) {
+    pq[i], pq[j] = pq[j], pq[i]
+  }
+  func (pq *NodePQ) Push(x interface{}) {
+    item := x.(*Node)
+    *pq = append(*pq, item)
+  }
+  func (pq *NodePQ) Pop() interface{} {
+    old := *pq
+    n := len(old)
+    item := old[n-1]
+    *pq = old[0 : n-1]
+    return item
+  }
+
+  // how to use
+  // temp := make(NodePQ, 0, 100000+1)
+  // pq := &temp
+  // heap.Init(pq)
+  // heap.Push(pq, &Node{pri: intValue})
+  // popped := heap.Pop(pq).(*Node)
+
+snippet     dijkstraSquareOrderVer
+abbr        func dijkstra() []int
+options     head
+  const (
+    MAX   = 500 + 5
+    INFTY = 1 << 30
+    WHITE = 0
+    GRAY  = 1
+    BLACK = 2
+  )
+
+  var n int
+  var M [MAX][MAX]int
+
+  // O(|V|^2)
+  // 各ノードの最短路の長さを返す
+  func dijkstra() []int {
+    var minv int
+    d, color := make([]int, MAX), make([]int, MAX)
+
+    for i := 0; i < n; i++ {
+      d[i] = INFTY
+      color[i] = WHITE
+    }
+
+    d[0] = 0
+    color[0] = GRAY
+    for {
+      minv = INFTY
+      u := -1
+      for i := 0; i < n; i++ {
+        if minv > d[i] && color[i] != BLACK {
+          u = i
+          minv = d[i]
+        }
+      }
+      if u == -1 {
+        break
+      }
+
+      color[u] = BLACK
+
+      for v := 0; v < n; v++ {
+        if color[v] != BLACK && M[u][v] != INFTY {
+          if d[v] > d[u]+M[u][v] {
+            d[v] = d[u] + M[u][v]
+            color[v] = GRAY
+          }
+        }
+      }
+    }
+
+    return d
+  }

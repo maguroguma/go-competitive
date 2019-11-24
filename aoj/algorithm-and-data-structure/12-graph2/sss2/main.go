@@ -360,9 +360,31 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+func main() {
+	n = ReadInt()
+	for i := 0; i < n; i++ {
+		u, k := ReadInt2()
+		for j := 0; j < k; j++ {
+			v, c := ReadInt2()
+			adj[u] = append(adj[u], Edge{to: v, cost: c})
+		}
+	}
+
+	d := dijkstra()
+
+	for i := 0; i < n; i++ {
+		fmt.Printf("%d ", i)
+		if d[i] == INFTY {
+			fmt.Println(-1)
+		} else {
+			fmt.Println(d[i])
+		}
+	}
+}
+
 const (
-	MAX   = 10000
-	INFTY = 1 << 20
+	MAX   = 200000 + 5
+	INFTY = 1 << 30
 	WHITE = 0
 	GRAY  = 1
 	BLACK = 2
@@ -372,11 +394,12 @@ var n int
 var adj [MAX][]Edge // 重み付き有向グラフの隣接リスト表現
 
 // O( (|V| + |E|) * log(|V|) )
-func dijkstra() {
+// 各ノードの最短路の長さを返す
+func dijkstra() []int {
 	temp := make(NodePQ, 0)
 	pq := &temp
 	heap.Init(pq)
-	var color, d [MAX]int
+	color, d := make([]int, MAX), make([]int, MAX)
 	for i := 0; i < n; i++ {
 		d[i] = INFTY
 		color[i] = WHITE
@@ -410,27 +433,7 @@ func dijkstra() {
 		}
 	}
 
-	for i := 0; i < n; i++ {
-		fmt.Printf("%d ", i)
-		if d[i] == INFTY {
-			fmt.Println(-1)
-		} else {
-			fmt.Println(d[i])
-		}
-	}
-}
-
-func main() {
-	n = ReadInt()
-	for i := 0; i < n; i++ {
-		u, k := ReadInt2()
-		for j := 0; j < k; j++ {
-			v, c := ReadInt2()
-			adj[u] = append(adj[u], Edge{to: v, cost: c})
-		}
-	}
-
-	dijkstra()
+	return d
 }
 
 type Edge struct {
