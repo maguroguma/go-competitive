@@ -29,3 +29,8 @@ AGC039Bで無向グラフ（二部グラフ）の直径が答えとなる問題�
 
 https://onlinejudge.u-aizu.ac.jp/problems/GRL_5_A
 
+### 螺旋本では
+
+DFSではなくBFSを用いた実装をしている。
+必要に感じられたらまたこちらで復習する。
+
