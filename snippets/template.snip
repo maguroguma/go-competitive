@@ -189,6 +189,11 @@ options     head
     return string(res)
   }
 
+  // PrintDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
+  func PrintDebug(format string, a ...interface{}) {
+    fmt.Fprintf(os.Stderr, format, a...)
+  }
+
   /********** FAU standard libraries **********/
 
   //fmt.Sprintf("%b\n", 255) 	// binary expression

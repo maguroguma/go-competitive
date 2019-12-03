@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -214,8 +215,51 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var t int
+var r, g, b int
+
 func main() {
-	fmt.Println("Hello World.")
+	t = ReadInt()
+
+	for i := 0; i < 10000; i++ {
+		PrintDebug("%d %s %f\n", 100, "test", 199.111)
+		PrintDebug("デバッグテスト")
+	}
+
+	for tc := 0; tc < t; tc++ {
+		r, g, b = ReadInt3()
+
+		solve()
+	}
+}
+
+func solve() {
+	A := []int{r, g, b}
+	// 降順ソート
+	sort.Sort(sort.Reverse(sort.IntSlice(A)))
+
+	sum := A[1] + A[2]
+	if sum <= A[0] {
+		fmt.Println(sum)
+	} else {
+		if A[0] > A[1] {
+			// fmt.Println(A[0])
+			ans := 0
+
+			diff := A[0] - A[1]
+			A[0] -= diff
+			ans += diff
+			A[2] -= diff
+			tmp := (A[2] + (2 - 1)) / 2
+			ans += A[2] + A[0] - tmp
+			fmt.Println(ans)
+		} else {
+			// 一番大きいものと2番めが同じ
+			tmp := (A[2] + (2 - 1)) / 2
+			ans := A[2] + A[0] - tmp
+			fmt.Println(ans)
+		}
+	}
 }
 
 /*

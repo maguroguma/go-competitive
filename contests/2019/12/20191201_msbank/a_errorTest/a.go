@@ -214,8 +214,22 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var m1, d1, m2, d2 int
+
 func main() {
-	fmt.Println("Hello World.")
+	m1, d1, m2, d2 = ReadInt4()
+
+	// fmt.Fprintf(os.Stderr, "これは消し忘れても大丈夫! - %d\n", 100)
+	// fmt.Fprintf(os.Stderr, "これは消し忘れても大丈夫!\n")
+	PrintDebug("%d %s %f\n", 100, "test", 199.111)
+
+	if m1 < m2 {
+		fmt.Println(1)
+	} else if m1 == 12 && m2 == 1 {
+		fmt.Println(1)
+	} else {
+		fmt.Println(0)
+	}
 }
 
 /*
