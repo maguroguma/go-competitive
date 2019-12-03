@@ -34,7 +34,6 @@ options     head
     return res
   }
 
-
 snippet     arithmeticSequenceSum
 abbr        func ArithmeticSequenceSum(a, d, n int) int
 options     head
@@ -55,3 +54,156 @@ options     head
     return nume / deno
   }
 
+snippet     chmin
+abbr        ChMin(updatedValue *int, target int) bool
+options     head
+  // ChMin accepts a pointer of integer and a target value.
+  // If target value is SMALLER than the first argument,
+  //	then the first argument will be updated by the second argument.
+  func ChMin(updatedValue *${1:int}, target $1) bool {
+    if *updatedValue > target {
+      *updatedValue = target
+      return true
+    }
+    return false
+  }
+
+snippet     chmax
+abbr        ChMax(updatedValue *int, target int) bool
+options     head
+  // ChMax accepts a pointer of integer and a target value.
+  // If target value is LARGER than the first argument,
+  //	then the first argument will be updated by the second argument.
+  func ChMax(updatedValue *${1:int}, target $1) bool {
+    if *updatedValue < target {
+      *updatedValue = target
+      return true
+    }
+    return false
+  }
+
+snippet     maxIntegers
+abbr        Max(integers ...int) int
+options     head
+  // Max returns the max integer among input set.
+  // This function needs at least 1 argument (no argument causes panic).
+  func Max(integers ...${1:int}) $1 {
+    m := integers[0]
+    for i, integer := range integers {
+      if i == 0 {
+        continue
+      }
+      if m < integer {
+        m = integer
+      }
+    }
+    return m
+  }
+
+snippet     minIntegers
+abbr        Min(integers ...int) int
+options     head
+  // Min returns the min integer among input set.
+  // This function needs at least 1 argument (no argument causes panic).
+  func Min(integers ...${1:int}) $1 {
+    m := integers[0]
+    for i, integer := range integers {
+      if i == 0 {
+        continue
+      }
+      if m > integer {
+        m = integer
+      }
+    }
+    return m
+  }
+
+snippet     sumIntegers
+abbr        Sum(integers ...int) int
+options     head
+  // Sum returns multiple integers sum.
+  func Sum(integers ...${1:int}) $1 {
+    s := 0
+
+    for _, i := range integers {
+      s += i
+    }
+
+    return s
+  }
+
+snippet     powInt
+abbr        PowInt(a, e int) int
+options     head
+  // PowInt is integer version of math.Pow
+  // PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
+  func PowInt(a, e ${1:int}) $1 {
+    if a < 0 || e < 0 {
+      panic(errors.New("[argument error]: PowInt does not accept negative integers"))
+    }
+
+    if e == 0 {
+      return 1
+    }
+
+    if e%2 == 0 {
+      halfE := e / 2
+      half := PowInt(a, halfE)
+      return half * half
+    }
+
+    return a * PowInt(a, e-1)
+  }
+
+snippet     absInt
+abbr        AbsInt(a int) int
+options     head
+  // AbsInt is integer version of math.Abs
+  func AbsInt(a ${1:int}) $1 {
+    if a < 0 {
+      return -a
+    }
+    return a
+  }
+
+snippet     gcdAndLcm
+abbr        Gcd(a, b int) int, Lcm(a, b int) int
+options     head
+  // Gcd returns the Greatest Common Divisor of two natural numbers.
+  // Gcd only accepts two natural numbers (a, b >= 1).
+  // 0 or negative number causes panic.
+  // Gcd uses the Euclidean Algorithm.
+  func Gcd(a, b ${1:int}) $1 {
+    if a <= 0 || b <= 0 {
+      panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
+    }
+    if a < b {
+      a, b = b, a
+    }
+
+    // Euclidean Algorithm
+    for b > 0 {
+      div := a % b
+      a, b = b, div
+    }
+
+    return a
+  }
+
+  // Lcm returns the Least Common Multiple of two natural numbers.
+  // Lcd only accepts two natural numbers (a, b >= 1).
+  // 0 or negative number causes panic.
+  // Lcd uses the Euclidean Algorithm indirectly.
+  func Lcm(a, b $1) $1 {
+    if a <= 0 || b <= 0 {
+      panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
+    }
+
+    // a = a'*gcd, b = b'*gcd, a*b = a'*b'*gcd^2
+    // a' and b' are relatively prime numbers
+    // gcd consists of prime numbers, that are included in a and b
+    gcd := Gcd(a, b)
+
+    // not (a * b / gcd), because of reducing a probability of overflow
+    return (a / gcd) * b
+  }
