@@ -214,15 +214,97 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A []int
+var memo [300000 + 5][64][2]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	A = ReadIntSlice(n)
+
+	for i := 0; i < n; i++ {
+		a := A[i]
+		for j := 0; j < 62; j++ {
+			bit := NthBit(a, j)
+			if i == 0 {
+				if bit == 0 {
+					memo[i][j][0]++
+				} else {
+					memo[i][j][1]++
+				}
+			} else {
+				if bit == 0 {
+					memo[i][j][0] = memo[i-1][j][0] + 1
+					memo[i][j][1] = memo[i-1][j][1]
+				} else {
+					memo[i][j][0] = memo[i-1][j][0]
+					memo[i][j][1] = memo[i-1][j][1] + 1
+				}
+			}
+		}
+	}
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		a := A[i]
+		for j := 0; j < 62; j++ {
+			// A[i]のj番目のbit
+			bit := NthBit(a, j)
+			tei := 1 << uint(j)
+			var tmp int
+			if bit == 1 {
+				tmp = memo[n-1][j][0] - memo[i][j][0]
+			} else {
+				tmp = memo[n-1][j][1] - memo[i][j][1]
+			}
+
+			tei %= MOD
+			tei *= tmp
+			tei %= MOD
+
+			ans += tei
+			ans %= MOD
+		}
+	}
+
+	fmt.Println(ans)
+}
+
+// NthBit returns nth bit value of an argument.
+// n starts from 0.
+func NthBit(num int, nth int) int {
+	return num >> uint(nth) & 1
+}
+
+// OnBit returns the integer that has nth ON bit.
+// If an argument has nth ON bit, OnBit returns the argument.
+func OnBit(num int, nth int) int {
+	return num | (1 << uint(nth))
+}
+
+// OffBit returns the integer that has nth OFF bit.
+// If an argument has nth OFF bit, OffBit returns the argument.
+func OffBit(num int, nth int) int {
+	return num & ^(1 << uint(nth))
+}
+
+// PopCount returns the number of ON bit of an argument.
+func PopCount(num int) int {
+	res := 0
+
+	for i := 0; i < 70; i++ {
+		if ((num >> uint(i)) & 1) == 1 {
+			res++
+		}
+	}
+
+	return res
 }
 
 /*
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
-- いきなりオーバーフローはしていませんか？
 */
 
 /*******************************************************************/

@@ -214,15 +214,104 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var A []int
+var X [20][20]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	A = make([]int, n)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			if i == j {
+				X[i][j] = 1
+			} else {
+				X[i][j] = -1
+			}
+		}
+	}
+	for i := 0; i < n; i++ {
+		a := ReadInt()
+		A[i] = a
+
+		for j := 0; j < a; j++ {
+			x, y := ReadInt2()
+			x--
+			X[i][x] = y
+		}
+	}
+
+	ans := 0
+OUTER:
+	for i := 0; i < (1 << uint(n)); i++ {
+		// iの各ビットが立っていたらその人は正直者と仮定する
+		// 正直者の証言だけ参考にする
+		for j := 0; j < n; j++ {
+			bit := NthBit(i, j)
+			if bit == 1 {
+				// j番目の人は正直者
+				for k := 0; k < n; k++ {
+					if X[j][k] == -1 {
+						continue
+					} else if X[j][k] != NthBit(i, k) {
+						continue OUTER
+					}
+				}
+			}
+		}
+
+		ChMax(&ans, PopCount(i))
+	}
+
+	fmt.Println(ans)
+}
+
+// NthBit returns nth bit value of an argument.
+// n starts from 0.
+func NthBit(num int, nth int) int {
+	return num >> uint(nth) & 1
+}
+
+// OnBit returns the integer that has nth ON bit.
+// If an argument has nth ON bit, OnBit returns the argument.
+func OnBit(num int, nth int) int {
+	return num | (1 << uint(nth))
+}
+
+// OffBit returns the integer that has nth OFF bit.
+// If an argument has nth OFF bit, OffBit returns the argument.
+func OffBit(num int, nth int) int {
+	return num & ^(1 << uint(nth))
+}
+
+// PopCount returns the number of ON bit of an argument.
+func PopCount(num int) int {
+	res := 0
+
+	for i := 0; i < 70; i++ {
+		if ((num >> uint(i)) & 1) == 1 {
+			res++
+		}
+	}
+
+	return res
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
 }
 
 /*
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
-- いきなりオーバーフローはしていませんか？
 */
 
 /*******************************************************************/

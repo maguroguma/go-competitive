@@ -214,15 +214,23 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var a, b, c int
+
 func main() {
-	fmt.Println("Hello World.")
+	a, b, c = ReadInt3()
+
+	sum := a + b + c
+	if sum >= 22 {
+		fmt.Println("bust")
+	} else {
+		fmt.Println("win")
+	}
 }
 
 /*
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
-- いきなりオーバーフローはしていませんか？
 */
 
 /*******************************************************************/

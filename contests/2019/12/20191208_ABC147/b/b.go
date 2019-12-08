@@ -214,15 +214,27 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var S []rune
+
 func main() {
-	fmt.Println("Hello World.")
+	S = ReadRuneSlice()
+
+	ans := 0
+	for i := 0; i < len(S)/2; i++ {
+		l := i
+		r := len(S) - 1 - i
+
+		if S[l] != S[r] {
+			ans++
+		}
+	}
+	fmt.Println(ans)
 }
 
 /*
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
-- いきなりオーバーフローはしていませんか？
 */
 
 /*******************************************************************/
