@@ -1,5 +1,3 @@
-※Dは近いうちに追記すると思います。
-
 <!-- TOC -->
 
 - [A. Heating](#a-heating)
@@ -11,6 +9,9 @@
 - [C. Infinite Fence](#c-infinite-fence)
 	- [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81-2)
 	- [解答](#%e8%a7%a3%e7%ad%94-2)
+- [D. A Game with Traps](#d-a-game-with-traps)
+	- [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81-3)
+	- [解答](#%e8%a7%a3%e7%ad%94-3)
 
 <!-- /TOC -->
 
@@ -173,13 +174,13 @@ func solve() {
 
 例えば、 `r = 5, b = 2` のケースを図示すると、連続する列の長さが長くなるのは、値が小さい青色の方であるとわかる。
 
-
+<figure class="figure-image figure-image-fotolife" title="r=5, b=2のサンプル例">[f:id:maguroguma:20191130172137j:plain]<figcaption>r=5, b=2のサンプル例</figcaption></figure>
 
 よって、 `r >= b` で一般化して、ある赤と赤に囲まれた区間を考える。
 図のように、どのような区間でも青は `b` 間隔で並び、右端の赤が `b` の約数である、すなわち `r, b` の公約数であったとしても、
 それは赤として考えれば良い（そのほうが `k` 個連続するのを避けるためには有利であるため）。
 
-
+<figure class="figure-image figure-image-fotolife" title="一般化して一部分をフォーカス">[f:id:maguroguma:20191130172216j:plain]<figcaption>一般化して一部分をフォーカス</figcaption></figure>
 
 ここで、板全体を俯瞰したときに、青の連続する列の長さが最長となるのは、区間の左端の赤と青の板の番号の差が最小となる場合であるとわかる。
 
@@ -221,12 +222,167 @@ func solve() {
 
 以下は、コンテスト後に書いた簡単な証明です（雑な手書きですみません）。
 
-
+<figure class="figure-image figure-image-fotolife" title="仮説部分の正当性の証明">[f:id:maguroguma:20191130172252j:plain]<figcaption>仮説部分の正当性の証明</figcaption></figure>
 
 なんとかコンテスト中に解けたけど、時間がかなりかかったし難しい。。
 
 具体的な例で仮説を立て、抽象化して検証する、場合によってはまた具体的な例に戻る、というのを自分は特別意図せずやっていますが、
 もう少しスマートに短時間でできれば良いなぁとは思います（賢くなりたい）。
+
+<a id="markdown-d-a-game-with-traps" name="d-a-game-with-traps"></a>
+## D. A Game with Traps
+
+[問題URL](https://codeforces.com/contest/1260/problem/D)
+
+<a id="markdown-問題の概要-3" name="問題の概要-3"></a>
+### 問題の概要
+
+※大分端折っているので、詳しくは本文をご参照ください。
+
+`0, 1, .., n+1` のマス目を初期位置 `0` からゴール `n+1` を軍隊を引き連れながら目指す。
+
+ただし、道中にはトラップがあるため、軍隊の兵士がそれを踏んで死なないようにして進まなければならない。
+一方で、兵士1人1人に設定されている `agility` のパラメータが、トラップの威力以上である場合には、兵士はそのトラップの影響を受けない。
+
+トラップは、トラップの先にある解除用ボタンの位置まで到達することで解除できる。
+
+軍隊は、自身と一緒にしか移動できず、1マス移動するには1秒かかる。
+
+`t` 秒間与えられたときに、ゴールまで引率できる兵士の数の最大値はいくらかを堪える問題。
+
+<a id="markdown-解答-3" name="解答-3"></a>
+### 解答
+
+引率できる兵士はagilityの高い順であり、あるagilityの兵士がゴールできるならば、それ以上のagilityの兵士も全員ゴールできる。
+
+よって、ゴールできるagilityの最小値を二分探索で求めることを考える。
+
+あるagilityの兵士がゴールにたどり着けるかどうかの判定は、以下のようにして可能である。
+
+あるトラップに対して、区間 `[l, r]` を考えると、この区間に関しては、少なくとも3回通過する必要がある。
+すなわち、トラップの解除に向かうとき、元の位置に戻るとき、軍隊を引率して進行するときの3回である。
+
+トラップの区間が交差している場合は、逐次トラップの区間を3回通過する必要はなく、
+交差する区間をすべてマージして、その区間を3回通過するほうが、経過時間は短くなる。
+
+よって、現在注目中のagilityに対して、影響を考慮すべきトラップの区間をマージすることで、
+必要な時間を計算できる。
+すなわち、マージ後の区間に関して、全区間が含んでいるマス目の合計数を `T` とすると、
+`n + 1 + 2*T` で計算できる。
+
+```go
+var m, n, k, t int
+var A []int
+
+type Trap struct {
+	key     int
+	l, r, d int
+}
+type TrapList []*Trap
+type byKey struct {
+	TrapList
+}
+
+func (l TrapList) Len() int {
+	return len(l)
+}
+func (l TrapList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.TrapList[i].key < l.TrapList[j].key
+}
+
+// how to use
+// L := make(TrapList, 0, 200000+5)
+// L = append(L, &Trap{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+var L TrapList
+
+func main() {
+	m, n, k, t = ReadInt4()
+	A = ReadIntSlice(m)
+	L = make(TrapList, 0)
+	for i := 0; i < k; i++ {
+		l, r, d := ReadInt3()
+		L = append(L, &Trap{key: l, l: l, r: r, d: d})
+	}
+	maxAgility := Max(A...)
+
+	// 区間の左端で昇順ソート
+	sort.Stable(byKey{L})
+
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if C(m) {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := -1, maxAgility+1
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+	minAgility := ok
+
+	num := 0
+	for i := 0; i < m; i++ {
+		if A[i] >= minAgility {
+			num++
+		}
+	}
+	fmt.Println(num)
+}
+
+func C(m int) bool {
+	segments := []Trap{}
+	l, r := 0, -1
+	for i := 0; i < len(L); i++ {
+		t := L[i]
+		if t.d <= m {
+			continue
+		}
+
+		if r == -1 {
+			l, r = t.l, t.r
+			continue
+		}
+
+		if r >= t.l-1 {
+			// マージして継続
+			ChMax(&r, t.r)
+		} else {
+			// マージせず中断して追加
+			segments = append(segments, Trap{l: l, r: r})
+			l, r = t.l, t.r
+		}
+	}
+	if r != -1 {
+		segments = append(segments, Trap{l: l, r: r})
+	}
+
+	time := 1 + n
+	for _, seg := range segments {
+		time += 2 * (seg.r - seg.l + 1)
+	}
+
+	return time <= t
+}
+```
+
+本質部分である「トラップの区間は少なくとも3回通過する必要がある」という部分が整理できずに、コンテスト中は解くことが出来ませんでした。
+
+二分探索の判定部分に関しては、区間更新可能な遅延評価ありのセグメント木や、
+いもす法を使うことでもOKです（セグ木解法は `O(N(logN)^2)` なので、ちょっと危なそうですが）。
 
 ---
 

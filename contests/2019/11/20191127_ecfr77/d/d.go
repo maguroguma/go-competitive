@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -374,8 +375,119 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var m, n, k, t int
+var A []int
+
+type Trap struct {
+	key     int
+	l, r, d int
+}
+type TrapList []*Trap
+type byKey struct {
+	TrapList
+}
+
+func (l TrapList) Len() int {
+	return len(l)
+}
+func (l TrapList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.TrapList[i].key < l.TrapList[j].key
+}
+
+// how to use
+// L := make(TrapList, 0, 200000+5)
+// L = append(L, &Trap{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
+var L TrapList
+
 func main() {
-	fmt.Println("Hello World.")
+	m, n, k, t = ReadInt4()
+	A = ReadIntSlice(m)
+	L = make(TrapList, 0)
+	for i := 0; i < k; i++ {
+		l, r, d := ReadInt3()
+		L = append(L, &Trap{key: l, l: l, r: r, d: d})
+	}
+	maxAgility := Max(A...)
+
+	// 区間の左端で昇順ソート
+	sort.Stable(byKey{L})
+
+	// m は中央を意味する何らかの値
+	isOK := func(m int) bool {
+		if C(m) {
+			return true
+		}
+		return false
+	}
+
+	ng, ok := -1, maxAgility+1
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+	minAgility := ok
+
+	// if minAgility == maxAgility+1 {
+	// 	fmt.Println(0)
+	// 	return
+	// }
+	// fmt.Printf("minAgility: %d\n", minAgility)
+
+	num := 0
+	for i := 0; i < m; i++ {
+		if A[i] >= minAgility {
+			num++
+		}
+	}
+	fmt.Println(num)
+}
+
+func C(m int) bool {
+	segments := []Trap{}
+	l, r := 0, -1
+	for i := 0; i < len(L); i++ {
+		t := L[i]
+		if t.d <= m {
+			continue
+		}
+
+		if r == -1 {
+			l, r = t.l, t.r
+			continue
+		}
+
+		if r >= t.l-1 {
+			// マージして継続
+			// r = t.r
+			ChMax(&r, t.r)
+		} else {
+			// マージせず中断して追加
+			segments = append(segments, Trap{l: l, r: r})
+			l, r = t.l, t.r
+		}
+	}
+	if r != -1 {
+		segments = append(segments, Trap{l: l, r: r})
+	}
+
+	time := 1 + n
+	for _, seg := range segments {
+		time += 2 * (seg.r - seg.l + 1)
+	}
+	// fmt.Printf("time: %d\n", time)
+
+	return time <= t
 }
 
 /*
