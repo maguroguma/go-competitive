@@ -1,19 +1,20 @@
 1問目からいきなり難問を置かないでください。。
 青が見えていたのにまた遠のいてしまいました。
 
-※Dは近いうちに追記すると思います。
-
 <!-- TOC -->
 
 - [A. Sweet Problem](#a-sweet-problem)
-  - [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81)
-  - [解答](#%e8%a7%a3%e7%ad%94)
+	- [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81)
+	- [解答](#%e8%a7%a3%e7%ad%94)
 - [B. PIN Codes](#b-pin-codes)
-  - [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81-1)
-  - [解答](#%e8%a7%a3%e7%ad%94-1)
+	- [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81-1)
+	- [解答](#%e8%a7%a3%e7%ad%94-1)
 - [C. Everyone is a Winner!](#c-everyone-is-a-winner)
-  - [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81-2)
-  - [解答](#%e8%a7%a3%e7%ad%94-2)
+	- [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81-2)
+	- [解答](#%e8%a7%a3%e7%ad%94-2)
+- [D. Secret Passwords](#d-secret-passwords)
+	- [問題の概要](#%e5%95%8f%e9%a1%8c%e3%81%ae%e6%a6%82%e8%a6%81-3)
+	- [解答](#%e8%a7%a3%e7%ad%94-3)
 
 <!-- /TOC -->
 
@@ -249,7 +250,7 @@ func isEqual(a, b []rune) bool {
 なんとなく、 `k = 1, 2, ..., sqrt(n)` まで考えて、 `Floor(n/k) = q` だけでなく、 `k` 自体も答えになりそうだ、と仮説を立てる。
 この仮説は、以下のようにして正当性が示せる（手書きですみません）。
 
-
+<figure class="figure-image figure-image-fotolife" title="仮説の正当性の証明">[f:id:maguroguma:20191130185949j:plain]<figcaption>仮説の正当性の証明</figcaption></figure>
 
 よって、 `k = 1, 2, ..., sqrt(n)` の `k` に対する `Floor(n/k) = q` は答えになるとともに、 `k` 自体も答えとなる。
 一方で、 `k > sqrt(n)` の `k` については、 `Floor(n/k) < sqrt(n)` となり、これらはすでに答えとして追加されている。
@@ -293,6 +294,163 @@ func solve() {
 ```
 
 例によって、コンテスト中はここまできっちり考えずに、ｴｲﾔしてしまいました。
+
+<a id="markdown-d-secret-passwords" name="d-secret-passwords"></a>
+## D. Secret Passwords
+
+[問題のURL](https://codeforces.com/contest/1263/problem/D)
+
+<a id="markdown-問題の概要-3" name="問題の概要-3"></a>
+### 問題の概要
+
+あるシステムのパスワードのリストには、 `n` 個の小文字のアルファベットのみからなるパスワードが書かれている。
+
+このシステムのパスワードは、ある2つのパスワードを比較したとき、2つのパスワードに共通して存在する文字が1文字でもある場合、
+この2つのパスワードは等しいと判定される。
+さらに、推移律も存在し、パスワード `a, b` が等しく `b, c` が等しい場合、 `a, c` も等しいと判定される。
+
+この中には、1つだけadminのパスワードが含まれているため、adminのパスワードと等しいものを手に入れるために、
+最低限必要なパスワードの数を答えよ、という問題。
+
+<a id="markdown-解答-3" name="解答-3"></a>
+### 解答
+
+個々のパスワードをグラフの頂点と考え、等しければエッジを張る、というふうに考える。
+
+まず、すべてのパスワードをスキャンし、特定のアルファベットが検出されたら、アルファベットのグループに加える。
+UnionFindによって、各アルファベットについてグループに存在するものをすべて併合する。
+すべてのアルファベットについて併合が終わると、推移律を満たす形で等しいと判定されるパスワードも同じグループに属するようになる。
+よって、最後に連結成分の数を出力すれば、それば答えになっている。
+
+公式editorialにあるように、二部グラフ上で考えるのも良さそう
+（ `a, b, .., z` を片方のグループ、パスワードをもう片方のグループとし、パスワードと文字を結んでいき、同じくDFS等で連結成分の数を数える。
+こちらのほうが計算量は若干小さい）。
+
+```go
+var n int
+var S [][]rune
+
+var memo [30][]int
+
+func main() {
+	n = ReadInt()
+	S = make([][]rune, n)
+	for i := 0; i < n; i++ {
+		S[i] = ReadRuneSlice()
+	}
+
+	for i := 0; i < n; i++ {
+		for _, r := range S[i] {
+			tmp := r - 'a'
+			memo[tmp] = append(memo[tmp], i)
+		}
+	}
+
+	uf := NewUnionFind(n)
+
+	for i := 0; i < ALPHABET_NUM; i++ {
+		if len(memo[i]) == 0 {
+			continue
+		}
+
+		top := memo[i][0]
+		for j := 1; j < len(memo[i]); j++ {
+			uf.Unite(top, memo[i][j])
+		}
+	}
+
+	fmt.Println(uf.CcNum())
+}
+
+// 0-based
+// uf := NewUnionFind(n)
+// uf.Root(x) 			// Get root node of the node x
+// uf.Unite(x, y) 	// Unite node x and node y
+// uf.Same(x, y) 		// Judge x and y are in the same connected component.
+// uf.CcSize(x) 		// Get size of the connected component including node x
+// uf.CcNum() 			// Get number of connected components
+
+// UnionFind provides disjoint set algorithm.
+// Node id starts from 0 (0-based setting).
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n)
+
+	for i := 0; i < n; i++ {
+		uf.parents[i] = -1
+	}
+
+	return uf
+}
+
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
+		return x
+	}
+
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
+		return false
+	}
+
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
+	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
+
+	return true
+}
+
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
+}
+
+// CcNum method returns the number of connected components.
+// Time complextity is O(n)
+func (uf *UnionFind) CcNum() int {
+	res := 0
+	for i := 0; i < len(uf.parents); i++ {
+		if uf.parents[i] < 0 {
+			res++
+		}
+	}
+	return res
+}
+```
+
+後日復習したら簡単だった。。
+
+確かコンテスト中は前半でペースを乱されたのも合って、問題文の英語が読めなくて解けなかったという感じでした
+（そんなセキュリティunkなシステムあるかよ、的な感じで）。
+
+問題文の本質的な部分を読み取ることに集中する訓練が、まだまだ足りないなと感じました。
 
 ---
 
