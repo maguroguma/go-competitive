@@ -1,8 +1,16 @@
 snippet     unionFind
 abbr        type UnionFind struct
 options     head
+  // 0-based
+  // uf := NewUnionFind(n)
+  // uf.Root(x) 			// Get root node of the node x
+  // uf.Unite(x, y) 	// Unite node x and node y
+  // uf.Same(x, y) 		// Judge x and y are in the same connected component.
+  // uf.CcSize(x) 		// Get size of the connected component including node x
+  // uf.CcNum() 			// Get number of connected components
+
   // UnionFind provides disjoint set algorithm.
-  // It accepts both 0-based and 1-based setting.
+  // Node id starts from 0 (0-based setting).
   type UnionFind struct {
     parents []int
   }
@@ -10,9 +18,9 @@ options     head
   // NewUnionFind returns a pointer of a new instance of UnionFind.
   func NewUnionFind(n int) *UnionFind {
     uf := new(UnionFind)
-    uf.parents = make([]int, n+1)
+    uf.parents = make([]int, n)
 
-    for i := 0; i <= n; i++ {
+    for i := 0; i < n; i++ {
       uf.parents[i] = -1
     }
 
@@ -63,3 +71,14 @@ options     head
     return -uf.parents[uf.Root(x)]
   }
 
+  // CcNum method returns the number of connected components.
+  // Time complextity is O(n)
+  func (uf *UnionFind) CcNum() int {
+    res := 0
+    for i := 0; i < len(uf.parents); i++ {
+      if uf.parents[i] < 0 {
+        res++
+      }
+    }
+    return res
+  }

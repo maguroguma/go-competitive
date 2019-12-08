@@ -374,8 +374,121 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
+var n int
+var S [][]rune
+
+var memo [30][]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	S = make([][]rune, n)
+	for i := 0; i < n; i++ {
+		S[i] = ReadRuneSlice()
+	}
+
+	for i := 0; i < n; i++ {
+		for _, r := range S[i] {
+			tmp := r - 'a'
+			memo[tmp] = append(memo[tmp], i)
+		}
+	}
+
+	uf := NewUnionFind(n)
+
+	for i := 0; i < ALPHABET_NUM; i++ {
+		if len(memo[i]) == 0 {
+			continue
+		}
+
+		top := memo[i][0]
+		for j := 1; j < len(memo[i]); j++ {
+			uf.Unite(top, memo[i][j])
+		}
+	}
+
+	fmt.Println(uf.CcNum())
+}
+
+// 0-based
+// uf := NewUnionFind(n)
+// uf.Root(x) 			// Get root node of the node x
+// uf.Unite(x, y) 	// Unite node x and node y
+// uf.Same(x, y) 		// Judge x and y are in the same connected component.
+// uf.CcSize(x) 		// Get size of the connected component including node x
+// uf.CcNum() 			// Get number of connected components
+
+// UnionFind provides disjoint set algorithm.
+// Node id starts from 0 (0-based setting).
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n)
+
+	for i := 0; i < n; i++ {
+		uf.parents[i] = -1
+	}
+
+	return uf
+}
+
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
+		return x
+	}
+
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
+		return false
+	}
+
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
+	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
+
+	return true
+}
+
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
+}
+
+// CcNum method returns the number of connected components.
+// Time complextity is O(n)
+func (uf *UnionFind) CcNum() int {
+	res := 0
+	for i := 0; i < len(uf.parents); i++ {
+		if uf.parents[i] < 0 {
+			res++
+		}
+	}
+	return res
 }
 
 /*
