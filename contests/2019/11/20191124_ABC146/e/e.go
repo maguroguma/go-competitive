@@ -380,6 +380,15 @@ var A []int
 func main() {
 	n, k = ReadInt2()
 	A = ReadIntSlice(n)
+
+	sums := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		sums[i+1] = sums[i] + A[i]
+	}
+	for i := 0; i <= n; i++ {
+		sums[i] -= i
+	}
+
 }
 
 /*
