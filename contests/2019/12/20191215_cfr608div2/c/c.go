@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -213,65 +214,224 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
+const INF_INT32 = math.MaxInt32
+const INF_BIT30 = 1 << 30
 
-var h, w int
-var A, B [][]int
-
-var dp [81][81][80*80*2 + 100]bool
+var n, sx, sy int
+var X, Y []int
 
 func main() {
-	h, w = ReadInt2()
-	A, B = make([][]int, h), make([][]int, h)
-	for i := 0; i < h; i++ {
-		A[i] = ReadIntSlice(w)
-	}
-	for i := 0; i < h; i++ {
-		B[i] = ReadIntSlice(w)
+	n, sx, sy = ReadInt3()
+	X, Y = make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		x, y := ReadInt2()
+		X[i], Y[i] = x, y
 	}
 
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			for k := 0; k <= 12800; k++ {
-				a, b := A[i][j], B[i][j]
-				d := AbsInt(a - b)
-				if i == 0 && j == 0 {
-					dp[i][j][d] = true
-					continue
-				}
-
-				l, m := k+d, AbsInt(k-d)
-				if i-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i-1][j][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i-1][j][k]
-				}
-				if j-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i][j-1][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i][j-1][k]
-				}
-			}
+	cx, cy := []int{}, []int{}
+	for i := 0; i < n; i++ {
+		x, y := X[i], Y[i]
+		if x == sx {
+			cx = append(cx, x)
+		} else {
+			cx = append(cx, x)
+			cx = append(cx, sx)
+		}
+		if y == sy {
+			cy = append(cy, y)
+		} else {
+			cy = append(cy, y)
+			cy = append(cy, sy)
 		}
 	}
 
-	for i := 0; i <= 12800; i++ {
-		if dp[h-1][w-1][i] {
-			fmt.Println(i)
-			return
+	sort.Sort(sort.IntSlice(cx))
+	sort.Sort(sort.IntSlice(cy))
+
+	pcx, pcxCount := RunLengthEncoding(cx)
+	pcy, pcyCount := RunLengthEncoding(cy)
+	// ちゃんと端っこから数える
+	for i := len(pcxCount) - 1; i >= 0; i-- {
+		if pcx[i] == sx {
+			break
 		}
+		// 累積和は不要
+		if i+1 > len(pcxCount)-1 {
+			continue
+		}
+		pcxCount[i] += pcxCount[i+1]
+	}
+	for i := 0; i < len(pcxCount); i++ {
+		if pcx[i] == sx {
+			break
+		}
+		// 累積和は不要
+		if i-1 < 0 {
+			continue
+		}
+		pcxCount[i] += pcxCount[i-1]
+	}
+	for i := len(pcyCount) - 1; i >= 0; i-- {
+		if pcy[i] == sy {
+			break
+		}
+		// 累積和は不要
+		if i+1 > len(pcyCount)-1 {
+			continue
+		}
+		pcyCount[i] += pcyCount[i+1]
+	}
+	for i := 0; i < len(pcyCount); i++ {
+		if pcy[i] == sy {
+			break
+		}
+		// 累積和は不要
+		if i-1 < 0 {
+			continue
+		}
+		pcyCount[i] += pcyCount[i-1]
+	}
+	// PrintDebug("pcx: %v\n", pcx)
+	// PrintDebug("pcxCount: %v\n", pcxCount)
+	// PrintDebug("pcy: %v\n", pcy)
+	// PrintDebug("pcyCount: %v\n", pcyCount)
+
+	mx, my := 0, 0
+	ansx, ansy := 0, 0
+	// sxにx座標を固定
+	for i := 0; i < len(pcyCount); i++ {
+		if pcy[i] == sy {
+			continue
+		}
+		if mx < pcyCount[i] {
+			mx = pcyCount[i]
+			ansy = pcy[i]
+		}
+	}
+	// syにy座標を固定
+	for i := 0; i < len(pcxCount); i++ {
+		if pcx[i] == sx {
+			continue
+		}
+		if my < pcxCount[i] {
+			my = pcxCount[i]
+			ansx = pcx[i]
+		}
+	}
+
+	if mx > my {
+		// x座標はsx
+		fmt.Println(mx)
+		fmt.Println(sx, ansy)
+	} else {
+		// y座標はsy
+		fmt.Println(my)
+		fmt.Println(ansx, sy)
 	}
 }
 
-// AbsInt is integer version of math.Abs
-func AbsInt(a int) int {
-	if a < 0 {
-		return -a
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
 	}
-	return a
+	return false
+}
+
+// RunLengthEncoding returns encoded slice of an input.
+func RunLengthEncoding(S []int) ([]int, []int) {
+	runes := []int{}
+	lengths := []int{}
+
+	l := 0
+	for i := 0; i < len(S); i++ {
+		// 1文字目の場合保持
+		if i == 0 {
+			l = 1
+			continue
+		}
+
+		if S[i-1] == S[i] {
+			// 直前の文字と一致していればインクリメント
+			l++
+		} else {
+			// 不一致のタイミングで追加し、長さをリセットする
+			runes = append(runes, S[i-1])
+			lengths = append(lengths, l)
+			l = 1
+		}
+	}
+	runes = append(runes, S[len(S)-1])
+	lengths = append(lengths, l)
+
+	return runes, lengths
+}
+
+// RunLengthDecoding decodes RLE results.
+func RunLengthDecoding(S []int, L []int) []int {
+	if len(S) != len(L) {
+		panic("S, L are not RunLengthEncoding results")
+	}
+
+	res := []int{}
+
+	for i := 0; i < len(S); i++ {
+		for j := 0; j < L[i]; j++ {
+			res = append(res, S[i])
+		}
+	}
+
+	return res
 }
 
 /*
+- まずは全探索を検討しましょう
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
+- いきなりオーバーフローはしていませんか？
+	- MOD取る系はint64必須ですよ？
+*/
+
+/*
+ASCII code
+
+ASCII   10進数  ASCII   10進数  ASCII   10進数
+!       33      "       34      #       35
+$       36      %       37      &       38
+'       39      (       40      )       41
+*       42      +       43      ,       44
+-       45      .       46      /       47
+0       48      1       49      2       50
+3       51      4       52      5       53
+6       54      7       55      8       56
+9       57      :       58      ;       59
+<       60      =       61      >       62
+?       63      @       64      A       65
+B       66      C       67      D       68
+E       69      F       70      G       71
+H       72      I       73      J       74
+K       75      L       76      M       77
+N       78      O       79      P       80
+Q       81      R       82      S       83
+T       84      U       85      V       86
+W       87      X       88      Y       89
+Z       90      [       91      \       92
+]       93      ^       94      _       95
+`       96      a       97      b       98
+c       99      d       100     e       101
+f       102     g       103     h       104
+i       105     j       106     k       107
+l       108     m       109     n       110
+o       111     p       112     q       113
+r       114     s       115     t       116
+u       117     v       118     w       119
+x       120     y       121     z       122
+{       123     |       124     }       125
+~       126             127
 */
 
 /*******************************************************************/

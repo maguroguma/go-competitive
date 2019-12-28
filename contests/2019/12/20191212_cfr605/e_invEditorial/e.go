@@ -213,65 +213,95 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
+const INF_INT32 = math.MaxInt32
+const INF_BIT30 = 1 << 30
 
-var h, w int
-var A, B [][]int
+var n int
+var A []int
 
-var dp [81][81][80*80*2 + 100]bool
+var G [200000 + 5][]int
+var answers []int
 
 func main() {
-	h, w = ReadInt2()
-	A, B = make([][]int, h), make([][]int, h)
-	for i := 0; i < h; i++ {
-		A[i] = ReadIntSlice(w)
-	}
-	for i := 0; i < h; i++ {
-		B[i] = ReadIntSlice(w)
+	n = ReadInt()
+	A = ReadIntSlice(n)
+
+	// 順方向で頑張りたい
+	for i := 0; i < n; i++ {
+		lid, rid := i-A[i], i+A[i]
+		if lid >= 0 {
+			G[i] = append(G[i], lid)
+		}
+		if rid < n {
+			G[i] = append(G[i], rid)
+		}
 	}
 
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			for k := 0; k <= 12800; k++ {
-				a, b := A[i][j], B[i][j]
-				d := AbsInt(a - b)
-				if i == 0 && j == 0 {
-					dp[i][j][d] = true
-					continue
-				}
+	oddIdxs, evenIdxs := []int{}, []int{}
+	for i := 0; i < n; i++ {
+		if A[i]%2 == 0 {
+			evenIdxs = append(evenIdxs, i)
+		} else {
+			oddIdxs = append(oddIdxs, i)
+		}
+	}
 
-				l, m := k+d, AbsInt(k-d)
-				if i-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i-1][j][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i-1][j][k]
-				}
-				if j-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i][j-1][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i][j-1][k]
-				}
+	answers = make([]int, n)
+	for i := 0; i < n; i++ {
+		answers[i] = -1
+	}
+
+	bfs(oddIdxs, evenIdxs)
+	bfs(evenIdxs, oddIdxs)
+
+	fmt.Println(PrintIntsLine(answers...))
+}
+
+type Node struct {
+	dist, sidx int
+}
+
+func bfs(starts, ends []int) {
+	// 距離とともに起点をもたせておけば順方向でも頑張れそう
+	dist := make([]Node, n)
+	for i := 0; i < n; i++ {
+		dist[i] = Node{dist: INF_BIT30, sidx: -1}
+	}
+
+	queue := []int{}
+	for _, sidx := range starts {
+		dist[sidx].dist = 0
+		dist[sidx].sidx = sidx
+		queue = append(queue, sidx)
+	}
+
+	for len(queue) > 0 {
+		cid := queue[0]
+		queue = queue[1:]
+
+		for _, nid := range G[cid] {
+			if dist[nid].dist == INF_BIT30 {
+				// **ここにはいろんな起点から到達できるけど、一番乗りの起点に専有されてしまうから無理**
+				dist[nid].dist = dist[cid].dist + 1
+				dist[nid].sidx = dist[cid].sidx
+				queue = append(queue, nid)
 			}
 		}
 	}
 
-	for i := 0; i <= 12800; i++ {
-		if dp[h-1][w-1][i] {
-			fmt.Println(i)
-			return
+	for _, eidx := range ends {
+		if dist[eidx].dist != INF_BIT30 {
+			s, d := dist[eidx].sidx, dist[eidx].dist
+			answers[s] = d
 		}
 	}
-}
-
-// AbsInt is integer version of math.Abs
-func AbsInt(a int) int {
-	if a < 0 {
-		return -a
-	}
-	return a
 }
 
 /*
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
+- いきなりオーバーフローはしていませんか？
 */
 
 /*******************************************************************/

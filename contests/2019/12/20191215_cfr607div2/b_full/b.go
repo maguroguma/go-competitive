@@ -214,64 +214,87 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var h, w int
-var A, B [][]int
-
-var dp [81][81][80*80*2 + 100]bool
+var t int
+var S, C []rune
 
 func main() {
-	h, w = ReadInt2()
-	A, B = make([][]int, h), make([][]int, h)
-	for i := 0; i < h; i++ {
-		A[i] = ReadIntSlice(w)
-	}
-	for i := 0; i < h; i++ {
-		B[i] = ReadIntSlice(w)
-	}
+	t = ReadInt()
 
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			for k := 0; k <= 12800; k++ {
-				a, b := A[i][j], B[i][j]
-				d := AbsInt(a - b)
-				if i == 0 && j == 0 {
-					dp[i][j][d] = true
-					continue
-				}
+	for tc := 0; tc < t; tc++ {
+		S = ReadRuneSlice()
+		C = ReadRuneSlice()
 
-				l, m := k+d, AbsInt(k-d)
-				if i-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i-1][j][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i-1][j][k]
-				}
-				if j-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i][j-1][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i][j-1][k]
-				}
-			}
-		}
-	}
-
-	for i := 0; i <= 12800; i++ {
-		if dp[h-1][w-1][i] {
-			fmt.Println(i)
-			return
-		}
+		solve()
 	}
 }
 
-// AbsInt is integer version of math.Abs
-func AbsInt(a int) int {
-	if a < 0 {
-		return -a
+const impossible = "---"
+
+func solve() {
+	n := len(S)
+
+	if compare(S, C) {
+		fmt.Println(string(S))
+		return
 	}
-	return a
+
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			S[i], S[j] = S[j], S[i]
+			if compare(S, C) {
+				fmt.Println(string(S))
+				return
+			}
+			// 戻す
+			S[i], S[j] = S[j], S[i]
+		}
+	}
+
+	fmt.Println(impossible)
+}
+
+// AのほうがBよりも小さかったらtrue
+func compare(A, B []rune) bool {
+	m := Min(len(A), len(B))
+	for i := 0; i < m; i++ {
+		if A[i] == B[i] {
+			continue
+		} else if A[i] < B[i] {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	if len(A) == len(B) {
+		return false
+	} else if len(A) > len(B) {
+		return false
+	} else {
+		return true
+	}
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
+- いきなりオーバーフローはしていませんか？
 */
 
 /*******************************************************************/

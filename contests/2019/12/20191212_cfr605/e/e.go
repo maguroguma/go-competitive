@@ -226,58 +226,66 @@ func main() {
 
 	answers, flag = make([]int, n), make([]bool, n)
 
-	// for i := 0; i < n; i++ {
-	// 	answers[i] = dfs(i, 0)
-	// }
+	for i := 0; i < n; i++ {
+		if answers[i] == 0 {
+			answers[i] = dfs(i)
+		}
+	}
 
-	// BFSをやるべきな気がする
+	for i := 0; i < n; i++ {
+		if answers[i] >= INIT_MAX {
+			answers[i] = -1
+		}
+	}
 
 	fmt.Println(PrintIntsLine(answers...))
 }
 
 const INIT_MAX = 1000000
 
-// func dfs(cid, cstep int) int {
-// 	// 答えがわかっているならそのまま返す
-// 	if answers[cid] != 0 {
-// 		return answers[cid]
-// 	}
-// 	// ループに組み込まれている場合はimpossible
-// 	if flag[cid] {
-// 		return -1
-// 	}
-// 	flag[cid] = true
+func dfs(cid int) int {
+	// 答えがわかっているならそのまま返す
+	if answers[cid] != 0 {
+		return answers[cid]
+	}
+	// ループに組み込まれている場合はimpossible
+	if flag[cid] {
+		answers[cid] = INIT_MAX
+		return answers[cid]
+	}
+	flag[cid] = true
 
-// 	// 左右をチェック
-// 	lid, rid := cid-A[cid], cid+A[cid]
-// 	ans := INIT_MAX
-// 	if lid >= 0 {
-// 		if A[lid]%2 != A[cid]%2 {
-// 			ChMin(&ans, cstep+1)
-// 		} else {
-// 			lans := dfs(lid, cstep+1)
-// 			if lans != -1 {
-// 				ChMin(&ans, lans)
-// 			}
-// 		}
-// 	}
-// 	if rid < n {
-// 		if A[rid]%2 != A[cid]%2 {
-// 			ChMin(&ans, cstep+1)
-// 		} else {
-// 			rans := dfs(rid, cstep+1)
-// 			if rans != -1 {
-// 				ChMin(&ans, rans)
-// 			}
-// 		}
-// 	}
+	// 左右をチェック
+	lid, rid := cid-A[cid], cid+A[cid]
+	ans := INIT_MAX
+	if lid >= 0 {
+		if A[lid]%2 != A[cid]%2 {
+			ChMin(&ans, 1)
+		} else {
+			lans := dfs(lid)
+			if lans != -1 {
+				ChMin(&ans, lans+1)
+			}
+		}
+	}
+	if rid < n {
+		if A[rid]%2 != A[cid]%2 {
+			ChMin(&ans, 1)
+		} else {
+			rans := dfs(rid)
+			if rans != -1 {
+				ChMin(&ans, rans+1)
+			}
+		}
+	}
 
-// 	if ans == INIT_MAX {
-// 		return -1
-// 	} else {
-// 		return ans
-// 	}
-// }
+	if ans >= INIT_MAX {
+		answers[cid] = INIT_MAX
+	} else {
+		answers[cid] = ans
+	}
+	return answers[cid]
+}
 
 // ChMin accepts a pointer of integer and a target value.
 // If target value is SMALLER than the first argument,

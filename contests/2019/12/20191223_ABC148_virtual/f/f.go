@@ -213,65 +213,114 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
+const INF_INT32 = math.MaxInt32
+const INF_BIT30 = 1 << 30
 
-var h, w int
-var A, B [][]int
+var n int
+var u, v int
+var G [100000 + 5][]int
 
-var dp [81][81][80*80*2 + 100]bool
+var visited [100000 + 5]bool
+var steps [100000 + 5]int
 
 func main() {
-	h, w = ReadInt2()
-	A, B = make([][]int, h), make([][]int, h)
-	for i := 0; i < h; i++ {
-		A[i] = ReadIntSlice(w)
-	}
-	for i := 0; i < h; i++ {
-		B[i] = ReadIntSlice(w)
-	}
-
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			for k := 0; k <= 12800; k++ {
-				a, b := A[i][j], B[i][j]
-				d := AbsInt(a - b)
-				if i == 0 && j == 0 {
-					dp[i][j][d] = true
-					continue
-				}
-
-				l, m := k+d, AbsInt(k-d)
-				if i-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i-1][j][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i-1][j][k]
-				}
-				if j-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i][j-1][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i][j-1][k]
-				}
-			}
-		}
+	n = ReadInt()
+	u, v = ReadInt2()
+	u--
+	v--
+	for i := 0; i < n-1; i++ {
+		a, b := ReadInt2()
+		a--
+		b--
+		G[a] = append(G[a], b)
+		G[b] = append(G[b], a)
 	}
 
-	for i := 0; i <= 12800; i++ {
-		if dp[h-1][w-1][i] {
-			fmt.Println(i)
+	// u: 高橋, v: 青木
+	for _, nid := range G[v] {
+		if nid == u && len(G[u]) == 1 {
+			fmt.Println(0)
 			return
 		}
 	}
+
+	dfs(v, 0)
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		ChMax(&ans, steps[i])
+	}
+	fmt.Println(ans - 1)
 }
 
-// AbsInt is integer version of math.Abs
-func AbsInt(a int) int {
-	if a < 0 {
-		return -a
+func dfs(cid, step int) {
+	visited[cid] = true
+	steps[cid] = step
+
+	for _, nid := range G[cid] {
+		if visited[nid] {
+			continue
+		}
+		dfs(nid, step+1)
 	}
-	return a
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
 }
 
 /*
+- まずは全探索を検討しましょう
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
+- いきなりオーバーフローはしていませんか？
+	- MOD取る系はint64必須ですよ？
+*/
+
+/*
+ASCII code
+
+ASCII   10進数  ASCII   10進数  ASCII   10進数
+!       33      "       34      #       35
+$       36      %       37      &       38
+'       39      (       40      )       41
+*       42      +       43      ,       44
+-       45      .       46      /       47
+0       48      1       49      2       50
+3       51      4       52      5       53
+6       54      7       55      8       56
+9       57      :       58      ;       59
+<       60      =       61      >       62
+?       63      @       64      A       65
+B       66      C       67      D       68
+E       69      F       70      G       71
+H       72      I       73      J       74
+K       75      L       76      M       77
+N       78      O       79      P       80
+Q       81      R       82      S       83
+T       84      U       85      V       86
+W       87      X       88      Y       89
+Z       90      [       91      \       92
+]       93      ^       94      _       95
+`       96      a       97      b       98
+c       99      d       100     e       101
+f       102     g       103     h       104
+i       105     j       106     k       107
+l       108     m       109     n       110
+o       111     p       112     q       113
+r       114     s       115     t       116
+u       117     v       118     w       119
+x       120     y       121     z       122
+{       123     |       124     }       125
+~       126             127
 */
 
 /*******************************************************************/

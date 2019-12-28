@@ -214,64 +214,104 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var h, w int
-var A, B [][]int
-
-var dp [81][81][80*80*2 + 100]bool
+var t int
+var r, c int
+var S [][]rune
 
 func main() {
-	h, w = ReadInt2()
-	A, B = make([][]int, h), make([][]int, h)
-	for i := 0; i < h; i++ {
-		A[i] = ReadIntSlice(w)
-	}
-	for i := 0; i < h; i++ {
-		B[i] = ReadIntSlice(w)
-	}
+	t = ReadInt()
 
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			for k := 0; k <= 12800; k++ {
-				a, b := A[i][j], B[i][j]
-				d := AbsInt(a - b)
-				if i == 0 && j == 0 {
-					dp[i][j][d] = true
-					continue
-				}
-
-				l, m := k+d, AbsInt(k-d)
-				if i-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i-1][j][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i-1][j][k]
-				}
-				if j-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i][j-1][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i][j-1][k]
-				}
-			}
+	for tc := 0; tc < t; tc++ {
+		r, c = ReadInt2()
+		S = [][]rune{}
+		for i := 0; i < r; i++ {
+			row := ReadRuneSlice()
+			S = append(S, row)
 		}
-	}
 
-	for i := 0; i <= 12800; i++ {
-		if dp[h-1][w-1][i] {
-			fmt.Println(i)
-			return
-		}
+		solve()
 	}
 }
 
-// AbsInt is integer version of math.Abs
-func AbsInt(a int) int {
-	if a < 0 {
-		return -a
+func solve() {
+	anum := 0
+	for i := 0; i < r; i++ {
+		for j := 0; j < c; j++ {
+			if S[i][j] == 'A' {
+				anum++
+			}
+		}
 	}
-	return a
+	if anum == 0 {
+		fmt.Println("MORTAL")
+		return
+	}
+	if anum == r*c {
+		fmt.Println(0)
+		return
+	}
+
+	if subRow(0) || subRow(r-1) || subCol(0) || subCol(c-1) {
+		fmt.Println(1)
+		return
+	}
+
+	b := false
+	for i := 1; i < r-1; i++ {
+		b = b || subRow(i)
+	}
+	for i := 1; i < c-1; i++ {
+		b = b || subCol(i)
+	}
+	if b {
+		fmt.Println(2)
+		return
+	}
+	if S[0][0] == 'A' || S[0][c-1] == 'A' || S[r-1][0] == 'A' || S[r-1][c-1] == 'A' {
+		fmt.Println(2)
+		return
+	}
+
+	b = false
+	for i := 1; i < c-1; i++ {
+		b = b || (S[0][i] == 'A')
+		b = b || (S[r-1][i] == 'A')
+	}
+	for i := 1; i < r-1; i++ {
+		b = b || (S[i][0] == 'A')
+		b = b || (S[i][c-1] == 'A')
+	}
+	if b {
+		fmt.Println(3)
+		return
+	}
+
+	fmt.Println(4)
+}
+
+func subRow(rowId int) bool {
+	for i := 0; i < c; i++ {
+		if S[rowId][i] != 'A' {
+			return false
+		}
+	}
+	return true
+}
+
+func subCol(colId int) bool {
+	for i := 0; i < r; i++ {
+		if S[i][colId] != 'A' {
+			return false
+		}
+	}
+	return true
 }
 
 /*
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
+- いきなりオーバーフローはしていませんか？
 */
 
 /*******************************************************************/

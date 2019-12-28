@@ -213,65 +213,170 @@ const MOD = 1000000000 + 7
 const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
+const INF_INT32 = math.MaxInt32
+const INF_BIT30 = 1 << 30
 
-var h, w int
-var A, B [][]int
-
-var dp [81][81][80*80*2 + 100]bool
+var t int
+var n int
+var A []int
 
 func main() {
-	h, w = ReadInt2()
-	A, B = make([][]int, h), make([][]int, h)
-	for i := 0; i < h; i++ {
-		A[i] = ReadIntSlice(w)
-	}
-	for i := 0; i < h; i++ {
-		B[i] = ReadIntSlice(w)
-	}
+	t = ReadInt()
 
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			for k := 0; k <= 12800; k++ {
-				a, b := A[i][j], B[i][j]
-				d := AbsInt(a - b)
-				if i == 0 && j == 0 {
-					dp[i][j][d] = true
-					continue
-				}
+	for tc := 0; tc < t; tc++ {
+		n = ReadInt()
+		A = ReadIntSlice(2 * n)
 
-				l, m := k+d, AbsInt(k-d)
-				if i-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i-1][j][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i-1][j][k]
-				}
-				if j-1 >= 0 {
-					dp[i][j][l] = dp[i][j][l] || dp[i][j-1][k]
-					dp[i][j][m] = dp[i][j][m] || dp[i][j-1][k]
-				}
-			}
-		}
-	}
-
-	for i := 0; i <= 12800; i++ {
-		if dp[h-1][w-1][i] {
-			fmt.Println(i)
-			return
-		}
+		solve()
 	}
 }
 
-// AbsInt is integer version of math.Abs
-func AbsInt(a int) int {
-	if a < 0 {
-		return -a
+func solve() {
+	E := make([]int, len(A))
+	for i := 0; i < len(A); i++ {
+		if A[i] == 2 {
+			E[i] = -1
+		} else {
+			E[i] = 1
+		}
 	}
-	return a
+	sum := Sum(E...)
+
+	if sum == 0 {
+		fmt.Println(0)
+		return
+	}
+
+	if sum < 0 {
+		for i := 0; i < len(E); i++ {
+			E[i] = -E[i]
+		}
+	}
+	sum = Sum(E...)
+
+	R, L := []int{}, []int{}
+	for i := n - 1; i >= 0; i-- {
+		L = append(L, E[i])
+	}
+	for i := 1; i < n; i++ {
+		L[i] += L[i-1]
+	}
+	for i := n; i < 2*n; i++ {
+		R = append(R, E[i])
+	}
+	for i := 1; i < n; i++ {
+		R[i] += R[i-1]
+	}
+	// PrintDebug("%v\n", L)
+	// PrintDebug("%v\n", R)
+	// PrintDebug("%d\n", sum)
+
+	leftMemo, rightMemo := make(map[int]int), make(map[int]int)
+	leftMemo[0], rightMemo[0] = -1, -1
+	for i := 0; i < n; i++ {
+		a := L[i]
+		if _, ok := leftMemo[a]; ok {
+			continue
+		} else {
+			leftMemo[a] = i
+		}
+	}
+	for i := 0; i < n; i++ {
+		a := R[i]
+		if _, ok := rightMemo[a]; ok {
+			continue
+		} else {
+			rightMemo[a] = i
+		}
+	}
+
+	ans := INF_BIT30
+	for lv := 0; lv <= sum; lv++ {
+		rv := sum - lv
+		lidx, lok := leftMemo[lv]
+		ridx, rok := rightMemo[rv]
+		if lok && rok {
+			ChMin(&ans, lidx+ridx+2)
+		}
+	}
+	for rv := 0; rv <= sum; rv++ {
+		lv := sum - rv
+		lidx, lok := leftMemo[lv]
+		ridx, rok := rightMemo[rv]
+		if lok && rok {
+			ChMin(&ans, lidx+ridx+2)
+		}
+	}
+	fmt.Println(ans)
+}
+
+// Sum returns multiple integers sum.
+func Sum(integers ...int) int {
+	s := 0
+
+	for _, i := range integers {
+		s += i
+	}
+
+	return s
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
 }
 
 /*
+- まずは全探索を検討しましょう
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
+- いきなりオーバーフローはしていませんか？
+	- MOD取る系はint64必須ですよ？
+*/
+
+/*
+ASCII code
+
+ASCII   10進数  ASCII   10進数  ASCII   10進数
+!       33      "       34      #       35
+$       36      %       37      &       38
+'       39      (       40      )       41
+*       42      +       43      ,       44
+-       45      .       46      /       47
+0       48      1       49      2       50
+3       51      4       52      5       53
+6       54      7       55      8       56
+9       57      :       58      ;       59
+<       60      =       61      >       62
+?       63      @       64      A       65
+B       66      C       67      D       68
+E       69      F       70      G       71
+H       72      I       73      J       74
+K       75      L       76      M       77
+N       78      O       79      P       80
+Q       81      R       82      S       83
+T       84      U       85      V       86
+W       87      X       88      Y       89
+Z       90      [       91      \       92
+]       93      ^       94      _       95
+`       96      a       97      b       98
+c       99      d       100     e       101
+f       102     g       103     h       104
+i       105     j       106     k       107
+l       108     m       109     n       110
+o       111     p       112     q       113
+r       114     s       115     t       116
+u       117     v       118     w       119
+x       120     y       121     z       122
+{       123     |       124     }       125
+~       126             127
 */
 
 /*******************************************************************/

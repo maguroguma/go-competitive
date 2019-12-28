@@ -13,3 +13,6 @@
 
 # vscode
 *.vscode
+
+# PAST
+PAST/*

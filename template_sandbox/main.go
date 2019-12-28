@@ -30,6 +30,22 @@ const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
 func main() {
+	// fmt.Printf("ASCII\t10進数\tASCII\t10進数\tASCII\t10進数\n")
+	// for r := rune(33); r <= 127; r += 3 {
+	// 	str := ""
+	// 	for i := rune(0); i < rune(3); i++ {
+	// 		if r+i <= 127 {
+	// 			str += fmt.Sprintf("%c\t%d\t", r+i, int(r+i))
+	// 		}
+	// 	}
+	// 	str += "\n"
+	// 	// fmt.Printf("%c\t%d\t%c\t%d\t%c\t%d\n", r, int(r), r+1, int(r+1), r+2, int(r+2))
+	// 	fmt.Printf("%s", str)
+	// }
+
+	// fmt.Println(math.Sqrt(math.Pow(10, 9)))
+
+	fmt.Println(math.MaxInt32)
 }
 
 // PowInt is integer version of math.Pow
