@@ -238,12 +238,22 @@ func solve() {
 	// m は中央を意味する何らかの値
 	isOK := func(m int) bool {
 		val := int64(0)
-		for i := 0; i < m-2; i++ {
+
+		tmp := int64(m) % k
+		for i := 0; i < int(tmp); i++ {
 			val += A[i]
 		}
-		pp := p - val
+		num := int64(m) / k
+		i := m-1
+		for num > 0 {
+			val += A[i]
+			i -= int(k)
 
-		if pp >= A[m-1] {
+			num--
+		}
+
+		pp := p - val
+		if pp >= 0 {
 			return true
 		}
 		return false
