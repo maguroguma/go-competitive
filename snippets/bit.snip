@@ -1,6 +1,12 @@
 snippet     binaryIndexedTree
 abbr        type BinaryIndexedTree struct
 options     head
+  // Public methods
+  // bit := NewBIT(200000 + 5)
+  // s := bit.Sum(i) 						// Sum of [1, i] (1-based)
+  // bit.Add(i, x) 							// Add x to i (1-based)
+  // idx := bit.LowerBound(w) 	// minimum idx such that bit.Sum(idx) >= w
+
   type BinaryIndexedTree struct {
     bit     []int
     n       int
