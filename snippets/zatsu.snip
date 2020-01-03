@@ -1,0 +1,37 @@
+snippet     za-tsu
+abbr        func ZaAtsu1Dim(org []int, initVal int) (pressed []int, orgToPress, pressToOrg map[int]int)
+options     head
+  // ZaAtsu1Dim returns 3 values.
+  // pressed: pressed slice of the original slice
+  // orgToPress: map for translating original value to pressed value
+  // pressToOrg: reverse resolution of orgToPress
+  // O(nlogn)
+  func ZaAtsu1Dim(org []int, initVal int) (pressed []int, orgToPress, pressToOrg map[int]int) {
+    pressed = make([]int, len(org))
+    copy(pressed, org)
+    sort.Sort(sort.IntSlice(pressed))
+
+    orgToPress = make(map[int]int)
+    for i := 0; i < len(org); i++ {
+      if i == 0 {
+        orgToPress[pressed[0]] = initVal
+        continue
+      }
+
+      if pressed[i-1] != pressed[i] {
+        initVal++
+        orgToPress[pressed[i]] = initVal
+      }
+    }
+
+    for i := 0; i < n; i++ {
+      pressed[i] = orgToPress[A[i]]
+    }
+
+    pressToOrg = make(map[int]int)
+    for k, v := range orgToPress {
+      pressToOrg[v] = k
+    }
+
+    return
+  }
