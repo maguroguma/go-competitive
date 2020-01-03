@@ -62,6 +62,88 @@ options     head
     return x + 1
   }
 
+snippet     binaryIndexedTreeSetVer
+abbr        type BITSet struct
+options     head
+  // Public methods
+  // bit := NewBITSet(200000 + 5)
+  // c := bit.Count(b.n)
+  // bit.Insert(val, 1)
+  // bit.Delete(val, 1)
+  // ans := bit.Kth(k)
+
+  type BITSet struct {
+    bit     []int
+    n       int
+    minPow2 int
+  }
+
+  // n(>=1) is maximum integer for the set.
+  func NewBITSet(n int) *BITSet {
+    newBit := new(BITSet)
+
+    newBit.bit = make([]int, n+1)
+    newBit.n = n
+
+    newBit.minPow2 = 1
+    for {
+      if (newBit.minPow2 << 1) > n {
+        break
+      }
+      newBit.minPow2 <<= 1
+    }
+
+    return newBit
+  }
+
+  // Count returns number of elements less or equal than e in the set.
+  // b.Count(b.n) returns total number of elements in the set.
+  // O(logN)
+  func (b *BITSet) Count(e int) int {
+    s := 0
+
+    for e > 0 {
+      s += b.bit[e]
+      e -= e & (-e)
+    }
+
+    return s
+  }
+
+  // Insert e(1<=e<=n) for num(>= 1) times.
+  func (b *BITSet) Insert(e, num int) {
+    for e <= b.n {
+      b.bit[e] += num
+      e += e & (-e)
+    }
+  }
+
+  // Delete e(1<=e<=n) for num(>= 1) times.
+  func (b *BITSet) Delete(e, num int) {
+    num *= -1
+    for e <= b.n {
+      b.bit[e] += num
+      e += e & (-e)
+    }
+  }
+
+  // Kth returns kth element in the set
+  func (b *BITSet) Kth(kth int) int {
+    if kth <= 0 {
+      return 0
+    }
+
+    x := 0
+    for k := b.minPow2; k > 0; k /= 2 {
+      if x+k <= b.n && b.bit[x+k] < kth {
+        kth -= b.bit[x+k]
+        x += k
+      }
+    }
+
+    return x + 1
+  }
+
 snippet     binaryIndexedTreeSimpleVersion
 abbr        var bit [1000000 + 1]int
 options     head

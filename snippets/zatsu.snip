@@ -24,8 +24,8 @@ options     head
       }
     }
 
-    for i := 0; i < n; i++ {
-      pressed[i] = orgToPress[A[i]]
+    for i := 0; i < len(org); i++ {
+      pressed[i] = orgToPress[org[i]]
     }
 
     pressToOrg = make(map[int]int)
