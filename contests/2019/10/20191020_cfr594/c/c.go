@@ -359,10 +359,26 @@ const ALPHABET_NUM = 26
 const INF_INT64 = math.MaxInt64
 const INF_BIT60 = 1 << 60
 
-var n, m int
+var n, m int64
+var dp [100000 + 5]int64
 
 func main() {
-	n, m = ReadInt2()
+	n, m = ReadInt64_2()
+
+	dp[0], dp[1] = 1, 2
+	for i := 2; i <= 100000+3; i++ {
+		dp[i] = dp[i-1] + dp[i-2]
+		dp[i] %= MOD
+	}
+
+	var ans int64
+	ans = dp[m-1] - 1
+	ans += dp[n-1]
+	ans %= MOD
+	ans *= 2
+	ans %= MOD
+
+	fmt.Println(ans)
 }
 
 // MODはとったか？
