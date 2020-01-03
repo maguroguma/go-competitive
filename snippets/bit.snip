@@ -2,16 +2,25 @@ snippet     binaryIndexedTree
 abbr        type BinaryIndexedTree struct
 options     head
   type BinaryIndexedTree struct {
-    bit []int
-    n   int
+    bit     []int
+    n       int
+    minPow2 int
   }
 
-  // n is number of elements of original data
+  // n(>=1) is number of elements of original data
   func NewBIT(n int) *BinaryIndexedTree {
     newBit := new(BinaryIndexedTree)
 
     newBit.bit = make([]int, n+1)
     newBit.n = n
+
+    newBit.minPow2 = 1
+    for {
+      if (newBit.minPow2 << 1) > n {
+        break
+      }
+      newBit.minPow2 <<= 1
+    }
 
     return newBit
   }
@@ -34,6 +43,23 @@ options     head
       b.bit[i] += x
       i += i & (-i)
     }
+  }
+
+  // LowerBound returns minimum i such that bit.Sum(i) >= w.
+  func (b *BinaryIndexedTree) LowerBound(w int) int {
+    if w <= 0 {
+      return 0
+    }
+
+    x := 0
+    for k := b.minPow2; k > 0; k /= 2 {
+      if x+k <= b.n && b.bit[x+k] < w {
+        w -= b.bit[x+k]
+        x += k
+      }
+    }
+
+    return x + 1
   }
 
 snippet     binaryIndexedTreeSimpleVersion
