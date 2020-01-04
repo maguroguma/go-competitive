@@ -210,28 +210,6 @@ options     head
   //str := ZeroPaddingRuneSlice(num, 32)
   //str := PrintIntsLine(X...)
 
-  /*******************************************************************/
-
-  const MOD = 1000000000 + 7
-  const ALPHABET_NUM = 26
-  const INF_INT64 = math.MaxInt64
-  const INF_BIT60 = 1 << 60
-  const INF_INT32 = math.MaxInt32
-  const INF_BIT30 = 1 << 30
-
-  func main() {
-    fmt.Println("Hello World.")
-  }
-
-  /*
-  - まずは全探索を検討しましょう
-  - MODは最後にとりましたか？
-  - ループを抜けた後も処理が必要じゃありませんか？
-  - 和・積・あまりを求められたらint64が必要ではありませんか？
-  - いきなりオーバーフローはしていませんか？
-    - MOD取る系はint64必須ですよ？
-  */
-
   /*
   ASCII code
 
@@ -268,6 +246,37 @@ options     head
   x       120     y       121     z       122
   {       123     |       124     }       125
   ~       126             127
+  */
+
+  /*******************************************************************/
+
+  const (
+    // General purpose
+    MOD          = 1000000000 + 7
+    ALPHABET_NUM = 26
+    INF_INT64    = math.MaxInt64
+    INF_BIT60    = 1 << 60
+    INF_INT32    = math.MaxInt32
+    INF_BIT30    = 1 << 30
+    NIL          = -1
+
+    // for dijkstra, prim, and so on
+    WHITE = 0
+    GRAY  = 1
+    BLACK = 2
+  )
+
+  func main() {
+    fmt.Println("Hello World.")
+  }
+
+  /*
+  - まずは全探索を検討しましょう
+  - MODは最後にとりましたか？
+  - ループを抜けた後も処理が必要じゃありませんか？
+  - 和・積・あまりを求められたらint64が必要ではありませんか？
+  - いきなりオーバーフローはしていませんか？
+    - MOD取る系はint64必須ですよ？
   */
 
   /*******************************************************************/

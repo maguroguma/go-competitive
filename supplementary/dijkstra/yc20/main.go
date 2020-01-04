@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -263,9 +264,142 @@ const (
 	BLACK = 2
 )
 
+var n, v int
+var ox, oy int
+var L [][]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, v, ox, oy = ReadInt4()
+	for i := 0; i < n; i++ {
+		row := ReadIntSlice(n)
+		L = append(L, row)
+	}
+
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			cid := i*n + j
+			// LRUDの順で辺の有無をチェック
+			if j-1 >= 0 {
+				nid := i*n + (j - 1)
+				G[cid] = append(G[cid], Edge{to: nid, cost: L[i][j-1]})
+			}
+			if j+1 < n {
+				nid := i*n + (j + 1)
+				G[cid] = append(G[cid], Edge{to: nid, cost: L[i][j+1]})
+			}
+			if i+1 < n {
+				nid := (i+1)*n + j
+				G[cid] = append(G[cid], Edge{to: nid, cost: L[i+1][j]})
+			}
+			if i-1 >= 0 {
+				nid := (i-1)*n + j
+				G[cid] = append(G[cid], Edge{to: nid, cost: L[i-1][j]})
+			}
+		}
+	}
+
+	// オアシスなしでダイクストラ
+	dp := dijkstra(0)
+	if dp[n*n-1] < v {
+		fmt.Println("YES")
+		return
+	}
+
+	// オアシスがある場合は、そこを経由してダイクストラ
+	if ox == 0 && oy == 0 {
+		fmt.Println("NO")
+		return
+	}
+	ox--
+	oy--
+	vv := v - dp[n*oy+ox]
+	if vv <= 0 {
+		fmt.Println("NO")
+		return
+	}
+	vv *= 2
+	dp = dijkstra(n*oy + ox)
+	if dp[n*n-1] < vv {
+		fmt.Println("YES")
+		return
+	}
+	fmt.Println("NO")
 }
+
+const NUM = 40000 + 5
+
+func dijkstra(sid int) []int {
+	dp, colors, parents := make([]int, NUM), make([]int, NUM), make([]int, NUM)
+	for i := 0; i < NUM; i++ {
+		dp[i], colors[i], parents[i] = INF_BIT30, WHITE, NIL
+	}
+	dp[sid], colors[sid], parents[sid] = 0, GRAY, NIL
+
+	temp := make(VertexPQ, 0, 100000+1)
+	pq := &temp
+	heap.Init(pq)
+	heap.Push(pq, &Vertex{pri: 0, id: sid})
+
+	for pq.Len() > 0 {
+		cv := heap.Pop(pq).(*Vertex)
+		colors[cv.id] = BLACK
+
+		if dp[cv.id] < cv.pri {
+			continue
+		}
+
+		for _, e := range G[cv.id] {
+			if colors[e.to] == BLACK {
+				continue
+			}
+
+			if dp[e.to] > dp[cv.id]+e.cost {
+				dp[e.to] = dp[cv.id] + e.cost
+				colors[e.to] = GRAY
+				parents[e.to] = cv.id
+				heap.Push(pq, &Vertex{pri: dp[e.to], id: e.to})
+			}
+		}
+	}
+
+	return dp
+}
+
+var G [NUM][]Edge
+
+type Edge struct {
+	to, cost int
+}
+
+type Vertex struct {
+	pri int
+	id  int
+}
+type VertexPQ []*Vertex
+
+func (pq VertexPQ) Len() int           { return len(pq) }
+func (pq VertexPQ) Less(i, j int) bool { return pq[i].pri < pq[j].pri } // <: ASC, >: DESC
+func (pq VertexPQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *VertexPQ) Push(x interface{}) {
+	item := x.(*Vertex)
+	*pq = append(*pq, item)
+}
+func (pq *VertexPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
+}
+
+// how to use
+// temp := make(VertexPQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &Vertex{pri: intValue})
+// popped := heap.Pop(pq).(*Vertex)
 
 /*
 - まずは全探索を検討しましょう
@@ -273,7 +407,7 @@ func main() {
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
 - いきなりオーバーフローはしていませんか？
-	- MOD取る系はint64必須ですよ？
+- MOD取る系はint64必須ですよ？
 */
 
 /*******************************************************************/

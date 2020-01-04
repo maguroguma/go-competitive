@@ -263,9 +263,76 @@ const (
 	BLACK = 2
 )
 
+var n, v int
+var sx, sy, gx, gy int
+var L [][]int
+
 func main() {
-	fmt.Println("Hello World.")
+	n, v = ReadInt2()
+	sx, sy, gx, gy = ReadInt4()
+	for i := 0; i < n; i++ {
+		row := ReadIntSlice(n)
+		L = append(L, row)
+	}
+
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			cid := i*n + j
+			// LRUDの順で辺の有無をチェック
+			if j-1 >= 0 {
+				nid := i*n + (j - 1)
+				G[cid] = append(G[cid], Edge{to: nid, cost: L[i][j-1]})
+			}
+			if j+1 < n {
+				nid := i*n + (j + 1)
+				G[cid] = append(G[cid], Edge{to: nid, cost: L[i][j+1]})
+			}
+			if i+1 < n {
+				nid := (i+1)*n + j
+				G[cid] = append(G[cid], Edge{to: nid, cost: L[i+1][j]})
+			}
+			if i-1 >= 0 {
+				nid := (i-1)*n + j
+				G[cid] = append(G[cid], Edge{to: nid, cost: L[i-1][j]})
+			}
+		}
+	}
+
 }
+
+type Edge struct {
+	to, cost int
+}
+
+type Vertex struct {
+	pri int
+	id  int
+}
+type VertexPQ []*Vertex
+
+func (pq VertexPQ) Len() int           { return len(pq) }
+func (pq VertexPQ) Less(i, j int) bool { return pq[i].pri < pq[j].pri } // <: ASC, >: DESC
+func (pq VertexPQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *VertexPQ) Push(x interface{}) {
+	item := x.(*Vertex)
+	*pq = append(*pq, item)
+}
+func (pq *VertexPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
+}
+
+// how to use
+// temp := make(VertexPQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &Vertex{pri: intValue})
+// popped := heap.Pop(pq).(*Vertex)
 
 /*
 - まずは全探索を検討しましょう
@@ -273,7 +340,7 @@ func main() {
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
 - いきなりオーバーフローはしていませんか？
-	- MOD取る系はint64必須ですよ？
+- MOD取る系はint64必須ですよ？
 */
 
 /*******************************************************************/
