@@ -1,3 +1,13 @@
+snippet     kruskalHowTo
+abbr        how to implement kruskal
+options     head
+  // 1. ソート可能なエッジリストを構成する。
+  //   - エッジ構造体は |from, to, cost| を最低限備えていれば良い。
+  // 2. エッジリストをコストで昇順ソートする。
+  // 3. 閉路判定用のUF木を確保する。
+  //   - 確保するノード数は最大値を適当に超えさせておけば良い。
+  // 4. エッジリストを先頭からチェックし |!uf.Same(e.from, e.to)| を満たすもののコストだけ答えに加算する。
+
 snippet     kruskal
 abbr        if !uf.Same(e.from, e.to)
 options     head

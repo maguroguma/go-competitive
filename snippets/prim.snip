@@ -85,7 +85,7 @@ options     head
   // popped := heap.Pop(pq).(*Node)
 
 snippet     primSquareOrderVer
-abbr        func
+abbr        func prim() int
 options     head
   const (
     MAX   = 500 + 5
@@ -95,14 +95,18 @@ options     head
     BLACK = 2
   )
 
-  var n int
-  var M [MAX][MAX]int
+  var n int             // ノード数
+  var M [MAX][MAX]int   // エッジコストは隣接行列に持たせる
 
   // O(|V|^2)
+  // ノードIDは0-based前提
   func prim() int {
     var u, minv int
-    var d, p, color [MAX]int
 
+    // d[i]: 親からiへ至るエッジのコスト
+    // p[i]: iの親
+    // color[i]: iの状態（MSTに組み込まれるとBLACK）
+    var d, p, color [MAX]int
     for i := 0; i < n; i++ {
       d[i] = INFTY
       p[i] = -1
