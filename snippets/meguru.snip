@@ -1,9 +1,8 @@
 snippet     meguruBinarySearch
 abbr        ng, ok := -1, len(A)
 options     head
-  // m は中央を意味する何らかの値
-  ${1:isOK} := func(m int) bool {
-    if C(m) {
+  ${1:isOK} := func(mid int) bool {
+    if C(mid) {
       return true
     }
     return false
@@ -18,7 +17,6 @@ options     head
       ng = mid
     }
   }
-  ${3:boundaryIdx} := ok
 
 snippet     upperAndLowerBound
 abbr        func upperBound(A []int, a) int
