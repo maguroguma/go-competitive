@@ -7,6 +7,8 @@
 - [ABC149 E.Handshake](https://atcoder.jp/contests/abc149/tasks/abc149_e)
   - 考え方も重要で、めぐる式だと結構実装でこんがらがる。
   - 境界値周りの調整方法については、自分にとって一見非自明であるため、非常に重要。
+  - [maspyさんの解説](https://maspypy.com/atcoder-参加感想-2019-12-29abc-149)が非常にわかりやすい。
+    - 「最適解の構造の観察」の部分はこの問題に限らずに幅広い応用が可能なため、超重要。
 - [ARC037 C.億マス計算](https://atcoder.jp/contests/arc037/tasks/arc037_c)
   - 典型かつ超重要問題、そして苦手。
   - 復習してみたらABC149Eのほうが難しかった。
