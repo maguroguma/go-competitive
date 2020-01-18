@@ -10,3 +10,7 @@
   - 同じく、区間加算と区間更新が分けられるといいかもしれない。
     - できるのか。。？
 
+## verify用問題集
+
+- [AOJのクエリ問題集](https://onlinejudge.u-aizu.ac.jp/courses/library/3/DSL/2)
+
