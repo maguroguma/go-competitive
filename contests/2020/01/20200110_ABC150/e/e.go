@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -263,17 +264,55 @@ const (
 	BLACK = 2
 )
 
+var n int
+var C []int
+
 func main() {
-	fmt.Println("Hello World.")
+	n = ReadInt()
+	C = ReadIntSlice(n)
+
+	sort.Sort(sort.IntSlice(C))
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		ans += sub(i)
+		ans %= MOD
+	}
+	fmt.Println(ans)
 }
 
-/*
-- まずは全探索を検討しましょう
-- MODは最後にとりましたか？
-- ループを抜けた後も処理が必要じゃありませんか？
-- 和・積・あまりを求められたらint64が必要ではありませんか？
-- いきなりオーバーフローはしていませんか？
-	- MOD取る系はint64必須ですよ？
-*/
+func sub(i int) int {
+	e := n - i
 
-/*******************************************************************/
+	res := C[i]
+
+	res *= modpow(4, i, MOD)
+	res %= MOD
+
+	res *= modpow(4, e-1, MOD)
+	res %= MOD
+	res *= e + 1
+	res %= MOD
+
+	return res
+}
+
+// ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
+func ModInv(a, m int) int {
+	return modpow(a, m-2, m)
+}
+
+func modpow(a, e, m int) int {
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := modpow(a, halfE, m)
+		return half * half % m
+	}
+
+	return a * modpow(a, e-1, m) % m
+}
