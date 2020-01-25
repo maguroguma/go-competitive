@@ -19,7 +19,6 @@ snippet     combinationFactorial
 abbr        cf.C(n, r)
 options     head
   // cf = NewCombFactorial()
-  // cf.InitCF()
   // res := cf.C(n, r) 	// 組み合わせ
   // res := cf.H(n, r) 	// 重複組合せ
   // res := cf.P(n, r) 	// 順列
@@ -31,6 +30,7 @@ options     head
 
   func NewCombFactorial() *CombFactorial {
     cf := new(CombFactorial)
+    cf.initCF()
 
     return cf
   }
@@ -50,7 +50,7 @@ options     head
 
     return a * c.modpow(a, e-1) % MOD
   }
-  func (c *CombFactorial) InitCF() {
+  func (c *CombFactorial) initCF() {
     for i := 0; i <= MAX_NUM; i++ {
       if i == 0 {
         c.factorial[i] = 1
