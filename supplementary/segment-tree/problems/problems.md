@@ -32,6 +32,14 @@
     - 与えられた定義で計算される圧縮値の他、区間の両端の値をもたせた構造体とすれば、正しくセグメントツリーを定義できる。
       - モノイドの単位元がなにか？がちょっと難しかった。
     - 想定解法は階差数列を取ることで、そうすると遅延伝搬は不要になる。
+- DP関係
+  - [日経2020予選 D.Shortest Path on a Line](https://atcoder.jp/contests/nikkei2019-2-qual/tasks/nikkei2019_2_qual_d)
+    - なぜか本番中に解けたもの。
+  - [ARC026 C.蛍光灯](https://atcoder.jp/contests/arc026/tasks/arc026_3)
+    - 日経のものとほぼ同じらしい（2020-01-26時点で未AC）
+  - [ABC146 F.Sugoroku](https://atcoder.jp/contests/abc146/tasks/abc146_f)
+    - 貪欲法でも解けるが、DPでやる方法を理解してから出ないと、正当性の直観的な理解が難しい気がする。
+    - ダイクストラ法の辞書順最小の経路復元とも類似している。
 
 ## キュレーション
 
