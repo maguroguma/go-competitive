@@ -175,19 +175,16 @@ snippet     dijkstraSquareOrderVer
 abbr        func dijkstra() []int
 options     head
   const (
-    MAX   = 500 + 5
+    MAX   = 2500 + 5
     INFTY = 1 << 30
-    WHITE = 0
-    GRAY  = 1
-    BLACK = 2
   )
 
-  var n int
-  var M [MAX][MAX]int
+  var n int           // ノード数
+  var M [MAX][MAX]int // グラフ（隣接行列形式）
 
   // O(|V|^2)
   // 各ノードの最短路の長さを返す
-  func dijkstra() []int {
+  func dijkstra(sid int) []int {
     var minv int
     d, color := make([]int, MAX), make([]int, MAX)
 
@@ -196,8 +193,8 @@ options     head
       color[i] = WHITE
     }
 
-    d[0] = 0
-    color[0] = GRAY
+    d[sid] = 0
+    color[sid] = GRAY
     for {
       minv = INFTY
       u := -1
