@@ -72,3 +72,8 @@ snippet     deleteMapElement
 abbr        delete(memo, "id")
 options     head
   delete(${1:memo}, ${2:#:id})
+
+snippet     pushNewElementToSlice
+abbr        A = append(A, a)
+options     head
+  ${1:#:sliceName} = append($1, ${2:#:element})
