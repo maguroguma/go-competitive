@@ -1,5 +1,7 @@
 # 問題集
 
+Last Change: 2020-02-04 22:12:51.
+
 ## 目標
 
 - Codeforcesの2000点付近の問題を解く。
@@ -22,6 +24,8 @@
     - 最低限の検証用に。
 - [ABC125 C.GCD on Blackboard](https://atcoder.jp/contests/abc125/tasks/abc125_c)
   - 区間GCDでモノイドを定義してみよう。
+- [ABC024 B.自動ドア](https://atcoder.jp/contests/abc024/tasks/abc024_b)
+  - RAQと点取得ができればできるはず。
 
 ## 基礎以上
 
