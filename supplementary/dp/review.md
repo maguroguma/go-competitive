@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-02-03 00:15:59.
+Last Change: 2020-02-10 00:35:33.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -48,6 +48,7 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
 - [ABC122 D.We Like AGC](https://atcoder.jp/contests/abc122/tasks/abc122_d)
 - [エクサウィザーズ2019 D.Modulo Operations](https://atcoder.jp/contests/exawizards2019/tasks/exawizards2019_d)
   - ※本問題集作成時点で未AC。
+  - `2020-02-05` にAC
 - [AGC031 B.Reversi](https://atcoder.jp/contests/agc031/tasks/agc031_b)
 - [ABC125 D.Flipping Signs](https://atcoder.jp/contests/abc125/tasks/abc125_d)
 - [みんなのプロコン2019 D.Ears](https://atcoder.jp/contests/yahoo-procon2019-qual/tasks/yahoo_procon2019_qual_d)
@@ -68,8 +69,15 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
 - [ABC129 C.Typical Stairs](https://atcoder.jp/contests/abc129/tasks/abc129_c)
 - [ABC129 E.Sum Equals Xor](https://atcoder.jp/contests/abc129/tasks/abc129_e)
 - [diverta 2019 Programming Contest 2 D.Squirrel Merchant](https://atcoder.jp/contests/diverta2019-2/tasks/diverta2019_2_d)
+  - ※本問題集作成時点で未AC
+  - `2020-02-04` にAC
 - [ABC130 E.Common Subsequence](https://atcoder.jp/contests/abc130/tasks/abc130_e)
 - [三井住友信託銀行プログラミングコンテスト2019 C.100 to 105](https://atcoder.jp/contests/sumitrust2019/tasks/sumitb2019_c)
+- [ABC011 C.123引き算](https://atcoder.jp/contests/abc011/tasks/abc011_3)
+- [ARC002 C.コマンド入力](https://atcoder.jp/contests/arc002/tasks/arc002_3)
+  - 貪欲でもACしたが、解説スライドに「テストケースが弱い」とか書かれているあたり、嘘解法の可能性が高い。
+  - 正攻法はすごろく系のDP。
+- [ABC154 E.Almost Everywhere Zero](https://atcoder.jp/contests/abc154/tasks/abc154_e)
 
 ### yukicoder
 
