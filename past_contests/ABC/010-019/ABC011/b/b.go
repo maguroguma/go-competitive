@@ -8,6 +8,7 @@ import (
 	"math"
 	"os"
 	"strconv"
+	"strings"
 )
 
 /*********** I/O ***********/
@@ -264,14 +265,14 @@ const (
 )
 
 var (
-	a, b string
+	S string
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	S = ReadString()
+	S = strings.ToLower(S)
+	R := []rune(S)
+	fmt.Println(strings.ToUpper(string(R[0])) + string(R[1:]))
 }
 
 /*

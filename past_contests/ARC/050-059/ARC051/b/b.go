@@ -263,15 +263,16 @@ const (
 	BLACK = 2
 )
 
-var (
-	a, b string
-)
+var k int
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	k = ReadInt()
+
+	a, b := 2, 1
+	for i := 0; i < k-1; i++ {
+		a, b = a+b, a
+	}
+	fmt.Println(a, b)
 }
 
 /*

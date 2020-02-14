@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -264,14 +265,53 @@ const (
 )
 
 var (
-	a, b string
+	n int
+	A []int
 )
 
+type Item struct {
+	key     int
+	id, val int
+}
+type ItemList []*Item
+type byKey struct {
+	ItemList
+}
+
+func (l ItemList) Len() int {
+	return len(l)
+}
+func (l ItemList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.ItemList[i].key < l.ItemList[j].key
+}
+
+// how to use
+// L := make(ItemList, 0, 200000+5)
+// L = append(L, &Item{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n = ReadInt()
+	A = ReadIntSlice(n)
+
+	L := make(ItemList, 0)
+	for i := 0; i < n; i++ {
+		L = append(L, &Item{key: A[i], id: i, val: A[i]})
+	}
+	sort.Stable(byKey{L})
+
+	cnt := 0
+	for i := 0; i < n; i++ {
+		if i%2 != L[i].id%2 {
+			cnt++
+		}
+	}
+	fmt.Println(cnt / 2)
 }
 
 /*

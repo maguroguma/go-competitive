@@ -264,14 +264,118 @@ const (
 )
 
 var (
-	a, b string
+	n int
+	A []int
 )
 
+type Ope struct {
+	x, y int
+}
+
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n = ReadInt()
+	A = ReadIntSlice(n)
+
+	maxi := Max(A...)
+	mini := Min(A...)
+	if maxi <= 0 {
+		// 全部負なので逆から累積和をとる
+		PrintDebug("%v\n", A)
+		minus(A, []Ope{})
+	} else if mini >= 0 {
+		// 全部正なので累積和をとる
+		PrintDebug("%v\n", A)
+		plus(A, []Ope{})
+	} else {
+		mini := Min(A...)
+		// maxi, miniをとるIDを調べておく
+		maxIdx, minIdx := 0, 0
+		for i := 0; i < n; i++ {
+			if A[i] == maxi {
+				maxIdx = i
+			}
+			if A[i] == mini {
+				minIdx = i
+			}
+		}
+
+		ans := []Ope{}
+		if AbsInt(mini) > AbsInt(maxi) {
+			// 全部負にしてから逆から累積和を取る
+			for i := 0; i < n; i++ {
+				A[i] += mini
+				ans = append(ans, Ope{x: minIdx + 1, y: i + 1})
+			}
+			PrintDebug("%v\n", A)
+			minus(A, ans)
+		} else {
+			// 全部正にしてから累積和をとる
+			for i := 0; i < n; i++ {
+				A[i] += maxi
+				ans = append(ans, Ope{x: maxIdx + 1, y: i + 1})
+			}
+			PrintDebug("%v\n", A)
+			plus(A, ans)
+		}
+	}
+}
+
+func minus(B []int, answers []Ope) {
+	for i := n - 1; i >= 1; i-- {
+		answers = append(answers, Ope{x: i + 1, y: i})
+	}
+	fmt.Println(len(answers))
+	for _, ope := range answers {
+		fmt.Println(ope.x, ope.y)
+	}
+}
+
+func plus(B []int, answers []Ope) {
+	for i := 1; i < n; i++ {
+		answers = append(answers, Ope{x: i, y: i + 1})
+	}
+	fmt.Println(len(answers))
+	for _, ope := range answers {
+		fmt.Println(ope.x, ope.y)
+	}
+}
+
+// AbsInt is integer version of math.Abs
+func AbsInt(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*

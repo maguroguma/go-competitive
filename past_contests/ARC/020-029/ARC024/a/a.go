@@ -264,14 +264,42 @@ const (
 )
 
 var (
-	a, b string
+	l, r   int
+	L, R   []int
+	lm, rm [50]int
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	l, r = ReadInt2()
+	L = ReadIntSlice(l)
+	R = ReadIntSlice(r)
+	for _, v := range L {
+		lm[v]++
+	}
+	for _, v := range R {
+		rm[v]++
+	}
+
+	ans := 0
+	for i := 10; i <= 40; i++ {
+		ans += Min(lm[i], rm[i])
+	}
+	fmt.Println(ans)
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*

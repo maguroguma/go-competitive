@@ -264,14 +264,38 @@ const (
 )
 
 var (
-	a, b string
+	n int
+	A [1000000 + 5]int
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n = ReadInt()
+	for i := 0; i < n; i++ {
+		a, b := ReadInt2()
+		A[a]++
+		A[b+1]--
+	}
+
+	for i := 0; i <= 1000000; i++ {
+		A[i+1] += A[i]
+	}
+
+	ans := 0
+	for i := 0; i <= 1000000; i++ {
+		ChMax(&ans, A[i])
+	}
+	fmt.Println(ans)
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
 }
 
 /*

@@ -263,15 +263,28 @@ const (
 	BLACK = 2
 )
 
-var (
-	a, b string
-)
+var S []rune
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	S = ReadRuneSlice()
+	memo := map[rune]rune{
+		'O': '0',
+		'D': '0',
+		'I': '1',
+		'Z': '2',
+		'S': '5',
+		'B': '8',
+	}
+
+	answers := []rune{}
+	for _, s := range S {
+		if _, ok := memo[s]; ok {
+			answers = append(answers, memo[s])
+		} else {
+			answers = append(answers, s)
+		}
+	}
+	fmt.Println(string(answers))
 }
 
 /*

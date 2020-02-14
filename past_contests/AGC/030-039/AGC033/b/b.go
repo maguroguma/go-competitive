@@ -264,14 +264,155 @@ const (
 )
 
 var (
-	a, b string
+	h, w, n int
+	sr, sc  int
+	S, T    []rune
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	h, w, n = ReadInt3()
+	sr, sc = ReadInt2()
+	sr--
+	sc--
+	S = ReadRuneSlice()
+	T = ReadRuneSlice()
+
+	// **この考え方は、後手の最適な動かし方ができていない！**
+	// dpl, dpr, dpu, dpd := 0, w-1, 0, h-1
+	// for i := n - 1; i >= 0; i-- {
+	// 	t, a := S[i], T[i]
+
+	// 	if i == n-1 {
+	// 		if t == 'L' {
+	// 			dpl++
+	// 		}
+	// 		if t == 'R' {
+	// 			dpr--
+	// 		}
+	// 		if t == 'U' {
+	// 			dpu++
+	// 		}
+	// 		if t == 'D' {
+	// 			dpd--
+	// 		}
+	// 	} else {
+	// 		if t == 'L' && a != 'R' {
+	// 			dpl++
+	// 		}
+	// 		if t == 'R' && a != 'L' {
+	// 			dpr--
+	// 		}
+	// 		if t == 'U' && a != 'D' {
+	// 			dpu++
+	// 		}
+	// 		if t == 'D' && a != 'U' {
+	// 			dpd--
+	// 		}
+	// 	}
+	// }
+
+	// if dpu <= sr && sr <= dpd && dpl <= sc && sc <= dpr {
+	// 	fmt.Println("YES")
+	// } else {
+	// 	fmt.Println("NO")
+	// }
+
+	// left, right
+	l, r := 0, w-1
+	// 最後の手番に関しては、後手は関係ない
+	t := S[n-1]
+	if t == 'L' {
+		l++
+	} else if t == 'R' {
+		r--
+	}
+	for i := n - 2; i >= 0; i-- {
+		t, a := S[i], T[i]
+		// 後手から逆算
+		if a == 'L' {
+			r = Min(r+1, w-1)
+		} else if a == 'R' {
+			l = Max(l-1, 0)
+		}
+		// 次に先手を逆算
+		if t == 'L' {
+			l++
+		} else if t == 'R' {
+			r--
+		}
+
+		if l > r {
+			fmt.Println("NO")
+			return
+		}
+	}
+	if sc < l || r < sc {
+		fmt.Println("NO")
+		return
+	}
+
+	// up, down
+	u, d := 0, h-1
+	t = S[n-1]
+	if t == 'U' {
+		u++
+	} else if t == 'D' {
+		d--
+	}
+	for i := n - 2; i >= 0; i-- {
+		t, a := S[i], T[i]
+		if a == 'U' {
+			d = Min(d+1, h-1)
+		} else if a == 'D' {
+			u = Max(u-1, 0)
+		}
+		if t == 'U' {
+			u++
+		} else if t == 'D' {
+			d--
+		}
+
+		if u > d {
+			fmt.Println("NO")
+			return
+		}
+	}
+	if sr < u || d < sr {
+		fmt.Println("NO")
+		return
+	}
+
+	fmt.Println("YES")
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*

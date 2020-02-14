@@ -264,14 +264,26 @@ const (
 )
 
 var (
-	a, b string
+	n, a, b int
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n, a, b = ReadInt3()
+
+	var isT bool
+	if a == b {
+		isT = !(n%(a+1) == 0)
+	} else if a > b {
+		isT = true
+	} else {
+		isT = n <= a
+	}
+
+	if isT {
+		fmt.Println("Takahashi")
+	} else {
+		fmt.Println("Aoki")
+	}
 }
 
 /*

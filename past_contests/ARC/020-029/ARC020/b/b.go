@@ -264,14 +264,45 @@ const (
 )
 
 var (
-	a, b string
+	n, c int
+	A    []int
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n, c = ReadInt2()
+	A = ReadIntSlice(n)
+
+	ans := INF_BIT30
+	for i := 1; i <= 10; i++ {
+		for j := i + 1; j <= 10; j++ {
+			ChMin(&ans, sub(i, j))
+			ChMin(&ans, sub(j, i))
+		}
+	}
+	fmt.Println(ans)
+}
+
+func sub(a, b int) int {
+	res := 0
+	for i := 0; i < n; i++ {
+		if i%2 == 0 && A[i] != a {
+			res += c
+		} else if i%2 == 1 && A[i] != b {
+			res += c
+		}
+	}
+	return res
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
 }
 
 /*

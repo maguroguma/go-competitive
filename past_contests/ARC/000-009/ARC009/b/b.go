@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -264,14 +265,69 @@ const (
 )
 
 var (
-	a, b string
+	B []int
+	n int
+	A [][]rune
 )
 
+type Integer struct {
+	key  int
+	S, T []rune
+	num  int
+}
+type IntegerList []*Integer
+type byKey struct {
+	IntegerList
+}
+
+func (l IntegerList) Len() int {
+	return len(l)
+}
+func (l IntegerList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.IntegerList[i].key < l.IntegerList[j].key
+}
+
+// how to use
+// L := make(IntegerList, 0, 200000+5)
+// L = append(L, &Integer{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
+
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	B = ReadIntSlice(10)
+	n = ReadInt()
+	for i := 0; i < n; i++ {
+		A = append(A, ReadRuneSlice())
+	}
+
+	memo := make(map[rune]rune)
+	for i := rune(0); i < 10; i++ {
+		r := rune(B[i] + '0')
+		memo[r] = i + '0'
+	}
+
+	L := make(IntegerList, 0)
+	for i := 0; i < n; i++ {
+		num := &Integer{S: A[i]}
+		T := make([]rune, len(num.S))
+		for i := 0; i < len(T); i++ {
+			T[i] = memo[num.S[i]]
+		}
+		num.T = T
+		num.key, _ = strconv.Atoi(string(num.T))
+
+		L = append(L, num)
+	}
+
+	sort.Stable(byKey{L})
+
+	for i := 0; i < len(L); i++ {
+		fmt.Println(string(L[i].S))
+	}
 }
 
 /*

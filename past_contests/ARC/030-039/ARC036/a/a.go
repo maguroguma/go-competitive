@@ -264,14 +264,24 @@ const (
 )
 
 var (
-	a, b string
+	n, k int
+	T    []int
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n, k = ReadInt2()
+	T = ReadIntSlice(n)
+
+	cs := T[0] + T[1]
+	for i := 2; i < n; i++ {
+		cs += T[i]
+		if cs < k {
+			fmt.Println(i + 1)
+			return
+		}
+		cs -= T[i-2]
+	}
+	fmt.Println(-1)
 }
 
 /*

@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -264,14 +265,110 @@ const (
 )
 
 var (
-	a, b string
+	n int
+	D []int
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n = ReadInt()
+	D = ReadIntSlice(n)
+
+	memo := make([]int, 15)
+	for _, d := range D {
+		memo[d]++
+	}
+	for i := 0; i <= 12; i++ {
+		if memo[i] >= 3 {
+			fmt.Println(0)
+			return
+		}
+	}
+
+	ans := 0
+	for i := 0; i < 1<<13; i++ {
+		patterns := []int{}
+		for j := 0; j <= 12; j++ {
+			if memo[j] == 0 {
+				continue
+			} else if memo[j] == 2 {
+				patterns = append(patterns, j)
+			}
+
+			if NthBit(i, j) == 0 {
+				patterns = append(patterns, j)
+			} else {
+				patterns = append(patterns, 24-j)
+			}
+		}
+
+		sort.Sort(sort.IntSlice(patterns))
+		ChMax(&ans, sub(patterns))
+	}
+	fmt.Println(ans)
+}
+
+func sub(P []int) int {
+	res := P[0]
+
+	for i := 1; i < len(P); i++ {
+		ChMin(&res, P[i]-P[i-1])
+	}
+	ChMin(&res, 24-P[len(P)-1])
+
+	return res
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// NthBit returns nth bit value of an argument.
+// n starts from 0.
+func NthBit(num int, nth int) int {
+	return num >> uint(nth) & 1
+}
+
+// OnBit returns the integer that has nth ON bit.
+// If an argument has nth ON bit, OnBit returns the argument.
+func OnBit(num int, nth int) int {
+	return num | (1 << uint(nth))
+}
+
+// OffBit returns the integer that has nth OFF bit.
+// If an argument has nth OFF bit, OffBit returns the argument.
+func OffBit(num int, nth int) int {
+	return num & ^(1 << uint(nth))
+}
+
+// PopCount returns the number of ON bit of an argument.
+func PopCount(num int) int {
+	res := 0
+
+	for i := 0; i < 70; i++ {
+		if ((num >> uint(i)) & 1) == 1 {
+			res++
+		}
+	}
+
+	return res
 }
 
 /*

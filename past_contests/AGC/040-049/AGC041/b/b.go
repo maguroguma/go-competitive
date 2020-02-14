@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -264,14 +265,77 @@ const (
 )
 
 var (
-	a, b string
+	n, m, v, p int
+	A          []int
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n, m, v, p = ReadInt4()
+	A = ReadIntSlice(n)
+
+	sort.Sort(sort.Reverse(sort.IntSlice(A)))
+
+	isOK := func(mid int) bool {
+		if mid < p {
+			return true
+		}
+
+		if A[p-1] > A[mid]+m {
+			return false
+		}
+
+		total := (p-1)*m + (n-1-mid+1)*m
+		for i := p - 1; i < mid; i++ {
+			total += Min(m, Max(A[mid]+m-A[i], 0))
+		}
+		if total < m*v {
+			return false
+		} else {
+			return true
+		}
+	}
+
+	ng, ok := n, -1
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	fmt.Println(ok + 1)
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*

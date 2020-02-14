@@ -264,14 +264,25 @@ const (
 )
 
 var (
-	a, b string
+	a, b, c, d float64
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	a = float64(ReadInt())
+	b = float64(ReadInt())
+	c = float64(ReadInt())
+	d = float64(ReadInt())
+
+	if c*b == a*d {
+		fmt.Println("DRAW")
+		return
+	}
+
+	if b/a > d/c {
+		fmt.Println("TAKAHASHI")
+	} else {
+		fmt.Println("AOKI")
+	}
 }
 
 /*

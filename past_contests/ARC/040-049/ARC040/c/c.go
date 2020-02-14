@@ -264,14 +264,46 @@ const (
 )
 
 var (
-	a, b string
+	n int
+	S [][]rune
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n = ReadInt()
+	for i := 0; i < n; i++ {
+		row := ReadRuneSlice()
+		S = append(S, row)
+	}
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		cidx := sub(S[i])
+		if cidx == -1 {
+			continue
+		}
+
+		ans++
+		for j := 0; j <= cidx; j++ {
+			S[i][j] = 'o'
+		}
+		if i < n-1 {
+			for j := cidx; j < n; j++ {
+				S[i+1][j] = 'o'
+			}
+		}
+	}
+
+	fmt.Println(ans)
+}
+
+func sub(row []rune) int {
+	res := -1
+	for i, r := range row {
+		if r == '.' {
+			res = i
+		}
+	}
+	return res
 }
 
 /*

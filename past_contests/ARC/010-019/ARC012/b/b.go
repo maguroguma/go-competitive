@@ -264,14 +264,22 @@ const (
 )
 
 var (
-	a, b string
+	n         int
+	va, vb, l float64
 )
 
 func main() {
-	a, b = ReadString(), ReadString()
-	c := a + b
-	i, _ := strconv.Atoi(c)
-	fmt.Println(i * 2)
+	n = ReadInt()
+	va = ReadFloat64()
+	vb = ReadFloat64()
+	l = ReadFloat64()
+
+	for i := 0; i < n; i++ {
+		t := l / va
+		l = t * vb
+	}
+	// fmt.Println(l)
+	fmt.Printf("%f\n", l)
 }
 
 /*
