@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-02-14 01:27:32.
+Last Change: 2020-02-15 13:03:27.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -79,6 +79,9 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - 正攻法はすごろく系のDP。
 - [ABC154 E.Almost Everywhere Zero](https://atcoder.jp/contests/abc154/tasks/abc154_e)
 - [AGC033 B.LRUD Game](https://atcoder.jp/contests/agc033/tasks/agc033_b)
+  - 変種だが、ゲーム系のDPと捉えられる。
+- [ABC021 C.正直者の高橋くん](https://atcoder.jp/contests/abc021/tasks/abc021_c)
+  - 初見では若干非効率なDPで解いてしまったので、想定解法で解いてみること。
 
 ### yukicoder
 
