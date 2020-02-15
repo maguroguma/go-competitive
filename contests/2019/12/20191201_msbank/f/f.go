@@ -144,171 +144,6 @@ func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
 	return res
 }
 
-/*********** DP sub-functions ***********/
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
-}
-
-// ChMax accepts a pointer of integer and a target value.
-// If target value is LARGER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMax(updatedValue *int, target int) bool {
-	if *updatedValue < target {
-		*updatedValue = target
-		return true
-	}
-	return false
-}
-
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int) int {
-	res := 0
-
-	for i := 0; i < 70; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
-		}
-	}
-
-	return res
-}
-
-/*********** Arithmetic ***********/
-
-// Max returns the max integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Max(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m < integer {
-			m = integer
-		}
-	}
-	return m
-}
-
-// Min returns the min integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Min(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m > integer {
-			m = integer
-		}
-	}
-	return m
-}
-
-// Sum returns multiple integers sum.
-func Sum(integers ...int) int {
-	s := 0
-
-	for _, i := range integers {
-		s += i
-	}
-
-	return s
-}
-
-// PowInt is integer version of math.Pow
-// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
-func PowInt(a, e int) int {
-	if a < 0 || e < 0 {
-		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
-	}
-
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := PowInt(a, halfE)
-		return half * half
-	}
-
-	return a * PowInt(a, e-1)
-}
-
-// AbsInt is integer version of math.Abs
-func AbsInt(a int) int {
-	if a < 0 {
-		return -a
-	}
-	return a
-}
-
-// Gcd returns the Greatest Common Divisor of two natural numbers.
-// Gcd only accepts two natural numbers (a, b >= 1).
-// 0 or negative number causes panic.
-// Gcd uses the Euclidean Algorithm.
-func Gcd(a, b int) int {
-	if a <= 0 || b <= 0 {
-		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
-	}
-	if a < b {
-		a, b = b, a
-	}
-
-	// Euclidean Algorithm
-	for b > 0 {
-		div := a % b
-		a, b = b, div
-	}
-
-	return a
-}
-
-// Lcm returns the Least Common Multiple of two natural numbers.
-// Lcd only accepts two natural numbers (a, b >= 1).
-// 0 or negative number causes panic.
-// Lcd uses the Euclidean Algorithm indirectly.
-func Lcm(a, b int) int {
-	if a <= 0 || b <= 0 {
-		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
-	}
-
-	// a = a'*gcd, b = b'*gcd, a*b = a'*b'*gcd^2
-	// a' and b' are relatively prime numbers
-	// gcd consists of prime numbers, that are included in a and b
-	gcd := Gcd(a, b)
-
-	// not (a * b / gcd), because of reducing a probability of overflow
-	return (a / gcd) * b
-}
-
 // Strtoi is a wrapper of strconv.Atoi().
 // If strconv.Atoi() returns an error, Strtoi calls panic.
 func Strtoi(s string) int {
@@ -351,6 +186,11 @@ func PrintInts64Line(A ...int64) string {
 	return string(res)
 }
 
+// PrintDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
+func PrintDebug(format string, a ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, a...)
+}
+
 /********** FAU standard libraries **********/
 
 //fmt.Sprintf("%b\n", 255) 	// binary expression
@@ -367,21 +207,125 @@ func PrintInts64Line(A ...int64) string {
 //str := ZeroPaddingRuneSlice(num, 32)
 //str := PrintIntsLine(X...)
 
+/*
+ASCII code
+
+ASCII   10進数  ASCII   10進数  ASCII   10進数
+!       33      "       34      #       35
+$       36      %       37      &       38
+'       39      (       40      )       41
+*       42      +       43      ,       44
+-       45      .       46      /       47
+0       48      1       49      2       50
+3       51      4       52      5       53
+6       54      7       55      8       56
+9       57      :       58      ;       59
+<       60      =       61      >       62
+?       63      @       64      A       65
+B       66      C       67      D       68
+E       69      F       70      G       71
+H       72      I       73      J       74
+K       75      L       76      M       77
+N       78      O       79      P       80
+Q       81      R       82      S       83
+T       84      U       85      V       86
+W       87      X       88      Y       89
+Z       90      [       91      \       92
+]       93      ^       94      _       95
+`       96      a       97      b       98
+c       99      d       100     e       101
+f       102     g       103     h       104
+i       105     j       106     k       107
+l       108     m       109     n       110
+o       111     p       112     q       113
+r       114     s       115     t       116
+u       117     v       118     w       119
+x       120     y       121     z       122
+{       123     |       124     }       125
+~       126             127
+*/
+
 /*******************************************************************/
 
-const MOD = 1000000000 + 7
-const ALPHABET_NUM = 26
-const INF_INT64 = math.MaxInt64
-const INF_BIT60 = 1 << 60
+const (
+	// General purpose
+	MOD          = 1000000000 + 7
+	ALPHABET_NUM = 26
+	INF_INT64    = math.MaxInt64
+	INF_BIT60    = 1 << 60
+	INF_INT32    = math.MaxInt32
+	INF_BIT30    = 1 << 30
+	NIL          = -1
+
+	// for dijkstra, prim, and so on
+	WHITE = 0
+	GRAY  = 1
+	BLACK = 2
+)
+
+var (
+	t1, t2, a1, a2, b1, b2 int
+)
 
 func main() {
-	fmt.Println("Hello World.")
+	t1, t2 = ReadInt2()
+	a1, a2, b1, b2 = ReadInt4()
+
+	PrintDebug("diff: %d\n", (a1*t1+a2*t2)-(b1*t1+b2*t2))
+
+	if AbsInt((a1*t1+a2*t2)-(b1*t1+b2*t2)) == 0 {
+		fmt.Println("infinity")
+		return
+	}
+
+	if a1 > b1 && a2 > b2 {
+		fmt.Println(0)
+		return
+	}
+	if a1 < b1 && a2 < b2 {
+		fmt.Println(0)
+		return
+	}
+
+	if a1 < b1 {
+		a1, b1 = b1, a1
+		a2, b2 = b2, a2
+	}
+	diff1, diff2 := a1-b1, a2-b2
+	dist1, dist2 := diff1*t1, diff2*t2
+	if dist1+dist2 > 0 {
+		fmt.Println(0)
+		return
+	}
+
+	ans := 1
+	delta := dist1 + dist2
+	absDelta := AbsInt(delta)
+	i := dist1 / absDelta
+	ans += i * 2
+	if dist1%absDelta == 0 {
+		ans += 1 - 2
+	}
+	fmt.Println(ans)
+}
+
+// AbsInt is integer version of math.Abs
+func AbsInt(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
 }
 
 /*
+- まずは全探索を検討しましょう
 - MODは最後にとりましたか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
+- いきなりオーバーフローはしていませんか？
+- MOD取る系はint64必須ですよ？
+- 後ろ・逆・ゴールから考えましたか？
+- 3者のうち真ん中に着目しましたか？
 */
 
 /*******************************************************************/

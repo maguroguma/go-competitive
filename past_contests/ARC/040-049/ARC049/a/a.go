@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"strconv"
-	"strings"
 )
 
 /*********** I/O ***********/
@@ -17,6 +17,108 @@ var (
 	ReadString func() string
 	stdout     *bufio.Writer
 )
+
+func init() {
+	ReadString = newReadString(os.Stdin)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
+func newReadString(ior io.Reader) func() string {
+	r := bufio.NewScanner(ior)
+	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
+	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
+	// Split sets the split function for the Scanner. The default split function is ScanLines.
+	// Split panics if it is called after scanning has started.
+	r.Split(bufio.ScanWords)
+
+	return func() string {
+		if !r.Scan() {
+			panic("Scan failed")
+		}
+		return r.Text()
+	}
+}
+
+// ReadInt returns an integer.
+func ReadInt() int {
+	return int(readInt64())
+}
+func ReadInt2() (int, int) {
+	return int(readInt64()), int(readInt64())
+}
+func ReadInt3() (int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64())
+}
+func ReadInt4() (int, int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
+}
+
+// ReadInt64 returns as integer as int64.
+func ReadInt64() int64 {
+	return readInt64()
+}
+func ReadInt64_2() (int64, int64) {
+	return readInt64(), readInt64()
+}
+func ReadInt64_3() (int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64()
+}
+func ReadInt64_4() (int64, int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64(), readInt64()
+}
+
+func readInt64() int64 {
+	i, err := strconv.ParseInt(ReadString(), 0, 64)
+	if err != nil {
+		panic(err.Error())
+	}
+	return i
+}
+
+// ReadIntSlice returns an integer slice that has n integers.
+func ReadIntSlice(n int) []int {
+	b := make([]int, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt()
+	}
+	return b
+}
+
+// ReadInt64Slice returns as int64 slice that has n integers.
+func ReadInt64Slice(n int) []int64 {
+	b := make([]int64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt64()
+	}
+	return b
+}
+
+// ReadFloat64 returns an float64.
+func ReadFloat64() float64 {
+	return float64(readFloat64())
+}
+
+func readFloat64() float64 {
+	f, err := strconv.ParseFloat(ReadString(), 64)
+	if err != nil {
+		panic(err.Error())
+	}
+	return f
+}
+
+// ReadFloatSlice returns an float64 slice that has n float64.
+func ReadFloat64Slice(n int) []float64 {
+	b := make([]float64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadFloat64()
+	}
+	return b
+}
+
+// ReadRuneSlice returns a rune slice.
+func ReadRuneSlice() []rune {
+	return []rune(ReadString())
+}
 
 /*********** Debugging ***********/
 
@@ -162,60 +264,28 @@ const (
 )
 
 var (
-	n, l int
-	G    [][]rune
-	Y    []rune
+	S          []rune
+	a, b, c, d int
 )
 
 func main() {
-	// n, l = ReadInt2()
+	S = ReadRuneSlice()
+	a, b, c, d = ReadInt4()
 
-	var sc = bufio.NewScanner(os.Stdin)
-
-	sc.Scan()
-	nl := strings.Split(sc.Text(), " ")
-	n, _ = strconv.Atoi(nl[0])
-	l, _ = strconv.Atoi(nl[1])
-	PrintDebug("n: %d, l: %d\n", n, l)
-
-	for i := 0; i < l; i++ {
-		if sc.Scan() {
-			// 空行が読み込まれたら終了
-			str := sc.Text()
-			row := []rune(str)
-			G = append(G, row)
+	B := []int{a, b, c, d}
+	ans := []rune{}
+	j := 0
+	for i := 0; i < len(S); i++ {
+		if j < 4 && B[j] == i {
+			ans = append(ans, '"')
+			j++
 		}
+		ans = append(ans, S[i])
 	}
-
-	if sc.Scan() {
-		str := sc.Text()
-		Y = []rune(str)
+	if B[3] == len(S) {
+		ans = append(ans, '"')
 	}
-	// sc.Scan()
-	// sc.Scan()
-
-	// for i := 0; i < l; i++ {
-	// 	row := ReadRuneSlice()
-	// 	G = append(G, row)
-	// }
-	// Y = ReadRuneSlice()
-
-	cid := 0
-	for i, r := range Y {
-		if r == 'o' {
-			cid = i
-			break
-		}
-	}
-
-	for i := l - 1; i >= 0; i-- {
-		if cid-1 >= 0 && G[i][cid-1] == '-' {
-			cid -= 2
-		} else if cid+1 < len(G[i]) && G[i][cid+1] == '-' {
-			cid += 2
-		}
-	}
-	fmt.Println((cid / 2) + 1)
+	fmt.Println(string(ans))
 }
 
 /*

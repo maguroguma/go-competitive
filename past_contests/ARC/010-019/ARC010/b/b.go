@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 /*********** I/O ***********/
@@ -17,6 +19,108 @@ var (
 	ReadString func() string
 	stdout     *bufio.Writer
 )
+
+func init() {
+	ReadString = newReadString(os.Stdin)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
+func newReadString(ior io.Reader) func() string {
+	r := bufio.NewScanner(ior)
+	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
+	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
+	// Split sets the split function for the Scanner. The default split function is ScanLines.
+	// Split panics if it is called after scanning has started.
+	r.Split(bufio.ScanWords)
+
+	return func() string {
+		if !r.Scan() {
+			panic("Scan failed")
+		}
+		return r.Text()
+	}
+}
+
+// ReadInt returns an integer.
+func ReadInt() int {
+	return int(readInt64())
+}
+func ReadInt2() (int, int) {
+	return int(readInt64()), int(readInt64())
+}
+func ReadInt3() (int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64())
+}
+func ReadInt4() (int, int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
+}
+
+// ReadInt64 returns as integer as int64.
+func ReadInt64() int64 {
+	return readInt64()
+}
+func ReadInt64_2() (int64, int64) {
+	return readInt64(), readInt64()
+}
+func ReadInt64_3() (int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64()
+}
+func ReadInt64_4() (int64, int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64(), readInt64()
+}
+
+func readInt64() int64 {
+	i, err := strconv.ParseInt(ReadString(), 0, 64)
+	if err != nil {
+		panic(err.Error())
+	}
+	return i
+}
+
+// ReadIntSlice returns an integer slice that has n integers.
+func ReadIntSlice(n int) []int {
+	b := make([]int, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt()
+	}
+	return b
+}
+
+// ReadInt64Slice returns as int64 slice that has n integers.
+func ReadInt64Slice(n int) []int64 {
+	b := make([]int64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt64()
+	}
+	return b
+}
+
+// ReadFloat64 returns an float64.
+func ReadFloat64() float64 {
+	return float64(readFloat64())
+}
+
+func readFloat64() float64 {
+	f, err := strconv.ParseFloat(ReadString(), 64)
+	if err != nil {
+		panic(err.Error())
+	}
+	return f
+}
+
+// ReadFloatSlice returns an float64 slice that has n float64.
+func ReadFloat64Slice(n int) []float64 {
+	b := make([]float64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadFloat64()
+	}
+	return b
+}
+
+// ReadRuneSlice returns a rune slice.
+func ReadRuneSlice() []rune {
+	return []rune(ReadString())
+}
 
 /*********** Debugging ***********/
 
@@ -162,60 +266,109 @@ const (
 )
 
 var (
-	n, l int
-	G    [][]rune
-	Y    []rune
+	n int
+
+	D [400]bool
 )
 
 func main() {
-	// n, l = ReadInt2()
+	n = ReadInt()
 
-	var sc = bufio.NewScanner(os.Stdin)
-
-	sc.Scan()
-	nl := strings.Split(sc.Text(), " ")
-	n, _ = strconv.Atoi(nl[0])
-	l, _ = strconv.Atoi(nl[1])
-	PrintDebug("n: %d, l: %d\n", n, l)
-
-	for i := 0; i < l; i++ {
-		if sc.Scan() {
-			// 空行が読み込まれたら終了
-			str := sc.Text()
-			row := []rune(str)
-			G = append(G, row)
+	d := time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC)
+	// for i := 0; i <= 366; i++ {
+	for i := 0; i <= 365; i++ {
+		cd := d.AddDate(0, 0, i)
+		youbi := cd.Weekday()
+		if youbi == time.Sunday || youbi == time.Saturday {
+			D[i] = true
 		}
 	}
 
-	if sc.Scan() {
-		str := sc.Text()
-		Y = []rune(str)
-	}
-	// sc.Scan()
-	// sc.Scan()
+	for i := 0; i < n; i++ {
+		str := ReadString()
+		S := strings.Split(str, "/")
+		mon, _ := strconv.Atoi(S[0])
+		da, _ := strconv.Atoi(S[1])
+		cd := time.Date(2012, time.Month(mon), da, 0, 0, 0, 0, time.UTC)
+		tdiff := (cd.Sub(d))
+		hdiff := int(tdiff.Hours())
 
-	// for i := 0; i < l; i++ {
-	// 	row := ReadRuneSlice()
-	// 	G = append(G, row)
-	// }
-	// Y = ReadRuneSlice()
-
-	cid := 0
-	for i, r := range Y {
-		if r == 'o' {
-			cid = i
-			break
+		idx := hdiff / 24
+		// D[i] = true
+		// for j := idx; j <= 366; j++ {
+		for j := idx; j <= 365; j++ {
+			if !D[j] {
+				D[j] = true
+				break
+			}
 		}
 	}
 
-	for i := l - 1; i >= 0; i-- {
-		if cid-1 >= 0 && G[i][cid-1] == '-' {
-			cid -= 2
-		} else if cid+1 < len(G[i]) && G[i][cid+1] == '-' {
-			cid += 2
+	comp, cnts := RunLengthEncoding(D[:len(D)])
+	ans := 0
+	for i := 0; i < len(comp); i++ {
+		if comp[i] {
+			ChMax(&ans, cnts[i])
 		}
 	}
-	fmt.Println((cid / 2) + 1)
+	fmt.Println(ans)
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// RunLengthEncoding returns encoded slice of an input.
+func RunLengthEncoding(S []bool) ([]bool, []int) {
+	runes := []bool{}
+	lengths := []int{}
+
+	l := 0
+	for i := 0; i < len(S); i++ {
+		// 1文字目の場合保持
+		if i == 0 {
+			l = 1
+			continue
+		}
+
+		if S[i-1] == S[i] {
+			// 直前の文字と一致していればインクリメント
+			l++
+		} else {
+			// 不一致のタイミングで追加し、長さをリセットする
+			runes = append(runes, S[i-1])
+			lengths = append(lengths, l)
+			l = 1
+		}
+	}
+	runes = append(runes, S[len(S)-1])
+	lengths = append(lengths, l)
+
+	return runes, lengths
+}
+
+// RunLengthDecoding decodes RLE results.
+func RunLengthDecoding(S []bool, L []int) []bool {
+	if len(S) != len(L) {
+		panic("S, L are not RunLengthEncoding results")
+	}
+
+	res := []bool{}
+
+	for i := 0; i < len(S); i++ {
+		for j := 0; j < L[i]; j++ {
+			res = append(res, S[i])
+		}
+	}
+
+	return res
 }
 
 /*

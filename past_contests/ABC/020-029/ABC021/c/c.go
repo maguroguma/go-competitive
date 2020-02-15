@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"strconv"
-	"strings"
 )
 
 /*********** I/O ***********/
@@ -17,6 +17,108 @@ var (
 	ReadString func() string
 	stdout     *bufio.Writer
 )
+
+func init() {
+	ReadString = newReadString(os.Stdin)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
+func newReadString(ior io.Reader) func() string {
+	r := bufio.NewScanner(ior)
+	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
+	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
+	// Split sets the split function for the Scanner. The default split function is ScanLines.
+	// Split panics if it is called after scanning has started.
+	r.Split(bufio.ScanWords)
+
+	return func() string {
+		if !r.Scan() {
+			panic("Scan failed")
+		}
+		return r.Text()
+	}
+}
+
+// ReadInt returns an integer.
+func ReadInt() int {
+	return int(readInt64())
+}
+func ReadInt2() (int, int) {
+	return int(readInt64()), int(readInt64())
+}
+func ReadInt3() (int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64())
+}
+func ReadInt4() (int, int, int, int) {
+	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
+}
+
+// ReadInt64 returns as integer as int64.
+func ReadInt64() int64 {
+	return readInt64()
+}
+func ReadInt64_2() (int64, int64) {
+	return readInt64(), readInt64()
+}
+func ReadInt64_3() (int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64()
+}
+func ReadInt64_4() (int64, int64, int64, int64) {
+	return readInt64(), readInt64(), readInt64(), readInt64()
+}
+
+func readInt64() int64 {
+	i, err := strconv.ParseInt(ReadString(), 0, 64)
+	if err != nil {
+		panic(err.Error())
+	}
+	return i
+}
+
+// ReadIntSlice returns an integer slice that has n integers.
+func ReadIntSlice(n int) []int {
+	b := make([]int, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt()
+	}
+	return b
+}
+
+// ReadInt64Slice returns as int64 slice that has n integers.
+func ReadInt64Slice(n int) []int64 {
+	b := make([]int64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadInt64()
+	}
+	return b
+}
+
+// ReadFloat64 returns an float64.
+func ReadFloat64() float64 {
+	return float64(readFloat64())
+}
+
+func readFloat64() float64 {
+	f, err := strconv.ParseFloat(ReadString(), 64)
+	if err != nil {
+		panic(err.Error())
+	}
+	return f
+}
+
+// ReadFloatSlice returns an float64 slice that has n float64.
+func ReadFloat64Slice(n int) []float64 {
+	b := make([]float64, n)
+	for i := 0; i < n; i++ {
+		b[i] = ReadFloat64()
+	}
+	return b
+}
+
+// ReadRuneSlice returns a rune slice.
+func ReadRuneSlice() []rune {
+	return []rune(ReadString())
+}
 
 /*********** Debugging ***********/
 
@@ -162,60 +264,102 @@ const (
 )
 
 var (
-	n, l int
-	G    [][]rune
-	Y    []rune
+	n    int
+	a, b int
+	m    int
+
+	memo [105][105]int
+	G    [105][]int
 )
 
 func main() {
-	// n, l = ReadInt2()
+	n = ReadInt()
+	a, b = ReadInt2()
+	a--
+	b--
 
-	var sc = bufio.NewScanner(os.Stdin)
-
-	sc.Scan()
-	nl := strings.Split(sc.Text(), " ")
-	n, _ = strconv.Atoi(nl[0])
-	l, _ = strconv.Atoi(nl[1])
-	PrintDebug("n: %d, l: %d\n", n, l)
-
-	for i := 0; i < l; i++ {
-		if sc.Scan() {
-			// 空行が読み込まれたら終了
-			str := sc.Text()
-			row := []rune(str)
-			G = append(G, row)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			if i == j {
+				dp[i][j] = 0
+			} else {
+				dp[i][j] = INF_30
+			}
 		}
 	}
 
-	if sc.Scan() {
-		str := sc.Text()
-		Y = []rune(str)
-	}
-	// sc.Scan()
-	// sc.Scan()
+	m = ReadInt()
+	for i := 0; i < m; i++ {
+		x, y := ReadInt2()
+		x--
+		y--
+		dp[x][y] = 1
+		dp[y][x] = 1
 
-	// for i := 0; i < l; i++ {
-	// 	row := ReadRuneSlice()
-	// 	G = append(G, row)
+		G[x] = append(G[x], y)
+		G[y] = append(G[y], x)
+	}
+
+	warshallFloyd(n)
+
+	minDist := dp[a][b]
+
+	// for i := 0; i < n; i++ {
+	// 	dp[0][i] = 1
 	// }
-	// Y = ReadRuneSlice()
-
-	cid := 0
-	for i, r := range Y {
-		if r == 'o' {
-			cid = i
-			break
+	memo[0][a] = 1
+	for i := 1; i <= minDist; i++ {
+		for j := 0; j < n; j++ {
+			for _, to := range G[j] {
+				memo[i][to] += memo[i-1][j]
+				memo[i][to] %= MOD
+			}
 		}
 	}
 
-	for i := l - 1; i >= 0; i-- {
-		if cid-1 >= 0 && G[i][cid-1] == '-' {
-			cid -= 2
-		} else if cid+1 < len(G[i]) && G[i][cid+1] == '-' {
-			cid += 2
+	fmt.Println(memo[minDist][b])
+}
+
+// AOJ
+// node idは0-based
+// dp[i][i]が負ならばノードiは負の閉路に含まれる
+// dpテーブルの更新に条件がないことに注意（負のコストがある場合初期値の同値判定は不可）
+
+const MNN = 300
+const INF_30 = 1 << 30
+
+var v, e int
+var dp [MNN + 5][MNN + 5]int
+
+// dpをグローバルに設定する必要がある
+func warshallFloyd(n int) {
+	// dp[u][v] = e[u][v] or INF
+	// dp[i][i] = 0
+	for k := 0; k < n; k++ {
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				// 1. 頂点kをちょうど一度通る場合
+				// 2. 頂点kを全く通らない場合
+				// の排反な2ケースを加味したもの
+				dp[i][j] = Min(dp[i][j], dp[i][k]+dp[k][j])
+			}
 		}
 	}
-	fmt.Println((cid / 2) + 1)
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*
