@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-02-15 13:03:27.
+Last Change: 2020-02-18 22:46:45.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -82,6 +82,8 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - 変種だが、ゲーム系のDPと捉えられる。
 - [ABC021 C.正直者の高橋くん](https://atcoder.jp/contests/abc021/tasks/abc021_c)
   - 初見では若干非効率なDPで解いてしまったので、想定解法で解いてみること。
+- [ABC155 E.Payment](https://atcoder.jp/contests/abc155/tasks/abc155_e)
+  - 変種の桁DP(?)
 
 ### yukicoder
 

@@ -53,6 +53,8 @@
   - 色々と難しいポイントがある気がする。
   - 「ある点で、経由すると左下・右下・右上へ行くのにその点以外に交わらないルートがある」と考えると、その点からの3点への最短経路を考えれば良い。そして、経由点を全探索すれば良い。
   - （正直、想起するのが難しい気がするので、公式解法が知りたい。）
+- [SoundHound Inc. Programming Contest 2018 Masters Tournament D.Saving Snuuk](https://atcoder.jp/contests/soundhound2018-summer-qual/tasks/soundhound2018_summer_qual_d)
+  - 自力で解けたのは成長を感じてヨシ。
 
 ### ダイクストラと見抜くために
 
