@@ -1,0 +1,42 @@
+snippet     mensekiTriangle
+abbr        func TriangleDoubleS(ax, ay, bx, by, cx, cy int) int
+options     head
+  // TriangleDoubleS returns 2*S of the triangle ABC.
+  // verified: https://atcoder.jp/contests/arc018/tasks/arc018_2
+  func TriangleDoubleS(ax, ay, bx, by, cx, cy int) int {
+    bx -= ax
+    cx -= ax
+    by -= ay
+    cy -= ay
+
+    nume := (bx*cy - cx*by)
+    if nume < 0 {
+      nume *= -1
+    }
+    return nume
+  }
+
+snippet     kousaTwoSegments
+abbr        func IsIntersectTwoSegments(ax, ay, bx, by, cx, cy, dx, dy int) bool
+options     head
+  // IsIntersectTwoSegments judge whether segments AB and CD are instersected.
+  // verified: https://atcoder.jp/contests/abc016/tasks/abc016_4
+  func IsIntersectTwoSegments(ax, ay, bx, by, cx, cy, dx, dy int) bool {
+    _S := func(ax, ay, bx, by, cx, cy int) int {
+      _bx, _by := bx-ax, by-ay
+      _cx, _cy := cx-ax, cy-ay
+      return _bx*_cy - _cx*_by
+    }
+
+    // AB is base
+    s1 := _S(ax, ay, bx, by, cx, cy)
+    s2 := _S(ax, ay, bx, by, dx, dy)
+    // CD is base
+    s3 := _S(cx, cy, dx, dy, ax, ay)
+    s4 := _S(cx, cy, dx, dy, bx, by)
+
+    if s1*s2 < 0 && s3*s4 < 0 {
+      return true
+    }
+    return false
+  }
