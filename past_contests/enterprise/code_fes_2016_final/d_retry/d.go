@@ -264,124 +264,74 @@ const (
 )
 
 var (
-	n int
-	X []int
+	n, m int
+	X    []int
+
+	modNums     [100000 + 5]int
+	modPairNums [100000 + 5]int
+	nums        [100000 + 5]int
 )
 
 func main() {
-	n = ReadInt()
+	n, m = ReadInt2()
 	X = ReadIntSlice(n)
 
-	C := make([]int, n-1)
-	C[0] = 1
-	for i := 1; i < n-1; i++ {
-		C[i] = C[i-1] + ModInv(i+1, MOD)
-		C[i] %= MOD
+	for i := 0; i < n; i++ {
+		x := X[i]
+		modNums[x%m]++
+		nums[x]++
+	}
+	// modごとに奇数個のものの和をカウントする
+	for x := 1; x <= 100000; x++ {
+		num := nums[x]
+		modPairNums[x%m] += num / 2
 	}
 
-	ans := 0
-	for i := 0; i < n-1; i++ {
-		d := X[i+1] - X[i]
-		ans += d * C[i]
-		ans %= MOD
-	}
-
-	cf := NewCombFactorial()
-	ans *= cf.factorial[n-1]
-	ans %= MOD
-	fmt.Println(ans)
-}
-
-// cf = NewCombFactorial()
-// res := cf.C(n, r) 	// 組み合わせ
-// res := cf.H(n, r) 	// 重複組合せ
-// res := cf.P(n, r) 	// 順列
-var cf *CombFactorial
-
-const MAX_NUM = 200000
-
-type CombFactorial struct {
-	factorial, modFactorial [MAX_NUM + 5]int
-}
-
-func NewCombFactorial() *CombFactorial {
-	cf := new(CombFactorial)
-	cf.initCF()
-
-	return cf
-}
-func (c *CombFactorial) modInv(a int) int {
-	return c.modpow(a, MOD-2)
-}
-func (c *CombFactorial) modpow(a, e int) int {
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := c.modpow(a, halfE)
-		return half * half % MOD
-	}
-
-	return a * c.modpow(a, e-1) % MOD
-}
-func (c *CombFactorial) initCF() {
-	for i := 0; i <= MAX_NUM; i++ {
-		if i == 0 {
-			c.factorial[i] = 1
-			c.modFactorial[i] = c.modInv(c.factorial[i])
+	ans := modNums[0] / 2
+	for i := 1; i <= m/2; i++ {
+		if m%2 == 0 && i == m/2 {
 			continue
 		}
 
-		num := i * c.factorial[i-1]
-		num %= MOD
-		c.factorial[i] = num
-		c.modFactorial[i] = c.modInv(c.factorial[i])
-	}
-}
-func (c *CombFactorial) C(n, r int) int {
-	res := 1
-	res *= c.factorial[n]
-	res %= MOD
-	res *= c.modFactorial[r]
-	res %= MOD
-	res *= c.modFactorial[n-r]
-	res %= MOD
+		j := m - i
+		var minNum int // i, jで個数が少ない方の個数
+		var lmod int   // i, jのうち個数が多いほう
+		if modNums[i] < modNums[j] {
+			minNum = modNums[i]
+			lmod = j
+		} else {
+			minNum = modNums[j]
+			lmod = i
+		}
+		// 小さい方を答えに加算
+		ans += minNum
 
-	return res
-}
-func (c *CombFactorial) P(n, r int) int {
-	res := 1
-	res *= c.factorial[n]
-	res %= MOD
-	res *= c.modFactorial[n-r]
-	res %= MOD
-
-	return res
-}
-func (c *CombFactorial) H(n, r int) int {
-	return c.C(n-1+r, r)
-}
-
-// ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
-// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
-func ModInv(a, m int) int {
-	return modpow(a, m-2, m)
-}
-
-func modpow(a, e, m int) int {
-	if e == 0 {
-		return 1
+		// lmodの中で組めるだけの同一ペアを作る
+		// minNumは余らせる必要がある
+		p := (modNums[lmod] - minNum) / 2
+		ans += Min(p, modPairNums[lmod])
 	}
 
-	if e%2 == 0 {
-		halfE := e / 2
-		half := modpow(a, halfE, m)
-		return half * half % m
+	if m%2 == 0 {
+		ans += modNums[m/2] / 2
 	}
 
-	return a * modpow(a, e-1, m) % m
+	fmt.Println(ans)
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*
