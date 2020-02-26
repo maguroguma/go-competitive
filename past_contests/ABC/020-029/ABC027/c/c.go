@@ -263,116 +263,37 @@ const (
 	BLACK = 2
 )
 
-var (
-	n    int
-	S, T []rune
-)
+var n int
 
 func main() {
-	smap, tmap := make(map[rune]rune), make(map[rune]rune)
 	n = ReadInt()
-	S, T = ReadRuneSlice(), ReadRuneSlice()
+	A := "Aoki"
+	T := "Takahashi"
 
-	// Tのマッピング
-	for i := 0; i < n; i++ {
-		dt := T[i] - '0'
-		if 0 <= dt && dt <= 9 {
-			continue
-		}
-
-		d := S[i] - '0'
-		if 0 <= d && d <= 9 {
-			tmap[T[i]] = S[i]
-		}
-	}
-	// Sのマッピング
-	for i := 0; i < n; i++ {
-		ds := S[i] - '0'
-		if 0 <= ds && ds <= 9 {
-			continue
-		}
-
-		d := T[i] - '0'
-		if 0 <= d && d <= 9 {
-			smap[S[i]] = T[i]
-		}
-	}
-	PrintDebug("smap: %v\ntmap: %v\n", smap, tmap)
-	// smap, tmapを併合する
-	// umap := make(map[rune]rune)
-	// for s, r := range smap {
-	// 	umap[s] = r
-	// }
-	// for t, r := range tmap {
-	// 	umap[t] = r
-	// }
-
-	U := []rune{}
-	V := []rune{}
-	for i := 0; i < n; i++ {
-		ds := S[i] - '0'
-		if 0 <= ds && ds <= 9 {
-			U = append(U, S[i])
-			V = append(V, S[i])
-			continue
-		}
-		dt := T[i] - '0'
-		if 0 <= dt && dt <= 9 {
-			U = append(U, T[i])
-			V = append(V, T[i])
-			continue
-		}
-
-		// マップを参照する
-		if ds, ok := smap[S[i]]; ok {
-			U = append(U, ds)
-			V = append(V, ds)
-			continue
-		}
-		if dt, ok := tmap[T[i]]; ok {
-			U = append(U, dt)
-			V = append(V, ds)
-			continue
-		}
-
-		// だめならS, Tの文字を採用する
-		U = append(U, S[i])
-		V = append(V, T[i])
-	}
-	PrintDebug("%s\n", string(U))
-	PrintDebug("%s\n", string(V))
-
-	ans := 1
-	xmap := make(map[rune]bool)
-	// ymap := make(map[rune]bool)
-	for i := 0; i < n; i++ {
-		u := U[i]
-		v := V[i]
-
-		// 数字は無視する
-		du := u - '0'
-		if 0 <= du && du <= 9 {
-			continue
-		}
-
-		_, xok := xmap[u]
-		_, yok := xmap[v]
-		// _, yok := ymap[v]
-		// まだ観ていない文字だった場合のみ勘定する、片方で観ていた場合は無視する
-		// if _, ok := xmap[u]; !ok {
-		if !(xok || yok) {
-			if i == 0 {
-				ans *= 9
-			} else {
-				ans *= 10
-			}
-		}
-		xmap[u] = true
-		xmap[v] = true
-		// ymap[v] = true
+	if n == 1 {
+		fmt.Println(A)
+		return
 	}
 
-	fmt.Println(ans)
+	ub, lb := n, n/2
+	cur := 0
+	for lb > 0 {
+		if cur%2 == 0 {
+			ub /= 2
+			lb = (lb - 1) / 2
+		} else {
+			ub = (ub - 1) / 2
+			lb /= 2
+		}
+
+		cur++
+	}
+
+	if cur%2 == 0 {
+		fmt.Println(A)
+	} else {
+		fmt.Println(T)
+	}
 }
 
 /*

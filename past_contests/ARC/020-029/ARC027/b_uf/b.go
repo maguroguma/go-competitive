@@ -269,110 +269,124 @@ var (
 )
 
 func main() {
-	smap, tmap := make(map[rune]rune), make(map[rune]rune)
 	n = ReadInt()
 	S, T = ReadRuneSlice(), ReadRuneSlice()
 
-	// Tのマッピング
+	uf := NewUnionFind(200)
 	for i := 0; i < n; i++ {
-		dt := T[i] - '0'
-		if 0 <= dt && dt <= 9 {
-			continue
-		}
-
-		d := S[i] - '0'
-		if 0 <= d && d <= 9 {
-			tmap[T[i]] = S[i]
+		si, ti := int(S[i]), int(T[i])
+		s, t := S[i], T[i]
+		uf.Unite(si, ti)
+		if isNumber(s) || isNumber(t) {
+			uf.Unite(si, '0')
 		}
 	}
-	// Sのマッピング
-	for i := 0; i < n; i++ {
-		ds := S[i] - '0'
-		if 0 <= ds && ds <= 9 {
-			continue
-		}
-
-		d := T[i] - '0'
-		if 0 <= d && d <= 9 {
-			smap[S[i]] = T[i]
-		}
-	}
-	PrintDebug("smap: %v\ntmap: %v\n", smap, tmap)
-	// smap, tmapを併合する
-	// umap := make(map[rune]rune)
-	// for s, r := range smap {
-	// 	umap[s] = r
-	// }
-	// for t, r := range tmap {
-	// 	umap[t] = r
-	// }
-
-	U := []rune{}
-	V := []rune{}
-	for i := 0; i < n; i++ {
-		ds := S[i] - '0'
-		if 0 <= ds && ds <= 9 {
-			U = append(U, S[i])
-			V = append(V, S[i])
-			continue
-		}
-		dt := T[i] - '0'
-		if 0 <= dt && dt <= 9 {
-			U = append(U, T[i])
-			V = append(V, T[i])
-			continue
-		}
-
-		// マップを参照する
-		if ds, ok := smap[S[i]]; ok {
-			U = append(U, ds)
-			V = append(V, ds)
-			continue
-		}
-		if dt, ok := tmap[T[i]]; ok {
-			U = append(U, dt)
-			V = append(V, ds)
-			continue
-		}
-
-		// だめならS, Tの文字を採用する
-		U = append(U, S[i])
-		V = append(V, T[i])
-	}
-	PrintDebug("%s\n", string(U))
-	PrintDebug("%s\n", string(V))
 
 	ans := 1
-	xmap := make(map[rune]bool)
-	// ymap := make(map[rune]bool)
 	for i := 0; i < n; i++ {
-		u := U[i]
-		v := V[i]
-
-		// 数字は無視する
-		du := u - '0'
-		if 0 <= du && du <= 9 {
+		si := int(S[i])
+		if uf.Same(si, '0') {
 			continue
-		}
-
-		_, xok := xmap[u]
-		_, yok := xmap[v]
-		// _, yok := ymap[v]
-		// まだ観ていない文字だった場合のみ勘定する、片方で観ていた場合は無視する
-		// if _, ok := xmap[u]; !ok {
-		if !(xok || yok) {
+		} else {
 			if i == 0 {
 				ans *= 9
 			} else {
 				ans *= 10
 			}
+			uf.Unite(si, '0')
 		}
-		xmap[u] = true
-		xmap[v] = true
-		// ymap[v] = true
+	}
+	fmt.Println(ans)
+}
+
+func isNumber(r rune) bool {
+	d := r - '0'
+	if 0 <= d && d < 10 {
+		return true
+	}
+	return false
+}
+
+// 0-based
+// uf := NewUnionFind(n)
+// uf.Root(x) 			// Get root node of the node x
+// uf.Unite(x, y) 	// Unite node x and node y
+// uf.Same(x, y) 		// Judge x and y are in the same connected component.
+// uf.CcSize(x) 		// Get size of the connected component including node x
+// uf.CcNum() 			// Get number of connected components
+
+// UnionFind provides disjoint set algorithm.
+// Node id starts from 0 (0-based setting).
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n)
+
+	for i := 0; i < n; i++ {
+		uf.parents[i] = -1
 	}
 
-	fmt.Println(ans)
+	return uf
+}
+
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
+		return x
+	}
+
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
+		return false
+	}
+
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
+	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
+
+	return true
+}
+
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
+}
+
+// CcNum method returns the number of connected components.
+// Time complextity is O(n)
+func (uf *UnionFind) CcNum() int {
+	res := 0
+	for i := 0; i < len(uf.parents); i++ {
+		if uf.parents[i] < 0 {
+			res++
+		}
+	}
+	return res
 }
 
 /*
