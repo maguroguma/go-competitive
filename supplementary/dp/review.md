@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-02-18 22:46:45.
+Last Change: 2020-03-01 19:56:33.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -9,6 +9,7 @@ Last Change: 2020-02-18 22:46:45.
   * [AtCoder](#atcoder)
   * [yukicoder](#yukicoder)
   * [Codeforces](#codeforces)
+  * [HackerRank](#hackerrank)
 
 <!-- vim-markdown-toc -->
 
@@ -84,6 +85,8 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - 初見では若干非効率なDPで解いてしまったので、想定解法で解いてみること。
 - [ABC155 E.Payment](https://atcoder.jp/contests/abc155/tasks/abc155_e)
   - 変種の桁DP(?)
+- [ABC015 D.高橋くんの苦悩](https://atcoder.jp/contests/abc015/tasks/abc015_4)
+  - ナップザックDPの変種。簡単。
 
 ### yukicoder
 
@@ -102,4 +105,10 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - DPじゃないかもしれない。。
 - [Codeforces Round No.594 C.Ivan the Fool and the Probability Theory](https://codeforces.com/contest/1248/problem/C)
 - [Codeforces Round No.605 D.Remove One Element](https://codeforces.com/contest/1272/problem/D)
+
+### HackerRank
+
+- [ゆるふわ競プロオンサイトNo.3 Div.2 Sweets Distribution(Easy)](https://www.hackerrank.com/contests/yfkpo3-2/challenges/sweets-distribution-easy)
+  - We love ABCっぽい雰囲気のDPだと思ったが、耳DPがこれに近いらしい。
+  - DPテーブルの持ち方を意識したい。
 
