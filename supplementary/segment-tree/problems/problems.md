@@ -1,6 +1,6 @@
 # 問題集
 
-Last Change: 2020-02-04 22:12:51.
+Last Change: 2020-03-02 12:07:16.
 
 ## 目標
 
@@ -44,6 +44,10 @@ Last Change: 2020-02-04 22:12:51.
   - [ABC146 F.Sugoroku](https://atcoder.jp/contests/abc146/tasks/abc146_f)
     - 貪欲法でも解けるが、DPでやる方法を理解してから出ないと、正当性の直観的な理解が難しい気がする。
     - ダイクストラ法の辞書順最小の経路復元とも類似している。
+- その他
+  - [ABC157 E.Simple String Queries](https://atcoder.jp/contests/abc157/tasks/abc157_e)
+    - CodeforcesのDiv3でも全く同じものが2019年10月頃に出題されていた。
+    - BITをたくさん使っても解ける。
 
 ## キュレーション
 
