@@ -44,6 +44,9 @@ SPFAと同じく、問題ごとに要求されるアレンジの幅が広いの�
 - [ABC065 D.Built?](https://atcoder.jp/contests/abc065/tasks/arc076_b)
   - 不要な辺を減らす考察が最重要で、それが終わればあとは素直にMSTを求めれば良い。
     - 「不要な辺をへらす」というのは高難易度のグラフ問題で考えなければならない点かもしれない。
+- [CODE FESTIVAL 2016 qual B C.Gr-idian MST](https://atcoder.jp/contests/code-festival-2016-qualb/tasks/codefestival_2016_qualB_c)
+  - Built?とセットで抑えておきたい問題。
+    - ちなみにどちらもDEGwerさんがwriterの問題。
 
 ### MSTと見抜くために
 
