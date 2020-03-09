@@ -9,13 +9,15 @@
 
 ## 例題
 
-- [ARC033 C データ構造](https://arc033.contest.atcoder.jp/tasks/arc033_3)
+- [ARC033 C.データ構造](https://arc033.contest.atcoder.jp/tasks/arc033_3)
   - シンプルで座圧なども不要のため、verify用によい。
 - [yukicoder649 ここでちょっとQK!](https://yukicoder.me/problems/no/649)
   - 座圧が要求されるため、そちらを含めてverifyするのによい。
 - [CFR602 D2. Optimal Subsequences (Hard Version)](https://codeforces.com/contest/1262/problem/D2)
   - 位置が重要になるため座圧は不要だが、クエリ先読みやもろもろ構造体のソートが必要になるため、整理するのが面倒。
   - 書いてみると意外とシンプルにはなる。
+- [ARC028 B.特別賞](https://atcoder.jp/contests/arc028/tasks/arc028_2)
+  - とてもシンプルなので最初の練習に良い。もしくはverify用に。
 
 ## BIT上の二分探索
 
