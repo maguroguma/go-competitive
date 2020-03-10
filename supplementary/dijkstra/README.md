@@ -55,6 +55,8 @@
   - （正直、想起するのが難しい気がするので、公式解法が知りたい。）
 - [SoundHound Inc. Programming Contest 2018 Masters Tournament D.Saving Snuuk](https://atcoder.jp/contests/soundhound2018-summer-qual/tasks/soundhound2018_summer_qual_d)
   - 自力で解けたのは成長を感じてヨシ。
+- [ABC035 D.トレジャーハント](https://atcoder.jp/contests/abc035/tasks/abc035_d)
+  - 有向グラフでも、実は「単一始点・単一終点最短経路」のコストを求めることは容易い。
 
 ### ダイクストラと見抜くために
 
