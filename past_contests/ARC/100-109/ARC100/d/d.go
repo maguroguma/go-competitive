@@ -264,125 +264,109 @@ const (
 )
 
 var (
-	m, k int
-	p    int
+	n int
+	A []int
+
+	sums []int
+	F, B []int
 )
 
 func main() {
-	m, k = ReadInt2()
+	n = ReadInt()
+	A = ReadIntSlice(n)
 
-	p = PowInt(2, m)
-
-	if k == 0 {
-		solveZero()
-	} else {
-		solveOther()
-	}
-}
-
-func solveZero() {
-	answers := []int{}
-
-	for i := p - 1; i >= 0; i-- {
-		answers = append(answers, i)
-	}
-	for i := 0; i < p; i++ {
-		answers = append(answers, i)
+	sums = make([]int, n+1)
+	for i := 0; i < n; i++ {
+		sums[i+1] = sums[i] + A[i]
 	}
 
-	fmt.Println(PrintIntsLine(answers...))
-}
+	m := n - 3
+	F, B = make([]int, m), make([]int, m)
 
-func solveOther() {
-	if k >= p || PopCount(k) == 1 {
-		fmt.Println(-1)
-		return
-	}
-
-	a, b := 0, 0
+	// F[0] = A[0]
+	h, r := A[0], 1
 	for i := 0; i < m; i++ {
-		if NthBit(k, i) == 1 {
-			a = OffBit(k, i)
-			b = OnBit(0, i)
+		s := sums[i+2]
+		for AbsInt(s-2*h) >= AbsInt(s-2*(h+A[r])) {
+			h += A[r]
+			r++
+		}
+
+		F[i] = h
+	}
+	PrintDebug("%v\n", F)
+	h, l := A[n-1], n-2
+	for i := m - 1; i >= 0; i-- {
+		s := sums[n] - sums[i+2]
+		for AbsInt(s-2*h) >= AbsInt(s-2*(h+A[l])) {
+			h += A[l]
+			l--
+		}
+
+		B[i] = h
+	}
+	PrintDebug("%v\n", B)
+
+	ans := INF_BIT30
+	for i := 0; i < m; i++ {
+		p := F[i]
+		q := (sums[i+2]) - p
+		s := B[i]
+		r := (sums[n] - sums[i+2]) - s
+		mini, maxi := Min(p, q, r, s), Max(p, q, r, s)
+
+		ChMin(&ans, AbsInt(mini-maxi))
+	}
+	fmt.Println(ans)
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
 		}
 	}
+	return m
+}
 
-	tail, head := []int{}, []int{}
-	tail = append(tail, a, k, a)
-	head = append(head, b, k, b)
-	for i := 0; i < p; i++ {
-		if i != a && i != b && i != k {
-			tail = append(tail, i)
-			head = append(head, i)
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
 		}
 	}
-	answers := []int{}
-	answers = append(answers, Reverse(tail)...)
-	answers = append(answers, head...)
-
-	fmt.Println(PrintIntsLine(answers...))
+	return m
 }
 
-func Reverse(A []int) []int {
-	res := []int{}
-
-	n := len(A)
-	for i := n - 1; i >= 0; i-- {
-		res = append(res, A[i])
+// AbsInt is integer version of math.Abs
+func AbsInt(a int) int {
+	if a < 0 {
+		return -a
 	}
-
-	return res
-}
-
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int) int {
-	res := 0
-
-	for i := 0; i < 70; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
-		}
-	}
-
-	return res
-}
-
-// PowInt is integer version of math.Pow
-// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
-func PowInt(a, e int) int {
-	if a < 0 || e < 0 {
-		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
-	}
-
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := PowInt(a, halfE)
-		return half * half
-	}
-
-	return a * PowInt(a, e-1)
+	return a
 }
 
 /*

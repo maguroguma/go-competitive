@@ -265,60 +265,50 @@ const (
 
 var (
 	m, k int
-	p    int
 )
 
 func main() {
 	m, k = ReadInt2()
 
-	p = PowInt(2, m)
-
-	if k == 0 {
-		solveZero()
-	} else {
-		solveOther()
-	}
-}
-
-func solveZero() {
-	answers := []int{}
-
-	for i := p - 1; i >= 0; i-- {
-		answers = append(answers, i)
-	}
-	for i := 0; i < p; i++ {
-		answers = append(answers, i)
+	if m == 0 {
+		if k == 0 {
+			fmt.Println("0 0")
+		} else {
+			fmt.Println(-1)
+		}
+		return
 	}
 
-	fmt.Println(PrintIntsLine(answers...))
-}
+	if m == 1 {
+		if k == 0 {
+			fmt.Println("1 0 0 1")
+		} else {
+			fmt.Println(-1)
+		}
+		return
+	}
 
-func solveOther() {
-	if k >= p || PopCount(k) == 1 {
+	p := PowInt(2, m)
+
+	if k >= p {
 		fmt.Println(-1)
 		return
 	}
 
-	a, b := 0, 0
-	for i := 0; i < m; i++ {
-		if NthBit(k, i) == 1 {
-			a = OffBit(k, i)
-			b = OnBit(0, i)
-		}
-	}
-
 	tail, head := []int{}, []int{}
-	tail = append(tail, a, k, a)
-	head = append(head, b, k, b)
 	for i := 0; i < p; i++ {
-		if i != a && i != b && i != k {
-			tail = append(tail, i)
-			head = append(head, i)
+		if i == k {
+			continue
 		}
+		tail = append(tail, i)
 	}
+	head = Reverse(tail)
+
 	answers := []int{}
-	answers = append(answers, Reverse(tail)...)
+	answers = append(answers, tail...)
+	answers = append(answers, k)
 	answers = append(answers, head...)
+	answers = append(answers, k)
 
 	fmt.Println(PrintIntsLine(answers...))
 }
@@ -329,37 +319,6 @@ func Reverse(A []int) []int {
 	n := len(A)
 	for i := n - 1; i >= 0; i-- {
 		res = append(res, A[i])
-	}
-
-	return res
-}
-
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int) int {
-	res := 0
-
-	for i := 0; i < 70; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
-		}
 	}
 
 	return res

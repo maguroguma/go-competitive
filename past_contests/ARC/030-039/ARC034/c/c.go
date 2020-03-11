@@ -264,125 +264,52 @@ const (
 )
 
 var (
-	m, k int
-	p    int
+	a, b int
 )
 
 func main() {
-	m, k = ReadInt2()
+	a, b = ReadInt2()
 
-	p = PowInt(2, m)
-
-	if k == 0 {
-		solveZero()
-	} else {
-		solveOther()
-	}
-}
-
-func solveZero() {
-	answers := []int{}
-
-	for i := p - 1; i >= 0; i-- {
-		answers = append(answers, i)
-	}
-	for i := 0; i < p; i++ {
-		answers = append(answers, i)
-	}
-
-	fmt.Println(PrintIntsLine(answers...))
-}
-
-func solveOther() {
-	if k >= p || PopCount(k) == 1 {
-		fmt.Println(-1)
-		return
-	}
-
-	a, b := 0, 0
-	for i := 0; i < m; i++ {
-		if NthBit(k, i) == 1 {
-			a = OffBit(k, i)
-			b = OnBit(0, i)
+	memo := make(map[int]int)
+	for i := b + 1; i <= a; i++ {
+		tmp := TrialDivision(i)
+		for k, v := range tmp {
+			memo[k] += v
 		}
 	}
 
-	tail, head := []int{}, []int{}
-	tail = append(tail, a, k, a)
-	head = append(head, b, k, b)
-	for i := 0; i < p; i++ {
-		if i != a && i != b && i != k {
-			tail = append(tail, i)
-			head = append(head, i)
+	ans := 1
+	for _, v := range memo {
+		ans *= (v + 1)
+		ans %= MOD
+	}
+	fmt.Println(ans)
+}
+
+// TrialDivision returns the result of prime factorization of integer N.
+func TrialDivision(n int) map[int]int {
+	if n <= 1 {
+		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
+	}
+
+	p := map[int]int{}
+	for i := 2; i*i <= n; i++ {
+		exp := 0
+		for n%i == 0 {
+			exp++
+			n /= i
 		}
-	}
-	answers := []int{}
-	answers = append(answers, Reverse(tail)...)
-	answers = append(answers, head...)
 
-	fmt.Println(PrintIntsLine(answers...))
-}
-
-func Reverse(A []int) []int {
-	res := []int{}
-
-	n := len(A)
-	for i := n - 1; i >= 0; i-- {
-		res = append(res, A[i])
-	}
-
-	return res
-}
-
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int) int {
-	res := 0
-
-	for i := 0; i < 70; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
+		if exp == 0 {
+			continue
 		}
+		p[i] = exp
+	}
+	if n > 1 {
+		p[n] = 1
 	}
 
-	return res
-}
-
-// PowInt is integer version of math.Pow
-// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
-func PowInt(a, e int) int {
-	if a < 0 || e < 0 {
-		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
-	}
-
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := PowInt(a, halfE)
-		return half * half
-	}
-
-	return a * PowInt(a, e-1)
+	return p
 }
 
 /*
