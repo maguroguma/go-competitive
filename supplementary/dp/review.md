@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-03-09 23:38:35.
+Last Change: 2020-03-14 14:50:10.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -88,6 +88,10 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - 変種の桁DP(?)
 - [ABC015 D.高橋くんの苦悩](https://atcoder.jp/contests/abc015/tasks/abc015_4)
   - ナップザックDPの変種。簡単。
+- [ARC043 B.難易度](https://atcoder.jp/contests/arc043/tasks/arc043_b?lang=ja)
+  - 想定解法はDPじゃなかったっぽいが、DPで解けたので。
+- [AGC037 A.Dividing a String](https://atcoder.jp/contests/agc037/tasks/agc037_a)
+  - 貪欲法で解いたが、想定解法のDPで解けるべき。
 
 ### yukicoder
 
