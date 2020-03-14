@@ -1,38 +1,36 @@
 snippet     bipartiteJudge
 abbr        func dfs(v, c int) bool
 options     head
-  // v: ノード数
-  // 隣接リストedgesをグローバルに設定する必要がある
-  func BipartiteJudge(v int) bool {
+  // BipartiteJudge returns whether a graph is the bipartite graph or not,
+  //  and colors of nodes consisting the graph.
+  // O(|V|)
+  func BipartiteJudge(G [][]int) ([]int, bool) {
+    v := len(G)
     colors := make([]int, v)
 
     for i := 0; i < v; i++ {
       if colors[i] == 0 {
         // まだ頂点iが塗られていなければ1で塗る
-        if !dfs(i, 1, colors) {
-          return false
+        if !dfs(i, 1, colors, G) {
+          return colors, false
         }
       }
     }
 
-    return true
+    return colors, true
   }
 
-  // 頂点を1, -1で塗っていく
-  func dfs(v, c int, colors []int) bool {
+  // v: current node id, c: color
+  func dfs(v, c int, colors []int, G [][]int) bool {
     colors[v] = c
-    for _, nid := range edges[v] {
-      // 隣接している頂点が同じ色ならfalse
+    for _, nid := range G[v] {
       if colors[nid] == c {
         return false
       }
-      // 隣接している頂点がまだ塗られていないなら-cで塗る
-      if colors[nid] == 0 && !dfs(nid, -c, colors) {
+      if colors[nid] == 0 && !dfs(nid, -c, colors, G) {
         return false
       }
     }
 
-    // すべての頂点を塗れたらtrue
     return true
   }
-
