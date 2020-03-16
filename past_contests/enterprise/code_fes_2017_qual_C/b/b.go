@@ -264,58 +264,49 @@ const (
 )
 
 var (
-	S []rune
+	n int
+	A []int
 )
 
 func main() {
-	S = ReadRuneSlice()
-	n := len(S)
+	n = ReadInt()
+	A = ReadIntSlice(n)
 
-	// 末尾は必ず '0'
-	if S[n-1] == '1' {
-		fmt.Println(-1)
-		return
-	}
-
-	T := []rune{'x'}
-	T = append(T, S...)
-	// i, (n-i)のペアについては '0', '1' が一致している必要がある
-	for i := 1; i <= n/2; i++ {
-		if T[i] != T[n-i] {
-			fmt.Println(-1)
-			return
+	ans := PowInt(3, n)
+	sub := 1
+	for i := 0; i < n; i++ {
+		if A[i]%2 == 0 {
+			sub *= 2
+		} else {
 		}
 	}
-	// 1, n-1については両方とも必ず '1' である必要がある
-	if !(T[1] == T[n-1] && T[1] == '1') {
-		fmt.Println(-1)
-		return
-	}
-
-	// 構築する
-	minIdx := n
-	for i := n - 1; i >= 1; i-- {
-		fmt.Println(i, minIdx)
-		if T[i] == '1' {
-			ChMin(&minIdx, i)
-		}
-	}
+	fmt.Println(ans - sub)
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
+// PowInt is integer version of math.Pow
+// PowInt calculate a power by Binary Power (二分累乗法(O(log e))).
+func PowInt(a, e int) int {
+	if a < 0 || e < 0 {
+		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
 	}
-	return false
+
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := PowInt(a, halfE)
+		return half * half
+	}
+
+	return a * PowInt(a, e-1)
 }
 
 /*
 - まずは全探索を検討しましょう
 - MODは最後にとりましたか？
+- 負のMODはちゃんと関数を使って処理していますか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
 - いきなりオーバーフローはしていませんか？

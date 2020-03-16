@@ -264,58 +264,42 @@ const (
 )
 
 var (
-	S []rune
+	n, a, b int
+	S       []rune
 )
 
 func main() {
+	n, a, b = ReadInt3()
 	S = ReadRuneSlice()
-	n := len(S)
 
-	// 末尾は必ず '0'
-	if S[n-1] == '1' {
-		fmt.Println(-1)
-		return
-	}
-
-	T := []rune{'x'}
-	T = append(T, S...)
-	// i, (n-i)のペアについては '0', '1' が一致している必要がある
-	for i := 1; i <= n/2; i++ {
-		if T[i] != T[n-i] {
-			fmt.Println(-1)
-			return
+	memo := make([]int, len(S))
+	cur := 0
+	for i := 0; i < n; i++ {
+		if S[i] == 'b' {
+			memo[i] = cur
+			cur++
 		}
 	}
-	// 1, n-1については両方とも必ず '1' である必要がある
-	if !(T[1] == T[n-1] && T[1] == '1') {
-		fmt.Println(-1)
-		return
-	}
 
-	// 構築する
-	minIdx := n
-	for i := n - 1; i >= 1; i-- {
-		fmt.Println(i, minIdx)
-		if T[i] == '1' {
-			ChMin(&minIdx, i)
+	sum := a + b
+	num := 0
+	for i := 0; i < n; i++ {
+		if S[i] == 'a' && num < sum {
+			fmt.Println("Yes")
+			num++
+		} else if S[i] == 'b' && num < sum && memo[i] < b {
+			fmt.Println("Yes")
+			num++
+		} else {
+			fmt.Println("No")
 		}
 	}
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
 }
 
 /*
 - まずは全探索を検討しましょう
 - MODは最後にとりましたか？
+- 負のMODはちゃんと関数を使って処理していますか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
 - いきなりオーバーフローはしていませんか？

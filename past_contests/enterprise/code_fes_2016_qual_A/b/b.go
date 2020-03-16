@@ -264,58 +264,30 @@ const (
 )
 
 var (
-	S []rune
+	n int
+	A []int
 )
 
 func main() {
-	S = ReadRuneSlice()
-	n := len(S)
+	n = ReadInt()
+	tmp := ReadIntSlice(n)
+	A = []int{-1}
+	A = append(A, tmp...)
 
-	// 末尾は必ず '0'
-	if S[n-1] == '1' {
-		fmt.Println(-1)
-		return
-	}
-
-	T := []rune{'x'}
-	T = append(T, S...)
-	// i, (n-i)のペアについては '0', '1' が一致している必要がある
-	for i := 1; i <= n/2; i++ {
-		if T[i] != T[n-i] {
-			fmt.Println(-1)
-			return
+	ans := 0
+	for i := 1; i <= n; i++ {
+		j := A[i]
+		if A[j] == i {
+			ans++
 		}
 	}
-	// 1, n-1については両方とも必ず '1' である必要がある
-	if !(T[1] == T[n-1] && T[1] == '1') {
-		fmt.Println(-1)
-		return
-	}
-
-	// 構築する
-	minIdx := n
-	for i := n - 1; i >= 1; i-- {
-		fmt.Println(i, minIdx)
-		if T[i] == '1' {
-			ChMin(&minIdx, i)
-		}
-	}
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
+	fmt.Println(ans / 2)
 }
 
 /*
 - まずは全探索を検討しましょう
 - MODは最後にとりましたか？
+- 負のMODはちゃんと関数を使って処理していますか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
 - いきなりオーバーフローはしていませんか？
