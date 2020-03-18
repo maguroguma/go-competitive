@@ -7,6 +7,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -264,70 +265,41 @@ const (
 )
 
 var (
-	S []rune
-
-	dp [200000 + 5][5]int
+	n, k, m, r int
+	S          []int
 )
 
-// func main() {
-// 	S = ReadRuneSlice()
-// 	n := len(S)
-
-// 	// for i := 1; i <= 4; i++ {
-// 	// 	dp[i] = 1
-// 	// }
-
-// 	for i := 0; i < n; i++ {
-// 		for j := 1; j <= 4; j++ {
-// 			if i-j < 0 {
-// 				continue
-// 			}
-
-// 			for k := 1; k <= 4; k++ {
-// 				if i+(k-1) >= n {
-// 					continue
-// 				}
-
-// 				if string(S[i-j:i]) != string(S[i:i+k]) {
-// 					ChMax(&dp[i+(k)][k], dp[i-j][j]+2)
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	// fmt.Println(dp[n])
-// 	fmt.Println(Max(dp[n][1], dp[n][2], dp[n][3], dp[n][4]))
-// }
-
 func main() {
-	S = ReadRuneSlice()
-	n := len(S)
+	n, k, m, r = ReadInt4()
+	S = ReadIntSlice(n - 1)
 
-	for j := 0; j < n; j++ {
-		dp[0][j] = 1
+	sort.Sort(sort.Reverse(sort.IntSlice(S)))
+
+	sum := 0
+	for i := 0; i < k-1; i++ {
+		sum += S[i]
 	}
 
-	for i := 0; i < n; i++ {
-		for j := 0; j < 4; j++ {
-			if i+j+1 > n {
-				continue
-			}
+	// 上位k-1個を使った場合の必要なスコア
+	x := k*r - sum
 
-			for k := 0; k < 4; k++ {
-				if i-k < 0 {
-					continue
-				}
+	// ありえない点数が必要となる場合
+	if x > m {
+		fmt.Println(-1)
+		return
+	}
 
-				if string(S[i:i+j+1]) != string(S[i-k:i]) {
-					ChMax(&dp[i+1][j], dp[i-k][k-1]+1)
-				}
-			}
+	// xはあり得る点数
+	if n == k {
+		// すべての試験を使う場合
+		fmt.Println(Max(x, 0))
+	} else {
+		// すでに受けたk番目を使うかどうか
+		if S[k-1] >= x {
+			fmt.Println(0)
+		} else {
+			fmt.Println(x)
 		}
-	}
-
-	ans := 0
-	for i := 0; i < n; i++ {
-
 	}
 }
 
@@ -344,17 +316,6 @@ func Max(integers ...int) int {
 		}
 	}
 	return m
-}
-
-// ChMax accepts a pointer of integer and a target value.
-// If target value is LARGER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMax(updatedValue *int, target int) bool {
-	if *updatedValue < target {
-		*updatedValue = target
-		return true
-	}
-	return false
 }
 
 /*

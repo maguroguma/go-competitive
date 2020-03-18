@@ -265,96 +265,98 @@ const (
 
 var (
 	S []rune
-
-	dp [200000 + 5][5]int
 )
-
-// func main() {
-// 	S = ReadRuneSlice()
-// 	n := len(S)
-
-// 	// for i := 1; i <= 4; i++ {
-// 	// 	dp[i] = 1
-// 	// }
-
-// 	for i := 0; i < n; i++ {
-// 		for j := 1; j <= 4; j++ {
-// 			if i-j < 0 {
-// 				continue
-// 			}
-
-// 			for k := 1; k <= 4; k++ {
-// 				if i+(k-1) >= n {
-// 					continue
-// 				}
-
-// 				if string(S[i-j:i]) != string(S[i:i+k]) {
-// 					ChMax(&dp[i+(k)][k], dp[i-j][j]+2)
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	// fmt.Println(dp[n])
-// 	fmt.Println(Max(dp[n][1], dp[n][2], dp[n][3], dp[n][4]))
-// }
 
 func main() {
 	S = ReadRuneSlice()
-	n := len(S)
 
-	for j := 0; j < n; j++ {
-		dp[0][j] = 1
-	}
-
-	for i := 0; i < n; i++ {
-		for j := 0; j < 4; j++ {
-			if i+j+1 > n {
-				continue
-			}
-
-			for k := 0; k < 4; k++ {
-				if i-k < 0 {
-					continue
-				}
-
-				if string(S[i:i+j+1]) != string(S[i-k:i]) {
-					ChMax(&dp[i+1][j], dp[i-k][k-1]+1)
-				}
-			}
-		}
-	}
-
-	ans := 0
-	for i := 0; i < n; i++ {
-
-	}
-}
-
-// Max returns the max integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Max(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
+	T := []rune{}
+	i := 0
+	for i < len(S) {
+		// 注目文字が2以外ならプッシュして次へ
+		if S[i] != '2' {
+			T = append(T, S[i])
+			i++
 			continue
 		}
-		if m < integer {
-			m = integer
+
+		// すでに末尾ならプッシュして次へ
+		if i == len(S)-1 {
+			T = append(T, S[i])
+			i++
+			continue
+		}
+
+		if S[i+1] == '5' {
+			// '5'だったら変換して次の次へ
+			T = append(T, 'x')
+			i += 2
+		} else {
+			// '5'じゃなかったらプッシュして次へ
+			T = append(T, S[i])
+			i++
 		}
 	}
-	return m
+	PrintDebug("%s\n", string(T))
+
+	comp, cnts := RunLengthEncoding(T)
+	ans := 0
+	for i, r := range comp {
+		if r != 'x' {
+			continue
+		}
+		num := cnts[i]
+
+		ans += num * (num + 1) / 2
+	}
+
+	fmt.Println(ans)
 }
 
-// ChMax accepts a pointer of integer and a target value.
-// If target value is LARGER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMax(updatedValue *int, target int) bool {
-	if *updatedValue < target {
-		*updatedValue = target
-		return true
+// RunLengthEncoding returns encoded slice of an input.
+func RunLengthEncoding(S []rune) ([]rune, []int) {
+	runes := []rune{}
+	lengths := []int{}
+
+	l := 0
+	for i := 0; i < len(S); i++ {
+		// 1文字目の場合保持
+		if i == 0 {
+			l = 1
+			continue
+		}
+
+		if S[i-1] == S[i] {
+			// 直前の文字と一致していればインクリメント
+			l++
+		} else {
+			// 不一致のタイミングで追加し、長さをリセットする
+			runes = append(runes, S[i-1])
+			lengths = append(lengths, l)
+			l = 1
+		}
 	}
-	return false
+	runes = append(runes, S[len(S)-1])
+	lengths = append(lengths, l)
+
+	return runes, lengths
+}
+
+// RunLengthDecoding decodes RLE results.
+func RunLengthDecoding(S []rune, L []int) []rune {
+	if len(S) != len(L) {
+		panic("S, L are not RunLengthEncoding results")
+	}
+
+	res := []rune{}
+
+	for i := 0; i < len(S); i++ {
+		for j := 0; j < L[i]; j++ {
+			res = append(res, S[i])
+		}
+	}
+
+	return res
 }
 
 /*
