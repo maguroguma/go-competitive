@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-03-14 14:50:10.
+Last Change: 2020-03-19 23:54:17.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -92,6 +92,10 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - 想定解法はDPじゃなかったっぽいが、DPで解けたので。
 - [AGC037 A.Dividing a String](https://atcoder.jp/contests/agc037/tasks/agc037_a)
   - 貪欲法で解いたが、想定解法のDPで解けるべき。
+- [CODE FESTIVAL 2015 あさぷろ Middle B.ヘイホー君と削除](https://atcoder.jp/contests/code-festival-2015-morning-middle/tasks/cf_2015_morning_easy_d)
+  - LCSの練習用、、としたいところだがスニペット貼るだけで終わってしまう。
+- [天下一プログラマーコンテスト2014予選B B.エターナルスタティックファイナル](https://atcoder.jp/contests/tenka1-2014-qualb/tasks/tenka1_2014_qualB_b)
+  - 想定解法はわからないが、割と自然にDPで解ける。
 
 ### yukicoder
 

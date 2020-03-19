@@ -12,6 +12,9 @@
 - [ARC037 C.億マス計算](https://atcoder.jp/contests/arc037/tasks/arc037_c)
   - 典型かつ超重要問題、そして苦手。
   - 復習してみたらABC149Eのほうが難しかった。
+- [Indeedなう（予選A） C.説明会](https://atcoder.jp/contests/indeednow-quala/tasks/indeednow_2015_quala_3)
+  - logが2つの形でできる。
+  - なんか解説スライドはシンプルな方法を取っていたが正当性がよくわからなかった。
 
 ## 実装上の注意点
 
