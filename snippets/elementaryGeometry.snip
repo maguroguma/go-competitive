@@ -40,3 +40,10 @@ options     head
     }
     return false
   }
+
+snippet     judgeTriangle
+abbr        func IsTriangle(a, b, c int) bool
+options     head
+  func IsTriangle(a, b, c ${1:int}) bool {
+    return a+b > c && b+c > a && c+a > b
+  }
