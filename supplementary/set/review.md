@@ -1,4 +1,27 @@
 # Setが必要な問題の復習
 
-Last Change: 2020-03-09 23:54:19.
+Last Change: 2020-03-28 18:46:47.
+
+## RBST等で解く問題
+
+- [AGC005 B.Minimum Sum](https://atcoder.jp/contests/agc005/tasks/agc005_b)
+  - Setの使い方も重要だがそれ以上に、よくある数列の問題の **「各要素が解に対して何回寄与するのかを数えるタイプの問題」** としても重要な典型問題。
+  - `Insert, MinGreater, MaxLess` の操作が必要、番兵の事も考えると任意の整数値をkeyにできる方が好ましい。
+  - 要素数 `200000` 程度だと500ms程度。
+  - [画像解説](./images/AGC005-B.jpg)
+- [ABC140 E.Second Sum](https://atcoder.jp/contests/abc140/tasks/abc140_e)
+  - ↑の問題の上位互換、詰めの部分が結構大変、とはいえ「2番めに大きい・小さい・短い」などは典型問題の1つと考えたい。
+  - `Insert, MinGreater, MaxLess` の操作が必要、こちらは番兵を使わないほうが楽と思われる。
+  - [画像解説](./images/ABC140-E.jpg)
+- [ABC128 E.Roadwork](https://atcoder.jp/contests/abc128/tasks/abc128_e)
+  - Set意外の要素が強く、そしてそこが難しいので、Set操作の練習には向かないかもしれない。
+  - イベントソートの代表問題と思っておく。
+  - 任意の整数範囲のkeyについて `Insert, Delete, FindMinimum` の操作が必要。
+  - 手持ちのTreapでは1200ms弱かかっているので改良したい。
+    - この問題は要素数が `200000*2` なのでそこまで気にする必要はないかもしれないが。。
+  - [画像解説](./images/ABC128-E.jpg)
+
+## BIT等で解く問題
+
+[こちら](../BIT/README.md)を参照されたい。
 
