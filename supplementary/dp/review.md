@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-03-19 23:54:17.
+Last Change: 2020-04-01 22:28:26.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -96,6 +96,8 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - LCSの練習用、、としたいところだがスニペット貼るだけで終わってしまう。
 - [天下一プログラマーコンテスト2014予選B B.エターナルスタティックファイナル](https://atcoder.jp/contests/tenka1-2014-qualb/tasks/tenka1_2014_qualB_b)
   - 想定解法はわからないが、割と自然にDPで解ける。
+- [AGC043 A.Range Flip Find Route](https://atcoder.jp/contests/agc043/tasks/agc043_a)
+  - DPは答えを求める部分だがそれは超簡単、それ以外の考察のほうが圧倒的に典型感もあり重要。
 
 ### yukicoder
 
