@@ -1,0 +1,11 @@
+snippet     sectionScheduling
+abbr        if endTime < L[i].start {...}
+options     head
+  sort.Stable(byEnd{L})
+  endTime := -INF_BIT60
+  for i := 0; i < len(L); i++ {
+    if endTime < L[i].start {
+      forward[L[i].day] = true
+      endTime = L[i].end
+    }
+  }
