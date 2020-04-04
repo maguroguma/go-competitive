@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-04-01 22:28:26.
+Last Change: 2020-04-04 15:24:51.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -98,6 +98,9 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - 想定解法はわからないが、割と自然にDPで解ける。
 - [AGC043 A.Range Flip Find Route](https://atcoder.jp/contests/agc043/tasks/agc043_a)
   - DPは答えを求める部分だがそれは超簡単、それ以外の考察のほうが圧倒的に典型感もあり重要。
+- [ABC017 D.サプリメント](https://atcoder.jp/contests/abc017/tasks/abc017_4)
+  - 累積和によるDP高速化。しゃくとり法も前処理で必要。
+  - 数え上げDPの練習にも良い。
 
 ### yukicoder
 
