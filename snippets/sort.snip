@@ -69,6 +69,13 @@ options     head
   // S := $1{'a', 'b', 'c'}
   // sort.Sort(S) or sort.Sort(sort.Reverse(S))
 
+snippet     sortSliceStable
+abbr        sort.SliceStable(L, func(i, j int) bool {...})
+options     head
+  sort.SliceStable(L, func(i, j int) bool {
+    ${1:return L[i].key < L[j].key}
+  })
+
 snippet     sortNeo
 abbr        sss
 options     head

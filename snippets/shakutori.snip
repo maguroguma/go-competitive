@@ -21,3 +21,23 @@ options     head
     }
   }
 
+snippet     shakutoriTrial
+abbr        right := 0; for left := 0; left < n; left++ {...}
+options     head
+  right := 0
+  for left := 0; left < n; left++ {
+    for right < n && ${1:safe-condition} {
+      // change condition(right)
+      right++
+    }
+
+    // query processing
+
+    // preprocessing before preceding LEFT
+    if right == left {
+      right++
+    } else {
+      // change condition(left)
+    }
+  }
+
