@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-04-04 15:24:51.
+Last Change: 2020-04-09 00:10:19.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -101,6 +101,8 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
 - [ABC017 D.サプリメント](https://atcoder.jp/contests/abc017/tasks/abc017_4)
   - 累積和によるDP高速化。しゃくとり法も前処理で必要。
   - 数え上げDPの練習にも良い。
+- [CODE FESTIVAL 2014 予選B D.登山家](https://atcoder.jp/contests/code-festival-2014-qualb/tasks/code_festival_qualB_d)
+  - 自分はSetを使って解いた
 
 ### yukicoder
 

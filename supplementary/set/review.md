@@ -1,6 +1,6 @@
 # Setが必要な問題の復習
 
-Last Change: 2020-04-08 00:26:50.
+Last Change: 2020-04-09 00:10:01.
 
 ## RBST等で解く問題
 
@@ -24,6 +24,9 @@ Last Change: 2020-04-08 00:26:50.
   - Setを使う技法といもす法（あるいは遅延セグ木）が必要。
     - `Insert, MinGreater` が必要。
   - Set操作パートは比較的簡単だと思う。
+- [CODE FESTIVAL 2014 予選B D.登山家](https://atcoder.jp/contests/code-festival-2014-qualb/tasks/code_festival_qualB_d)
+  - Setを使って解く場合は、同じ高さのものの扱いについてちょっと工夫する必要がある。
+  - 想定解法はDPやstackを使うもの。
 
 ## BIT等で解く問題
 
