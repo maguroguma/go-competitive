@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-04-09 00:10:19.
+Last Change: 2020-04-10 00:23:12.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -103,6 +103,10 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - 数え上げDPの練習にも良い。
 - [CODE FESTIVAL 2014 予選B D.登山家](https://atcoder.jp/contests/code-festival-2014-qualb/tasks/code_festival_qualB_d)
   - 自分はSetを使って解いた
+- [ARC027 C.最高のトッピングにしような](https://atcoder.jp/contests/arc027/tasks/arc027_3)
+  - 貪欲の考察から正しくDPテーブルを定義する必要がある。
+- [ABC006 D.トランプ挿入ソート](https://atcoder.jp/contests/abc006/tasks/abc006_4)
+  - LISが答えになる問題。
 
 ### yukicoder
 
