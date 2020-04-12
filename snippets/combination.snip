@@ -18,18 +18,21 @@ options     head
 snippet     combinationFactorial
 abbr        cf.C(n, r)
 options     head
-  // cf = NewCombFactorial()
+  // cf := NewCombFactorial(500000) // maxNum == "maximum n" * 2 (for H(n,r))
   // res := cf.C(n, r) 	// 組み合わせ
   // res := cf.H(n, r) 	// 重複組合せ
   // res := cf.P(n, r) 	// 順列
-  var cf *CombFactorial
-  const MAX_NUM = 1000000
+
   type CombFactorial struct {
-    factorial, modFactorial [MAX_NUM+5]int
+    factorial, invFactorial []int
+    maxNum                  int
   }
 
-  func NewCombFactorial() *CombFactorial {
+  func NewCombFactorial(maxNum int) *CombFactorial {
     cf := new(CombFactorial)
+    cf.maxNum = maxNum
+    cf.factorial = make([]int, maxNum+50)
+    cf.invFactorial = make([]int, maxNum+50)
     cf.initCF()
 
     return cf
@@ -51,26 +54,26 @@ options     head
     return a * c.modpow(a, e-1) % MOD
   }
   func (c *CombFactorial) initCF() {
-    for i := 0; i <= MAX_NUM; i++ {
+    for i := 0; i <= c.maxNum; i++ {
       if i == 0 {
         c.factorial[i] = 1
-        c.modFactorial[i] = c.modInv(c.factorial[i])
+        c.invFactorial[i] = c.modInv(c.factorial[i])
         continue
       }
 
       num := i * c.factorial[i-1]
       num %= MOD
       c.factorial[i] = num
-      c.modFactorial[i] = c.modInv(c.factorial[i])
+      c.invFactorial[i] = c.modInv(c.factorial[i])
     }
   }
   func (c *CombFactorial) C(n, r int) int {
     res := 1
     res *= c.factorial[n]
     res %= MOD
-    res *= c.modFactorial[r]
+    res *= c.invFactorial[r]
     res %= MOD
-    res *= c.modFactorial[n-r]
+    res *= c.invFactorial[n-r]
     res %= MOD
 
     return res
@@ -79,7 +82,7 @@ options     head
     res := 1
     res *= c.factorial[n]
     res %= MOD
-    res *= c.modFactorial[n-r]
+    res *= c.invFactorial[n-r]
     res %= MOD
 
     return res
@@ -87,4 +90,3 @@ options     head
   func (c *CombFactorial) H(n, r int) int {
     return c.C(n-1+r, r)
   }
-

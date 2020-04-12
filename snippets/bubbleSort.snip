@@ -1,0 +1,36 @@
+snippet     bubbleSort
+abbr        func bubbleSortWikipedia(A []int, n int) int
+options     head
+  // AOJ
+  func bubbleSortAOJ(A []int, n int) int {
+    flag := true
+    res := 0
+    for flag {
+      flag = false
+      for j := n - 1; j >= 1; j-- {
+        if A[j-1] > A[j] {
+          A[j-1], A[j] = A[j], A[j-1]
+          res++
+          flag = true
+        }
+      }
+    }
+
+    return res
+  }
+
+  // wikipedia
+  // ※最後尾の最大値から確定していく
+  func bubbleSortWikipedia(A []int, n int) int {
+    res := 0
+    for i := 0; i < n-1; i++ {
+      for j := 1; j < n-i; j++ {
+        if A[j-1] > A[j] {
+          A[j-1], A[j] = A[j], A[j-1]
+          res++
+        }
+      }
+    }
+
+    return res
+  }
