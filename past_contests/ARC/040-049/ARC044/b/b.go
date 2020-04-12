@@ -18,18 +18,10 @@ var (
 	stdout     *bufio.Writer
 )
 
-func init() {
-	ReadString = newReadString(os.Stdin)
-	stdout = bufio.NewWriter(os.Stdout)
-}
-
-func newReadString(ior io.Reader) func() string {
+func newReadString(ior io.Reader, sf bufio.SplitFunc) func() string {
 	r := bufio.NewScanner(ior)
-	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
 	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
-	// Split sets the split function for the Scanner. The default split function is ScanLines.
-	// Split panics if it is called after scanning has started.
-	r.Split(bufio.ScanWords)
+	r.Split(sf)
 
 	return func() string {
 		if !r.Scan() {
@@ -186,9 +178,15 @@ func PrintInts64Line(A ...int64) string {
 	return string(res)
 }
 
-// PrintDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
-func PrintDebug(format string, a ...interface{}) {
+// PrintfDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
+func PrintfDebug(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
+}
+
+// PrintfBufStdout is function for output strings to buffered os.Stdout.
+// You may have to call stdout.Flush() finally.
+func PrintfBufStdout(format string, a ...interface{}) {
+	fmt.Fprintf(stdout, format, a...)
 }
 
 /********** FAU standard libraries **********/
@@ -263,61 +261,119 @@ const (
 	BLACK = 2
 )
 
+func init() {
+	ReadString = newReadString(os.Stdin, bufio.ScanWords)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
 var (
 	n int
+	A []int
+
+	memo [100000 + 5]int
 )
 
 func main() {
 	n = ReadInt()
-	G = make([][]Edge, n)
-	for i := 0; i < n-1; i++ {
-		a, b := ReadInt2()
-		a--
-		b--
-		G[a] = append(G[a], Edge{nid: b, weight: 1})
-		G[b] = append(G[b], Edge{nid: a, weight: 1})
+	A = ReadIntSlice(n)
+
+	for _, a := range A {
+		memo[a]++
 	}
 
-	r := visit(-1, 0)
-	t := visit(-1, r.nid)
-	fmt.Println(r.nid+1, t.nid+1)
-}
+	// 最短路が0のものは1つのみで、それはA[0]のみに限る
+	if !(memo[0] == 1 && A[0] == 0) {
+		fmt.Println(0)
+		return
+	}
 
-var G [][]Edge
-
-type Edge struct {
-	// nid: 向き先ノードID, weight: 重み
-	nid, weight int
-}
-
-type Result struct {
-	// dist: 距離, nid: 終点ノードID
-	dist, nid int
-}
-
-// 木の直径を返す
-// O(|E|)
-func Diameter() int {
-	r := visit(-1, 0)     // nodeID: 0からの最遠ノード(とその距離)を計算
-	t := visit(-1, r.nid) // 0からの最遠ノードからの最遠ノードとその距離を計算
-	return t.dist         // 最遠距離のみを返す
-}
-
-// pidからcidに遷移したときの、cidからの最遠ノードを返す
-// pid: 直前の遷移元ノードID, cid: 現在観ているノードID
-func visit(pid, cid int) Result {
-	r := Result{dist: 0, nid: cid}
-	// DFS
-	for _, e := range G[cid] {
-		if e.nid != pid {
-			t := visit(cid, e.nid) // 次の遷移先へ
-			t.dist += e.weight
-			if r.dist < t.dist {
-				r = t
-			}
+	// 最短路の長さの最大を求める
+	maxShort := 0
+	for d := 0; d <= n-1; d++ {
+		if memo[d] > 0 {
+			maxShort = d
 		}
 	}
-	return r
+	// 最大までに存在しない最短路が合ってはいけない
+	for d := 0; d <= maxShort; d++ {
+		if memo[d] == 0 {
+			fmt.Println(0)
+			return
+		}
+	}
+
+	ans := 1
+	// count := 1
+	for d := 1; d <= maxShort; d++ {
+		// if count == n {
+		// 	break
+		// }
+
+		m := memo[d-1]
+		l := memo[d]
+
+		if l == 0 {
+			fmt.Println(0)
+			return
+		}
+
+		coef := modpow(2, m, MOD)
+		coef = NegativeMod(coef-1, MOD)
+		coef = modpow(coef, l, MOD)
+		ans *= coef
+		ans %= MOD
+
+		if l >= 2 {
+			comb := l * (l - 1) / 2
+			coef2 := modpow(2, comb, MOD)
+			ans *= coef2
+			ans %= MOD
+		}
+
+		// count += l
+	}
+
+	fmt.Println(ans)
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// NegativeMod can calculate a right residual whether value is positive or negative.
+func NegativeMod(val, m int) int {
+	res := val % m
+	if res < 0 {
+		res += m
+	}
+	return res
+}
+
+// ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
+func ModInv(a, m int) int {
+	return modpow(a, m-2, m)
+}
+
+func modpow(a, e, m int) int {
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := modpow(a, halfE, m)
+		return half * half % m
+	}
+
+	return a * modpow(a, e-1, m) % m
 }
 
 /*

@@ -18,18 +18,10 @@ var (
 	stdout     *bufio.Writer
 )
 
-func init() {
-	ReadString = newReadString(os.Stdin)
-	stdout = bufio.NewWriter(os.Stdout)
-}
-
-func newReadString(ior io.Reader) func() string {
+func newReadString(ior io.Reader, sf bufio.SplitFunc) func() string {
 	r := bufio.NewScanner(ior)
-	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
 	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
-	// Split sets the split function for the Scanner. The default split function is ScanLines.
-	// Split panics if it is called after scanning has started.
-	r.Split(bufio.ScanWords)
+	r.Split(sf)
 
 	return func() string {
 		if !r.Scan() {
@@ -186,9 +178,15 @@ func PrintInts64Line(A ...int64) string {
 	return string(res)
 }
 
-// PrintDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
-func PrintDebug(format string, a ...interface{}) {
+// PrintfDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
+func PrintfDebug(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
+}
+
+// PrintfBufStdout is function for output strings to buffered os.Stdout.
+// You may have to call stdout.Flush() finally.
+func PrintfBufStdout(format string, a ...interface{}) {
+	fmt.Fprintf(stdout, format, a...)
 }
 
 /********** FAU standard libraries **********/
@@ -263,61 +261,123 @@ const (
 	BLACK = 2
 )
 
+func init() {
+	ReadString = newReadString(os.Stdin, bufio.ScanWords)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
 var (
-	n int
+	n, m int
+	X    []int
 )
 
 func main() {
-	n = ReadInt()
-	G = make([][]Edge, n)
-	for i := 0; i < n-1; i++ {
-		a, b := ReadInt2()
-		a--
-		b--
-		G[a] = append(G[a], Edge{nid: b, weight: 1})
-		G[b] = append(G[b], Edge{nid: a, weight: 1})
+	n, m = ReadInt2()
+	X = ReadIntSlice(m)
+	// 番兵
+	X = append(X, INF_BIT60)
+
+	ans := solve()
+
+	fmt.Println(ans)
+}
+
+func solve() int {
+	isOK := func(mid int) bool {
+		if cond1(mid) {
+			return true
+		}
+		return false
 	}
 
-	r := visit(-1, 0)
-	t := visit(-1, r.nid)
-	fmt.Println(r.nid+1, t.nid+1)
-}
-
-var G [][]Edge
-
-type Edge struct {
-	// nid: 向き先ノードID, weight: 重み
-	nid, weight int
-}
-
-type Result struct {
-	// dist: 距離, nid: 終点ノードID
-	dist, nid int
-}
-
-// 木の直径を返す
-// O(|E|)
-func Diameter() int {
-	r := visit(-1, 0)     // nodeID: 0からの最遠ノード(とその距離)を計算
-	t := visit(-1, r.nid) // 0からの最遠ノードからの最遠ノードとその距離を計算
-	return t.dist         // 最遠距離のみを返す
-}
-
-// pidからcidに遷移したときの、cidからの最遠ノードを返す
-// pid: 直前の遷移元ノードID, cid: 現在観ているノードID
-func visit(pid, cid int) Result {
-	r := Result{dist: 0, nid: cid}
-	// DFS
-	for _, e := range G[cid] {
-		if e.nid != pid {
-			t := visit(cid, e.nid) // 次の遷移先へ
-			t.dist += e.weight
-			if r.dist < t.dist {
-				r = t
-			}
+	ng, ok := -1, 2000000000+10
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
 		}
 	}
-	return r
+
+	return ok
+}
+
+// tですべて点検できるか？
+func cond1(t int) bool {
+	cur := 0
+	for i := 0; i < m; i++ {
+		x := X[i]
+
+		l := x - cur - 1
+		if l > t {
+			return false
+		}
+
+		isOK := func(mid int) bool {
+			a := 2*l + mid
+			b := l + 2*mid
+			mini := Min(a, b)
+
+			if mini <= t && x+mid < X[i+1] {
+				return true
+			}
+			return false
+		}
+		ng, ok := 2000000000+10, 0
+		for int(math.Abs(float64(ok-ng))) > 1 {
+			mid := (ok + ng) / 2
+			if isOK(mid) {
+				ok = mid
+			} else {
+				ng = mid
+			}
+		}
+
+		cur = x + ok
+	}
+
+	if cur >= n {
+		return true
+	}
+	return false
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*

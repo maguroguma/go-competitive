@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -18,18 +19,10 @@ var (
 	stdout     *bufio.Writer
 )
 
-func init() {
-	ReadString = newReadString(os.Stdin)
-	stdout = bufio.NewWriter(os.Stdout)
-}
-
-func newReadString(ior io.Reader) func() string {
+func newReadString(ior io.Reader, sf bufio.SplitFunc) func() string {
 	r := bufio.NewScanner(ior)
-	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
 	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
-	// Split sets the split function for the Scanner. The default split function is ScanLines.
-	// Split panics if it is called after scanning has started.
-	r.Split(bufio.ScanWords)
+	r.Split(sf)
 
 	return func() string {
 		if !r.Scan() {
@@ -186,9 +179,15 @@ func PrintInts64Line(A ...int64) string {
 	return string(res)
 }
 
-// PrintDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
-func PrintDebug(format string, a ...interface{}) {
+// PrintfDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
+func PrintfDebug(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
+}
+
+// PrintfBufStdout is function for output strings to buffered os.Stdout.
+// You may have to call stdout.Flush() finally.
+func PrintfBufStdout(format string, a ...interface{}) {
+	fmt.Fprintf(stdout, format, a...)
 }
 
 /********** FAU standard libraries **********/
@@ -263,62 +262,76 @@ const (
 	BLACK = 2
 )
 
+func init() {
+	ReadString = newReadString(os.Stdin, bufio.ScanWords)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
 var (
-	n int
+	n, m, s int
+
+	G    [200000 + 50][]int
+	isOK [200000 + 50]bool
 )
 
 func main() {
-	n = ReadInt()
-	G = make([][]Edge, n)
-	for i := 0; i < n-1; i++ {
-		a, b := ReadInt2()
-		a--
-		b--
-		G[a] = append(G[a], Edge{nid: b, weight: 1})
-		G[b] = append(G[b], Edge{nid: a, weight: 1})
+	n, m, s = ReadInt3()
+	s--
+	for i := 0; i < m; i++ {
+		u, v := ReadInt2()
+		u--
+		v--
+		G[u] = append(G[u], v)
+		G[v] = append(G[v], u)
 	}
 
-	r := visit(-1, 0)
-	t := visit(-1, r.nid)
-	fmt.Println(r.nid+1, t.nid+1)
-}
+	pq := &IntPQ{}
+	heap.Init(pq)
 
-var G [][]Edge
+	heap.Push(pq, s)
+	isOK[s] = true
+	for pq.Len() > 0 {
+		pop := heap.Pop(pq).(int)
 
-type Edge struct {
-	// nid: 向き先ノードID, weight: 重み
-	nid, weight int
-}
-
-type Result struct {
-	// dist: 距離, nid: 終点ノードID
-	dist, nid int
-}
-
-// 木の直径を返す
-// O(|E|)
-func Diameter() int {
-	r := visit(-1, 0)     // nodeID: 0からの最遠ノード(とその距離)を計算
-	t := visit(-1, r.nid) // 0からの最遠ノードからの最遠ノードとその距離を計算
-	return t.dist         // 最遠距離のみを返す
-}
-
-// pidからcidに遷移したときの、cidからの最遠ノードを返す
-// pid: 直前の遷移元ノードID, cid: 現在観ているノードID
-func visit(pid, cid int) Result {
-	r := Result{dist: 0, nid: cid}
-	// DFS
-	for _, e := range G[cid] {
-		if e.nid != pid {
-			t := visit(cid, e.nid) // 次の遷移先へ
-			t.dist += e.weight
-			if r.dist < t.dist {
-				r = t
+		for _, nid := range G[pop] {
+			// if nid > pop || isOK[nid] {
+			if nid > pop {
+				continue
 			}
+
+			heap.Push(pq, nid)
+			isOK[nid] = true
 		}
 	}
-	return r
+
+	for i := 0; i < n; i++ {
+		if isOK[i] {
+			fmt.Println(i + 1)
+		}
+	}
 }
+
+type IntPQ []int
+
+func (pq IntPQ) Len() int           { return len(pq) }
+func (pq IntPQ) Less(i, j int) bool { return pq[i] < pq[j] } // <: ASC, >: DESC
+func (pq IntPQ) Swap(i, j int)      { pq[i], pq[j] = pq[j], pq[i] }
+func (pq *IntPQ) Push(x interface{}) {
+	*pq = append(*pq, x.(int))
+}
+func (pq *IntPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	x := old[n-1]
+	*pq = old[0 : n-1]
+	return x
+}
+
+// how to use
+// pq := &IntPQ{3, 6, 1, 2}
+// heap.Init(pq)
+// heap.Push(pq, intValue)
+// poppedVal := heap.Pop(pq).(int)
 
 /*
 - まずは全探索を検討しましょう

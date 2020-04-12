@@ -264,66 +264,118 @@ const (
 )
 
 var (
-	n int
+	n, m int
+
+	keyNodes []int
+	memo     map[int]int
 )
 
 func main() {
-	n = ReadInt()
-	G = make([][]Edge, n)
-	for i := 0; i < n-1; i++ {
-		a, b := ReadInt2()
-		a--
-		b--
-		G[a] = append(G[a], Edge{nid: b, weight: 1})
-		G[b] = append(G[b], Edge{nid: a, weight: 1})
-	}
+	n, m = ReadInt2()
 
-	r := visit(-1, 0)
-	t := visit(-1, r.nid)
-	fmt.Println(r.nid+1, t.nid+1)
-}
-
-var G [][]Edge
-
-type Edge struct {
-	// nid: 向き先ノードID, weight: 重み
-	nid, weight int
-}
-
-type Result struct {
-	// dist: 距離, nid: 終点ノードID
-	dist, nid int
-}
-
-// 木の直径を返す
-// O(|E|)
-func Diameter() int {
-	r := visit(-1, 0)     // nodeID: 0からの最遠ノード(とその距離)を計算
-	t := visit(-1, r.nid) // 0からの最遠ノードからの最遠ノードとその距離を計算
-	return t.dist         // 最遠距離のみを返す
-}
-
-// pidからcidに遷移したときの、cidからの最遠ノードを返す
-// pid: 直前の遷移元ノードID, cid: 現在観ているノードID
-func visit(pid, cid int) Result {
-	r := Result{dist: 0, nid: cid}
-	// DFS
-	for _, e := range G[cid] {
-		if e.nid != pid {
-			t := visit(cid, e.nid) // 次の遷移先へ
-			t.dist += e.weight
-			if r.dist < t.dist {
-				r = t
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			if i == j {
+				continue
+			} else {
+				dp[i][j] = INF_30
 			}
 		}
 	}
-	return r
+
+	memo = map[int]int{}
+	for i := 0; i < m; i++ {
+		u, v, l := ReadInt3()
+		u--
+		v--
+		if u > v {
+			u, v = v, u
+		}
+
+		// 1に隣接するノードを集める
+		if u == 0 {
+			keyNodes = append(keyNodes, v)
+			memo[v] = l
+		} else {
+			dp[u][v] = l
+			dp[v][u] = l
+		}
+	}
+
+	warshallFloyd(n)
+
+	ans := INF_30
+	for i := 0; i < len(keyNodes); i++ {
+		for j := i + 1; j < len(keyNodes); j++ {
+			u, v := keyNodes[i], keyNodes[j]
+			tmp := dp[u][v] + memo[u] + memo[v]
+			ChMin(&ans, tmp)
+		}
+	}
+
+	if ans >= INF_BIT30 {
+		fmt.Println(-1)
+		return
+	}
+	fmt.Println(ans)
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// AOJ
+// node idは0-based
+// dp[i][i]が負ならばノードiは負の閉路に含まれる
+// dpテーブルの更新に条件がないことに注意（負のコストがある場合初期値の同値判定は不可）
+
+const MNN = 300 + 5
+const INF_30 = 1 << 30
+
+var v, e int
+var dp [MNN + 5][MNN + 5]int
+
+// dpをグローバルに設定する必要がある
+func warshallFloyd(n int) {
+	// dp[u][v] = e[u][v] or INF
+	// dp[i][i] = 0
+	for k := 0; k < n; k++ {
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				// 1. 頂点kをちょうど一度通る場合
+				// 2. 頂点kを全く通らない場合
+				// の排反な2ケースを加味したもの
+				dp[i][j] = Min(dp[i][j], dp[i][k]+dp[k][j])
+			}
+		}
+	}
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*
 - まずは全探索を検討しましょう
 - MODは最後にとりましたか？
-- 負のMODはちゃんと関数を使って処理していますか？
 - ループを抜けた後も処理が必要じゃありませんか？
 - 和・積・あまりを求められたらint64が必要ではありませんか？
 - いきなりオーバーフローはしていませんか？

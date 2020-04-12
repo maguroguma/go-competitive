@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -18,18 +19,10 @@ var (
 	stdout     *bufio.Writer
 )
 
-func init() {
-	ReadString = newReadString(os.Stdin)
-	stdout = bufio.NewWriter(os.Stdout)
-}
-
-func newReadString(ior io.Reader) func() string {
+func newReadString(ior io.Reader, sf bufio.SplitFunc) func() string {
 	r := bufio.NewScanner(ior)
-	// r.Buffer(make([]byte, 1024), int(1e+11)) // for AtCoder
 	r.Buffer(make([]byte, 1024), int(1e+9)) // for Codeforces
-	// Split sets the split function for the Scanner. The default split function is ScanLines.
-	// Split panics if it is called after scanning has started.
-	r.Split(bufio.ScanWords)
+	r.Split(sf)
 
 	return func() string {
 		if !r.Scan() {
@@ -186,9 +179,15 @@ func PrintInts64Line(A ...int64) string {
 	return string(res)
 }
 
-// PrintDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
-func PrintDebug(format string, a ...interface{}) {
+// PrintfDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
+func PrintfDebug(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
+}
+
+// PrintfBufStdout is function for output strings to buffered os.Stdout.
+// You may have to call stdout.Flush() finally.
+func PrintfBufStdout(format string, a ...interface{}) {
+	fmt.Fprintf(stdout, format, a...)
 }
 
 /********** FAU standard libraries **********/
@@ -263,62 +262,135 @@ const (
 	BLACK = 2
 )
 
+func init() {
+	ReadString = newReadString(os.Stdin, bufio.ScanWords)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
 var (
-	n int
+	n, m, s int
+
+	G [200000 + 50][]Edge
 )
 
 func main() {
-	n = ReadInt()
-	G = make([][]Edge, n)
-	for i := 0; i < n-1; i++ {
-		a, b := ReadInt2()
-		a--
-		b--
-		G[a] = append(G[a], Edge{nid: b, weight: 1})
-		G[b] = append(G[b], Edge{nid: a, weight: 1})
+	n, m, s = ReadInt3()
+	s--
+	for i := 0; i < m; i++ {
+		u, v := ReadInt2()
+		u--
+		v--
+		G[u] = append(G[u], Edge{to: v, cost: 1})
+		G[v] = append(G[v], Edge{to: u, cost: 1})
 	}
 
-	r := visit(-1, 0)
-	t := visit(-1, r.nid)
-	fmt.Println(r.nid+1, t.nid+1)
+	dp, _ := dijkstra(s, n, G[:n])
+
+	for i := 0; i < n; i++ {
+		// if dp[i] >= i {
+		if dp[i] == i {
+			fmt.Println(i + 1)
+		}
+	}
 }
 
-var G [][]Edge
+type (
+	Edge struct {
+		to   int
+		cost int
+	}
+	Vertex struct {
+		pri int
+		id  int
+	}
+)
 
-type Edge struct {
-	// nid: 向き先ノードID, weight: 重み
-	nid, weight int
-}
+const INF_DIJK = 1 << 60
 
-type Result struct {
-	// dist: 距離, nid: 終点ノードID
-	dist, nid int
-}
+// 「各ノードについて「そこに到達するまでに経由するノードの最小ID」を最大化したパスの最小ID」を計算する
+func dijkstra(sid, n int, AG [][]Edge) ([]int, []int) {
+	dp := make([]int, n)
+	colors, parents := make([]int, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = -1
+		colors[i], parents[i] = WHITE, -1
+	}
 
-// 木の直径を返す
-// O(|E|)
-func Diameter() int {
-	r := visit(-1, 0)     // nodeID: 0からの最遠ノード(とその距離)を計算
-	t := visit(-1, r.nid) // 0からの最遠ノードからの最遠ノードとその距離を計算
-	return t.dist         // 最遠距離のみを返す
-}
+	temp := make(VertexPQ, 0, 100000+5)
+	pq := &temp
+	heap.Init(pq)
+	heap.Push(pq, &Vertex{pri: sid, id: sid}) // priorityは単調減少させていく
+	dp[sid] = sid
+	colors[sid] = GRAY
 
-// pidからcidに遷移したときの、cidからの最遠ノードを返す
-// pid: 直前の遷移元ノードID, cid: 現在観ているノードID
-func visit(pid, cid int) Result {
-	r := Result{dist: 0, nid: cid}
-	// DFS
-	for _, e := range G[cid] {
-		if e.nid != pid {
-			t := visit(cid, e.nid) // 次の遷移先へ
-			t.dist += e.weight
-			if r.dist < t.dist {
-				r = t
+	for pq.Len() > 0 {
+		pop := heap.Pop(pq).(*Vertex)
+
+		colors[pop.id] = BLACK
+
+		// if pop.pri > dp[pop.id] {
+		if pop.pri < dp[pop.id] {
+			continue
+		}
+
+		for _, e := range AG[pop.id] {
+			if colors[e.to] == BLACK {
+				continue
+			}
+
+			// if dp[e.to] > dp[pop.id]+e.cost {
+			if dp[e.to] < Min(dp[pop.id], e.to) {
+				// dp[e.to] = dp[pop.id] + e.cost
+				dp[e.to] = Min(dp[pop.id], e.to)
+				heap.Push(pq, &Vertex{pri: dp[e.to], id: e.to})
+				colors[e.to], parents[e.to] = GRAY, pop.id
 			}
 		}
 	}
-	return r
+
+	return dp, parents
 }
+
+type VertexPQ []*Vertex
+
+func (pq VertexPQ) Len() int           { return len(pq) }
+func (pq VertexPQ) Less(i, j int) bool { return pq[i].pri > pq[j].pri } // <: ASC, >: DESC
+func (pq VertexPQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *VertexPQ) Push(x interface{}) {
+	item := x.(*Vertex)
+	*pq = append(*pq, item)
+}
+func (pq *VertexPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// how to use
+// temp := make(VertexPQ, 0, 100000+1)
+// pq := &temp
+// heap.Init(pq)
+// heap.Push(pq, &Vertex{pri: intValue})
+// popped := heap.Pop(pq).(*Vertex)
 
 /*
 - まずは全探索を検討しましょう
