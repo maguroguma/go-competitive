@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-04-10 00:23:12.
+Last Change: 2020-04-12 23:07:05.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -107,6 +107,8 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - 貪欲の考察から正しくDPテーブルを定義する必要がある。
 - [ABC006 D.トランプ挿入ソート](https://atcoder.jp/contests/abc006/tasks/abc006_4)
   - LISが答えになる問題。
+- [ABC162 F.Select Half](https://atcoder.jp/contests/abc162/tasks/abc162_f)
+  - 耳DPの系譜らしい？
 
 ### yukicoder
 

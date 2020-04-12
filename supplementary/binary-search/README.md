@@ -15,6 +15,8 @@
 - [Indeedなう（予選A） C.説明会](https://atcoder.jp/contests/indeednow-quala/tasks/indeednow_2015_quala_3)
   - logが2つの形でできる。
   - なんか解説スライドはシンプルな方法を取っていたが正当性がよくわからなかった。
+- [CODE FESTIVAL 2015 予選A D.壊れた電車](https://atcoder.jp/contests/code-festival-2015-quala/tasks/codefestival_2015_qualA_d)
+  - 普通にやるとlogが2つ出てくるので、できれば工夫したい。
 
 ## 実装上の注意点
 

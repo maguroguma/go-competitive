@@ -18,6 +18,8 @@
   - 書いてみると意外とシンプルにはなる。
 - [ARC028 B.特別賞](https://atcoder.jp/contests/arc028/tasks/arc028_2)
   - とてもシンプルなので最初の練習に良い。もしくはverify用に。
+- [Chokudai SpeedRun 001 J.転倒数](https://atcoder.jp/contests/chokudai_S001/tasks/chokudai_S001_j)
+  - 長らく蟻本の説明をうまく噛み砕けていなかったが、数列を左からBITの集合に追加していく、と考えると自然に理解できる。
 
 ## BIT上の二分探索
 
