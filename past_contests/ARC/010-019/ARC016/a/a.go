@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -267,104 +266,23 @@ func init() {
 	stdout = bufio.NewWriter(os.Stdout)
 }
 
-var (
-	n, p int
-	A, B []int
-
-	dp [5000 + 50][5500 + 50]int
-)
-
-type Item struct {
-	key          int
-	money, value int
-}
-type ItemList []*Item
-type byKey struct {
-	ItemList
-}
-
-func (l ItemList) Len() int {
-	return len(l)
-}
-func (l ItemList) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
-}
-
-func (l byKey) Less(i, j int) bool {
-	return l.ItemList[i].key < l.ItemList[j].key
-}
-
-// how to use
-// L := make(ItemList, 0, 200000+5)
-// L = append(L, &Item{key: intValue})
-// sort.Stable(byKey{ L })                // Stable ASC
-// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
-
 /*
 URL:
-https://atcoder.jp/contests/arc042/tasks/arc042_c
+https://atcoder.jp/contests/arc016/tasks/arc016_1
 */
+
+var (
+	n, m int
+)
+
 func main() {
-	n, p = ReadInt2()
-	for i := 0; i < n; i++ {
-		a, b := ReadInt2()
-		A = append(A, a)
-		B = append(B, b)
-	}
-
-	L := make(ItemList, 0)
-	for i := 0; i < n; i++ {
-		a, b := A[i], B[i]
-		L = append(L, &Item{key: a, money: a, value: b})
-	}
-	sort.Stable(sort.Reverse(byKey{L}))
-
-	ans := 0
-	dp[0][0] = 0
-	for i := 0; i < n; i++ {
-		money, value := L[i].money, L[i].value
-		for j := 0; j <= p; j++ {
-			ChMax(&dp[i+1][j], dp[i][j])
-			ChMax(&dp[i+1][j+money], dp[i][j]+value)
-
-			ChMax(&ans, dp[i][j])
-			ChMax(&ans, dp[i][j]+value)
+	n, m = ReadInt2()
+	for i := 1; i <= n; i++ {
+		if i != m {
+			fmt.Println(i)
+			return
 		}
 	}
-
-	// ans := 0
-	// for i := 0; i <= n; i++ {
-	// 	for j := 0; j <= 5105; j++ {
-	// 		ChMax(&ans, dp[i][j])
-	// 	}
-	// }
-	fmt.Println(ans)
-}
-
-// Max returns the max integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Max(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m < integer {
-			m = integer
-		}
-	}
-	return m
-}
-
-// ChMax accepts a pointer of integer and a target value.
-// If target value is LARGER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMax(updatedValue *int, target int) bool {
-	if *updatedValue < target {
-		*updatedValue = target
-		return true
-	}
-	return false
 }
 
 /*

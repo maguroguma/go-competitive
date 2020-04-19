@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-04-12 23:07:05.
+Last Change: 2020-04-19 13:22:24.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -109,6 +109,9 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - LISが答えになる問題。
 - [ABC162 F.Select Half](https://atcoder.jp/contests/abc162/tasks/abc162_f)
   - 耳DPの系譜らしい？
+- [ARC042 C.おやつ](https://atcoder.jp/contests/arc042/tasks/arc042_c)
+  - 一工夫必要なナップサックDPという感じだが、思わぬ落とし穴が合った。
+  - 「遷移を取りつつグローバルな解を更新する」という手法も検討したい。
 
 ### yukicoder
 

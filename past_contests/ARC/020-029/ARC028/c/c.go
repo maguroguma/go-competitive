@@ -7,7 +7,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -268,92 +267,70 @@ func init() {
 }
 
 var (
-	n, p int
-	A, B []int
+	n int
+	G [100000 + 50][]int
 
-	dp [5000 + 50][5500 + 50]int
+	sizes   [100000 + 50]int
+	answers [100000 + 50]int
 )
-
-type Item struct {
-	key          int
-	money, value int
-}
-type ItemList []*Item
-type byKey struct {
-	ItemList
-}
-
-func (l ItemList) Len() int {
-	return len(l)
-}
-func (l ItemList) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
-}
-
-func (l byKey) Less(i, j int) bool {
-	return l.ItemList[i].key < l.ItemList[j].key
-}
-
-// how to use
-// L := make(ItemList, 0, 200000+5)
-// L = append(L, &Item{key: intValue})
-// sort.Stable(byKey{ L })                // Stable ASC
-// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
 
 /*
 URL:
-https://atcoder.jp/contests/arc042/tasks/arc042_c
+https://atcoder.jp/contests/arc028/tasks/arc028_3
 */
 func main() {
-	n, p = ReadInt2()
-	for i := 0; i < n; i++ {
-		a, b := ReadInt2()
-		A = append(A, a)
-		B = append(B, b)
+	n = ReadInt()
+	for i := 1; i < n; i++ {
+		p := ReadInt()
+		a, b := i, p
+
+		G[a] = append(G[a], b)
+		G[b] = append(G[b], a)
 	}
 
-	L := make(ItemList, 0)
-	for i := 0; i < n; i++ {
-		a, b := A[i], B[i]
-		L = append(L, &Item{key: a, money: a, value: b})
-	}
-	sort.Stable(sort.Reverse(byKey{L}))
+	rec(-1, 0)
 
-	ans := 0
-	dp[0][0] = 0
 	for i := 0; i < n; i++ {
-		money, value := L[i].money, L[i].value
-		for j := 0; j <= p; j++ {
-			ChMax(&dp[i+1][j], dp[i][j])
-			ChMax(&dp[i+1][j+money], dp[i][j]+value)
-
-			ChMax(&ans, dp[i][j])
-			ChMax(&ans, dp[i][j]+value)
-		}
+		PrintfDebug("id: %d, size: %d\n", i, sizes[i])
 	}
 
-	// ans := 0
-	// for i := 0; i <= n; i++ {
-	// 	for j := 0; j <= 5105; j++ {
-	// 		ChMax(&ans, dp[i][j])
-	// 	}
-	// }
-	fmt.Println(ans)
+	rec2(-1, 0)
+
+	for i := 0; i < n; i++ {
+		PrintfBufStdout("%d\n", answers[i])
+	}
+	stdout.Flush()
 }
 
-// Max returns the max integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Max(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
+func rec(pid, cid int) int {
+	res := 1
+
+	for _, nid := range G[cid] {
+		if nid == pid {
 			continue
 		}
-		if m < integer {
-			m = integer
-		}
+
+		res += rec(cid, nid)
 	}
-	return m
+
+	sizes[cid] = res
+	return res
+}
+
+func rec2(pid, cid int) {
+	res := n - sizes[cid]
+
+	for _, nid := range G[cid] {
+		if nid == pid {
+			continue
+		}
+
+		rec2(cid, nid)
+
+		ChMax(&res, sizes[nid])
+	}
+
+	answers[cid] = res
 }
 
 // ChMax accepts a pointer of integer and a target value.
