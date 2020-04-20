@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-04-19 13:22:24.
+Last Change: 2020-04-21 00:42:27.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -112,6 +112,9 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
 - [ARC042 C.おやつ](https://atcoder.jp/contests/arc042/tasks/arc042_c)
   - 一工夫必要なナップサックDPという感じだが、思わぬ落とし穴が合った。
   - 「遷移を取りつつグローバルな解を更新する」という手法も検討したい。
+- [ABC163 E.Active Infants](https://atcoder.jp/contests/abc163/tasks/abc163_e)
+  - `O(n^2)` のDP。
+  - 区間DPっぽいらしい？
 
 ### yukicoder
 
