@@ -1,3 +1,5 @@
+// https://onlinejudge.u-aizu.ac.jp/problems/DSL_2_A
+
 package main
 
 import (
