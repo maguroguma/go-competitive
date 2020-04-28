@@ -1,94 +1,94 @@
 # 2020-04-25 復習リスト
 
-Last Change: 2020-04-25 18:36:52.
+Last Change: 2020-04-29 01:49:23.
 
 ## 不参加ABC
 
-- ABC006-D: LIS
-- ABC007-D: 桁DP
-- ABC017-D: しゃくとり法, DP
-- ABC018-C: 累積和
-- ABC018-D: 半分全列挙
-- ABC016-D: 幾何
-- ABC024-C: 貪欲
-- ABC022-C: 最短路, 閉路グラフ
-- ABC027-C: ゲーム
-- ABC029-D: 桁DP
-- ABC026-D: 二分探索
-- ABC037-D: メモ化再帰, DP, DFS
-- ABC038-D: 貪欲
-- ABC036-D: 木DP
-- ABC035-D: 最短路
-- ABC032-D: 半分全列挙, ナップサックDP
-- ABC041-D: bitDP
-- ABC048-D: ゲーム
-- ABC049-C: 貪欲？
-- ABC049-D: Union Find
-- ABC040-D: Union Find
-- ABC045-D: ？
-- ABC042-D: 逆元
-- ABC043-D: ？
-- ABC044-C: DP
-- ABC053-D: ？
-- ABC054-D: ナップサックDP？
-- ABC055-D: ？
-- ABC059-C: 全探索？
-- ABC059-D: ゲーム？
-- ABC057-D: パスカルの三角形
-- ABC051-C: グラフの入次数？
-- ABC051-D: ワーシャルフロイド法
-- ABC056-C: ？
-- ABC058-D: 数学
-- ABC065-D: MST, クラスカル法
-- ABC062-C: ？
-- ABC062-D: priority queue？
-- ABC063-D: 二分探索
-- ABC061-D: ベルマンフォード法
-- ABC068-C: グラフ？
-- ABC060-D: DPに見せかけた全探索？
-- ABC076-D: AtCoder Express
-- ABC077-C: 二分探索
-- ABC078-C: 期待値
-- ABC078-D: ゲーム
-- ABC074-D: ？
+- [ ] ABC006-D: LIS
+- [ ] ABC007-D: 桁DP
+- [ ] ABC017-D: しゃくとり法, DP
+- [ ] ABC018-C: 累積和
+- [ ] ABC018-D: 半分全列挙
+- [ ] ABC016-D: 幾何
+- [ ] ABC024-C: 貪欲
+- [ ] ABC022-C: 最短路, 閉路グラフ
+- [ ] ABC027-C: ゲーム
+- [ ] ABC029-D: 桁DP
+- [ ] ABC026-D: 二分探索
+- [ ] ABC037-D: メモ化再帰, DP, DFS
+- [ ] ABC038-D: 貪欲
+- [ ] ABC036-D: 木DP
+- [ ] ABC035-D: 最短路
+- [ ] ABC032-D: 半分全列挙, ナップサックDP
+- [ ] ABC041-D: bitDP
+- [ ] ABC048-D: ゲーム
+- [ ] ABC049-C: 貪欲？
+- [ ] ABC049-D: Union Find
+- [ ] ABC040-D: Union Find
+- [ ] ABC045-D: ？
+- [ ] ABC042-D: 逆元
+- [ ] ABC043-D: ？
+- [ ] ABC044-C: DP
+- [ ] ABC053-D: ？
+- [ ] ABC054-D: ナップサックDP？
+- [ ] ABC055-D: ？
+- [ ] ABC059-C: 全探索？
+- [ ] ABC059-D: ゲーム？
+- [ ] ABC057-D: パスカルの三角形
+- [ ] ABC051-C: グラフの入次数？
+- [ ] ABC051-D: ワーシャルフロイド法
+- [ ] ABC056-C: ？
+- [ ] ABC058-D: 数学
+- [ ] ABC065-D: MST, クラスカル法
+- [ ] ABC062-C: ？
+- [ ] ABC062-D: priority queue？
+- [ ] ABC063-D: 二分探索
+- [ ] ABC061-D: ベルマンフォード法
+- [ ] ABC068-C: グラフ？
+- [ ] ABC060-D: DPに見せかけた全探索？
+- [ ] ABC076-D: AtCoder Express
+- [ ] ABC077-C: 二分探索
+- [ ] ABC078-C: 期待値
+- [ ] ABC078-D: ゲーム
+- [ ] ABC074-D: ？
   - ※大昔にPythonで参加したコンテストの問題
-- ABC075-D: 全探索？
-- ABC084-C: シミュレーション？
-- ABC084-D: 数学, 因数分解, エラトステネスの篩
-- ABC083-D: XOR, フリップ
-- ABC082-D: DP
-- ABC089-D: MLEに注意？
-- ABC080-D: いもす法（効率の悪い解法が通る？）
-- ABC087-D: DFS
-- ABC086-D: 2次元累積和, 周期性
-- ABC088-D: BFS？
-- ABC096-D: 数学, 整数
-- ABC091-C: 貪欲
-- ABC091-D: Two Sequences, 無理ゲー
-- ABC098-D: Xor Sum 2
-- ABC099-D: 全探索？
-- ABC097-C: 全探索？
-- ABC097-D: Union Find
-- ABC092-D: ギャグ系構築
-- ABC093-C: ？
-- ABC103-D: 貪欲
-- ABC104-D: DP
-- ABC105-C: 記数法
-- ABC105-D: 累積和？
-- ABC102-C: 貪欲
-- ABC109-D: ？
-- ABC107-B: 実装
-- ABC107-C: ？
-- ABC100-D: 全探索
-- ABC101-C: 全探索？
-- ABC106-C: ？
-- ABC106-D: 2次元累積和
-- ABC108-B: 幾何
-- ABC111-C: ？
-- ABC110-C: ？
-- ABC110-D: 重複組合せ
-- ABC112-C: 全探索
-- ABC112-D: ？
+- [ ] ABC075-D: 全探索？
+- [ ] ABC084-C: シミュレーション？
+- [ ] ABC084-D: 数学, 因数分解, エラトステネスの篩
+- [ ] ABC083-D: XOR, フリップ
+- [ ] ABC082-D: DP
+- [ ] ABC089-D: MLEに注意？
+- [ ] ABC080-D: いもす法（効率の悪い解法が通る？）
+- [ ] ABC087-D: DFS
+- [ ] ABC086-D: 2次元累積和, 周期性
+- [ ] ABC088-D: BFS？
+- [ ] ABC096-D: 数学, 整数
+- [ ] ABC091-C: 貪欲
+- [ ] ABC091-D: Two Sequences, 無理ゲー
+- [ ] ABC098-D: Xor Sum 2
+- [ ] ABC099-D: 全探索？
+- [ ] ABC097-C: 全探索？
+- [ ] ABC097-D: Union Find
+- [ ] ABC092-D: ギャグ系構築
+- [ ] ABC093-C: ？
+- [ ] ABC103-D: 貪欲
+- [ ] ABC104-D: DP
+- [ ] ABC105-C: 記数法
+- [ ] ABC105-D: 累積和？
+- [ ] ABC102-C: 貪欲
+- [ ] ABC109-D: ？
+- [ ] ABC107-B: 実装
+- [ ] ABC107-C: ？
+- [ ] ABC100-D: 全探索
+- [ ] ABC101-C: 全探索？
+- [x] ABC106-C: ？
+- [x] ABC106-D: 2次元累積和
+- [ ] ABC108-B: 幾何
+- [x] ABC111-C: ？
+- [x] ABC110-C: ？
+- [x] ABC110-D: 重複組合せ
+- [x] ABC112-C: 全探索
+- [x] ABC112-D: ？
 
 ## ARC
 
