@@ -1,13 +1,12 @@
 /*
 URL:
-https://atcoder.jp/contests/abc164/tasks/abc164_e
+https://atcoder.jp/contests/abc164/tasks/abc164_d
 */
 
 package main
 
 import (
 	"bufio"
-	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -55,155 +54,32 @@ func init() {
 	stdout = bufio.NewWriter(os.Stdout)
 }
 
-// Min returns the min integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Min(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m > integer {
-			m = integer
-		}
-	}
-	return m
-}
-
 var (
-	N, M, S          int
-	U, V, A, B, C, D []int
+	S []rune
 
-	dp     [MN + 5][MM + 5]int
-	colors [MN + 5][MM + 5]int
-	G      [MN + 5][MM + 5][]Edge
-)
-
-const (
-	MN = 50
-	MM = 5000
-	MT = 25000
+	dp [200000 + 5][2020]int32
 )
 
 func main() {
-	N, M, S = ReadInt3()
-	for i := 0; i < m; i++ {
-		u, v, a, b := ReadInt4()
-		u--
-		v--
-		U = append(U, u)
-		V = append(V, v)
-		A = append(A, a)
-		B = append(B, b)
+	S = ReadRuneSlice()
+
+	// dp[0][0] = 1
+	for i := 0; i <= len(S); i++ {
+		dp[i][0] = 1
 	}
-	for i := 0; i < n; i++ {
-		c, d := ReadInt2()
-		C = append(C, c)
-		D = append(D, d)
-	}
-
-	for coin := 0; coin <= MM; coin++ {
-		for i := 0; i < m; i++ {
-			u, v, a, b := U[i], V[i], A[i], B[i]
-
-			if coin-a >= 0 {
-				G[u][coin] = append(G[u][coin], Edge{toid: v, tocoin: coin - a, cost: b})
-				G[v][coin] = append(G[v][coin], Edge{toid: u, tocoin: coin - a, cost: b})
-			}
-		}
-
-		for i := 0; i < n; i++ {
-			c, d := C[i], D[i]
-			tocoin := Min(coin+c, MM)
-
-			G[i][coin] = append(G[i][coin], Edge{toid: i, tocoin: tocoin, cost: d})
-		}
-	}
-}
-
-type (
-	Edge struct {
-		// to   int
-		toid, tocoin int
-		cost         int
-	}
-	Vertex struct {
-		pri int
-		// id  int
-		id, coin int
-	}
-)
-
-const INF_DIJK = 1 << 60
-
-func dijkstra(sid, n int, AG [MN + 5][MM + 5][]Edge) {
-	// dp := make([]int, n)
-	// colors, parents := make([]int, n), make([]int, n)
-	for i := 0; i < n; i++ {
-		for j := 0; j <= MM; j++ {
-			dp[i][j] = INF_DIJK
-			// colors[i], parents[i] = WHITE, -1
-			colors[i][j] = WHITE
+	for i := 0; i < len(S); i++ {
+		d := int(S[i] - '0')
+		for j := 0; j < 2019; j++ {
+			dp[i+1][(j*10+d)%2019] += dp[i][j]
 		}
 	}
 
-	temp := make(VertexPQ, 0, 100000+5)
-	pq := &temp
-	heap.Init(pq)
-	heap.Push(pq, &Vertex{pri: 0, id: sid})
-	dp[sid] = 0
-	colors[sid] = GRAY
-
-	for pq.Len() > 0 {
-		pop := heap.Pop(pq).(*Vertex)
-
-		colors[pop.id] = BLACK
-
-		if pop.pri > dp[pop.id] {
-			continue
-		}
-
-		for _, e := range AG[pop.id] {
-			if colors[e.to] == BLACK {
-				continue
-			}
-
-			if dp[e.to] > dp[pop.id]+e.cost {
-				dp[e.to] = dp[pop.id] + e.cost
-				heap.Push(pq, &Vertex{pri: dp[e.to], id: e.to})
-				colors[e.to], parents[e.to] = GRAY, pop.id
-			}
-		}
+	ans := int32(0)
+	for i := 1; i <= len(S); i++ {
+		ans += dp[i][0]
 	}
-
-	// return dp, parents
+	fmt.Println(ans - int32(len(S)))
 }
-
-type VertexPQ []*Vertex
-
-func (pq VertexPQ) Len() int           { return len(pq) }
-func (pq VertexPQ) Less(i, j int) bool { return pq[i].pri < pq[j].pri } // <: ASC, >: DESC
-func (pq VertexPQ) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-}
-func (pq *VertexPQ) Push(x interface{}) {
-	item := x.(*Vertex)
-	*pq = append(*pq, item)
-}
-func (pq *VertexPQ) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	*pq = old[0 : n-1]
-	return item
-}
-
-// how to use
-// temp := make(VertexPQ, 0, 100000+1)
-// pq := &temp
-// heap.Init(pq)
-// heap.Push(pq, &Vertex{pri: intValue})
-// popped := heap.Pop(pq).(*Vertex)
 
 /*******************************************************************/
 

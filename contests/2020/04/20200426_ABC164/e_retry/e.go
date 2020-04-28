@@ -74,20 +74,18 @@ var (
 	N, M, S          int
 	U, V, A, B, C, D []int
 
-	dp     [MN + 5][MM + 5]int
-	colors [MN + 5][MM + 5]int
-	G      [MN + 5][MM + 5][]Edge
+	G [MT + 5][]Edge
 )
 
 const (
 	MN = 50
 	MM = 5000
-	MT = 25000
+	MT = 260000
 )
 
 func main() {
 	N, M, S = ReadInt3()
-	for i := 0; i < m; i++ {
+	for i := 0; i < M; i++ {
 		u, v, a, b := ReadInt4()
 		u--
 		v--
@@ -96,55 +94,75 @@ func main() {
 		A = append(A, a)
 		B = append(B, b)
 	}
-	for i := 0; i < n; i++ {
+	for i := 0; i < N; i++ {
 		c, d := ReadInt2()
 		C = append(C, c)
 		D = append(D, d)
 	}
 
 	for coin := 0; coin <= MM; coin++ {
-		for i := 0; i < m; i++ {
+		for i := 0; i < M; i++ {
 			u, v, a, b := U[i], V[i], A[i], B[i]
 
 			if coin-a >= 0 {
-				G[u][coin] = append(G[u][coin], Edge{toid: v, tocoin: coin - a, cost: b})
-				G[v][coin] = append(G[v][coin], Edge{toid: u, tocoin: coin - a, cost: b})
+				G[u+N*coin] = append(G[u+N*coin], Edge{to: v + (coin-a)*N, cost: b})
+				G[v+N*coin] = append(G[v+N*coin], Edge{to: u + (coin-a)*N, cost: b})
 			}
 		}
 
-		for i := 0; i < n; i++ {
+		for i := 0; i < N; i++ {
 			c, d := C[i], D[i]
 			tocoin := Min(coin+c, MM)
 
-			G[i][coin] = append(G[i][coin], Edge{toid: i, tocoin: tocoin, cost: d})
+			if coin == tocoin {
+				continue
+			}
+
+			G[i+N*coin] = append(G[i+N*coin], Edge{to: i + N*tocoin, cost: d})
 		}
 	}
+
+	dp, _ := dijkstra(Min(S, MM)*N, MT, G[:MT])
+
+	for i := 1; i < N; i++ {
+		ans := INF_DIJK
+		for j := 0; j <= MM; j++ {
+			ChMin(&ans, dp[i+N*j])
+		}
+		fmt.Println(ans)
+	}
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
 }
 
 type (
 	Edge struct {
-		// to   int
-		toid, tocoin int
-		cost         int
+		to   int
+		cost int
 	}
 	Vertex struct {
 		pri int
-		// id  int
-		id, coin int
+		id  int
 	}
 )
 
 const INF_DIJK = 1 << 60
 
-func dijkstra(sid, n int, AG [MN + 5][MM + 5][]Edge) {
-	// dp := make([]int, n)
-	// colors, parents := make([]int, n), make([]int, n)
+func dijkstra(sid, n int, AG [][]Edge) ([]int, []int) {
+	dp := make([]int, n)
+	colors, parents := make([]int, n), make([]int, n)
 	for i := 0; i < n; i++ {
-		for j := 0; j <= MM; j++ {
-			dp[i][j] = INF_DIJK
-			// colors[i], parents[i] = WHITE, -1
-			colors[i][j] = WHITE
-		}
+		dp[i] = INF_DIJK
+		colors[i], parents[i] = WHITE, -1
 	}
 
 	temp := make(VertexPQ, 0, 100000+5)
@@ -176,7 +194,7 @@ func dijkstra(sid, n int, AG [MN + 5][MM + 5][]Edge) {
 		}
 	}
 
-	// return dp, parents
+	return dp, parents
 }
 
 type VertexPQ []*Vertex
