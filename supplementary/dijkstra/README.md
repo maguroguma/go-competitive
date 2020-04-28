@@ -63,6 +63,8 @@
 - [ARC056 B.駐車場](https://atcoder.jp/contests/arc056/tasks/arc056_b)
   - かなり変わり種だが練習になるかもしれない。
   - 最短距離ではなく、「その頂点に至るまでのパスのうち、最小のノード番号を記憶し、DP値を最大にするように更新していく」というふうにする。
+- [ABC164 E.Two Currencies](https://atcoder.jp/contests/abc164/tasks/abc164_e)
+  - 拡張ダイクストラ
 
 ### ダイクストラと見抜くために
 
