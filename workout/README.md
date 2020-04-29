@@ -1,6 +1,6 @@
 # 2020-04-25 復習リスト
 
-Last Change: 2020-04-29 01:49:23.
+Last Change: 2020-04-29 21:17:42.
 
 ## 不参加ABC
 
@@ -59,36 +59,46 @@ Last Change: 2020-04-29 01:49:23.
 - [ ] ABC082-D: DP
 - [ ] ABC089-D: MLEに注意？
 - [ ] ABC080-D: いもす法（効率の悪い解法が通る？）
-- [ ] ABC087-D: DFS
+- [x] ABC087-D: DFS
+  - ★★★
 - [ ] ABC086-D: 2次元累積和, 周期性
-- [ ] ABC088-D: BFS？
-- [ ] ABC096-D: 数学, 整数
-- [ ] ABC091-C: 貪欲
+- [x] ABC088-D: BFS？
+  - ★
+- [x] ABC096-D: 数学, 整数
+- [x] ABC091-C: 貪欲
+  - ★★
 - [ ] ABC091-D: Two Sequences, 無理ゲー
 - [ ] ABC098-D: Xor Sum 2
-- [ ] ABC099-D: 全探索？
-- [ ] ABC097-C: 全探索？
-- [ ] ABC097-D: Union Find
+- [x] ABC099-D: 全探索？
+- [x] ABC097-C: 全探索？
+- [x] ABC097-D: Union Find
 - [ ] ABC092-D: ギャグ系構築
-- [ ] ABC093-C: ？
-- [ ] ABC103-D: 貪欲
+- [x] ABC093-C: ？
+- [x] ABC103-D: 貪欲
 - [ ] ABC104-D: DP
-- [ ] ABC105-C: 記数法
-- [ ] ABC105-D: 累積和？
-- [ ] ABC102-C: 貪欲
-- [ ] ABC109-D: ？
-- [ ] ABC107-B: 実装
-- [ ] ABC107-C: ？
-- [ ] ABC100-D: 全探索
-- [ ] ABC101-C: 全探索？
+- [x] ABC105-C: 記数法
+- [x] ABC105-D: 累積和？
+  - ★
+- [x] ABC102-C: 貪欲
+- [x] ABC109-D: ？
+- [x] ABC107-B: 実装
+- [x] ABC107-C: ？
+  - ★
+- [x] ABC100-D: 全探索
+  - ★★
+- [x] ABC101-C: 全探索？
+  - ★★★
 - [x] ABC106-C: ？
 - [x] ABC106-D: 2次元累積和
+  - ★
 - [ ] ABC108-B: 幾何
 - [x] ABC111-C: ？
 - [x] ABC110-C: ？
+  - ★★
 - [x] ABC110-D: 重複組合せ
 - [x] ABC112-C: 全探索
 - [x] ABC112-D: ？
+  - ★★★
 
 ## ARC
 
