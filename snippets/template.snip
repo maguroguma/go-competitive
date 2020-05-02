@@ -339,6 +339,7 @@ options     head
   )
 
   func init() {
+    // bufio.ScanWords <---> bufio.ScanLines
     ReadString = newReadString(os.Stdin, bufio.ScanWords)
     stdout = bufio.NewWriter(os.Stdout)
   }
