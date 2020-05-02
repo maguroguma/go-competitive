@@ -1,6 +1,6 @@
 # 2020-04-25 復習リスト
 
-Last Change: 2020-05-01 01:32:29.
+Last Change: 2020-05-02 16:56:21.
 
 ## 不参加ABC
 
@@ -40,12 +40,14 @@ Last Change: 2020-05-01 01:32:29.
 - [ ] ABC056-C: ？
 - [ ] ABC058-D: 数学
 - [ ] ABC065-D: MST, クラスカル法
-- [ ] ABC062-C: ？
-- [ ] ABC062-D: priority queue？
-- [ ] ABC063-D: 二分探索
+- [x] ABC062-C: ？
+- [x] ABC062-D: priority queue？
+  - ★★
+- [x] ABC063-D: 二分探索
+  - ★
 - [ ] ABC061-D: ベルマンフォード法
-- [ ] ABC068-C: グラフ？
-- [ ] ABC060-D: DPに見せかけた全探索？
+- [x] ABC068-C: グラフ？
+- [x] ABC060-D: DPに見せかけた全探索？
 - [ ] ABC076-D: AtCoder Express
 - [x] ABC077-C: 二分探索
 - [ ] ABC078-C: 期待値
