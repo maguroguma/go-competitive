@@ -1,31 +1,38 @@
 snippet     warshallFloyd
 abbr        dp[i][j] = Min(dp[i][j], dp[i][k]+dp[k][j])
 options     head
-  // AOJ
-  // node idは0-based
+  // WarshallFloyd returns shortest paths' lengths among all nodes.
+  // AOJ version.
+  // n: number of nodes (0-based)
+  // AG: adjacent matrix (G[u][v] == edge[u][v] or INF, G[i][i] == 0)
   // dp[i][i]が負ならばノードiは負の閉路に含まれる
   // dpテーブルの更新に条件がないことに注意（負のコストがある場合初期値の同値判定は不可）
+  func WarshallFloyd(n int, AG [][]int) [][]int {
+    dp := [][]int{}
+    for i := 0; i < n; i++ {
+      row := make([]int, n)
+      dp = append(dp, row)
+    }
+    for i := 0; i < n; i++ {
+      for j := 0; j < n; j++ {
+        dp[i][j] = AG[i][j]
+      }
+    }
 
-  const MNN = 300
-  const INF_30 = 1 << 30
-
-  var v, e int
-  var dp [MNN + 5][MNN + 5]int
-
-  // dpをグローバルに設定する必要がある
-  func warshallFloyd(n int) {
-    // dp[u][v] = e[u][v] or INF
-    // dp[i][i] = 0
     for k := 0; k < n; k++ {
       for i := 0; i < n; i++ {
         for j := 0; j < n; j++ {
           // 1. 頂点kをちょうど一度通る場合
           // 2. 頂点kを全く通らない場合
           // の排反な2ケースを加味したもの
-          dp[i][j] = Min(dp[i][j], dp[i][k]+dp[k][j])
+          if dp[i][j] > dp[i][k]+dp[k][j] {
+            dp[i][j] = dp[i][k] + dp[k][j]
+          }
         }
       }
     }
+
+    return dp
   }
 
 snippet     warshallFloydEx

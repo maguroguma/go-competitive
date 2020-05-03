@@ -55,3 +55,45 @@ options     head
   // heap.Init(pq)
   // heap.Push(pq, &$1{pri: intValue})
   // popped := heap.Pop(pq).(*$1)
+
+
+snippet     priorityQueueTrial
+abbr        type ItemPQ []*Item
+options     head
+  type ${1:Item} struct {
+    pri int
+    ${2:#:otherProperty and type}
+  }
+  type $1PQ []*$1
+
+  // Interfaces
+  func New$1PQ() *$1PQ {
+    temp := make($1PQ, 0)
+    pq := &temp
+    heap.Init(pq)
+
+    return pq
+  }
+  func (pq *$1PQ) push(target *$1) {
+    heap.Push(pq, target)
+  }
+  func (pq *$1PQ) pop() *$1 {
+    return heap.Pop(pq).(*$1)
+  }
+
+  func (pq $1PQ) Len() int           { return len(pq) }
+  func (pq $1PQ) Less(i, j int) bool { return pq[i].pri ${2:<} pq[j].pri } // <: ASC, >: DESC
+  func (pq $1PQ) Swap(i, j int) {
+    pq[i], pq[j] = pq[j], pq[i]
+  }
+  func (pq *$1PQ) Push(x interface{}) {
+    item := x.(*$1)
+    *pq = append(*pq, item)
+  }
+  func (pq *$1PQ) Pop() interface{} {
+    old := *pq
+    n := len(old)
+    item := old[n-1]
+    *pq = old[0 : n-1]
+    return item
+  }
