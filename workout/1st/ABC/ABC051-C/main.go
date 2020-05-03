@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc056/tasks/arc070_a
+https://atcoder.jp/contests/abc051/tasks/abc051_c
 */
 
 package main
@@ -56,18 +56,48 @@ func init() {
 }
 
 var (
-	x int
+	sx, sy, tx, ty int
 )
 
 func main() {
-	x = ReadInt()
+	sx, sy, tx, ty = ReadInt4()
 
-	for i := 1; ; i++ {
-		if i*(i+1)/2 >= x {
-			fmt.Println(i)
-			return
-		}
+	dy, dx := ty-sy, tx-sx
+	answers := []rune{}
+
+	for i := 0; i < dy; i++ {
+		answers = append(answers, 'U')
 	}
+	for i := 0; i < dx; i++ {
+		answers = append(answers, 'R')
+	}
+
+	for i := 0; i < dy; i++ {
+		answers = append(answers, 'D')
+	}
+	for i := 0; i < dx; i++ {
+		answers = append(answers, 'L')
+	}
+
+	answers = append(answers, 'L')
+	for i := 0; i < dy+1; i++ {
+		answers = append(answers, 'U')
+	}
+	for i := 0; i < dx+1; i++ {
+		answers = append(answers, 'R')
+	}
+	answers = append(answers, 'D')
+
+	answers = append(answers, 'R')
+	for i := 0; i < dy+1; i++ {
+		answers = append(answers, 'D')
+	}
+	for i := 0; i < dx+1; i++ {
+		answers = append(answers, 'L')
+	}
+	answers = append(answers, 'U')
+
+	fmt.Println(string(answers))
 }
 
 /*******************************************************************/
