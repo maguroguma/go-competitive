@@ -1,6 +1,6 @@
 # 2020-04-25 復習リスト
 
-Last Change: 2020-05-05 13:25:20.
+Last Change: 2020-05-06 00:54:07.
 
 ## 不参加ABC
 
@@ -203,10 +203,11 @@ Last Change: 2020-05-05 13:25:20.
 - [ ] AISing2019-C: DFS
 - [x] ABC116-C: 実装
 - [x] ABC116-D: 貪欲
+  - ★
 
-- [ ] ABC118-D: DP
-- [ ] ABC119-D: 二分探索
-- [ ] ABC117-D: 桁DP
+- [x] ABC118-D: DP
+- [x] ABC119-D: 二分探索
+- [x] ABC117-D: 桁DP
 
 - [ ] エクサウィザーズ2019-C: 二分探索
 - [ ] エクサウィザーズ2019-D: DP
@@ -216,17 +217,19 @@ Last Change: 2020-05-05 13:25:20.
 - [ ] ABC122-D: DP
 
 - [ ] 天下一2019予選-C: 全探索
-- [ ] ABC124-D: 累積和？
-- [ ] ABC123-C: ？
-- [ ] ABC123-D: 二分探索, priority queue
+- [x] ABC124-D: 累積和？
+- [x] ABC123-C: ？
+- [x] ABC123-D: 二分探索, priority queue
+  - ★★
 
 - [ ] CPCSO Session3-E: XOR
 - [ ] Chokudai SpeedRun 002-I: ？
 - [ ] Chokudai SpeedRun 002-J: ？
-- [ ] ABC128-D: 全探索
+- [x] ABC128-D: 全探索
 - [ ] ABC128-E: イベントソート, 平衡二分探索木によるSet
-- [ ] ABC127-D: ？
-- [ ] ABC127-E: 数え上げ, 区間？
+- [x] ABC127-D: ？
+- [x] ABC127-E: 数え上げ, 区間？
+  - ★★★
 - [ ] ABC126-F: 構築
 - [ ] AGC033-A: 初期地点多数のBFS
 
