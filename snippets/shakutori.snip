@@ -22,12 +22,14 @@ options     head
   }
 
 snippet     shakutoriTrial
-abbr        right := 0; for left := 0; left < n; left++ {...}
+abbr        right := 0; for left := 0; left < len(A); left++ {...}
 options     head
   right := 0
-  for left := 0; left < n; left++ {
-    for right < n && ${1:safe-condition} {
+  for left := 0; left < ${1:len(A)}; left++ {
+    for right < $1 && ${1:{safe-condition}} {
       // change condition(right)
+      ${2:{use-right}}
+
       right++
     }
 
@@ -38,6 +40,7 @@ options     head
       right++
     } else {
       // change condition(left)
+      ${3:{use-left}}
     }
   }
 
