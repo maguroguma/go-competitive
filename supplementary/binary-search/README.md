@@ -1,6 +1,6 @@
 # 二分探索
 
-Last Change: 2020-05-02 14:39:49.
+Last Change: 2020-05-05 20:58:34.
 
 めぐる式二分探索信者なので、基本的にはそれに愚直に従って解く。
 
@@ -24,6 +24,8 @@ Last Change: 2020-05-02 14:39:49.
   - 単調性を持つようにデータを調整するところで貪欲的な考え方をする必要があり、個人的に苦手なので復習する価値が大きい。
 - [DISCO2016本選 B.DDPC特別ビュッフェ2](https://atcoder.jp/contests/discovery2016-final/tasks/discovery_2016_final_b)
   - ちょっと特殊だがlogが2個つくタイプの二分探索。
+- [ABC123 D.Cake 123](https://atcoder.jp/contests/abc123/tasks/abc123_d)
+  - 基本的ではあるが、これも同率K番目のものの扱い方を適当にやるとWAになってしまう。
 
 ## 決め打ち二分探索
 
