@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc122/tasks/abc122_d
+https://atcoder.jp/contests/abc140/tasks/abc140_d
 */
 
 package main
@@ -56,101 +56,95 @@ func init() {
 }
 
 var (
-	n int
-
-	dp [100 + 5][10][10][10]int
-)
-
-const (
-	A = 1
-	G = 2
-	C = 3
-	T = 4
+	n, k int
+	S    []rune
 )
 
 func main() {
-	n = ReadInt()
+	n, k = ReadInt2()
+	S = ReadRuneSlice()
 
-	// dp[0][0][0][0] = 1
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				a := j == C && k == G && l == A
-				b := j == G && k == C && l == A
-				c := j == C && k == A && l == G
-				if !(a || b || c) {
-					dp[3][j][k][l] = 1
-				}
-			}
-		}
-	}
-
-	for i := 3; i < n; i++ {
-		for j := 1; j <= 4; j++ {
-			for k := 1; k <= 4; k++ {
-				for l := 1; l <= 4; l++ {
-					// if l > 0 && (k == 0 || j == 0) {
-					// 	continue
-					// }
-					// if k > 0 && j == 0 {
-					// 	continue
-					// }
-
-					// mは次の文字
-					for m := 1; m <= 4; m++ {
-						a := !(j == G && k == A && m == C)
-						b := !(j == C && k == A && m == G)
-						c := !(j == A && k == G && m == C)
-						d := !(k == G && l == A && m == C)
-						e := !(j == G && l == A && m == C)
-						if a && b && c && d && e {
-							dp[i+1][m][j][k] += dp[i][j][k][l]
-							dp[i+1][m][j][k] %= MOD
-						}
-
-						// // AGX
-						// if !(j == G && k == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // ACX
-						// if !(j == C && k == A && m == G) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // GAX
-						// if !(j == A && k == G && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // AGXX
-						// if !(k == G && l == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-					}
-				}
-			}
-		}
-	}
-
+	_, cnts := RunLengthEncoding(S)
 	ans := 0
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				// a := j == C && k == G && l == A
-				// b := j == G && k == C && l == A
-				// c := j == C && k == A && l == G
-				// if !(a || b || c) {
-				ans += dp[n][j][k][l]
-				ans %= MOD
-				// }
-			}
+	for _, c := range cnts {
+		ans += c - 1
+	}
+
+	ans = Min(n-1, ans+2*k)
+
+	fmt.Println(ans)
+}
+
+// Sum returns multiple integers sum.
+func Sum(integers ...int) int {
+	s := 0
+
+	for _, i := range integers {
+		s += i
+	}
+
+	return s
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
 		}
 	}
-	fmt.Println(ans)
+	return m
+}
+
+// RunLengthEncoding returns encoded slice of an input.
+func RunLengthEncoding(S []rune) ([]rune, []int) {
+	runes := []rune{}
+	lengths := []int{}
+
+	l := 0
+	for i := 0; i < len(S); i++ {
+		// 1文字目の場合保持
+		if i == 0 {
+			l = 1
+			continue
+		}
+
+		if S[i-1] == S[i] {
+			// 直前の文字と一致していればインクリメント
+			l++
+		} else {
+			// 不一致のタイミングで追加し、長さをリセットする
+			runes = append(runes, S[i-1])
+			lengths = append(lengths, l)
+			l = 1
+		}
+	}
+	runes = append(runes, S[len(S)-1])
+	lengths = append(lengths, l)
+
+	return runes, lengths
+}
+
+// RunLengthDecoding decodes RLE results.
+func RunLengthDecoding(S []rune, L []int) []rune {
+	if len(S) != len(L) {
+		panic("S, L are not RunLengthEncoding results")
+	}
+
+	res := []rune{}
+
+	for i := 0; i < len(S); i++ {
+		for j := 0; j < L[i]; j++ {
+			res = append(res, S[i])
+		}
+	}
+
+	return res
 }
 
 /*******************************************************************/

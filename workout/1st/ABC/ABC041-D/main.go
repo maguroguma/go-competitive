@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc122/tasks/abc122_d
+https://atcoder.jp/contests/abc041/tasks/abc041_d
 */
 
 package main
@@ -56,101 +56,88 @@ func init() {
 }
 
 var (
-	n int
+	n, m int
+	X, Y []int
 
-	dp [100 + 5][10][10][10]int
-)
-
-const (
-	A = 1
-	G = 2
-	C = 3
-	T = 4
+	dp   [1000000]int
+	memo [20][]int
 )
 
 func main() {
-	n = ReadInt()
+	n, m = ReadInt2()
+	for i := 0; i < m; i++ {
+		x, y := ReadInt2()
+		x--
+		y--
+		X = append(X, x)
+		Y = append(Y, y)
+	}
 
-	// dp[0][0][0][0] = 1
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				a := j == C && k == G && l == A
-				b := j == G && k == C && l == A
-				c := j == C && k == A && l == G
-				if !(a || b || c) {
-					dp[3][j][k][l] = 1
+	for i := 0; i < m; i++ {
+		x, y := X[i], Y[i]
+		memo[x] = append(memo[x], y)
+	}
+
+	dp[0] = 1
+	for S := 0; S < 1<<uint(n); S++ {
+	OUTER:
+		for j := 0; j < n; j++ {
+			if NthBit(S, j) == 1 {
+				continue
+			}
+
+			// jを立てて良いか？
+			for k := 0; k < m; k++ {
+				x, y := X[k], Y[k]
+				if j == x && NthBit(S, y) == 1 {
+					// yが立ってたらスキップ
+					continue OUTER
+				} else if j == y && NthBit(S, x) == 0 {
+					// xが立っていなかったらスキップ
+					continue OUTER
 				}
 			}
+
+			dp[S|1<<uint(j)] += dp[S]
 		}
 	}
 
-	for i := 3; i < n; i++ {
-		for j := 1; j <= 4; j++ {
-			for k := 1; k <= 4; k++ {
-				for l := 1; l <= 4; l++ {
-					// if l > 0 && (k == 0 || j == 0) {
-					// 	continue
-					// }
-					// if k > 0 && j == 0 {
-					// 	continue
-					// }
+	fmt.Println(dp[1<<uint(n)-1])
+}
 
-					// mは次の文字
-					for m := 1; m <= 4; m++ {
-						a := !(j == G && k == A && m == C)
-						b := !(j == C && k == A && m == G)
-						c := !(j == A && k == G && m == C)
-						d := !(k == G && l == A && m == C)
-						e := !(j == G && l == A && m == C)
-						if a && b && c && d && e {
-							dp[i+1][m][j][k] += dp[i][j][k][l]
-							dp[i+1][m][j][k] %= MOD
-						}
+// func isOK() bool {
 
-						// // AGX
-						// if !(j == G && k == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // ACX
-						// if !(j == C && k == A && m == G) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // GAX
-						// if !(j == A && k == G && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // AGXX
-						// if !(k == G && l == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-					}
-				}
-			}
+// }
+
+// NthBit returns nth bit value of an argument.
+// n starts from 0.
+func NthBit(num int, nth int) int {
+	return num >> uint(nth) & 1
+}
+
+// OnBit returns the integer that has nth ON bit.
+// If an argument has nth ON bit, OnBit returns the argument.
+func OnBit(num int, nth int) int {
+	return num | (1 << uint(nth))
+}
+
+// OffBit returns the integer that has nth OFF bit.
+// If an argument has nth OFF bit, OffBit returns the argument.
+func OffBit(num int, nth int) int {
+	return num & ^(1 << uint(nth))
+}
+
+// PopCount returns the number of ON bit of an argument.
+func PopCount(num int) int {
+	res := 0
+
+	for i := 0; i < 70; i++ {
+		if ((num >> uint(i)) & 1) == 1 {
+			res++
 		}
 	}
 
-	ans := 0
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				// a := j == C && k == G && l == A
-				// b := j == G && k == C && l == A
-				// c := j == C && k == A && l == G
-				// if !(a || b || c) {
-				ans += dp[n][j][k][l]
-				ans %= MOD
-				// }
-			}
-		}
-	}
-	fmt.Println(ans)
+	return res
 }
 
 /*******************************************************************/

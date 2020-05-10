@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc122/tasks/abc122_d
+https://atcoder.jp/contests/abc029/tasks/abc029_d
 */
 
 package main
@@ -56,101 +56,42 @@ func init() {
 }
 
 var (
-	n int
+	N []rune
 
-	dp [100 + 5][10][10][10]int
-)
-
-const (
-	A = 1
-	G = 2
-	C = 3
-	T = 4
+	dp [100][5]int
 )
 
 func main() {
-	n = ReadInt()
+	N = ReadRuneSlice()
 
-	// dp[0][0][0][0] = 1
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				a := j == C && k == G && l == A
-				b := j == G && k == C && l == A
-				c := j == C && k == A && l == G
-				if !(a || b || c) {
-					dp[3][j][k][l] = 1
+	for i := 0; i < len(N); i++ {
+		d := int(N[i] - '0')
+		for j := 0; j < 10; j++ {
+			// 0 -> 0
+			if j == d {
+				dp[i+1][0] += dp[i][0]
+				if j == 1 {
+					dp[i+1][0]++
 				}
 			}
-		}
-	}
 
-	for i := 3; i < n; i++ {
-		for j := 1; j <= 4; j++ {
-			for k := 1; k <= 4; k++ {
-				for l := 1; l <= 4; l++ {
-					// if l > 0 && (k == 0 || j == 0) {
-					// 	continue
-					// }
-					// if k > 0 && j == 0 {
-					// 	continue
-					// }
-
-					// mは次の文字
-					for m := 1; m <= 4; m++ {
-						a := !(j == G && k == A && m == C)
-						b := !(j == C && k == A && m == G)
-						c := !(j == A && k == G && m == C)
-						d := !(k == G && l == A && m == C)
-						e := !(j == G && l == A && m == C)
-						if a && b && c && d && e {
-							dp[i+1][m][j][k] += dp[i][j][k][l]
-							dp[i+1][m][j][k] %= MOD
-						}
-
-						// // AGX
-						// if !(j == G && k == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // ACX
-						// if !(j == C && k == A && m == G) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // GAX
-						// if !(j == A && k == G && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // AGXX
-						// if !(k == G && l == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-					}
+			// 0 -> 1
+			if j < d {
+				dp[i+1][1] += dp[i][0]
+				if j == 1 {
+					dp[i+1][1]++
 				}
 			}
-		}
-	}
 
-	ans := 0
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				// a := j == C && k == G && l == A
-				// b := j == G && k == C && l == A
-				// c := j == C && k == A && l == G
-				// if !(a || b || c) {
-				ans += dp[n][j][k][l]
-				ans %= MOD
-				// }
+			// 1 -> 1
+			dp[i+1][1] += dp[i][1]
+			if j == 1 {
+				dp[i+1][1]++
 			}
 		}
 	}
-	fmt.Println(ans)
+
+	fmt.Println(dp[len(N)][0] + dp[len(N)][1])
 }
 
 /*******************************************************************/

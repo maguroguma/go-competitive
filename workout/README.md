@@ -1,6 +1,6 @@
 # 2020-04-25 復習リスト
 
-Last Change: 2020-05-09 22:12:52.
+Last Change: 2020-05-10 19:31:11.
 
 ## 不参加ABC
 
@@ -20,7 +20,8 @@ Last Change: 2020-05-09 22:12:52.
 - [ ] ABC036-D: 木DP
 - [ ] ABC035-D: 最短路
 - [ ] ABC032-D: 半分全列挙, ナップサックDP
-- [ ] ABC041-D: bitDP
+- [x] ABC041-D: bitDP
+  - ★
 - [ ] ABC048-D: ゲーム
 - [ ] ABC049-C: 貪欲？
 - [x] ABC049-D: Union Find
@@ -213,8 +214,8 @@ Last Change: 2020-05-09 22:12:52.
 - [ ] エクサウィザーズ2019-D: DP
 - [ ] AGC031-B: 樹形図DP
 - [ ] AGC032-B: グラフ
-- [ ] ABC121-D: XOR
-- [ ] ABC122-D: DP
+- [x] ABC121-D: XOR
+- [x] ABC122-D: DP
 
 - [ ] 天下一2019予選-C: 全探索
 - [x] ABC124-D: 累積和？
@@ -264,9 +265,9 @@ Last Change: 2020-05-09 22:12:52.
   - ★
 
 - [ ] ABC141-E: Longest Common Substring
-- [ ] ABC140-D: ？
+- [x] ABC140-D: ？
 - [ ] ABC140-E: 平衡二分探索木によるSet
-- [ ] ABC139-E: トポロジカルソート
+- [x] ABC139-E: トポロジカルソート
 - [x] ABC142-E: bitDP
 - [ ] CR589Div2-C: オーバーフロー
 - [ ] CR588Div2-C: 全探索
@@ -276,7 +277,7 @@ Last Change: 2020-05-09 22:12:52.
 - [ ] CR592Div2-C: 整数
 - [ ] CR591Div2-D: DP
 - [ ] CR590Div3-E: ？
-- [ ] ABC144-E: 二分探索
+- [x] ABC144-E: 二分探索
 - [ ] AGC039-A: ランレングス圧縮, 等差数列
 - [ ] AGC039-B: 二部グラフ, グラフの直径
 - [ ] CR594Div2-C: 数え上げDP

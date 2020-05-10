@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc122/tasks/abc122_d
+https://atcoder.jp/contests/abc139/tasks/abc139_e
 */
 
 package main
@@ -57,100 +57,144 @@ func init() {
 
 var (
 	n int
+	A [][]int
 
-	dp [100 + 5][10][10][10]int
-)
-
-const (
-	A = 1
-	G = 2
-	C = 3
-	T = 4
+	G [1000000 + 50][]int
 )
 
 func main() {
 	n = ReadInt()
+	for i := 0; i < n; i++ {
+		row := ReadIntSlice(n - 1)
+		for i := 0; i < len(row); i++ {
+			row[i]--
+		}
+		A = append(A, row)
+	}
 
-	// dp[0][0][0][0] = 1
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				a := j == C && k == G && l == A
-				b := j == G && k == C && l == A
-				c := j == C && k == A && l == G
-				if !(a || b || c) {
-					dp[3][j][k][l] = 1
-				}
+	for i := 0; i < n; i++ {
+		for j := 1; j < len(A[i]); j++ {
+			bef := A[i][j-1]
+			aft := A[i][j]
+
+			cid := Min(i, bef) + n*Max(i, bef)
+			nid := Min(i, aft) + n*Max(i, aft)
+			G[cid] = append(G[cid], nid)
+		}
+	}
+
+	num := n * n
+	ok, sorted := tsort(num, G[:num])
+
+	if !ok {
+		fmt.Println(-1)
+		return
+	} else {
+		fmt.Println(longestPath(sorted, G[:num]) + 1)
+	}
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// O(|E| + |V|)
+// ノードIDは0-based
+// ok, ans := tsort(v, edges[:])
+// https://onlinejudge.u-aizu.ac.jp/problems/GRL_4_B
+func tsort(nn int, edges [][]int) (bool, []int) {
+	res := []int{}
+
+	degin := make([]int, nn)
+	for s := 0; s < nn; s++ {
+		for _, t := range edges[s] {
+			degin[t]++
+		}
+	}
+
+	st := []int{}
+	for nid := 0; nid < nn; nid++ {
+		if degin[nid] == 0 {
+			st = append(st, nid)
+		}
+	}
+
+	for len(st) > 0 {
+		cid := st[len(st)-1]
+		res = append(res, cid)
+		st = st[:len(st)-1]
+
+		for _, nid := range edges[cid] {
+			degin[nid]--
+			if degin[nid] == 0 {
+				st = append(st, nid)
 			}
 		}
 	}
 
-	for i := 3; i < n; i++ {
-		for j := 1; j <= 4; j++ {
-			for k := 1; k <= 4; k++ {
-				for l := 1; l <= 4; l++ {
-					// if l > 0 && (k == 0 || j == 0) {
-					// 	continue
-					// }
-					// if k > 0 && j == 0 {
-					// 	continue
-					// }
+	if len(res) != nn {
+		return false, nil
+	}
 
-					// mは次の文字
-					for m := 1; m <= 4; m++ {
-						a := !(j == G && k == A && m == C)
-						b := !(j == C && k == A && m == G)
-						c := !(j == A && k == G && m == C)
-						d := !(k == G && l == A && m == C)
-						e := !(j == G && l == A && m == C)
-						if a && b && c && d && e {
-							dp[i+1][m][j][k] += dp[i][j][k][l]
-							dp[i+1][m][j][k] %= MOD
-						}
+	return true, res
+}
 
-						// // AGX
-						// if !(j == G && k == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // ACX
-						// if !(j == C && k == A && m == G) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // GAX
-						// if !(j == A && k == G && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // AGXX
-						// if !(k == G && l == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-					}
-				}
-			}
+// トポロジカルソート済みリストから最長経路の長さを計算する
+// l := longestPath(res, edges[:])
+// https://atcoder.jp/contests/abc139/tasks/abc139_e
+func longestPath(tsortedNodes []int, edges [][]int) int {
+	dp := make([]int, len(tsortedNodes)+1)
+
+	for i := 0; i < len(tsortedNodes); i++ {
+		cid := tsortedNodes[i]
+		for _, nid := range edges[cid] {
+			ChMax(&dp[nid], dp[cid]+1)
 		}
 	}
 
-	ans := 0
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				// a := j == C && k == G && l == A
-				// b := j == G && k == C && l == A
-				// c := j == C && k == A && l == G
-				// if !(a || b || c) {
-				ans += dp[n][j][k][l]
-				ans %= MOD
-				// }
-			}
-		}
+	res := 0
+	for i := 0; i < len(tsortedNodes); i++ {
+		ChMax(&res, dp[i])
 	}
-	fmt.Println(ans)
+
+	return res
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
 }
 
 /*******************************************************************/

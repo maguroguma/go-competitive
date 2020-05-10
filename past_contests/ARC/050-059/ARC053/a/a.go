@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc122/tasks/abc122_d
+https://atcoder.jp/contests/arc053/tasks/arc053_a
 */
 
 package main
@@ -56,101 +56,13 @@ func init() {
 }
 
 var (
-	n int
-
-	dp [100 + 5][10][10][10]int
-)
-
-const (
-	A = 1
-	G = 2
-	C = 3
-	T = 4
+	h, w int
 )
 
 func main() {
-	n = ReadInt()
+	h, w = ReadInt2()
 
-	// dp[0][0][0][0] = 1
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				a := j == C && k == G && l == A
-				b := j == G && k == C && l == A
-				c := j == C && k == A && l == G
-				if !(a || b || c) {
-					dp[3][j][k][l] = 1
-				}
-			}
-		}
-	}
-
-	for i := 3; i < n; i++ {
-		for j := 1; j <= 4; j++ {
-			for k := 1; k <= 4; k++ {
-				for l := 1; l <= 4; l++ {
-					// if l > 0 && (k == 0 || j == 0) {
-					// 	continue
-					// }
-					// if k > 0 && j == 0 {
-					// 	continue
-					// }
-
-					// mは次の文字
-					for m := 1; m <= 4; m++ {
-						a := !(j == G && k == A && m == C)
-						b := !(j == C && k == A && m == G)
-						c := !(j == A && k == G && m == C)
-						d := !(k == G && l == A && m == C)
-						e := !(j == G && l == A && m == C)
-						if a && b && c && d && e {
-							dp[i+1][m][j][k] += dp[i][j][k][l]
-							dp[i+1][m][j][k] %= MOD
-						}
-
-						// // AGX
-						// if !(j == G && k == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // ACX
-						// if !(j == C && k == A && m == G) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // GAX
-						// if !(j == A && k == G && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-						// // AGXX
-						// if !(k == G && l == A && m == C) {
-						// 	dp[i+1][m][j][k] += dp[i][j][k][l]
-						// 	dp[i+1][m][j][k] %= MOD
-						// }
-					}
-				}
-			}
-		}
-	}
-
-	ans := 0
-	for j := 1; j <= 4; j++ {
-		for k := 1; k <= 4; k++ {
-			for l := 1; l <= 4; l++ {
-				// AGC, ACG, GAC
-				// a := j == C && k == G && l == A
-				// b := j == G && k == C && l == A
-				// c := j == C && k == A && l == G
-				// if !(a || b || c) {
-				ans += dp[n][j][k][l]
-				ans %= MOD
-				// }
-			}
-		}
-	}
-	fmt.Println(ans)
+	fmt.Println(h*(w-1) + w*(h-1))
 }
 
 /*******************************************************************/
