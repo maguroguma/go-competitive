@@ -1,6 +1,6 @@
 # ABC167 感想
 
-Last Change: 2020-05-11 00:33:32.
+Last Change: 2020-05-11 21:59:25.
 
 60分ぐらいで5完の1600ちょいパフォ。
 もう少しEを早く頑張って1800ぐらいにしたかった。
@@ -23,6 +23,8 @@ Sと同じ長さだけ判定する。
 抽象化したい。
 
 [練習問題](https://codeforces.com/contest/1335/problem/F)らしい。
+
+[これ](https://codeforces.com/contest/702/problem/E)も練習問題？
 
 ## E問題
 
