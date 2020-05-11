@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc029/tasks/abc029_d
+https://atcoder.jp/contests/abc029/tasks/abc029_a
 */
 
 package main
@@ -56,54 +56,13 @@ func init() {
 }
 
 var (
-	N []rune
-
-	dp [100][15][5]int
+	W []rune
 )
 
 func main() {
-	N = ReadRuneSlice()
-
-	dp[0][0][0] = 1
-	for i := 0; i < len(N); i++ {
-		d := int(N[i] - '0')
-		for j := 0; j <= 12; j++ {
-			for k := 0; k < 10; k++ {
-				// 0 -> 0
-				if k == d {
-					if k == 1 {
-						dp[i+1][j+1][0] += dp[i][j][0]
-					} else {
-						dp[i+1][j][0] += dp[i][j][0]
-					}
-				}
-
-				// 0 -> 1
-				if k < d {
-					if k == 1 {
-						dp[i+1][j+1][1] += dp[i][j][0]
-					} else {
-						dp[i+1][j][1] += dp[i][j][0]
-					}
-				}
-
-				// 1 -> 1
-				if k == 1 {
-					dp[i+1][j+1][1] += dp[i][j][1]
-				} else {
-					dp[i+1][j][1] += dp[i][j][1]
-				}
-			}
-		}
-	}
-
-	ans := 0
-	for i := 0; i <= 12; i++ {
-		for j := 0; j < 2; j++ {
-			ans += dp[len(N)][i][j] * i
-		}
-	}
-	fmt.Println(ans)
+	W = ReadRuneSlice()
+	W = append(W, 's')
+	fmt.Println(string(W))
 }
 
 /*******************************************************************/

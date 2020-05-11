@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc029/tasks/abc029_d
+https://atcoder.jp/contests/abc007/tasks/abc007_4
 */
 
 package main
@@ -56,54 +56,59 @@ func init() {
 }
 
 var (
-	N []rune
-
-	dp [100][15][5]int
+	A, B []rune
 )
 
 func main() {
-	N = ReadRuneSlice()
+	a, b := ReadInt2()
+
+	B = []rune(strconv.Itoa(b))
+	A = []rune(strconv.Itoa(a - 1))
+	PrintfDebug("A: %s, B: %s\n", string(A), string(B))
+
+	left := sub(B)
+	right := sub(A)
+	PrintfDebug("left: %d, right: %d\n", left, right)
+	fmt.Println(left - right)
+}
+
+func sub(B []rune) int {
+	var dp [30][5][5]int // dp[i][j][k], j: lessフラグ, k: 49フラグ
 
 	dp[0][0][0] = 1
-	for i := 0; i < len(N); i++ {
-		d := int(N[i] - '0')
-		for j := 0; j <= 12; j++ {
-			for k := 0; k < 10; k++ {
-				// 0 -> 0
-				if k == d {
-					if k == 1 {
-						dp[i+1][j+1][0] += dp[i][j][0]
-					} else {
-						dp[i+1][j][0] += dp[i][j][0]
-					}
-				}
+	for i := 0; i < len(B); i++ {
+		d := int(B[i] - '0')
+		for j := 0; j < 10; j++ {
+			if j == 4 || j == 9 {
+				// 禁止フラグ: 0 -> 1, 1 -> 1 を網羅する
 
-				// 0 -> 1
-				if k < d {
-					if k == 1 {
-						dp[i+1][j+1][1] += dp[i][j][0]
-					} else {
-						dp[i+1][j][1] += dp[i][j][0]
-					}
+				if j == d {
+					dp[i+1][0][1] += dp[i][0][0]
+					dp[i+1][0][1] += dp[i][0][1]
+				} else if j < d {
+					dp[i+1][1][1] += dp[i][0][0]
+					dp[i+1][1][1] += dp[i][0][1]
 				}
+				dp[i+1][1][1] += dp[i][1][0]
+				dp[i+1][1][1] += dp[i][1][1]
+			} else {
+				// 禁止フラグ: 0 -> 0, 1 -> 1 を網羅する
 
-				// 1 -> 1
-				if k == 1 {
-					dp[i+1][j+1][1] += dp[i][j][1]
-				} else {
-					dp[i+1][j][1] += dp[i][j][1]
+				if j == d {
+					dp[i+1][0][0] += dp[i][0][0]
+					dp[i+1][0][1] += dp[i][0][1]
+				} else if j < d {
+					dp[i+1][1][0] += dp[i][0][0]
+					dp[i+1][1][1] += dp[i][0][1]
 				}
+				dp[i+1][1][0] += dp[i][1][0]
+				dp[i+1][1][1] += dp[i][1][1]
 			}
 		}
 	}
 
-	ans := 0
-	for i := 0; i <= 12; i++ {
-		for j := 0; j < 2; j++ {
-			ans += dp[len(N)][i][j] * i
-		}
-	}
-	fmt.Println(ans)
+	n := len(B)
+	return dp[n][0][1] + dp[n][1][1]
 }
 
 /*******************************************************************/
