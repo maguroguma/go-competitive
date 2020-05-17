@@ -43,22 +43,30 @@ options     head
   }
 
   // トポロジカルソート済みリストから最長経路の長さを計算する
-  // l := longestPath(res, edges[:])
+  // l, dp := longestPath(res, edges[:])
   // https://atcoder.jp/contests/abc139/tasks/abc139_e
-  func longestPath(tsortedNodes []int, edges [][]int) int {
-    dp := make([]int, len(tsortedNodes)+1)
+  func longestPath(tsortedNodes []int, edges [][]int) (maxLength int, dp []int) {
+    _chmax := func(updatedValue *int, target int) bool {
+      if *updatedValue < target {
+        *updatedValue = target
+        return true
+      }
+      return false
+    }
+
+    dp = make([]int, len(tsortedNodes)+1)
 
     for i := 0; i < len(tsortedNodes); i++ {
       cid := tsortedNodes[i]
       for _, nid := range edges[cid] {
-        ChMax(&dp[nid], dp[cid]+1)
+        _chmax(&dp[nid], dp[cid]+1)
       }
     }
 
-    res := 0
+    maxLength = 0
     for i := 0; i < len(tsortedNodes); i++ {
-      ChMax(&res, dp[i])
+      _chmax(&maxLength, dp[i])
     }
 
-    return res
+    return maxLength, dp
   }

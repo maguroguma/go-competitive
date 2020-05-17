@@ -275,9 +275,10 @@ options     head
 
   const INF_DIJK = 1 << 60
 
-  func dijkstra(sid, n int, AG [][]Edge) ([]int, []int) {
-    dp := make([]int, n)
-    colors, parents := make([]int, n), make([]int, n)
+  func dijkstra(sid, n int, AG [][]Edge) (dp, parents []int) {
+    dp = make([]int, n)
+    parents = make([]int, n)
+    colors := make([]int, n)
     for i := 0; i < n; i++ {
       dp[i] = INF_DIJK
       colors[i], parents[i] = WHITE, -1
