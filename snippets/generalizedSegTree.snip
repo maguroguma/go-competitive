@@ -183,3 +183,97 @@ options     head
   func (lst *LazySegmentTree) Get(k int) T {
     return lst.Query(k, k+1)
   }
+
+snippet     RMQMonoid
+abbr        ti := T(1<<31 - 1)
+options     head
+  f := func(lv, rv T) T {
+    return T(math.Min(float64(lv), float64(rv)))
+  }
+  ti := T(1<<31 - 1)
+  st := NewSegmentTree(n, f, ti)
+
+snippet     RSQMonoid
+abbr        ti := T(0)
+options     head
+  f := func(lv, rv T) T {
+    return T(int(lv) + int(rv))
+  }
+  ti := T(0)
+  st := NewSegmentTree(n, f, ti)
+
+snippet     RMQAndRUQMonoids
+abbr        ti := T(1<<31-1); ei := E(1<<31-1)
+options     head
+  f := func(lv, rv T) T {
+    return T(math.Min(float64(lv), float64(rv)))
+  }
+  g := func(to T, from E) T {
+    return T(from)
+  }
+  h := func(to, from E) E {
+    return from
+  }
+  p := func(e E, length int) E {
+    return e
+  }
+  ti := T(1<<31 - 1)
+  ei := E(1<<31 - 1)
+  lst := NewLazySegmentTree(n, f, g, h, p, ti, ei)
+
+snippet     RSQAndRAQMonoids
+abbr        ti := T(0); ei := E(0)
+options     head
+  f := func(lv, rv T) T {
+    return lv + rv
+  }
+  g := func(to T, from E) T {
+    return to + T(from)
+  }
+  h := func(to, from E) E {
+    return to + from
+  }
+  p := func(e E, length int) E {
+    return e * E(length)
+  }
+  ti := T(0)
+  ei := E(0)
+  lst := NewLazySegmentTree(n, f, g, h, p, ti, ei)
+
+snippet     RMQAndRAQMonoids
+abbr        ti := T(1<<31-1); ei := E(0)
+options     head
+  f := func(lv, rv T) T {
+    return T(math.Min(float64(lv), float64(rv)))
+  }
+  g := func(to T, from E) T {
+    return to + T(from)
+  }
+  h := func(to, from E) E {
+    return to + from
+  }
+  p := func(e E, length int) E {
+    return e
+  }
+  ti := T(1<<31 - 1)
+  ei := E(0)
+  lst := NewLazySegmentTree(n, f, g, h, p, ti, ei)
+
+snippet     RSQAndRUQMonoids
+abbr        ti := T(0); ei := E(1<<31-1)
+options     head
+  f := func(lv, rv T) T {
+    return lv + rv
+  }
+  g := func(to T, from E) T {
+    return T(from)
+  }
+  h := func(to, from E) E {
+    return from
+  }
+  p := func(e E, length int) E {
+    return e * E(length)
+  }
+  ti := T(0)
+  ei := E(1<<31 - 1)
+  lst := NewLazySegmentTree(n, f, g, h, p, ti, ei)
