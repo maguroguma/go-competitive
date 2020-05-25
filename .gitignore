@@ -16,3 +16,6 @@
 
 # PAST
 PAST/*
+
+# vim undo file
+$XDG_CACHE_HOME/*
