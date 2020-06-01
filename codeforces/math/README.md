@@ -1,12 +1,12 @@
 # Codeforcesのmathタグの問題
 
-Last Change: 2020-05-31 19:46:29.
+Last Change: 2020-06-02 00:57:16.
 
 ## [1354A](https://codeforces.com/problemset/problem/1354/A)
 
 900、問題文を読み取るのが難しいだけ。
 
-## [1355D](https://codeforces.com/problemset/problem/1355/D)
+## [1355D ★](https://codeforces.com/problemset/problem/1355/D)
 
 1400って嘘でしょ？
 
@@ -57,7 +57,7 @@ Last Change: 2020-05-31 19:46:29.
 ギャグに近くて、桁に0が現れると変化しなくなる。
 そして冷静に考えると、たかだか81までしか増えないので、近い将来100の桁に0がでてくる。
 
-## [1342C](https://codeforces.com/problemset/problem/1342/C)
+## [1342C ★★](https://codeforces.com/problemset/problem/1342/C)
 
 1600。
 
@@ -74,7 +74,7 @@ Last Change: 2020-05-31 19:46:29.
 - `[l, r]` がバカでかい割にクエリがめちゃくちゃ多いので、周期性から `O(1)` で各クエリに回答できる可能性がある
 - そもそもMOD演算というのが周期性を与えるもの
 
-## [1336B](https://codeforces.com/problemset/problem/1336/B)
+## [1336B ★](https://codeforces.com/problemset/problem/1336/B)
 
 1700。
 
@@ -95,4 +95,43 @@ ABCで似たようなものがあるが、これは真ん中にRGBの何を持�
 前計算を利用すると、すべてのモンスターを一番最初に倒した場合の弾数が求まるので、その最小を答えれば良い。
 
 二分探索が必要かと思ったが、それすらいらずに `O(N)` で解ける問題だった。
+
+## [1363A](https://codeforces.com/contest/1363/problem/A)
+
+1200。
+
+0と1にエンコードした後ソートする。
+ここから連続する `x` の区間和をすべて調べれば、可能かどうか判断できる。
+なぜなら、 `x` 個のうち何個奇数を含めるかを1つずつ増やしながら検証できるから。
+
+## [1334A](https://codeforces.com/contest/1334/problem/A)
+
+1200。
+
+注意力コンテスト。気をつける部分が多い。
+
+## [1338A](https://codeforces.com/contest/1338/problem/A)
+
+1500。
+
+Difficultyの割に簡単だと思った。
+2進数をイメージすると好きな数を好きなタイミングで足せる、というふうに考えることが出来るため、
+結局最も差が大きくなるところに注目すれば良い。
+
+## [1330B](https://codeforces.com/contest/1330/problem/B)
+
+1400。
+
+前半と後半で順列になっているかどうかをチェックする。
+前から見たときと後ろから見たときで、prefix or suffixが順列になっているかどうかを最初にチェックしておけば、
+各境界で正しいかどうかを `O(1)` で検証できる。
+
+多分実装の難しさでスコアが上がっている。
+
+## [1329B ★](https://codeforces.com/contest/1329/problem/B)
+
+1700。
+
+考察は直ぐにできたが、実装でバグらせまくってしまった。
+確実で思考をバグらせにくい方法もぼんやりあとから浮かんだので、いつか復習したい。
 

@@ -3,19 +3,19 @@ abbr        PopCount(num int) int
 options     head
   // NthBit returns nth bit value of an argument.
   // n starts from 0.
-  func NthBit(num ${1:int}, nth int) int {
+  func NthBit(num ${1:int}, nth int) $1 {
     return num >> uint(nth) & 1
   }
 
   // OnBit returns the integer that has nth ON bit.
   // If an argument has nth ON bit, OnBit returns the argument.
-  func OnBit(num $1, nth int) int {
+  func OnBit(num $1, nth int) $1 {
     return num | (1 << uint(nth))
   }
 
   // OffBit returns the integer that has nth OFF bit.
   // If an argument has nth OFF bit, OffBit returns the argument.
-  func OffBit(num $1, nth int) int {
+  func OffBit(num $1, nth int) $1 {
     return num & ^(1 << uint(nth))
   }
 
