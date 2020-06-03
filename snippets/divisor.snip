@@ -2,14 +2,16 @@ snippet     trialDivision
 abbr        TrialDivision(n int) map[int]int
 options     head
   // TrialDivision returns the result of prime factorization of integer N.
-  func TrialDivision(n int) map[int]int {
+  func TrialDivision(n ${1:int}) map[$1]$1 {
+    var i, exp $1
+    p := map[$1]$1{}
+
     if n <= 1 {
       panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
     }
 
-    p := map[int]int{}
-    for i := 2; i*i <= n; i++ {
-      exp := 0
+    for i = 2; i*i <= n; i++ {
+      exp = 0
       for n%i == 0 {
         exp++
         n /= i
