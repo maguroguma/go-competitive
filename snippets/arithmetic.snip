@@ -174,9 +174,17 @@ options     head
   // 0 or negative number causes panic.
   // Gcd uses the Euclidean Algorithm.
   func Gcd(a, b ${1:int}) $1 {
-    if a <= 0 || b <= 0 {
+    if a < 0 || b < 0 {
       panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
     }
+
+    if a == 0 {
+      return b
+    }
+    if b == 0 {
+      return a
+    }
+
     if a < b {
       a, b = b, a
     }
