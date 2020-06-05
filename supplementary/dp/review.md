@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-04-21 00:42:27.
+Last Change: 2020-06-05 19:06:27.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -115,6 +115,8 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
 - [ABC163 E.Active Infants](https://atcoder.jp/contests/abc163/tasks/abc163_e)
   - `O(n^2)` のDP。
   - 区間DPっぽいらしい？
+- [CODE FESTIVAL 2015 予選A B.とても長い数列](https://atcoder.jp/contests/code-festival-2015-quala/tasks/codefestival_2015_qualA_b)
+  - 非常に簡単なDP。
 
 ### yukicoder
 
