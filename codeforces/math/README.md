@@ -1,6 +1,6 @@
 # Codeforcesのmathタグの問題
 
-Last Change: 2020-06-07 22:22:29.
+Last Change: 2020-06-10 00:27:47.
 
 ## [1354A](https://codeforces.com/problemset/problem/1354/A)
 
@@ -377,4 +377,31 @@ DPなんだけど、配列再利用が必須で、経験値が少なく難しか
 
 数え上げに持っていく際は極力シンプルに考えよう。
 少なくともペナルティが出始めたら、一度立ち止まる必要がある。
+
+## [900B](https://codeforces.com/problemset/problem/900/B) @2020-06-08
+
+1300。
+
+有理数の筆算をシミュレーションする。結果的に循環小数を循環するまで試行する必要がある。
+
+なんとなく「100000回繰り返せば大丈夫やろ」と気軽にやってACできたが、
+その周期は実はたかだか `b` であることが鳩の巣原理で証明できるのは初めて知った。
+簡単に言うと、あまりの数が `b` 種類しかないため（以前と同じ余りがでたら、同じ計算を繰り返すことになる）。
+
+[証明の参考URL](http://www4.airnet.ne.jp/tmt/topics/hatonosu.html)
+
+## [937B ★★](https://codeforces.com/problemset/problem/937/B) @2020-06-09
+
+1400ってマジ？
+
+以下のいわゆる「素数は意外と密に存在する」というやつだが、これはそのまま知識として仕入れてしまって良さそう。
+
+> the prime gap of numbers less than billion doesn't exceed 300 and we're gonna factorize no more than 300 numbers in total.
+
+## [923A](https://codeforces.com/contest/923/problem/A) @2020-06-10
+
+1700。自力。
+
+一見めんどくさいが、逆から考えていくと理詰めできる。
+自分はエラトステネスの篩を使ったが、解説をみると必要ないらしい。
 
