@@ -27,3 +27,27 @@ options     head
     }
   }
 
+snippet     gridToGraph
+abbr        cid := m*i + j
+options     head
+  steps := [4][2]int{
+    [2]int{0, 1}, [2]int{0, -1}, [2]int{1, 0}, [2]int{-1, 0},
+  }
+
+  N = n * m
+  G = make([][]int, N)
+  for i := 0; i < n; i++ {
+    for j := 0; j < m; j++ {
+      cid := m*i + j
+
+      for _, s := range steps {
+        dy, dx := s[0], s[1]
+        ny, nx := i+dy, j+dx
+        if 0 <= ny && ny < n && 0 <= nx && nx < m {
+          nid := m*ny + nx
+
+          G[cid] = append(G[cid], nid)
+        }
+      }
+    }
+  }

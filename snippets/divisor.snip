@@ -51,10 +51,12 @@ snippet     divisorsSliceVer
 abbr        divisor(n int) []int
 options     head
   // 約数の列挙: O(sqrt(n))
-  func divisor(n int) []int {
-    res := []int{}
+  func divisor(n ${1:int}) []$1 {
+    var i $1
 
-    for i := 1; i*i <= n; i++ {
+    res := []$1{}
+
+    for i = 1; i*i <= n; i++ {
       if n%i == 0 {
         res = append(res, i)
         if i != (n / i) {
@@ -70,12 +72,14 @@ snippet     isPrime
 abbr        IsPrime(n int) bool
 options     head
   // IsPrime judges whether an argument integer is a prime number or not.
-  func IsPrime(n int) bool {
+  func IsPrime(n ${1:int}) bool {
+    var i $1
+
     if n == 1 {
       return false
     }
 
-    for i := 2; i*i <= n; i++ {
+    for i = 2; i*i <= n; i++ {
       if n%i == 0 {
         return false
       }
@@ -83,4 +87,3 @@ options     head
 
     return true
   }
-
