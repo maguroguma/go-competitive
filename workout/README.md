@@ -1,6 +1,6 @@
 # 2020-04-25 復習リスト
 
-Last Change: 2020-06-12 16:21:21.
+Last Change: 2020-06-13 15:49:24.
 
 ## 不参加ABC
 
@@ -229,7 +229,7 @@ Last Change: 2020-06-12 16:21:21.
 - [ ] Chokudai SpeedRun 002-I: ？
 - [ ] Chokudai SpeedRun 002-J: ？
 - [x] ABC128-D: 全探索
-- [ ] ABC128-E: イベントソート, 平衡二分探索木によるSet
+- [x] ABC128-E: イベントソート, 平衡二分探索木によるSet
 - [x] ABC127-D: ？
 - [x] ABC127-E: 数え上げ, 区間？
   - ★★★
@@ -267,10 +267,10 @@ Last Change: 2020-06-12 16:21:21.
 - [x] ABC136-E: 整数
   - ★
 
-- [ ] ABC141-E: Longest Common Substring
+- [x] ABC141-E: Longest Common Substring
   - ★
 - [x] ABC140-D: ？
-- [ ] ABC140-E: 平衡二分探索木によるSet
+- [x] ABC140-E: 平衡二分探索木によるSet
 - [x] ABC139-E: トポロジカルソート
 - [x] ABC142-E: bitDP
 - [ ] CR589Div2-C: オーバーフロー
@@ -321,7 +321,8 @@ Last Change: 2020-06-12 16:21:21.
 - [x] ABC147-D: オーバーフロー
   - ★
   - `modpow` の定数倍にも注意
-- [ ] ABC147-E: DP
+- [x] ABC147-E: DP, 絶対値
+  - ★★
 
 ### 2020
 
@@ -347,6 +348,9 @@ Last Change: 2020-06-12 16:21:21.
 
 - [ ] CR641-div2C: 整数, gcd, lcm
   - ★★
+- [ ] ABC164-E: 拡張ダイクストラ
+- [ ] ABC165-D: 整数
+- [ ] ABC165-E: 構築, 整数
 
 ## 不参加の企業コンテスト
 
