@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc165/tasks/abc165_e
+https://codeforces.com/contest/1364/problem/B
 */
 
 package main
@@ -56,36 +56,49 @@ func init() {
 }
 
 var (
-	n, m int
+	t int
 
-	memo [300000]bool
+	n int
+	P []int
 )
 
 func main() {
-	n, m = ReadInt2()
+	t = ReadInt()
 
-	answers := [][2]int{}
+	for i := 0; i < t; i++ {
+		n = ReadInt()
+		P = ReadIntSlice(n)
 
-	if n%2 == 1 {
-		r := n
-		for l := 1; l <= m; l++ {
-			answers = append(answers, [2]int{l, r - l})
-		}
-	} else {
-		flag := false
-		for l, r := 1, n-1; l < r; l, r = l+1, r-1 {
-			if !flag && r-l <= n/2 {
-				r--
-				flag = true
-			}
-			answers = append(answers, [2]int{l, r})
+		solve()
+	}
+}
+
+func solve() {
+	F := make([]bool, n)
+	D := make([]int, 0)
+	for i := 1; i < n; i++ {
+		d := P[i] - P[i-1]
+		D = append(D, d)
+	}
+
+	F[0], F[n-1] = true, true
+	for i := 1; i < n-1; i++ {
+		if (D[i-1] > 0 && D[i] > 0) || (D[i-1] < 0 && D[i] < 0) {
+			F[i] = false
+		} else {
+			F[i] = true
 		}
 	}
 
-	for i := 0; i < m; i++ {
-		P := answers[i]
-		fmt.Println(P[0], P[1])
+	answers := []int{}
+	for i := 0; i < n; i++ {
+		if F[i] {
+			answers = append(answers, P[i])
+		}
 	}
+
+	fmt.Println(len(answers))
+	fmt.Println(PrintIntsLine(answers...))
 }
 
 /*******************************************************************/

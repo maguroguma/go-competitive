@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc165/tasks/abc165_e
+https://atcoder.jp/contests/tokiomarine2020/tasks/tokiomarine2020_a
 */
 
 package main
@@ -56,36 +56,13 @@ func init() {
 }
 
 var (
-	n, m int
-
-	memo [300000]bool
+	S []rune
 )
 
 func main() {
-	n, m = ReadInt2()
+	S = ReadRuneSlice()
 
-	answers := [][2]int{}
-
-	if n%2 == 1 {
-		r := n
-		for l := 1; l <= m; l++ {
-			answers = append(answers, [2]int{l, r - l})
-		}
-	} else {
-		flag := false
-		for l, r := 1, n-1; l < r; l, r = l+1, r-1 {
-			if !flag && r-l <= n/2 {
-				r--
-				flag = true
-			}
-			answers = append(answers, [2]int{l, r})
-		}
-	}
-
-	for i := 0; i < m; i++ {
-		P := answers[i]
-		fmt.Println(P[0], P[1])
-	}
+	fmt.Println(string(S[:3]))
 }
 
 /*******************************************************************/

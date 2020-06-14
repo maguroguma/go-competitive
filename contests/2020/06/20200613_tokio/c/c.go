@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc165/tasks/abc165_e
+https://atcoder.jp/contests/tokiomarine2020/tasks/tokiomarine2020_c
 */
 
 package main
@@ -56,36 +56,93 @@ func init() {
 }
 
 var (
-	n, m int
-
-	memo [300000]bool
+	n, k int
+	A    []int
 )
 
 func main() {
-	n, m = ReadInt2()
+	n, k = ReadInt2()
+	A = ReadIntSlice(n)
 
-	answers := [][2]int{}
-
-	if n%2 == 1 {
-		r := n
-		for l := 1; l <= m; l++ {
-			answers = append(answers, [2]int{l, r - l})
+	if k >= 100 {
+		for i := 0; i < n; i++ {
+			A[i] = n
 		}
-	} else {
-		flag := false
-		for l, r := 1, n-1; l < r; l, r = l+1, r-1 {
-			if !flag && r-l <= n/2 {
-				r--
-				flag = true
+		fmt.Println(PrintIntsLine(A...))
+		return
+	}
+
+	for t := 0; t < k; t++ {
+		C := make([]int, n+5)
+		for i := 0; i < n; i++ {
+			a := A[i]
+			C[Max(0, i-a)]++
+			C[Min(n-1, i+a)+1]--
+		}
+
+		for i := 0; i <= n; i++ {
+			C[i+1] += C[i]
+		}
+
+		for i := 0; i < n; i++ {
+			A[i] = C[i]
+		}
+
+		// PrintfDebug("%d - A: %v\n", t+1, A)
+	}
+
+	fmt.Println(PrintIntsLine(A...))
+}
+
+func jikken() {
+	cnt := 40
+	A = make([]int, cnt)
+
+	PrintfDebug("%2d回目のA: %v\n", 0, A)
+	for t := 0; t < cnt; t++ {
+		C := make([]int, cnt)
+		for i := 0; i < cnt; i++ {
+			a := A[i]
+			for j := Max(0, i-a); j <= Min(cnt-1, i+a); j++ {
+				C[j]++
 			}
-			answers = append(answers, [2]int{l, r})
+		}
+
+		for i := 0; i < cnt; i++ {
+			A[i] = C[i]
+		}
+		PrintfDebug("%2d回目のA: %v\n", t+1, A)
+	}
+}
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
 		}
 	}
+	return m
+}
 
-	for i := 0; i < m; i++ {
-		P := answers[i]
-		fmt.Println(P[0], P[1])
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
 	}
+	return m
 }
 
 /*******************************************************************/

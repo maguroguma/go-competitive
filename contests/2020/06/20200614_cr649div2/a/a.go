@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc165/tasks/abc165_e
+https://codeforces.com/contest/1364/problem/A
 */
 
 package main
@@ -56,36 +56,96 @@ func init() {
 }
 
 var (
-	n, m int
+	t int
 
-	memo [300000]bool
+	n, x int
+	A    []int
 )
 
 func main() {
-	n, m = ReadInt2()
+	t = ReadInt()
+	for i := 0; i < t; i++ {
+		n, x = ReadInt2()
+		A = ReadIntSlice(n)
 
-	answers := [][2]int{}
+		solve()
+	}
+}
 
-	if n%2 == 1 {
-		r := n
-		for l := 1; l <= m; l++ {
-			answers = append(answers, [2]int{l, r - l})
-		}
-	} else {
-		flag := false
-		for l, r := 1, n-1; l < r; l, r = l+1, r-1 {
-			if !flag && r-l <= n/2 {
-				r--
-				flag = true
-			}
-			answers = append(answers, [2]int{l, r})
+func solve() {
+	if x == 1 {
+		fmt.Println(-1)
+		return
+	}
+
+	R := make([]int, n)
+	for i := 0; i < n; i++ {
+		R[i] = A[i] % x
+	}
+
+	rs := make([]int, n+1)
+	for i := 0; i < n; i++ {
+		rs[i+1] = rs[i] + R[i]
+	}
+
+	total := rs[n]
+	if total%x != 0 {
+		fmt.Println(n)
+		return
+	}
+
+	// for i := 0; i < n; i++ {
+	// 	if R[i] > 0 {
+	// 		if n-1 > 0 {
+	// 			fmt.Println(n - 1)
+	// 		} else {
+	// 			fmt.Println(-1)
+	// 		}
+	// 		return
+	// 	}
+	// }
+	// fmt.Println(-1)
+
+	// 前から消す
+	bef := 0
+	for i := 0; i < n; i++ {
+		if R[i] != 0 {
+			bef = n - (i + 1)
+			break
 		}
 	}
 
-	for i := 0; i < m; i++ {
-		P := answers[i]
-		fmt.Println(P[0], P[1])
+	// 後ろから消す
+	aft := 0
+	for i := n - 1; i >= 0; i-- {
+		if R[i] != 0 {
+			aft = i
+			break
+		}
 	}
+
+	ans := Max(bef, aft)
+	if ans > 0 {
+		fmt.Println(ans)
+		return
+	}
+
+	fmt.Println(-1)
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*******************************************************************/

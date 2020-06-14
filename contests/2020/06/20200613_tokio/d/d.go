@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc165/tasks/abc165_e
+https://atcoder.jp/contests/tokiomarine2020/tasks/tokiomarine2020_d
 */
 
 package main
@@ -12,6 +12,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -56,36 +57,64 @@ func init() {
 }
 
 var (
-	n, m int
+	n    int
+	V, W []int
+	q    int
 
-	memo [300000]bool
+	Q [1000000][]Query
+
+	dp [20 + 10][100000 + 100000 + 50]int
 )
 
 func main() {
-	n, m = ReadInt2()
+	n = ReadInt()
+	for i := 0; i < n; i++ {
+		v, w := ReadInt2()
+		V = append(V, v)
+		W = append(W, w)
+	}
+	q = ReadInt()
+	for i := 0; i < q; i++ {
+		v, l := ReadInt2()
+		query := Query{qid: i, nid: v, l: l}
+		Q[v] = append(Q[v], query)
+	}
 
-	answers := [][2]int{}
+	process()
 
-	if n%2 == 1 {
-		r := n
-		for l := 1; l <= m; l++ {
-			answers = append(answers, [2]int{l, r - l})
-		}
-	} else {
-		flag := false
-		for l, r := 1, n-1; l < r; l, r = l+1, r-1 {
-			if !flag && r-l <= n/2 {
-				r--
-				flag = true
-			}
-			answers = append(answers, [2]int{l, r})
+	answer()
+}
+
+func process() {
+	dp[0][0] = 0
+}
+
+func dfs(cid int) {
+	pid := cid / 2
+
+}
+
+func answer() {
+	A := []Query{}
+	for i := 1; i <= n; i++ {
+		for _, q := range Q[i] {
+			A = append(A, q)
 		}
 	}
 
-	for i := 0; i < m; i++ {
-		P := answers[i]
-		fmt.Println(P[0], P[1])
+	sort.SliceStable(A, func(i, j int) bool {
+		return A[i].qid < A[j].qid
+	})
+
+	for _, q := range A {
+		fmt.Println(q.ans)
 	}
+}
+
+type Query struct {
+	qid    int
+	nid, l int
+	ans    int
 }
 
 /*******************************************************************/
