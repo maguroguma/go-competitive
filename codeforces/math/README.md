@@ -1,6 +1,6 @@
 # Codeforcesのmathタグの問題
 
-Last Change: 2020-06-11 22:59:51.
+Last Change: 2020-06-13 12:08:43.
 
 ## [1354A](https://codeforces.com/problemset/problem/1354/A)
 
@@ -422,4 +422,23 @@ tutorialにある通り、小さい部分（具体的には15以下で十分？�
 1300。自力。とても簡単。
 
 2数の差が `m` の倍数であるためには、2数の `m` で割った余りが等しくなければならない。
+
+## [891A](https://codeforces.com/problemset/problem/891/A) @2020-06-13
+
+1500。自力。
+
+ちょっと考え込んだが、 `n <= 2000` からメタ読みしてしまった。
+1がない場合はどこかで1を作る必要があるので、その区間で長さが最小のものを見つける。
+1を一つ作った後は、それを全要素に対して上書きするように操作すれば、回数がわかる。
+
+## [840A](https://codeforces.com/problemset/problem/840/A) @2020-06-13
+
+1300とは何事？証明が全く理解できない。
+
+[kmjpさんの解説](https://kmjp.hatenablog.jp/entry/2017/08/19/0900)を見つけた。
+ときにはエスパーに身を任せることも必要かもしれない。
+
+[並べ替え不等式（rearrangement inequality）](https://mathtrain.jp/rearrangement)というのは覚えておいたほうが良いかもしれない。
+
+※適当にソートしたら1000msec超えたので、こどふぉではなるべく定数倍も落としたほうが良い。
 

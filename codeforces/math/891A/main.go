@@ -1,6 +1,6 @@
 /*
 URL:
-https://codeforces.com/problemset/problem/840/A
+https://codeforces.com/problemset/problem/891/A
 */
 
 package main
@@ -12,7 +12,6 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
@@ -57,40 +56,104 @@ func init() {
 }
 
 var (
-	m    int
-	A, B []int
+	n int
+	A []int
 )
 
 func main() {
-	m = ReadInt()
-	A, B = ReadIntSlice(m), ReadIntSlice(m)
+	n = ReadInt()
+	A = ReadIntSlice(n)
 
-	T := []Tuple{}
-	for i := 0; i < m; i++ {
-		T = append(T, Tuple{idx: i, a: -1, b: B[i]})
-	}
-	sort.SliceStable(T, func(i, j int) bool {
-		return T[i].b > T[j].b
-	})
-	sort.Sort(sort.IntSlice(A))
-
-	for i := 0; i < m; i++ {
-		T[i].a = A[i]
+	one := sub()
+	if one > 0 {
+		fmt.Println(n - one)
+		return
 	}
 
-	sort.SliceStable(T, func(i, j int) bool {
-		return T[i].idx < T[j].idx
-	})
-
-	answers := make([]int, m)
-	for i := 0; i < m; i++ {
-		answers[i] = T[i].a
+	diff := INF_BIT30
+	for i := 0; i < n; i++ {
+		g := A[i]
+		for j := i + 1; j < n; j++ {
+			g = Gcd(g, A[j])
+			if g == 1 {
+				ChMin(&diff, j-i)
+			}
+		}
 	}
-	fmt.Println(PrintIntsLine(answers...))
+
+	if diff < INF_BIT30 {
+		fmt.Println(diff + n - 1)
+	} else {
+		fmt.Println(-1)
+	}
 }
 
-type Tuple struct {
-	idx, a, b int
+func sub() int {
+	res := 0
+	for i := 0; i < n; i++ {
+		if A[i] == 1 {
+			res++
+		}
+	}
+	return res
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// Gcd returns the Greatest Common Divisor of two natural numbers.
+// Gcd only accepts two natural numbers (a, b >= 1).
+// 0 or negative number causes panic.
+// Gcd uses the Euclidean Algorithm.
+func Gcd(a, b int) int {
+	if a < 0 || b < 0 {
+		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
+	}
+
+	if a == 0 {
+		return b
+	}
+	if b == 0 {
+		return a
+	}
+
+	if a < b {
+		a, b = b, a
+	}
+
+	// Euclidean Algorithm
+	for b > 0 {
+		div := a % b
+		a, b = b, div
+	}
+
+	return a
+}
+
+// Lcm returns the Least Common Multiple of two natural numbers.
+// Lcd only accepts two natural numbers (a, b >= 1).
+// 0 or negative number causes panic.
+// Lcd uses the Euclidean Algorithm indirectly.
+func Lcm(a, b int) int {
+	if a <= 0 || b <= 0 {
+		panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
+	}
+
+	// a = a'*gcd, b = b'*gcd, a*b = a'*b'*gcd^2
+	// a' and b' are relatively prime numbers
+	// gcd consists of prime numbers, that are included in a and b
+	gcd := Gcd(a, b)
+
+	// not (a * b / gcd), because of reducing a probability of overflow
+	return (a / gcd) * b
 }
 
 /*******************************************************************/
