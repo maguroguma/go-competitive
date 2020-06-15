@@ -1,6 +1,6 @@
 # Codeforcesのmathタグの問題
 
-Last Change: 2020-06-13 12:08:43.
+Last Change: 2020-06-16 01:17:37.
 
 ## [1354A](https://codeforces.com/problemset/problem/1354/A)
 
@@ -441,4 +441,57 @@ tutorialにある通り、小さい部分（具体的には15以下で十分？�
 [並べ替え不等式（rearrangement inequality）](https://mathtrain.jp/rearrangement)というのは覚えておいたほうが良いかもしれない。
 
 ※適当にソートしたら1000msec超えたので、こどふぉではなるべく定数倍も落としたほうが良い。
+
+## [817A](https://codeforces.com/problemset/problem/817/A) @2020-06-14
+
+1200。易しめ。
+
+`x` を変位させずに `2*y` 変位させられる、というのに気づくと、あとはトントン拍子で進む。
+とはいえ、ところどころ自信が持てず、解くスピードは微妙だった。
+
+## [787A ★](https://codeforces.com/problemset/problem/787/A) @2020-06-14
+
+1200。
+
+全探索すればいいっていうのは何となく分かるけど、なぜ範囲が小さくて十分かがわからない。。
+
+## [833A](https://codeforces.com/problemset/problem/833/A) @2020-06-15
+
+1700。考察は自力で完ぺきにできた。
+
+両者に掛け合わされる値を一箇所に集めると、必ず `k^3` になるという点に注目すると、
+まず `a*b` の立方根が整数である必要がある。
+
+そして `a, b` はともに立方根 `c` で割り切れる必要がある。
+なぜなら、 `c` で割ったときの数値が、勝利によって得られた係数 `k` であるといえるから。
+
+と思ったら、 `n = 350000` の出力行数が多すぎてそこがネックとなりTLEしてしまった（TLが1secと短いこともあるけど）。
+
+立方根を整数の範囲で求めようとすると二分探索するのが自然だと思うが、以下のsubmissionは参考にしたい。
+
+```go
+	cbrt := func(a int64) int64 {
+		r := int64(math.Round(math.Cbrt(float64(a))))
+		if r*r*r == a {
+			return r
+		}
+		return -1
+	}
+```
+
+- [参考1](https://codeforces.com/contest/833/submission/76948712)
+- [参考2](https://codeforces.com/contest/833/submission/76948525)
+
+## [762A](https://codeforces.com/problemset/problem/762/A) @2020-06-16
+
+1400。やるだけ。
+
+普通に `O(sqrt(n))` の約数列挙が間に合う制約。
+ソートして大丈夫か不安になるが、約数の個数はそんなに大きくはならないはず（高度合成数とかが関係してくる？）。
+
+## [757B](https://codeforces.com/problemset/problem/757/B) @2020-06-16
+
+1400。ほぼやるだけ。
+
+全部素因数分解してよいので、素数ごとにインクリメントして最大を取れば良い。
 
