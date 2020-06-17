@@ -2,7 +2,7 @@ snippet     negativeMod
 abbr        NegativeMod(val, m int) int
 options     head
   // NegativeMod can calculate a right residual whether value is positive or negative.
-  func NegativeMod(val, m int) int {
+  func NegativeMod(val, m ${1:int}) $1 {
     res := val % m
     if res < 0 {
       res += m

@@ -49,3 +49,67 @@ options     head
 
     return B
   }
+
+snippet     powerMatrixGenericsVer
+abbr        powMat(A [][]int64, n int64) [][]int64
+options     head
+  // n*nのint型正方行列を生成する
+  func newMat(n ${1:int}) [][]$1 {
+    var i $1
+
+    A := make([][]$1, n)
+    for i = 0; i < n; i++ {
+      A[i] = make([]$1, n)
+    }
+
+    return A
+  }
+
+  // 行列A, Bに関するA*Bの計算
+  func mul(A, B [][]$1, mod $1) [][]$1 {
+    var i, j, k $1
+    var lenA, lenB, lenB0 $1
+    lenA = $1(len(A))
+    lenB = $1(len(B))
+    lenB0 = $1(len(B[0]))
+
+    C := make([][]$1, lenA)
+    for i = 0; i < lenA; i++ {
+      C[i] = make([]$1, lenB0)
+    }
+
+    for i = 0; i < lenA; i++ {
+      for k = 0; k < lenB; k++ {
+        for j = 0; j < lenB0; j++ {
+          C[i][j] = (C[i][j] + A[i][k]*B[k][j]) % mod
+        }
+      }
+    }
+
+    return C
+  }
+
+  // 行列Aに関するA^nの計算
+  func powMat(A [][]$1, n, mod $1) [][]$1 {
+    var i $1
+    var lenA $1
+    lenA = $1(len(A))
+
+    B := make([][]$1, lenA)
+    for i = 0; i < lenA; i++ {
+      B[i] = make([]$1, lenA)
+    }
+
+    for i = 0; i < lenA; i++ {
+      B[i][i] = 1
+    }
+    for n > 0 {
+      if n&1 == 1 {
+        B = mul(B, A, mod)
+      }
+      A = mul(A, A, mod)
+      n = (n >> 1)
+    }
+
+    return B
+  }
