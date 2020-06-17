@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005/tasks/past202005_b
+https://atcoder.jp/contests/past202005-open/tasks/past202005_b
 */
 
 package main
