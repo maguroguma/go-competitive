@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_e
+https://codeforces.com/problemset/problem/1351/C
 */
 
 package main
@@ -56,52 +56,52 @@ func init() {
 }
 
 var (
-	n, m, q int
-	U, V    []int
-	C       []int
-
-	G [200 + 5][]int
+	t int
+	S []rune
 )
 
 func main() {
-	n, m, q = ReadInt3()
-	for i := 0; i < m; i++ {
-		u, v := ReadInt2()
-		u--
-		v--
+	t = ReadInt()
+	for i := 0; i < t; i++ {
+		S = ReadRuneSlice()
 
-		G[u] = append(G[u], v)
-		G[v] = append(G[v], u)
+		solve()
 	}
-	C = ReadIntSlice(n)
+}
 
-	for i := 0; i < q; i++ {
-		c := ReadInt()
-		if c == 1 {
-			x := ReadInt()
-			x--
+func solve() {
+	cx, cy := 0, 0
+	memo := make(map[Coord]bool)
 
-			burst(x)
+	ans := 0
+	for _, r := range S {
+		nx, ny := cx, cy
+		if r == 'S' {
+			ny--
+		} else if r == 'N' {
+			ny++
+		} else if r == 'W' {
+			nx--
 		} else {
-			x, y := ReadInt2()
-			x--
-
-			change(x, y)
+			nx++
 		}
+
+		c := Coord{x: cx + nx, y: cy + ny}
+		if _, ok := memo[c]; ok {
+			ans++
+		} else {
+			ans += 5
+		}
+
+		memo[c] = true
+		cx, cy = nx, ny
 	}
+
+	fmt.Println(ans)
 }
 
-func burst(x int) {
-	fmt.Println(C[x])
-
-	for _, nid := range G[x] {
-		C[nid] = C[x]
-	}
-}
-
-func change(x, y int) {
-	fmt.Println(C[x])
-	C[x] = y
+type Coord struct {
+	x, y int
 }
 
 /*******************************************************************/

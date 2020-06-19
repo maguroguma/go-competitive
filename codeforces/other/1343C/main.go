@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_e
+https://codeforces.com/problemset/problem/1343/C
 */
 
 package main
@@ -56,52 +56,123 @@ func init() {
 }
 
 var (
-	n, m, q int
-	U, V    []int
-	C       []int
-
-	G [200 + 5][]int
+	t int
+	n int
+	A []int
 )
 
 func main() {
-	n, m, q = ReadInt3()
-	for i := 0; i < m; i++ {
-		u, v := ReadInt2()
-		u--
-		v--
+	t = ReadInt()
+	for i := 0; i < t; i++ {
+		n = ReadInt()
+		A = ReadIntSlice(n)
 
-		G[u] = append(G[u], v)
-		G[v] = append(G[v], u)
+		solve()
 	}
-	C = ReadIntSlice(n)
+}
 
-	for i := 0; i < q; i++ {
-		c := ReadInt()
-		if c == 1 {
-			x := ReadInt()
-			x--
+func solve() {
+	ans := int64(0)
 
-			burst(x)
+	C := make([]int, n)
+	for i := 0; i < n; i++ {
+		if A[i] > 0 {
+			C[i] = 1
 		} else {
-			x, y := ReadInt2()
-			x--
-
-			change(x, y)
+			C[i] = -1
 		}
 	}
-}
 
-func burst(x int) {
-	fmt.Println(C[x])
+	comp, cnts := RunLengthEncoding(C)
+	csum := 0
+	for i := 0; i < len(cnts); i++ {
+		cnt := cnts[i]
+		if comp[i] > 0 {
+			ans += int64(Max(A[csum : csum+cnt]...))
+		} else {
+			ans += int64(Max(A[csum : csum+cnt]...))
+		}
 
-	for _, nid := range G[x] {
-		C[nid] = C[x]
+		csum += cnt
 	}
+
+	fmt.Println(ans)
 }
 
-func change(x, y int) {
-	fmt.Println(C[x])
-	C[x] = y
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// RunLengthEncoding returns encoded slice of an input.
+func RunLengthEncoding(S []int) ([]int, []int) {
+	runes := []int{}
+	lengths := []int{}
+
+	l := 0
+	for i := 0; i < len(S); i++ {
+		// 1文字目の場合保持
+		if i == 0 {
+			l = 1
+			continue
+		}
+
+		if S[i-1] == S[i] {
+			// 直前の文字と一致していればインクリメント
+			l++
+		} else {
+			// 不一致のタイミングで追加し、長さをリセットする
+			runes = append(runes, S[i-1])
+			lengths = append(lengths, l)
+			l = 1
+		}
+	}
+	runes = append(runes, S[len(S)-1])
+	lengths = append(lengths, l)
+
+	return runes, lengths
+}
+
+// RunLengthDecoding decodes RLE results.
+func RunLengthDecoding(S []int, L []int) []int {
+	if len(S) != len(L) {
+		panic("S, L are not RunLengthEncoding results")
+	}
+
+	res := []int{}
+
+	for i := 0; i < len(S); i++ {
+		for j := 0; j < L[i]; j++ {
+			res = append(res, S[i])
+		}
+	}
+
+	return res
 }
 
 /*******************************************************************/

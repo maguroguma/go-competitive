@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_e
+https://codeforces.com/problemset/problem/1343/D
 */
 
 package main
@@ -56,52 +56,135 @@ func init() {
 }
 
 var (
-	n, m, q int
-	U, V    []int
-	C       []int
-
-	G [200 + 5][]int
+	t    int
+	n, k int
+	A    []int
 )
 
 func main() {
-	n, m, q = ReadInt3()
-	for i := 0; i < m; i++ {
-		u, v := ReadInt2()
-		u--
-		v--
+	t = ReadInt()
+	for i := 0; i < t; i++ {
+		n, k = ReadInt2()
+		A = ReadIntSlice(n)
 
-		G[u] = append(G[u], v)
-		G[v] = append(G[v], u)
+		solve()
 	}
-	C = ReadIntSlice(n)
+	stdout.Flush()
+}
 
-	for i := 0; i < q; i++ {
-		c := ReadInt()
-		if c == 1 {
-			x := ReadInt()
-			x--
+func solve() {
+	ans := INF_BIT30
 
-			burst(x)
-		} else {
-			x, y := ReadInt2()
-			x--
+	cnts := make([]int, 2*k+100)
+	prefs := make([]int, 2*k+100)
 
-			change(x, y)
+	for i := 0; i < n/2; i++ {
+		l, r := A[i], A[n-1-i]
+
+		cnts[l+r]++
+		prefs[Min(l, r)+1]++
+		prefs[Max(l, r)+k+1]--
+	}
+	for i := 1; i <= 2*k+10; i++ {
+		prefs[i] += prefs[i-1]
+	}
+
+	for x := 2; x <= 2*k; x++ {
+		tmp := prefs[x] - cnts[x] + (n/2-prefs[x])*2
+		ChMin(&ans, tmp)
+	}
+
+	PrintfBufStdout("%d\n", ans)
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
 		}
 	}
+	return m
 }
 
-func burst(x int) {
-	fmt.Println(C[x])
-
-	for _, nid := range G[x] {
-		C[nid] = C[x]
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
 	}
+	return m
 }
 
-func change(x, y int) {
-	fmt.Println(C[x])
-	C[x] = y
+// func solve() {
+// 	ans := INF_BIT30
+
+// 	for x := 2; x <= 2*k; x++ {
+// 		tmp := BinarySearch(n, -1, func(mid int) bool {
+// 			cnt := 0
+// 			for i := 0; i < n/2; i++ {
+// 				l, r := A[i], A[n-1-i]
+// 				s := l + r
+
+// 				if s == x {
+// 					continue
+// 				}
+
+// 				if (x-r >= 1 && x-r <= k) || (x-l >= 1 && x-l <= k) {
+// 					cnt++
+// 				} else {
+// 					cnt += 2
+// 				}
+
+// 				if cnt > mid {
+// 					return false
+// 				}
+// 			}
+
+// 			return cnt <= mid
+// 		})
+
+// 		ChMin(&ans, tmp)
+// 	}
+
+// 	PrintfBufStdout("%d\n", ans)
+// }
+
+func BinarySearch(initOK, initNG int, isOK func(mid int) bool) (ok int) {
+	ng := initNG
+	ok = initOK
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
+}
+
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
 }
 
 /*******************************************************************/

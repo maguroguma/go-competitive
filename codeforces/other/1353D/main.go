@@ -1,12 +1,13 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_e
+https://codeforces.com/problemset/problem/1353/D
 */
 
 package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
@@ -56,52 +57,91 @@ func init() {
 }
 
 var (
-	n, m, q int
-	U, V    []int
-	C       []int
-
-	G [200 + 5][]int
+	t int
+	n int
 )
 
 func main() {
-	n, m, q = ReadInt3()
-	for i := 0; i < m; i++ {
-		u, v := ReadInt2()
-		u--
-		v--
+	t = ReadInt()
+	for i := 0; i < t; i++ {
+		n = ReadInt()
 
-		G[u] = append(G[u], v)
-		G[v] = append(G[v], u)
+		solve()
 	}
-	C = ReadIntSlice(n)
+}
 
-	for i := 0; i < q; i++ {
-		c := ReadInt()
-		if c == 1 {
-			x := ReadInt()
-			x--
+func solve() {
+	A := make([]int, n)
 
-			burst(x)
-		} else {
-			x, y := ReadInt2()
-			x--
+	pq := NewSegmentPQ()
+	pq.push(&Segment{
+		left: 0, right: n - 1, length: n,
+	})
 
-			change(x, y)
+	i := 1
+	for pq.Len() > 0 {
+		pop := pq.pop()
+
+		mid := (pop.left + pop.right) / 2
+		A[mid] = i
+		i++
+
+		if (mid-1)-pop.left+1 > 0 {
+			pq.push(&Segment{left: pop.left, right: mid - 1, length: (mid - 1) - pop.left + 1})
+		}
+		if pop.right-(mid+1)+1 > 0 {
+			pq.push(&Segment{left: mid + 1, right: pop.right, length: pop.right - (mid + 1) + 1})
 		}
 	}
+
+	fmt.Println(PrintIntsLine(A...))
 }
 
-func burst(x int) {
-	fmt.Println(C[x])
+type Segment struct {
+	pri         int
+	left, right int
+	length      int
+}
+type SegmentPQ []*Segment
 
-	for _, nid := range G[x] {
-		C[nid] = C[x]
+// Interfaces
+func NewSegmentPQ() *SegmentPQ {
+	temp := make(SegmentPQ, 0)
+	pq := &temp
+	heap.Init(pq)
+
+	return pq
+}
+func (pq *SegmentPQ) push(target *Segment) {
+	heap.Push(pq, target)
+}
+func (pq *SegmentPQ) pop() *Segment {
+	return heap.Pop(pq).(*Segment)
+}
+
+func (pq SegmentPQ) Len() int { return len(pq) }
+func (pq SegmentPQ) Less(i, j int) bool {
+	if pq[i].length > pq[j].length {
+		return true
+	} else if pq[i].length < pq[j].length {
+		return false
+	} else {
+		return pq[i].left < pq[j].left
 	}
+} // <: ASC, >: DESC
+func (pq SegmentPQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
 }
-
-func change(x, y int) {
-	fmt.Println(C[x])
-	C[x] = y
+func (pq *SegmentPQ) Push(x interface{}) {
+	item := x.(*Segment)
+	*pq = append(*pq, item)
+}
+func (pq *SegmentPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
 }
 
 /*******************************************************************/
