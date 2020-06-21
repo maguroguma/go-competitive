@@ -70,3 +70,9 @@
 - [ ] util関数の整備
 - [ ] 組み合わせ、パスカルの三角形のライブラリ化
 - [ ] ビット演算のデバッグ用関数
+
+## @2020-06-21
+
+- [ ] [multisetのライブラリ作成](https://atcoder.jp/contests/abc170/tasks/abc170_e)
+- [ ] [ABC171-C](https://atcoder.jp/contests/abc171/tasks/abc171_c)の明確な理解
+
