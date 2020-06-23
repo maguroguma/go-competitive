@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_h
+https://codeforces.com/problemset/problem/1321/C
 */
 
 package main
@@ -56,71 +56,72 @@ func init() {
 }
 
 var (
-	n, l       int
-	X          []int
-	rt, jt, gt int
-
-	dp [100000 + 50]int
-	B  [100000 + 50]bool
+	n int
+	S []rune
 )
 
 func main() {
-	n, l = ReadInt2()
-	X = ReadIntSlice(n)
-	rt, jt, gt = ReadInt3()
+	n = ReadInt()
+	S = ReadRuneSlice()
 
-	for _, x := range X {
-		B[x] = true
+	ans := 0
+	for len(S) > 1 {
+		next := false
+		maxR := rune(0)
+		idx := -1
+
+		for i := 0; i < len(S); i++ {
+			if i == 0 && S[i]-S[i+1] == 1 {
+				if ChMax(&maxR, S[i]) {
+					idx = i
+				}
+
+				next = true
+				continue
+			}
+			if i == len(S)-1 && S[i]-S[i-1] == 1 {
+				if ChMax(&maxR, S[i]) {
+					idx = i
+				}
+
+				next = true
+				continue
+			}
+
+			if 0 < i && i < len(S)-1 && (S[i]-S[i-1] == 1 || S[i]-S[i+1] == 1) {
+				if ChMax(&maxR, S[i]) {
+					idx = i
+				}
+
+				next = true
+			}
+		}
+
+		if next {
+			ans++
+			tmp := []rune{}
+			for i := 0; i < len(S); i++ {
+				if i == idx {
+					continue
+				}
+
+				tmp = append(tmp, S[i])
+			}
+
+			S = tmp
+		} else {
+			break
+		}
 	}
 
-	for i := 0; i <= l; i++ {
-		dp[i] = INF_BIT60
-	}
-	dp[0] = 0
-
-	for i := 0; i < l; i++ {
-		// 地点iでの行動を全探索
-
-		// 走る
-		if B[i+1] {
-			// ゴリ押しする分余計に時間がかかる
-			ChMin(&dp[i+1], dp[i]+rt+gt)
-		} else {
-			ChMin(&dp[i+1], dp[i]+rt)
-		}
-
-		// ショートジャンプ
-		if B[i+2] {
-			ChMin(&dp[i+2], dp[i]+jt+rt+gt)
-		} else {
-			ChMin(&dp[i+2], dp[i]+jt+rt)
-		}
-		if i+2 > l {
-			diff := l - i
-			time := rt/2 + jt*(2*diff-1)/2
-			ChMin(&dp[l], dp[i]+time)
-		}
-		// ロングジャンプ
-		if B[i+4] {
-			ChMin(&dp[i+4], dp[i]+3*jt+rt+gt)
-		} else {
-			ChMin(&dp[i+4], dp[i]+3*jt+rt)
-		}
-		if i+4 > l {
-			diff := l - i
-			time := rt/2 + jt*(2*diff-1)/2
-			ChMin(&dp[l], dp[i]+time)
-		}
-	}
-
-	fmt.Println(dp[l])
+	fmt.Println(ans)
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
 //	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
+func ChMax(updatedValue *rune, target rune) bool {
+	if *updatedValue < target {
 		*updatedValue = target
 		return true
 	}

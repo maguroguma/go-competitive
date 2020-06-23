@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_h
+https://codeforces.com/problemset/problem/1320/A
 */
 
 package main
@@ -56,71 +56,33 @@ func init() {
 }
 
 var (
-	n, l       int
-	X          []int
-	rt, jt, gt int
+	n int
+	B []int64
 
-	dp [100000 + 50]int
-	B  [100000 + 50]bool
+	memo map[int64]int64
 )
 
 func main() {
-	n, l = ReadInt2()
-	X = ReadIntSlice(n)
-	rt, jt, gt = ReadInt3()
+	n = ReadInt()
+	B = ReadInt64Slice(n)
 
-	for _, x := range X {
-		B[x] = true
+	memo = make(map[int64]int64)
+	for i := 0; i < n; i++ {
+		memo[B[i]-int64(i)] += B[i]
 	}
 
-	for i := 0; i <= l; i++ {
-		dp[i] = INF_BIT60
+	ans := int64(0)
+	for _, v := range memo {
+		ChMax(&ans, v)
 	}
-	dp[0] = 0
-
-	for i := 0; i < l; i++ {
-		// 地点iでの行動を全探索
-
-		// 走る
-		if B[i+1] {
-			// ゴリ押しする分余計に時間がかかる
-			ChMin(&dp[i+1], dp[i]+rt+gt)
-		} else {
-			ChMin(&dp[i+1], dp[i]+rt)
-		}
-
-		// ショートジャンプ
-		if B[i+2] {
-			ChMin(&dp[i+2], dp[i]+jt+rt+gt)
-		} else {
-			ChMin(&dp[i+2], dp[i]+jt+rt)
-		}
-		if i+2 > l {
-			diff := l - i
-			time := rt/2 + jt*(2*diff-1)/2
-			ChMin(&dp[l], dp[i]+time)
-		}
-		// ロングジャンプ
-		if B[i+4] {
-			ChMin(&dp[i+4], dp[i]+3*jt+rt+gt)
-		} else {
-			ChMin(&dp[i+4], dp[i]+3*jt+rt)
-		}
-		if i+4 > l {
-			diff := l - i
-			time := rt/2 + jt*(2*diff-1)/2
-			ChMin(&dp[l], dp[i]+time)
-		}
-	}
-
-	fmt.Println(dp[l])
+	fmt.Println(ans)
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
 //	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
+func ChMax(updatedValue *int64, target int64) bool {
+	if *updatedValue < target {
 		*updatedValue = target
 		return true
 	}
