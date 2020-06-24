@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_i
+https://codeforces.com/problemset/problem/1316/B
 */
 
 package main
@@ -56,69 +56,84 @@ func init() {
 }
 
 var (
+	t int
 	n int
-	q int
-
-	// R, C [100000 + 50]int
-	R, C []int
-	inv  int
+	S []rune
 )
 
 func main() {
-	n, q = ReadInt2()
+	t = ReadInt()
+	for i := 0; i < t; i++ {
+		n = ReadInt()
+		S = ReadRuneSlice()
 
-	R = make([]int, 100000+50)
-	C = make([]int, 100000+50)
-	for i := 0; i < n; i++ {
-		R[i], C[i] = i, i
+		solve()
 	}
+}
 
-	for i := 0; i < q; i++ {
-		c := ReadInt()
-		if c == 1 {
-			a, b := ReadInt2()
-			a--
-			b--
-			rowExchange(a, b)
-		} else if c == 2 {
-			a, b := ReadInt2()
-			a--
-			b--
-			colExchange(a, b)
-		} else if c == 3 {
-			inverse()
-		} else {
-			a, b := ReadInt2()
-			a--
-			b--
-			ans := query(a, b)
-			fmt.Println(ans)
+func solve() {
+	// C := []Candidate{}
+
+	mini := "{{{{{{}}}}}}"
+	ans := 0
+
+	for k := 1; k <= n; k++ {
+		bef := []rune{}
+		for i := k - 1; i < n; i++ {
+			bef = append(bef, S[i])
+		}
+		aft := []rune{}
+		for i := 0; i < k-1; i++ {
+			aft = append(aft, S[i])
+		}
+
+		if (n-k+1)%2 == 1 {
+			aft = Reverse(aft)
+		}
+
+		tmp := []rune{}
+		tmp = append(tmp, bef...)
+		tmp = append(tmp, aft...)
+
+		// obj := Candidate{S: tmp, k: k}
+		// C = append(C, obj)
+
+		if mini > string(tmp) {
+			mini = string(tmp)
+			ans = k
 		}
 	}
+
+	// sort.SliceStable(C, func(i, j int) bool {
+	// 	if string(C[i].S) < string(C[j].S) {
+	// 		return true
+	// 	} else if string(C[i].S) > string(C[j].S) {
+	// 		return false
+	// 	} else {
+	// 		return C[i].k < C[j].k
+	// 	}
+	// })
+	// fmt.Println(string(C[0].S))
+	// fmt.Println(C[0].k)
+
+	fmt.Println(mini)
+	fmt.Println(ans)
 }
 
-func rowExchange(i, j int) {
-	R[i], R[j] = R[j], R[i]
+type Candidate struct {
+	S []rune
+	k int
 }
 
-func colExchange(i, j int) {
-	C[i], C[j] = C[j], C[i]
-}
+func Reverse(A []rune) []rune {
+	res := []rune{}
 
-func inverse() {
-	inv++
-	R, C = C, R
-}
-
-func query(i, j int) int {
-	y := R[i]
-	x := C[j]
-
-	if inv%2 == 1 {
-		y, x = x, y
+	n := len(A)
+	for i := n - 1; i >= 0; i-- {
+		res = append(res, A[i])
 	}
 
-	return n*y + x
+	return res
 }
 
 /*******************************************************************/

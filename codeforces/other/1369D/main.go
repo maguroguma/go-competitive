@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_i
+https://codeforces.com/problemset/problem/1369/D
 */
 
 package main
@@ -56,69 +56,28 @@ func init() {
 }
 
 var (
-	n int
-	q int
+	t int
 
-	// R, C [100000 + 50]int
-	R, C []int
-	inv  int
+	n  int
+	dp [2000000 + 50]int64
 )
 
 func main() {
-	n, q = ReadInt2()
-
-	R = make([]int, 100000+50)
-	C = make([]int, 100000+50)
-	for i := 0; i < n; i++ {
-		R[i], C[i] = i, i
-	}
-
-	for i := 0; i < q; i++ {
-		c := ReadInt()
-		if c == 1 {
-			a, b := ReadInt2()
-			a--
-			b--
-			rowExchange(a, b)
-		} else if c == 2 {
-			a, b := ReadInt2()
-			a--
-			b--
-			colExchange(a, b)
-		} else if c == 3 {
-			inverse()
+	for i := 3; i <= 2000000; i++ {
+		if i%3 == 0 {
+			dp[i] = 2*dp[i-2] + dp[i-1] + 4
 		} else {
-			a, b := ReadInt2()
-			a--
-			b--
-			ans := query(a, b)
-			fmt.Println(ans)
+			dp[i] = 2*dp[i-2] + dp[i-1]
 		}
-	}
-}
-
-func rowExchange(i, j int) {
-	R[i], R[j] = R[j], R[i]
-}
-
-func colExchange(i, j int) {
-	C[i], C[j] = C[j], C[i]
-}
-
-func inverse() {
-	inv++
-	R, C = C, R
-}
-
-func query(i, j int) int {
-	y := R[i]
-	x := C[j]
-
-	if inv%2 == 1 {
-		y, x = x, y
+		dp[i] %= MOD
 	}
 
-	return n*y + x
+	t = ReadInt()
+	for i := 0; i < t; i++ {
+		n = ReadInt()
+
+		fmt.Println(dp[n])
+	}
 }
 
 /*******************************************************************/
