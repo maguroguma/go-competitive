@@ -101,23 +101,23 @@ options     head
   // res := cf.P(n, r) 	// 順列
 
   type CombFactorial struct {
-    factorial, invFactorial []int64
-    maxNum                  int64
+    factorial, invFactorial []${1:int64}
+    maxNum                  $1
   }
 
-  func NewCombFactorial(maxNum int64) *CombFactorial {
+  func NewCombFactorial(maxNum $1) *CombFactorial {
     cf := new(CombFactorial)
     cf.maxNum = maxNum
-    cf.factorial = make([]int64, maxNum+50)
-    cf.invFactorial = make([]int64, maxNum+50)
+    cf.factorial = make([]$1, maxNum+50)
+    cf.invFactorial = make([]$1, maxNum+50)
     cf.initCF()
 
     return cf
   }
-  func (c *CombFactorial) modInv(a int64) int64 {
+  func (c *CombFactorial) modInv(a $1) $1 {
     return c.modpow(a, MOD-2)
   }
-  func (c *CombFactorial) modpow(a, e int64) int64 {
+  func (c *CombFactorial) modpow(a, e $1) $1 {
     if e == 0 {
       return 1
     }
@@ -131,7 +131,7 @@ options     head
     return a * c.modpow(a, e-1) % MOD
   }
   func (c *CombFactorial) initCF() {
-    var i int64
+    var i $1
 
     for i = 0; i <= c.maxNum; i++ {
       if i == 0 {
@@ -146,8 +146,8 @@ options     head
       c.invFactorial[i] = c.modInv(c.factorial[i])
     }
   }
-  func (c *CombFactorial) C(n, r int64) int64 {
-    var res int64
+  func (c *CombFactorial) C(n, r $1) $1 {
+    var res $1
 
     res = 1
     res *= c.factorial[n]
@@ -159,8 +159,8 @@ options     head
 
     return res
   }
-  func (c *CombFactorial) P(n, r int64) int64 {
-    var res int64
+  func (c *CombFactorial) P(n, r $1) $1 {
+    var res $1
 
     res = 1
     res *= c.factorial[n]
@@ -170,6 +170,6 @@ options     head
 
     return res
   }
-  func (c *CombFactorial) H(n, r int64) int64 {
+  func (c *CombFactorial) H(n, r $1) $1 {
     return c.C(n-1+r, r)
   }
