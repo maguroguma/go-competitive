@@ -341,3 +341,45 @@ options     head
   // heap.Init(pq)
   // heap.Push(pq, &Vertex{pri: intValue})
   // popped := heap.Pop(pq).(*Vertex)
+
+
+snippet     dijkstraByBFS
+abbr        func SSSPByBFS(sid, n int, AG [][]int) (dp []int, visited []bool)
+options     head
+  // verified by https://codeforces.com/contest/1320/problem/B
+  func SSSPByBFS(sid, n int, AG [][]int) (dp []int, visited []bool) {
+    dp = make([]int, n)
+    visited = make([]bool, n)
+
+    for i := 0; i < n; i++ {
+      dp[i] = INF_BIT30
+      visited[i] = false
+    }
+
+    Q := []Node{}
+    dp[sid] = 0
+    visited[sid] = true
+    Q = append(Q, Node{id: sid, cost: dp[sid]})
+
+    for len(Q) > 0 {
+      cnode := Q[0]
+      Q = Q[1:]
+
+      for _, nid := range G[cnode.id] {
+        // 訪問済みならパス
+        if visited[nid] {
+          continue
+        }
+
+        dp[nid] = cnode.cost + 1
+        visited[nid] = true
+        Q = append(Q, Node{id: nid, cost: dp[nid]})
+      }
+    }
+
+    return dp, visited
+  }
+
+  type Node struct {
+    id, cost int
+  }
