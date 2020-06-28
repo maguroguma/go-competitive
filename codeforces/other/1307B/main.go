@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_l
+https://codeforces.com/problemset/problem/1307/B
 */
 
 package main
@@ -35,7 +35,8 @@ import (
 
 const (
 	// General purpose
-	MOD          = 1000000000 + 7
+	MOD = 1000000000 + 7
+	// MOD          = 998244353
 	ALPHABET_NUM = 26
 	INF_INT64    = math.MaxInt64
 	INF_BIT60    = 1 << 60
@@ -56,182 +57,48 @@ func init() {
 }
 
 var (
-	n    int
-	K    []int
-	time [][]int
-	m    int
+	t    int
+	n, x int
 	A    []int
-
-	P []int
 )
 
 func main() {
-	n = ReadInt()
-	for i := 0; i < n; i++ {
-		k := ReadInt()
-		K = append(K, k)
-		tmp := ReadIntSlice(k)
-		time = append(time, tmp)
+	t = ReadInt()
+	for i := 0; i < t; i++ {
+		n, x = ReadInt2()
+		A = ReadIntSlice(n)
+
+		solve()
 	}
-	m = ReadInt()
-	A = ReadIntSlice(m)
+}
 
-	P = make([]int, n) // 各棚の現在のポインタ
-
-	f := func(lv, rv T) T {
-		if lv.val > rv.val {
-			return lv
+func solve() {
+	ans := INF_BIT30
+	for _, a := range A {
+		if x%a == 0 {
+			ChMin(&ans, x/a)
 		} else {
-			return rv
+			q := x / a
+			if q > 0 {
+				ChMin(&ans, q+1)
+			} else {
+				ChMin(&ans, 2)
+			}
+			// ChMin(&ans, x/a)
 		}
 	}
-	ti := T{val: 0, bucketID: -1, segID: -1}
-	st := NewSegmentTree(n*2, f, ti)
+	fmt.Println(ans)
+}
 
-	// セグメントツリーのセットアップ
-	for i := 0; i < n; i++ {
-		for j := 0; j < 2; j++ {
-			// 商品が棚にアレばそれを採用し、ポインタをずらす
-			// なければ単位元を詰める
-
-			// if j < len(time[i]) {
-			if P[i] < len(time[i]) {
-				t := time[i][j]
-				st.Set(i+n*j, T{val: t, bucketID: i, segID: i + n*j})
-
-				P[i]++
-			} else {
-				st.Set(i+n*j, ti)
-			}
-		}
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
 	}
-	st.Build()
-
-	// PrintfDebug("P: %v\n", P)
-
-	for i := 0; i < m; i++ {
-		a := A[i]
-
-		t := st.Query(0, n*a)
-		fmt.Println(t.val)
-
-		bid := t.bucketID
-		sid := t.segID
-
-		// PrintfDebug("棚: %d, セグ: %d\n", bid, sid)
-
-		// 1番目を取ったら、2番目を1番目に持ってくる必要がある
-		if sid < n {
-			// 1番目を取った
-
-			// 2番目を1番目に移す
-			second := st.Get(sid + n)
-			st.Update(sid, T{val: second.val, bucketID: second.bucketID, segID: sid})
-
-			// 商品がまだあれば2番目に補充する
-			if P[bid] < len(time[bid]) {
-				st.Update(sid+n, T{val: time[bid][P[bid]], bucketID: bid, segID: sid + n})
-				P[bid]++
-			} else {
-				st.Update(sid+n, ti)
-			}
-		} else {
-			// 2番目を取った
-
-			// 商品がまだあればそれを乗せる
-			// なければ単位元を乗せる
-			if P[bid] < len(time[bid]) {
-				st.Update(sid, T{val: time[bid][P[bid]], bucketID: bid, segID: sid})
-				P[bid]++
-			} else {
-				st.Update(sid, ti)
-			}
-		}
-
-		// // 商品がまだあればそれを乗せる
-		// // なければ単位元を乗せる
-		// if P[bid] < len(time[bid]) {
-		// 	st.Update(sid, T{val: time[bid][P[bid]], bucketID: bid, segID: sid})
-		// 	P[bid]++
-		// } else {
-		// 	st.Update(sid, ti)
-		// }
-	}
-}
-
-type T struct {
-	val      int
-	bucketID int
-	segID    int
-}
-
-type SegmentTree struct {
-	sz   int              // minimum power of 2
-	data []T              // elements in T
-	f    func(lv, rv T) T // T <> T -> T
-	ti   T                // identity element of Monoid
-}
-
-func NewSegmentTree(
-	n int, f func(lv, rv T) T, ti T,
-) *SegmentTree {
-	st := new(SegmentTree)
-	st.ti = ti
-	st.f = f
-
-	st.sz = 1
-	for st.sz < n {
-		st.sz *= 2
-	}
-
-	st.data = make([]T, 2*st.sz-1)
-	for i := 0; i < 2*st.sz-1; i++ {
-		st.data[i] = st.ti
-	}
-
-	return st
-}
-
-func (st *SegmentTree) Set(k int, x T) {
-	st.data[k+(st.sz-1)] = x
-}
-
-func (st *SegmentTree) Build() {
-	for i := st.sz - 2; i >= 0; i-- {
-		st.data[i] = st.f(st.data[2*i+1], st.data[2*i+2])
-	}
-}
-
-func (st *SegmentTree) Update(k int, x T) {
-	k += st.sz - 1
-	st.data[k] = x
-
-	for k > 0 {
-		k = (k - 1) / 2
-		st.data[k] = st.f(st.data[2*k+1], st.data[2*k+2])
-	}
-}
-
-func (st *SegmentTree) Query(a, b int) T {
-	return st.query(a, b, 0, 0, st.sz)
-}
-
-func (st *SegmentTree) query(a, b, k, l, r int) T {
-	if r <= a || b <= l {
-		return st.ti
-	}
-
-	if a <= l && r <= b {
-		return st.data[k]
-	}
-
-	lv := st.query(a, b, 2*k+1, l, (l+r)/2)
-	rv := st.query(a, b, 2*k+2, (l+r)/2, r)
-	return st.f(lv, rv)
-}
-
-func (st *SegmentTree) Get(k int) T {
-	return st.data[k+(st.sz-1)]
+	return false
 }
 
 /*******************************************************************/

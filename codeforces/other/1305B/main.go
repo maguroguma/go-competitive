@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/past202005-open/tasks/past202005_l
+https://codeforces.com/problemset/problem/1305/B
 */
 
 package main
@@ -12,6 +12,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -35,7 +36,8 @@ import (
 
 const (
 	// General purpose
-	MOD          = 1000000000 + 7
+	MOD = 1000000000 + 7
+	// MOD          = 998244353
 	ALPHABET_NUM = 26
 	INF_INT64    = math.MaxInt64
 	INF_BIT60    = 1 << 60
@@ -56,182 +58,47 @@ func init() {
 }
 
 var (
-	n    int
-	K    []int
-	time [][]int
-	m    int
-	A    []int
-
-	P []int
+	S []rune
+	n int
 )
 
 func main() {
-	n = ReadInt()
-	for i := 0; i < n; i++ {
-		k := ReadInt()
-		K = append(K, k)
-		tmp := ReadIntSlice(k)
-		time = append(time, tmp)
-	}
-	m = ReadInt()
-	A = ReadIntSlice(m)
+	S = ReadRuneSlice()
+	n = len(S)
 
-	P = make([]int, n) // 各棚の現在のポインタ
+	A := []int{}
+	l, r := 0, n-1
+	for l < r {
+		for l < n && S[l] != '(' {
+			l++
+		}
 
-	f := func(lv, rv T) T {
-		if lv.val > rv.val {
-			return lv
+		for r >= 0 && S[r] != ')' {
+			r--
+		}
+
+		if l < r {
+			A = append(A, l+1, r+1)
+			l++
+			r--
 		} else {
-			return rv
+			break
 		}
 	}
-	ti := T{val: 0, bucketID: -1, segID: -1}
-	st := NewSegmentTree(n*2, f, ti)
 
-	// セグメントツリーのセットアップ
-	for i := 0; i < n; i++ {
-		for j := 0; j < 2; j++ {
-			// 商品が棚にアレばそれを採用し、ポインタをずらす
-			// なければ単位元を詰める
+	sort.Sort(sort.IntSlice(A))
 
-			// if j < len(time[i]) {
-			if P[i] < len(time[i]) {
-				t := time[i][j]
-				st.Set(i+n*j, T{val: t, bucketID: i, segID: i + n*j})
-
-				P[i]++
-			} else {
-				st.Set(i+n*j, ti)
-			}
-		}
-	}
-	st.Build()
-
-	// PrintfDebug("P: %v\n", P)
-
-	for i := 0; i < m; i++ {
-		a := A[i]
-
-		t := st.Query(0, n*a)
-		fmt.Println(t.val)
-
-		bid := t.bucketID
-		sid := t.segID
-
-		// PrintfDebug("棚: %d, セグ: %d\n", bid, sid)
-
-		// 1番目を取ったら、2番目を1番目に持ってくる必要がある
-		if sid < n {
-			// 1番目を取った
-
-			// 2番目を1番目に移す
-			second := st.Get(sid + n)
-			st.Update(sid, T{val: second.val, bucketID: second.bucketID, segID: sid})
-
-			// 商品がまだあれば2番目に補充する
-			if P[bid] < len(time[bid]) {
-				st.Update(sid+n, T{val: time[bid][P[bid]], bucketID: bid, segID: sid + n})
-				P[bid]++
-			} else {
-				st.Update(sid+n, ti)
-			}
-		} else {
-			// 2番目を取った
-
-			// 商品がまだあればそれを乗せる
-			// なければ単位元を乗せる
-			if P[bid] < len(time[bid]) {
-				st.Update(sid, T{val: time[bid][P[bid]], bucketID: bid, segID: sid})
-				P[bid]++
-			} else {
-				st.Update(sid, ti)
-			}
-		}
-
-		// // 商品がまだあればそれを乗せる
-		// // なければ単位元を乗せる
-		// if P[bid] < len(time[bid]) {
-		// 	st.Update(sid, T{val: time[bid][P[bid]], bucketID: bid, segID: sid})
-		// 	P[bid]++
-		// } else {
-		// 	st.Update(sid, ti)
-		// }
-	}
-}
-
-type T struct {
-	val      int
-	bucketID int
-	segID    int
-}
-
-type SegmentTree struct {
-	sz   int              // minimum power of 2
-	data []T              // elements in T
-	f    func(lv, rv T) T // T <> T -> T
-	ti   T                // identity element of Monoid
-}
-
-func NewSegmentTree(
-	n int, f func(lv, rv T) T, ti T,
-) *SegmentTree {
-	st := new(SegmentTree)
-	st.ti = ti
-	st.f = f
-
-	st.sz = 1
-	for st.sz < n {
-		st.sz *= 2
+	if len(A) == 0 {
+		fmt.Println(0)
+		return
 	}
 
-	st.data = make([]T, 2*st.sz-1)
-	for i := 0; i < 2*st.sz-1; i++ {
-		st.data[i] = st.ti
-	}
-
-	return st
+	fmt.Println(1)
+	fmt.Println(len(A))
+	fmt.Println(PrintIntsLine(A...))
 }
 
-func (st *SegmentTree) Set(k int, x T) {
-	st.data[k+(st.sz-1)] = x
-}
-
-func (st *SegmentTree) Build() {
-	for i := st.sz - 2; i >= 0; i-- {
-		st.data[i] = st.f(st.data[2*i+1], st.data[2*i+2])
-	}
-}
-
-func (st *SegmentTree) Update(k int, x T) {
-	k += st.sz - 1
-	st.data[k] = x
-
-	for k > 0 {
-		k = (k - 1) / 2
-		st.data[k] = st.f(st.data[2*k+1], st.data[2*k+2])
-	}
-}
-
-func (st *SegmentTree) Query(a, b int) T {
-	return st.query(a, b, 0, 0, st.sz)
-}
-
-func (st *SegmentTree) query(a, b, k, l, r int) T {
-	if r <= a || b <= l {
-		return st.ti
-	}
-
-	if a <= l && r <= b {
-		return st.data[k]
-	}
-
-	lv := st.query(a, b, 2*k+1, l, (l+r)/2)
-	rv := st.query(a, b, 2*k+2, (l+r)/2, r)
-	return st.f(lv, rv)
-}
-
-func (st *SegmentTree) Get(k int) T {
-	return st.data[k+(st.sz-1)]
+func solve() {
 }
 
 /*******************************************************************/
