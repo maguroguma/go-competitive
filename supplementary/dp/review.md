@@ -1,6 +1,6 @@
 # 今まで解いたDPの復習
 
-Last Change: 2020-06-05 19:06:27.
+Last Change: 2020-06-28 18:53:46.
 
 
 <!-- vim-markdown-toc GFM -->
@@ -135,6 +135,8 @@ rg -i '(dp|動的計画法)' -g '!*.go' -g '!*.snip' --files-with-matches
   - DPじゃないかもしれない。。
 - [Codeforces Round No.594 C.Ivan the Fool and the Probability Theory](https://codeforces.com/contest/1248/problem/C)
 - [Codeforces Round No.605 D.Remove One Element](https://codeforces.com/contest/1272/problem/D)
+- [Educational Codeforces Round 90 D. Maximum Sum on Even Positions](https://codeforces.com/problemset/problem/1373/D)
+  - おそらく「耳DP」と呼ばれるもの。
 
 ### HackerRank
 
