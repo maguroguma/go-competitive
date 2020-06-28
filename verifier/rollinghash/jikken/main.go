@@ -14,6 +14,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"time"
 )
 
 /********** FAU standard libraries **********/
@@ -72,7 +73,7 @@ func main() {
 					sval, tval := sh.Slice(i, slen), th.Slice(a, tlen)
 
 					if sval == tval {
-						fmt.Printf("S: %s\tT: %s -> %v\n", ssub, tsub, sval == tval)
+						fmt.Printf("S: %s\tT: %s -> %d\n", ssub, tsub, sval)
 					}
 				}
 			}
@@ -101,6 +102,8 @@ type RollingHash struct {
 }
 
 func InitRollingHashConfing() {
+	rand.Seed(time.Now().UnixNano())
+
 	Base = uint64(rand.Int31n(math.MaxInt32-129)) + uint64(129)
 	PowMemo = make([]uint64, MAX_S_LENGTH)
 	PowMemo[0] = 1

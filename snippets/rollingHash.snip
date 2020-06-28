@@ -22,6 +22,8 @@ options     head
   }
 
   func InitRollingHashConfing() {
+    rand.Seed(time.Now().UnixNano())
+
     Base = uint64(rand.Int31n(math.MaxInt32-129)) + uint64(129)
     PowMemo = make([]uint64, MAX_S_LENGTH)
     PowMemo[0] = 1
