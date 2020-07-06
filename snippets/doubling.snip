@@ -1,0 +1,41 @@
+snippet     doubling
+abbr        func NewDoublingSolver(A []int, n int) *DoublingSolver
+options     head
+  const (
+    MAX_LOG  = 70
+    MAX_NODE = 200000
+  )
+
+  type DoublingSolver struct {
+    next [MAX_LOG + 5][MAX_NODE + 50]int
+    N    int
+  }
+
+  func NewDoublingSolver(A []int, n int) *DoublingSolver {
+    ds := new(DoublingSolver)
+    ds.N = n
+
+    for v := 0; v < ds.N; v++ {
+      ds.next[0][v] = A[v]
+    }
+
+    for d := 0; d+1 < MAX_LOG; d++ {
+      for v := 0; v < ds.N; v++ {
+        ds.next[d+1][v] = ds.next[d][ds.next[d][v]]
+      }
+    }
+
+    return ds
+  }
+
+  func (ds *DoublingSolver) Jump(sid, k int) (gid int) {
+    gid = sid
+
+    for d := 0; d+1 < MAX_LOG; d++ {
+      if (k >> uint(d) & 1) == 1 {
+        gid = ds.next[d][gid]
+      }
+    }
+
+    return gid
+  }
