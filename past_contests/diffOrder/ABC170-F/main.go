@@ -64,10 +64,24 @@ var (
 
 	steps [4][2]int
 	N     int
-	G     [1000000 + 50][]int
+	G     [4000000 + 50][]int
 
-	dp [][][]*Vertex
+	// dp [][][]*Vertex
+	dp []*Vertex
 )
+
+func toid(y, x, d int) int {
+	return (y*w+x)*4 + d
+}
+func toy(id int) int {
+	return id / w / 4
+}
+func tox(id int) int {
+	return id / 4 % w
+}
+func tod(id int) int {
+	return id % 4
+}
 
 func main() {
 	h, w, k = ReadInt3()
@@ -84,49 +98,126 @@ func main() {
 	steps = [4][2]int{
 		[2]int{0, 1}, [2]int{0, -1}, [2]int{1, 0}, [2]int{-1, 0},
 	}
+	N = h * w * 4
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			for d := 0; d < 4; d++ {
+				cid := toid(i, j, d)
 
-	dp = make([][][]*Vertex, h)
-	for i := 0; i < h; i++ {
-		dp[i] = make([][]*Vertex, w)
-		for j := 0; j < w; j++ {
-			dp[i][j] = make([]*Vertex, 4)
-		}
-	}
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			for l := 0; l < 4; l++ {
-				dp[i][j][l] = &Vertex{y: i, x: j, num: INF_BIT60, nokori: 0}
+				// 同じ方向のまま隣のグリッドへ移動
+				// for _, s := range steps {
+				// 	dy, dx := s[0], s[1]
+				// 	ny, nx := i+dy, j+dx
+				// 	if 0 <= ny && ny < h && 0 <= nx && nx < w && C[ny][nx] == '.' {
+				// 		nid := toid(ny, nx, d)
+				// 		G[cid] = append(G[cid], nid)
+				// 	}
+				// }
+
+				dy, dx := steps[d][0], steps[d][1]
+				ny, nx := i+dy, j+dx
+				if 0 <= ny && ny < h && 0 <= nx && nx < w && C[ny][nx] == '.' {
+					nid := toid(ny, nx, d)
+					G[cid] = append(G[cid], nid)
+				}
+
+				// 同じグリッドで異なる方向を向く
+				for nd := 0; nd < 4; nd++ {
+					if d == nd {
+						continue
+					}
+					nid := toid(i, j, nd)
+					G[cid] = append(G[cid], nid)
+				}
 			}
 		}
 	}
 
+	dp := make([]*Vertex, N)
+	colors := make([]int, N)
+	for i := 0; i < N; i++ {
+		dp[i] = &Vertex{id: i, num: INF_BIT60, nokori: -1}
+		colors[i] = WHITE
+	}
+
 	pq := NewVertexPQ()
-	for l := 0; l < 4; l++ {
-		dp[y1][x1][l].num = 0
-		dp[y1][x1][l].nokori = k
+	for d := 0; d < 4; d++ {
+		cid := toid(y1, x1, d)
+		pq.push(&Vertex{id: cid, num: 0, nokori: 0})
 
-		nv := &Vertex{y: y1, x: x1, num: 0, nokori: k}
-
-		pq.push(nv)
+		dp[cid].num, dp[cid].nokori = 0, 0
+		colors[cid] = GRAY
 	}
 
-	// ダイクストラ
 	for pq.Len() > 0 {
-		cv := pq.pop()
+		pop := pq.pop()
+		colors[pop.id] = BLACK
+		if Less(dp[pop.id], pop) {
+			continue
+		}
 
-		if Less(cv, dp[cv.y])
+		prevd := tod(pop.id)
+
+		for _, to := range G[pop.id] {
+			if colors[to] == BLACK {
+				continue
+			}
+
+			nextd := tod(to)
+			nv := &Vertex{id: to, num: dp[pop.id].num, nokori: dp[pop.id].nokori}
+			if prevd != nextd {
+				// 方向転換
+				nv.num++
+				nv.nokori = k
+			} else if nv.nokori == 0 {
+				// 次へ進むがk-1にする
+				nv.num++
+				nv.nokori = k - 1
+			} else {
+				nv.nokori--
+			}
+
+			if Less(nv, dp[to]) {
+				// dp[to] = nv
+				dp[to].num, dp[to].nokori = nv.num, nv.nokori
+				pq.push(nv)
+				colors[to] = GRAY
+			}
+		}
 	}
+
+	// for i := 0; i < N; i++ {
+	// 	PrintfDebug("(y, x, d) = (%d, %d, %d): %v\n", toy(i), tox(i), tod(i), dp[i])
+	// }
 
 	ans := INF_BIT60
-	for l := 0; l < 4; l++ {
-		ChMin(&ans, dp[y2][x2][l].num)
+	for d := 0; d < 4; d++ {
+		id := toid(y2, x2, d)
+		ChMin(&ans, dp[id].num)
 	}
+
 	if ans >= INF_BIT60 {
 		fmt.Println(-1)
 	} else {
 		fmt.Println(ans)
 	}
 }
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
+}
+
+// func Large(l, r *Vertex) bool {
+// 	if l.num > r.num {
+// 		return true
+// 	} else if l.num < r.num {
+// 		return false
+// 	} else {
+// 		return l.nokori < r.nokori
+// 	}
+// }
 
 func Less(l, r *Vertex) bool {
 	if l.num < r.num {
@@ -135,14 +226,16 @@ func Less(l, r *Vertex) bool {
 		return false
 	} else {
 		return l.nokori > r.nokori
+		// return l.nokori >= r.nokori
 	}
 }
 
 type Vertex struct {
 	// pri int
-	y, x        int
+	// y, x        int
+	// dir         int
+	id          int
 	num, nokori int
-	dir int
 }
 type VertexPQ []*Vertex
 
