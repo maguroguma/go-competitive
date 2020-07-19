@@ -1,6 +1,6 @@
 # 全方位木DP
 
-Last Change: 2020-07-18 02:01:34.
+Last Change: 2020-07-18 17:07:38.
 
 実際にやってみると意外とかんたん。
 
@@ -22,3 +22,9 @@ Last Change: 2020-07-18 02:01:34.
 ## 抽象化
 
 未定。
+
+## 参考
+
+- [ei1333さんのブログ1](https://ei1333.hateblo.jp/entry/2017/04/10/224413)
+- [ei1333さんのブログ2](https://ei1333.hateblo.jp/entry/2018/12/21/004022)
+- [keymoonさんの全方位木DP抽象化の記事](https://qiita.com/keymoon/items/2a52f1b0fb7ef67fb89e)
