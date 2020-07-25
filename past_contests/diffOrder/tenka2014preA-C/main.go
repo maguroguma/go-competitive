@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/tenka1-2012-qualB/tasks/tenka1_2012_7
+https://atcoder.jp/contests/tenka1-2014-quala/tasks/tenka1_2014_qualA_c
 */
 
 package main
@@ -13,7 +13,6 @@ import (
 	"math"
 	"os"
 	"strconv"
-	"strings"
 )
 
 /********** FAU standard libraries **********/
@@ -58,60 +57,33 @@ func init() {
 }
 
 var (
-	n    int
-	A, B []int
+	n, m int
+	P    [][]rune
+	M    [20][20]bool
 
-	M  [20][20]bool
-	dp [20000000 + 50]int
+	dp [1000000 + 50]int
 )
 
 func main() {
-	n = ReadInt()
+	n, m = ReadInt2()
 	for i := 0; i < n; i++ {
-		T, S := ReadString(), ReadString()
-
-		TT := strings.Split(T, ":")
-		SS := strings.Split(S, ":")
-		th, tm, sh, sm := TT[0], TT[1], SS[0], SS[1]
-		PrintfDebug("%s, %s, %s, %s\n", th, tm, sh, sm)
-
-		thi, _ := strconv.Atoi(th)
-		tmi, _ := strconv.Atoi(tm)
-		shi, _ := strconv.Atoi(sh)
-		smi, _ := strconv.Atoi(sm)
-
-		a := thi*60 + tmi
-		b := shi*60 + smi
-		PrintfDebug("%d - %d\n", a, b)
-
-		// a++
-		A = append(A, a)
-		B = append(B, b)
+		row := ReadRuneSlice()
+		P = append(P, row)
 	}
 
 	for i := 0; i < n; i++ {
-		for j := i + 1; j < n; j++ {
-			// i, jの席を分ける必要がなければtrue
-			a, b := A[i], B[i]
-			s, t := A[j], B[j]
-
-			x := isOK(a, b, s, t)
-			y := isOK(a+1440, b+1440, s, t)
-			z := isOK(a, b, s+1440, t+1440)
-			if x && y && z {
-				M[i][j] = true
-			} else {
-				M[i][j] = false
-			}
+		for j := 0; j < n; j++ {
+			M[i][j] = match(P[i], P[j])
 		}
 	}
-	for i := 0; i < n; i++ {
-		PrintfDebug("%v\n", M[i][:n])
-	}
 
+	// for S := 0; S < 1<<uint(n); S++ {
+	// 	dp[S] = INF_BIT60
+	// }
+
+	// 初期化
 	for S := 0; S < 1<<uint(n); S++ {
 		dp[S] = 1
-
 		for i := 0; i < n; i++ {
 			for j := i + 1; j < n; j++ {
 				if NthBit(S, i) == 1 && NthBit(S, j) == 1 && !M[i][j] {
@@ -121,62 +93,38 @@ func main() {
 		}
 	}
 
-	// それぞれの部分集合を列挙
-	// for S := 0; S < 1<<uint(n); S++ {
-	// 	for T := S; ; T = (T - 1) & S {
-	// 		ChMin(&dp[S], dp[T]+dp[S^T])
-
-	// 		if T == 0 {
-	// 			break
-	// 		}
+	// 計算: 4^n
+	// for i := 0; i < 1<<uint(n); i++ {
+	// 	for j := 0; j < 1<<uint(n); j++ {
+	// 		ChMin(&dp[i|j], dp[i]+dp[j])
 	// 	}
 	// }
 
-	// 計算: 4^n
-	for i := 0; i < 1<<uint(n); i++ {
-		for j := 0; j < 1<<uint(n); j++ {
-			ChMin(&dp[i|j], dp[i]+dp[j])
+	// 計算: 3^n
+	for S := 0; S < 1<<uint(n); S++ {
+		for T := S; ; T = (T - 1) & S {
+			ChMin(&dp[S], dp[T]+dp[S^T])
+
+			if T == 0 {
+				break
+			}
 		}
 	}
 
 	fmt.Println(dp[1<<uint(n)-1])
 }
 
-func isOK(a, b, s, t int) bool {
-	l := Max(a, s)
-	r := Min(b, t)
-
-	return r <= l
-}
-
-// Max returns the max integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Max(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
+func match(S, T []rune) bool {
+	for i := 0; i < m; i++ {
+		if S[i] == '*' || T[i] == '*' {
 			continue
 		}
-		if m < integer {
-			m = integer
-		}
-	}
-	return m
-}
 
-// Min returns the min integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Min(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m > integer {
-			m = integer
+		if S[i] != T[i] {
+			return false
 		}
 	}
-	return m
+	return true
 }
 
 // ChMin accepts a pointer of integer and a target value.
@@ -220,6 +168,70 @@ func PopCount(num int) int {
 
 	return res
 }
+
+// func main() {
+// 	n, m = ReadInt2()
+// 	for i := 0; i < n; i++ {
+// 		row := ReadRuneSlice()
+// 		P = append(P, row)
+// 	}
+
+// 	ans := 0
+// 	Q := []Node{}
+
+// 	ini := []int{}
+// 	for i := 0; i < n; i++ {
+// 		ini = append(ini, i)
+// 	}
+// 	Q = append(Q, Node{G: ini, cur: 0})
+
+// 	for len(Q) > 0 {
+// 		pop := Q[0]
+// 		Q = Q[1:]
+
+// 		if pop.cur >= m {
+// 			ans++
+// 			continue
+// 		}
+
+// 		memo := [40][]int{}
+// 		for _, i := range pop.G {
+// 			if P[i][pop.cur] == '*' {
+// 				memo[30] = append(memo[30], i)
+// 			} else {
+// 				memo[P[i][pop.cur]-'a'] = append(memo[P[i][pop.cur]-'a'], i)
+// 			}
+// 		}
+
+// 		// アスタリスクは適当な文字に寄せる, 1以上が1つも無ければ本当に適当に
+// 		ok := false
+// 		for i := 0; i < ALPHABET_NUM; i++ {
+// 			if len(memo[i]) > 0 {
+// 				memo[i] = append(memo[i], memo[30]...)
+// 				ok = true
+// 				break
+// 			}
+// 		}
+// 		if !ok {
+// 			memo[0] = append(memo[0], memo[30]...)
+// 		}
+
+// 		// queueにpush
+// 		for i := 0; i < ALPHABET_NUM; i++ {
+// 			if len(memo[i]) > 0 {
+// 				node := Node{G: memo[i], cur: pop.cur + 1}
+// 				Q = append(Q, node)
+// 			}
+// 		}
+// 	}
+
+// 	fmt.Println(ans)
+// }
+
+// type Node struct {
+// 	G   []int
+// 	cur int
+// }
 
 /*******************************************************************/
 

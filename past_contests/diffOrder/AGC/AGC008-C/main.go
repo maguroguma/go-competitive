@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/tenka1-2012-qualB/tasks/tenka1_2012_7
+https://atcoder.jp/contests/agc008/tasks/agc008_c
 */
 
 package main
@@ -13,7 +13,6 @@ import (
 	"math"
 	"os"
 	"strconv"
-	"strings"
 )
 
 /********** FAU standard libraries **********/
@@ -58,167 +57,56 @@ func init() {
 }
 
 var (
-	n    int
-	A, B []int
-
-	M  [20][20]bool
-	dp [20000000 + 50]int
+	i, o, t, j, l, s, z int
 )
 
 func main() {
-	n = ReadInt()
-	for i := 0; i < n; i++ {
-		T, S := ReadString(), ReadString()
+	i, o, t, j = ReadInt4()
+	l, s, z = ReadInt3()
 
-		TT := strings.Split(T, ":")
-		SS := strings.Split(S, ":")
-		th, tm, sh, sm := TT[0], TT[1], SS[0], SS[1]
-		PrintfDebug("%s, %s, %s, %s\n", th, tm, sh, sm)
+	// ans := 0
+	// ans += (i / 2) * 2
+	// ans += o
+	// ans += (j / 2) * 2
+	// ans += (l / 2) * 2
 
-		thi, _ := strconv.Atoi(th)
-		tmi, _ := strconv.Atoi(tm)
-		shi, _ := strconv.Atoi(sh)
-		smi, _ := strconv.Atoi(sm)
-
-		a := thi*60 + tmi
-		b := shi*60 + smi
-		PrintfDebug("%d - %d\n", a, b)
-
-		// a++
-		A = append(A, a)
-		B = append(B, b)
-	}
-
-	for i := 0; i < n; i++ {
-		for j := i + 1; j < n; j++ {
-			// i, jの席を分ける必要がなければtrue
-			a, b := A[i], B[i]
-			s, t := A[j], B[j]
-
-			x := isOK(a, b, s, t)
-			y := isOK(a+1440, b+1440, s, t)
-			z := isOK(a, b, s+1440, t+1440)
-			if x && y && z {
-				M[i][j] = true
-			} else {
-				M[i][j] = false
-			}
-		}
-	}
-	for i := 0; i < n; i++ {
-		PrintfDebug("%v\n", M[i][:n])
-	}
-
-	for S := 0; S < 1<<uint(n); S++ {
-		dp[S] = 1
-
-		for i := 0; i < n; i++ {
-			for j := i + 1; j < n; j++ {
-				if NthBit(S, i) == 1 && NthBit(S, j) == 1 && !M[i][j] {
-					dp[S] = INF_BIT60
-				}
-			}
-		}
-	}
-
-	// それぞれの部分集合を列挙
-	// for S := 0; S < 1<<uint(n); S++ {
-	// 	for T := S; ; T = (T - 1) & S {
-	// 		ChMin(&dp[S], dp[T]+dp[S^T])
-
-	// 		if T == 0 {
-	// 			break
-	// 		}
-	// 	}
+	// if i%2 == 1 && j%2 == 1 && l%2 == 1 {
+	// 	ans += 3
 	// }
 
-	// 計算: 4^n
-	for i := 0; i < 1<<uint(n); i++ {
-		for j := 0; j < 1<<uint(n); j++ {
-			ChMin(&dp[i|j], dp[i]+dp[j])
-		}
+	// fmt.Println(ans)
+
+	solve()
+}
+
+func solve() {
+	ans := 0
+
+	if i > 0 && j > 0 && l > 0 {
+		// 両方のパターンを考慮する
+		tmp := (i/2)*2 + (j/2)*2 + (l/2)*2 + o
+		ChMax(&ans, tmp)
+
+		I, J, L := i-1, j-1, l-1
+		tmp = (I/2)*2 + (J/2)*2 + (L/2)*2 + o + 3
+		ChMax(&ans, tmp)
+	} else {
+		tmp := (i/2)*2 + (j/2)*2 + (l/2)*2 + o
+		ChMax(&ans, tmp)
 	}
 
-	fmt.Println(dp[1<<uint(n)-1])
+	fmt.Println(ans)
 }
 
-func isOK(a, b, s, t int) bool {
-	l := Max(a, s)
-	r := Min(b, t)
-
-	return r <= l
-}
-
-// Max returns the max integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Max(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m < integer {
-			m = integer
-		}
-	}
-	return m
-}
-
-// Min returns the min integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Min(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m > integer {
-			m = integer
-		}
-	}
-	return m
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
 //	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
 		*updatedValue = target
 		return true
 	}
 	return false
-}
-
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int) int {
-	res := 0
-
-	for i := 0; i < 70; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
-		}
-	}
-
-	return res
 }
 
 /*******************************************************************/
