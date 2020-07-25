@@ -35,3 +35,31 @@ options     head
       }
     }
   }
+
+snippet     subsetDescEnumeration
+abbr        for T := S; ; T = (T-1) & S
+options     head
+  // Sの部分集合を「降順で」列挙
+  for T := S; ; T = (T - 1) & S {
+    subset := T
+    compsub := T ^ S
+    bitsum := subset | compsub // S
+
+    if T == 0 {
+      break
+    }
+  }
+
+snippet     subsetAscEnumeration
+abbr        for T := 0; ; T = (T - S) & S
+options     head
+  // Sの部分集合を「昇順で」列挙
+  for T := 0; ; T = (T - S) & S {
+    subset := T
+    compsub := T ^ S
+    bitsum := subset | compsub // S
+
+    if T == S {
+      break
+    }
+  }
