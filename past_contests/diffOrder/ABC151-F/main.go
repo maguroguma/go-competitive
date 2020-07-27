@@ -82,7 +82,8 @@ func main() {
 				x1, y1, x2, y2 := X[i], Y[i], X[j], Y[j]
 
 				// 2点間の距離
-				d := math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
+				// d := math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
+				d := Distance(x1, y1, x2, y2)
 				if d > 2.0*r {
 					// 2円は交点を生じない
 					continue
@@ -94,17 +95,31 @@ func main() {
 				// 2点間のベクトル
 				dx := x1 - x2
 				dy := y1 - y2
+
 				// 単位ベクトル化
-				dist := math.Sqrt(dx*dx + dy*dy)
-				dx /= dist
-				dy /= dist
+				// dist := math.Sqrt(dx*dx + dy*dy)
+				// dx /= dist
+				// dy /= dist
+				dx, dy = UnitVector(dx, dy)
+
 				// 90度回転
-				dx, dy = -dy, dx
+				// dx, dy = -dy, dx
+				// 手法1
+				// dx, dy = Rotate90(dx, dy)
+				// 手法2
+				// dx, dy = RotateN(dx, dy, math.Pi/2.0)
+				// 手法3
+				dx, dy = RotateN(dx, dy, math.Pi/4.0)
+				dx, dy = RotateN(dx, dy, math.Pi/4.0)
+
 				// 中点の座標
-				mx, my := (x1+x2)/2.0, (y1+y2)/2.0
+				// mx, my := (x1+x2)/2.0, (y1+y2)/2.0
+				mx, my := Midpoint(x1, y1, x2, y2)
+
 				// 交点を2つ求める
 				x3, y3 := mx+h*dx, my+h*dy
 				x4, y4 := mx-h*dx, my-h*dy
+
 				// Aに追加
 				A = append(A, [2]float64{x3, y3})
 				A = append(A, [2]float64{x4, y4})
@@ -137,26 +152,49 @@ func calcH(d, r float64) float64 {
 	return math.Sqrt(r*r - (d/2.0)*(d/2.0))
 }
 
-func calcTwoIntersections(x1, y1, x2, y2, h float64) [][2]float64 {
-	// 2点間のベクトル
-	dx := x1 - x2
-	dy := y1 - y2
-	// 単位ベクトル化
-	dist := math.Sqrt(dx*dx + dy*dy)
-	dx /= dist
-	dy /= dist
-	// 90度回転
-	dx, dy = -dy, dx
-	// 中点の座標
-	mx, my := (x1+x2)/2.0, (y1+y2)/2.0
-	// 交点を2つ求める
-	x3, y3 := mx+h*dx, my+h*dy
-	x4, y4 := mx-h*dx, my-h*dy
-
-	return [][2]float64{
-		[2]float64{x3, y3}, [2]float64{x4, y4},
-	}
+func Distance(x1, y1, x2, y2 float64) float64 {
+	return math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
 }
+
+func UnitVector(dx, dy float64) (ex, ey float64) {
+	dist := math.Sqrt(dx*dx + dy*dy)
+	return dx / dist, dy / dist
+}
+
+func Rotate90(cx, cy float64) (nx, ny float64) {
+	return -cy, cx
+}
+
+func RotateN(cx, cy, radi float64) (nx, ny float64) {
+	nx = math.Cos(radi)*cx - math.Sin(radi)*cy
+	ny = math.Sin(radi)*cx + math.Cos(radi)*cy
+	return nx, ny
+}
+
+func Midpoint(x1, y1, x2, y2 float64) (mx, my float64) {
+	return (x1 + x2) / 2.0, (y1 + y2) / 2.0
+}
+
+// func calcTwoIntersections(x1, y1, x2, y2, h float64) [][2]float64 {
+// 	// 2点間のベクトル
+// 	dx := x1 - x2
+// 	dy := y1 - y2
+// 	// 単位ベクトル化
+// 	dist := math.Sqrt(dx*dx + dy*dy)
+// 	dx /= dist
+// 	dy /= dist
+// 	// 90度回転
+// 	dx, dy = -dy, dx
+// 	// 中点の座標
+// 	mx, my := (x1+x2)/2.0, (y1+y2)/2.0
+// 	// 交点を2つ求める
+// 	x3, y3 := mx+h*dx, my+h*dy
+// 	x4, y4 := mx-h*dx, my-h*dy
+
+// 	return [][2]float64{
+// 		[2]float64{x3, y3}, [2]float64{x4, y4},
+// 	}
+// }
 
 func BinarySearch(initOK, initNG float64, isOK func(mid float64) bool) (ok float64) {
 	ng := initNG

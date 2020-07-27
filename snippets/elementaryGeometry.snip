@@ -47,3 +47,29 @@ options     head
   func IsTriangle(a, b, c ${1:int}) bool {
     return a+b > c && b+c > a && c+a > b
   }
+
+snippet     vectorCalculation
+abbr        func (x1, y1, x2, y2 float64) (... float64)
+options     head
+  func Distance(x1, y1, x2, y2 float64) float64 {
+    return math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
+  }
+
+  func UnitVector(dx, dy float64) (ex, ey float64) {
+    dist := math.Sqrt(dx*dx + dy*dy)
+    return dx / dist, dy / dist
+  }
+
+  func Rotate90(cx, cy float64) (nx, ny float64) {
+    return -cy, cx
+  }
+
+  func RotateN(cx, cy, radi float64) (nx, ny float64) {
+    nx = math.Cos(radi)*cx - math.Sin(radi)*cy
+    ny = math.Sin(radi)*cx + math.Cos(radi)*cy
+    return nx, ny
+  }
+
+  func Midpoint(x1, y1, x2, y2 float64) (mx, my float64) {
+    return (x1 + x2) / 2.0, (y1 + y2) / 2.0
+  }

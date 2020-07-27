@@ -33,3 +33,14 @@ options     head
     return a * modpow(a, e-1, m) % m
   }
 
+snippet     calcMod
+abbr        CalcMod(val, m int) int
+options     head
+  // CalcMod can calculate a right residual whether value is positive or negative.
+  func CalcMod(val, m ${1:int}) $1 {
+    res := val % m
+    if res < 0 {
+      res += m
+    }
+    return res
+  }
