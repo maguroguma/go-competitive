@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc170/tasks/abc170_e
+https://atcoder.jp/contests/agc005/tasks/agc005_b
 */
 
 package main
@@ -12,6 +12,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -35,7 +36,8 @@ import (
 
 const (
 	// General purpose
-	MOD          = 1000000000 + 7
+	MOD = 1000000000 + 7
+	// MOD          = 998244353
 	ALPHABET_NUM = 26
 	INF_INT64    = math.MaxInt64
 	INF_BIT60    = 1 << 60
@@ -56,94 +58,64 @@ func init() {
 }
 
 var (
-	n, q int
-	A, B []int
-	C, D []int
-
-	isets [200000 + 50]*Treap
-	rsets [200000 + 50]*Treap
-	here  [200000 + 50]int
-
-	rates [200000 + 50]int // 幼児をkeyとしたレートマップ
+	n int
+	A []int
 )
 
-const (
-	EN = 200000
-)
+type Item struct {
+	key      int
+	idx, val int
+}
+type ItemList []*Item
+type byKey struct {
+	ItemList
+}
+
+func (l ItemList) Len() int {
+	return len(l)
+}
+func (l ItemList) Swap(i, j int) {
+	l[i], l[j] = l[j], l[i]
+}
+
+func (l byKey) Less(i, j int) bool {
+	return l.ItemList[i].key < l.ItemList[j].key
+}
+
+// how to use
+// L := make(ItemList, 0, 200000+5)
+// L = append(L, &Item{key: intValue})
+// sort.Stable(byKey{ L })                // Stable ASC
+// sort.Stable(sort.Reverse(byKey{ L }))  // Stable DESC
 
 func main() {
-	for i := 0; i <= EN+5; i++ {
-		isets[i] = NewTreap()
-		rsets[i] = NewTreap()
-	}
+	n = ReadInt()
+	A = ReadIntSlice(n)
 
-	n, q = ReadInt2()
+	tr := NewTreap(func(l, r T) bool { return l < r })
+	// 番兵
+	tr.Insert(T(-1))
+	tr.Insert(T(n))
+
+	L := make(ItemList, 0)
 	for i := 0; i < n; i++ {
-		a, b := ReadInt2()
-		b--
-		A = append(A, a)
-		B = append(B, b)
-
-		isets[b].Insert(i)
-		rsets[b].Insert(a)
-
-		// 幼児の初期位置
-		here[i] = b
-		// 幼児のレートマップ
-		rates[i] = a
+		item := &Item{key: A[i], idx: i, val: A[i]}
+		L = append(L, item)
 	}
+	sort.Stable(byKey{L})
 
-	f := func(lv, rv T) T {
-		return T(math.Min(float64(lv), float64(rv)))
+	ans := 0
+	for i := 0; i < n; i++ {
+		idx := L[i].idx
+		maxi, mini := tr.MinGreater(T(idx)), tr.MaxLess(T(idx))
+		r := int(maxi.key) - idx
+		l := idx - int(mini.key)
+		num := r * l
+		ans += num * L[i].val
+
+		tr.Insert(T(idx))
 	}
-	ti := T(1<<60 - 1)
-	st := NewSegmentTree(EN, f, ti)
-
-	// RMQを初期化
-	for i := 0; i < EN; i++ {
-		node := rsets[i].FindMaximum()
-		if node != nil {
-			st.Set(i, T(node.key))
-		}
-	}
-	st.Build()
-
-	for i := 0; i < q; i++ {
-		c, d := ReadInt2()
-		c--
-		d--
-
-		org := here[c]
-		to := d
-		// 幼児の所在の変更
-		here[c] = to
-
-		// 転校（去る）
-		isets[org].Delete(c) // 幼児cをorgから削除
-		rsets[org].Delete(rates[c])
-
-		// 転校（入る）
-		isets[to].Insert(c) // 幼児cをtoにインサート
-		rsets[to].Insert(rates[c])
-
-		// RMQ更新
-		orgMax, toMax := ti, ti
-		orgMNode := rsets[org].FindMaximum()
-		if orgMNode != nil {
-			orgMax = T(orgMNode.key)
-		}
-		toMNode := rsets[to].FindMaximum()
-		if toMNode != nil {
-			toMax = T(toMNode.key)
-		}
-		// 更新
-		st.Update(org, orgMax)
-		st.Update(to, toMax)
-
-		// RMQクエリ
-		ans := int(st.Query(0, EN))
-		fmt.Println(ans)
-	}
+	fmt.Println(ans)
 }
 
 // Treap usage
@@ -163,15 +135,23 @@ func main() {
 // fmt.Println(PrintIntsLine(tr.Preorder()...))
 // tr.InsertBySettingPri(key, p)
 
+// type of key
+// type T struct {
+// 	s, t int
+// }
+type T int
+
 type Node struct {
-	key, priority int
-	right, left   *Node
+	key         T
+	priority    int
+	right, left *Node
 }
 
 type Treap struct {
 	root    *Node
-	cnts    map[int]int
+	cnts    map[T]int
 	randInt func() int
+	less    func(l, r T) bool // *strictly less*
 }
 
 /*************************************/
@@ -179,11 +159,12 @@ type Treap struct {
 /*************************************/
 
 // NewTreap returns a pointer of a Treap instance.
-func NewTreap() *Treap {
+func NewTreap(less func(l, r T) bool) *Treap {
 	tr := new(Treap)
 
 	tr.root = nil
-	tr.cnts = make(map[int]int)
+	tr.cnts = make(map[T]int)
+	tr.less = less
 
 	// XorShiftによる乱数生成
 	// 下記URLを参考
@@ -203,7 +184,7 @@ func NewTreap() *Treap {
 
 // Count method returns the number of the key.
 // If there hasn't been the key in the treap, this returns 0.
-func (tr *Treap) Count(key int) int {
+func (tr *Treap) Count(key T) int {
 	return tr.cnts[key]
 }
 
@@ -216,7 +197,7 @@ func (tr *Treap) Count(key int) int {
 // Insert method inserts a new node consisting o new key.
 // The priority is automatically set by random value.
 // A duplicate key is ignored and nothing happens.
-func (tr *Treap) Insert(key int) {
+func (tr *Treap) Insert(key T) {
 	preCnt := tr.Count(key)
 	tr.increase(key, 1)
 	if preCnt > 0 {
@@ -228,7 +209,7 @@ func (tr *Treap) Insert(key int) {
 
 // Find returns a node that has an argument key value.
 // Find returns nil when there is no node that has an argument key value.
-func (tr *Treap) Find(key int) *Node {
+func (tr *Treap) Find(key T) *Node {
 	cnt := tr.cnts[key]
 	if cnt == 0 {
 		return nil
@@ -236,7 +217,7 @@ func (tr *Treap) Find(key int) *Node {
 
 	u := tr.root
 	for u != nil && key != u.key {
-		if key < u.key {
+		if tr.less(key, u.key) {
 			u = u.left
 		} else {
 			u = u.right
@@ -267,7 +248,7 @@ func (tr *Treap) FindMaximum() *Node {
 
 // Delete method deletes a node that has an argument key value.
 // A duplicate key is ignored and nothing happens.
-func (tr *Treap) Delete(key int) {
+func (tr *Treap) Delete(key T) {
 	tr.decrease(key, 1)
 	curCnt := tr.Count(key)
 	if curCnt > 0 {
@@ -279,40 +260,40 @@ func (tr *Treap) Delete(key int) {
 
 // Inorder returns a slice consisting of treap nodes in order of INORDER.
 // The nodes are sorted by key values.
-func (tr *Treap) Inorder() []int {
-	res := make([]int, 0, 200000+5)
+func (tr *Treap) Inorder() []T {
+	res := make([]T, 0, 200000+5)
 	tr.inorder(tr.root, &res)
 	return res
 }
 
 // Preorder returns a slice consisting of treap nodes in order of PREORDER.
-func (tr *Treap) Preorder() []int {
-	res := make([]int, 0, 200000+5)
+func (tr *Treap) Preorder() []T {
+	res := make([]T, 0, 200000+5)
 	tr.preorder(tr.root, &res)
 	return res
 }
 
 // MinGeq returns a node that has MINIMUM KEY MEETING key >= x.
 // https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
-func (tr *Treap) MinGeq(x int) *Node {
+func (tr *Treap) MinGeq(x T) *Node {
 	return tr.biggerLowerBound(tr.root, x)
 }
 
 // MinGreater returns a node that has MINIMUM KEY MEETING key > x.
 // https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
-func (tr *Treap) MinGreater(x int) *Node {
+func (tr *Treap) MinGreater(x T) *Node {
 	return tr.biggerUpperBound(tr.root, x)
 }
 
 // MaxLeq returns a node that has MAXIMUM KEY MEETING key <= x.
 // for AGC005-B
-func (tr *Treap) MaxLeq(x int) *Node {
+func (tr *Treap) MaxLeq(x T) *Node {
 	return tr.smallerUpperBound(tr.root, x)
 }
 
 // MaxLess returns a node that has MAXIMUM KEY MEETING key < x.
 // for AGC005-B
-func (tr *Treap) MaxLess(x int) *Node {
+func (tr *Treap) MaxLess(x T) *Node {
 	return tr.smallerLowerBound(tr.root, x)
 }
 
@@ -320,11 +301,11 @@ func (tr *Treap) MaxLess(x int) *Node {
 // Private method
 /*************************************/
 
-func (tr *Treap) increase(key, num int) {
+func (tr *Treap) increase(key T, num int) {
 	tr.cnts[key] += num
 }
 
-func (tr *Treap) decrease(key, num int) {
+func (tr *Treap) decrease(key T, num int) {
 	curCnt := tr.cnts[key]
 	if curCnt-num < 0 {
 		panic("too many elements is deleted!")
@@ -333,7 +314,7 @@ func (tr *Treap) decrease(key, num int) {
 	tr.cnts[key] -= num
 }
 
-func (tr *Treap) insert(t *Node, key, priority int) *Node {
+func (tr *Treap) insert(t *Node, key T, priority int) *Node {
 	// 葉に到達したら新しい節点を生成して返す
 	if t == nil {
 		node := new(Node)
@@ -346,7 +327,7 @@ func (tr *Treap) insert(t *Node, key, priority int) *Node {
 		return t
 	}
 
-	if key < t.key {
+	if tr.less(key, t.key) {
 		// 左の子へ移動
 		t.left = tr.insert(t.left, key, priority) // 左の子へのポインタを更新
 		// 左の子の方が優先度が高い場合右回転
@@ -366,26 +347,26 @@ func (tr *Treap) insert(t *Node, key, priority int) *Node {
 }
 
 // 削除対象の節点を回転によって葉まで移動させた後に削除する
-func (tr *Treap) delete(t *Node, key int) *Node {
+func (tr *Treap) delete(t *Node, key T) *Node {
 	if t == nil {
 		return nil
 	}
 
 	// 削除対象を検索
-	if key < t.key {
-		t.left = tr.delete(t.left, key)
-	} else if key > t.key {
-		t.right = tr.delete(t.right, key)
-	} else {
+	if key == t.key {
 		// 削除対象を発見、葉ノードとなるように回転を繰り返す
 		return tr._delete(t, key)
+	} else if tr.less(key, t.key) {
+		t.left = tr.delete(t.left, key)
+	} else {
+		t.right = tr.delete(t.right, key)
 	}
 
 	return t
 }
 
 // 削除対象の節点の場合
-func (tr *Treap) _delete(t *Node, key int) *Node {
+func (tr *Treap) _delete(t *Node, key T) *Node {
 	if t.left == nil && t.right == nil {
 		// 葉の場合
 		return nil
@@ -422,10 +403,13 @@ func (tr *Treap) leftRotate(t *Node) *Node {
 }
 
 // rootからスタートする
-func (tr *Treap) biggerLowerBound(t *Node, x int) *Node {
+func (tr *Treap) biggerLowerBound(t *Node, x T) *Node {
 	if t == nil {
 		return nil
-	} else if t.key >= x {
+	} else if tr.less(t.key, x) {
+		// 探索キーxが現在のノードキーより大きい場合、右を探索する
+		return tr.biggerLowerBound(t.right, x)
+	} else {
 		// 探索キーxが現在のノードキー以下の場合、左を探索する
 		node := tr.biggerLowerBound(t.left, x)
 		if node != nil {
@@ -433,17 +417,17 @@ func (tr *Treap) biggerLowerBound(t *Node, x int) *Node {
 		} else {
 			return t
 		}
-	} else {
-		// 探索キーxが現在のノードキーより大きい場合、右を探索する
-		return tr.biggerLowerBound(t.right, x)
 	}
 }
 
 // rootからスタートする
-func (tr *Treap) biggerUpperBound(t *Node, x int) *Node {
+func (tr *Treap) biggerUpperBound(t *Node, x T) *Node {
 	if t == nil {
 		return nil
-	} else if t.key > x {
+	} else if tr.less(t.key, x) || t.key == x {
+		// 探索キーxが現在のノードキー以上の場合、右を探索する
+		return tr.biggerUpperBound(t.right, x)
+	} else {
 		// 探索キーxが現在のノードキーより小さい場合、左を探索する
 		node := tr.biggerUpperBound(t.left, x)
 		if node != nil {
@@ -451,17 +435,14 @@ func (tr *Treap) biggerUpperBound(t *Node, x int) *Node {
 		} else {
 			return t
 		}
-	} else {
-		// 探索キーxが現在のノードキー以上の場合、右を探索する
-		return tr.biggerUpperBound(t.right, x)
 	}
 }
 
 // rootからスタートする
-func (tr *Treap) smallerUpperBound(t *Node, x int) *Node {
+func (tr *Treap) smallerUpperBound(t *Node, x T) *Node {
 	if t == nil {
 		return nil
-	} else if t.key <= x {
+	} else if tr.less(t.key, x) || t.key == x {
 		node := tr.smallerUpperBound(t.right, x)
 		if node != nil {
 			return node
@@ -474,10 +455,10 @@ func (tr *Treap) smallerUpperBound(t *Node, x int) *Node {
 }
 
 // rootからスタートする
-func (tr *Treap) smallerLowerBound(t *Node, x int) *Node {
+func (tr *Treap) smallerLowerBound(t *Node, x T) *Node {
 	if t == nil {
 		return nil
-	} else if t.key < x {
+	} else if tr.less(t.key, x) {
 		node := tr.smallerLowerBound(t.right, x)
 		if node != nil {
 			return node
@@ -489,7 +470,7 @@ func (tr *Treap) smallerLowerBound(t *Node, x int) *Node {
 	}
 }
 
-func (tr *Treap) inorder(u *Node, res *[]int) {
+func (tr *Treap) inorder(u *Node, res *[]T) {
 	if u == nil {
 		return
 	}
@@ -498,86 +479,13 @@ func (tr *Treap) inorder(u *Node, res *[]int) {
 	tr.inorder(u.right, res)
 }
 
-func (tr *Treap) preorder(u *Node, res *[]int) {
+func (tr *Treap) preorder(u *Node, res *[]T) {
 	if u == nil {
 		return
 	}
 	*res = append(*res, u.key)
 	tr.preorder(u.left, res)
 	tr.preorder(u.right, res)
-}
-
-/*******************************************************/
-
-type T int // (T, f): Monoid
-
-type SegmentTree struct {
-	sz   int              // minimum power of 2
-	data []T              // elements in T
-	f    func(lv, rv T) T // T <> T -> T
-	ti   T                // identity element of Monoid
-}
-
-func NewSegmentTree(
-	n int, f func(lv, rv T) T, ti T,
-) *SegmentTree {
-	st := new(SegmentTree)
-	st.ti = ti
-	st.f = f
-
-	st.sz = 1
-	for st.sz < n {
-		st.sz *= 2
-	}
-
-	st.data = make([]T, 2*st.sz-1)
-	for i := 0; i < 2*st.sz-1; i++ {
-		st.data[i] = st.ti
-	}
-
-	return st
-}
-
-func (st *SegmentTree) Set(k int, x T) {
-	st.data[k+(st.sz-1)] = x
-}
-
-func (st *SegmentTree) Build() {
-	for i := st.sz - 2; i >= 0; i-- {
-		st.data[i] = st.f(st.data[2*i+1], st.data[2*i+2])
-	}
-}
-
-func (st *SegmentTree) Update(k int, x T) {
-	k += st.sz - 1
-	st.data[k] = x
-
-	for k > 0 {
-		k = (k - 1) / 2
-		st.data[k] = st.f(st.data[2*k+1], st.data[2*k+2])
-	}
-}
-
-func (st *SegmentTree) Query(a, b int) T {
-	return st.query(a, b, 0, 0, st.sz)
-}
-
-func (st *SegmentTree) query(a, b, k, l, r int) T {
-	if r <= a || b <= l {
-		return st.ti
-	}
-
-	if a <= l && r <= b {
-		return st.data[k]
-	}
-
-	lv := st.query(a, b, 2*k+1, l, (l+r)/2)
-	rv := st.query(a, b, 2*k+2, (l+r)/2, r)
-	return st.f(lv, rv)
-}
-
-func (st *SegmentTree) Get(k int) T {
-	return st.data[k+(st.sz-1)]
 }
 
 /*******************************************************************/
