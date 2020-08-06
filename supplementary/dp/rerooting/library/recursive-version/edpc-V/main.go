@@ -72,8 +72,8 @@ func main() {
 		G[y] = append(G[y], x)
 	}
 
-	f := func(x, y T) T { return T(int(x) * int(y) % m) }
-	g := func(v T, p int) T { return v + 1 }
+	f := func(l, r T) T { return T(int(l) * int(r) % m) }
+	g := func(t T, idx int) T { return t + 1 }
 	s := NewReRooting(n, G[:n], 1, f, g)
 	for i := 0; i < n; i++ {
 		fmt.Println(s.Query(i) - 1)

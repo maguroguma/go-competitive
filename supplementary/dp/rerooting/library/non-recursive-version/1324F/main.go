@@ -74,26 +74,26 @@ func main() {
 		edges = append(edges, e)
 	}
 
-	f := func(x, y T) T {
+	f := func(l, r T) T {
 		res := T(0)
-		if x > 0 {
-			res += x
+		if l > 0 {
+			res += l
 		}
-		if y > 0 {
-			res += y
+		if r > 0 {
+			res += r
 		}
 		return res
 	}
-	g := func(v T, node int) T {
+	g := func(t T, idx int) T {
 		var diff T
-		if A[node] == 0 {
+		if A[idx] == 0 {
 			diff = -1
 		} else {
 			diff = 1
 		}
-		return v + diff
+		return t + diff
 	}
-	s := NewReRootingSolver(n, edges, 0, f, g)
+	s := NewReRooting(n, edges, 0, f, g)
 
 	ans := []int{}
 	for i := 0; i < n; i++ {
@@ -104,24 +104,24 @@ func main() {
 
 type T int
 
-type ReRootingSolver struct {
+type ReRooting struct {
 	NodeCount int
+
+	Identity    T
+	Operate     func(l, r T) T
+	OperateNode func(t T, idx int) T
 
 	Adjacents         [][]int
 	IndexForAdjacents [][]int
 
 	Res []T
 	DP  [][]T
-
-	Identity    T
-	Operate     func(l, r T) T
-	OperateNode func(v T, p int) T
 }
 
-func NewReRootingSolver(
-	nodeCount int, edges [][]int, identity T, operate func(l, r T) T, operateNode func(v T, p int) T,
-) *ReRootingSolver {
-	s := new(ReRootingSolver)
+func NewReRooting(
+	nodeCount int, edges [][]int, identity T, operate func(l, r T) T, operateNode func(t T, idx int) T,
+) *ReRooting {
+	s := new(ReRooting)
 
 	s.NodeCount = nodeCount
 	s.Identity = identity
@@ -153,14 +153,14 @@ func NewReRootingSolver(
 	return s
 }
 
-func (s *ReRootingSolver) Query(node int) T {
+func (s *ReRooting) Query(node int) T {
 	return s.Res[node]
 }
 
-func (s *ReRootingSolver) Initialize() {
+func (s *ReRooting) Initialize() {
 	parents, order := make([]int, s.NodeCount), make([]int, s.NodeCount)
 
-	// InitOrderedTree
+	// #region InitOrderedTree
 	index := 0
 	stack := []int{}
 	stack = append(stack, 0)
@@ -179,8 +179,9 @@ func (s *ReRootingSolver) Initialize() {
 			parents[adjacent] = node
 		}
 	}
+	// endregion
 
-	// fromLeaf
+	// #region fromLeaf
 	for i := len(order) - 1; i >= 1; i-- {
 		node := order[i]
 		parent := parents[node]
@@ -196,8 +197,9 @@ func (s *ReRootingSolver) Initialize() {
 		}
 		s.DP[parent][s.IndexForAdjacents[node][parentIndex]] = s.OperateNode(accum, node)
 	}
+	// endregion
 
-	// toLeaf
+	// #region toLeaf
 	for i := 0; i < len(order); i++ {
 		node := order[i]
 		accum := s.Identity
@@ -212,6 +214,7 @@ func (s *ReRootingSolver) Initialize() {
 		}
 		s.Res[node] = s.OperateNode(accum, node)
 	}
+	// endregion
 }
 
 /*******************************************************************/

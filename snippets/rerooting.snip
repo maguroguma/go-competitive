@@ -1,0 +1,222 @@
+snippet     rerootingKermoonVersion
+abbr        edges[m][2]int
+options     head
+  type T int
+
+  type ReRooting struct {
+    NodeCount int
+
+    Identity    T
+    Operate     func(l, r T) T
+    OperateNode func(t T, idx int) T
+
+    Adjacents         [][]int
+    IndexForAdjacents [][]int
+
+    Res []T
+    DP  [][]T
+  }
+
+  func NewReRooting(
+    nodeCount int, edges [][]int, identity T, operate func(l, r T) T, operateNode func(t T, idx int) T,
+  ) *ReRooting {
+    s := new(ReRooting)
+
+    s.NodeCount = nodeCount
+    s.Identity = identity
+    s.Operate = operate
+    s.OperateNode = operateNode
+
+    s.Adjacents = make([][]int, nodeCount)
+    s.IndexForAdjacents = make([][]int, nodeCount)
+    for _, e := range edges {
+      s.IndexForAdjacents[e[0]] = append(s.IndexForAdjacents[e[0]], len(s.Adjacents[e[1]]))
+      s.IndexForAdjacents[e[1]] = append(s.IndexForAdjacents[e[1]], len(s.Adjacents[e[0]]))
+      s.Adjacents[e[0]] = append(s.Adjacents[e[0]], e[1])
+      s.Adjacents[e[1]] = append(s.Adjacents[e[1]], e[0])
+    }
+
+    s.DP = make([][]T, len(s.Adjacents))
+    s.Res = make([]T, len(s.Adjacents))
+
+    for i := 0; i < len(s.Adjacents); i++ {
+      s.DP[i] = make([]T, len(s.Adjacents[i]))
+    }
+
+    if s.NodeCount > 1 {
+      s.Initialize()
+    } else {
+      s.Res[0] = s.OperateNode(s.Identity, 0)
+    }
+
+    return s
+  }
+
+  func (s *ReRooting) Query(node int) T {
+    return s.Res[node]
+  }
+
+  func (s *ReRooting) Initialize() {
+    parents, order := make([]int, s.NodeCount), make([]int, s.NodeCount)
+
+    // #region InitOrderedTree
+    index := 0
+    stack := []int{}
+    stack = append(stack, 0)
+    parents[0] = -1
+    for len(stack) > 0 {
+      node := stack[len(stack)-1]
+      stack = stack[:len(stack)-1]
+      order[index] = node
+      index++
+      for i := 0; i < len(s.Adjacents[node]); i++ {
+        adjacent := s.Adjacents[node][i]
+        if adjacent == parents[node] {
+          continue
+        }
+        stack = append(stack, adjacent)
+        parents[adjacent] = node
+      }
+    }
+    // endregion
+
+    // #region fromLeaf
+    for i := len(order) - 1; i >= 1; i-- {
+      node := order[i]
+      parent := parents[node]
+
+      accum := s.Identity
+      parentIndex := -1
+      for j := 0; j < len(s.Adjacents[node]); j++ {
+        if s.Adjacents[node][j] == parent {
+          parentIndex = j
+          continue
+        }
+        accum = s.Operate(accum, s.DP[node][j])
+      }
+      s.DP[parent][s.IndexForAdjacents[node][parentIndex]] = s.OperateNode(accum, node)
+    }
+    // endregion
+
+    // #region toLeaf
+    for i := 0; i < len(order); i++ {
+      node := order[i]
+      accum := s.Identity
+      accumsFromTail := make([]T, len(s.Adjacents[node]))
+      accumsFromTail[len(accumsFromTail)-1] = s.Identity
+      for j := len(accumsFromTail) - 1; j >= 1; j-- {
+        accumsFromTail[j-1] = s.Operate(s.DP[node][j], accumsFromTail[j])
+      }
+      for j := 0; j < len(accumsFromTail); j++ {
+        s.DP[s.Adjacents[node][j]][s.IndexForAdjacents[node][j]] = s.OperateNode(s.Operate(accum, accumsFromTail[j]), node)
+        accum = s.Operate(accum, s.DP[node][j])
+      }
+      s.Res[node] = s.OperateNode(accum, node)
+    }
+    // endregion
+  }
+
+snippet     rerootingRecursiveVersion
+abbr        G [][]int
+options     head
+  type T int
+
+  type ReRooting struct {
+    n int
+    G [][]int
+
+    ti      T
+    dp, res []T
+    merge   func(l, r T) T
+    addNode func(t T, idx int) T
+  }
+
+  func NewReRooting(
+    n int, AG [][]int, ti T, merge func(l, r T) T, addNode func(t T, idx int) T,
+  ) *ReRooting {
+    s := new(ReRooting)
+    s.n, s.G, s.ti, s.merge, s.addNode = n, AG, ti, merge, addNode
+    s.dp, s.res = make([]T, n), make([]T, n)
+
+    s.Solve()
+
+    return s
+  }
+
+  func (s *ReRooting) Solve() {
+    s.inOrder(0, -1)
+    s.reroot(0, -1, s.ti)
+  }
+
+  func (s *ReRooting) Query(idx int) T {
+    return s.res[idx]
+  }
+
+  func (s *ReRooting) inOrder(cid, pid int) T {
+    res := s.ti
+
+    for _, nid := range G[cid] {
+      if nid == pid {
+        continue
+      }
+
+      res = s.merge(res, s.inOrder(nid, cid))
+    }
+    res = s.addNode(res, cid)
+    s.dp[cid] = res
+
+    return s.dp[cid]
+  }
+
+  func (s *ReRooting) reroot(cid, pid int, parentValue T) {
+    childValues := []T{}
+    nexts := []int{}
+    for _, nid := range G[cid] {
+      if nid == pid {
+        continue
+      }
+      childValues = append(childValues, s.dp[nid])
+      nexts = append(nexts, nid)
+    }
+
+    // result of cid
+    rootValue := s.ti
+    for _, v := range childValues {
+      rootValue = s.merge(rootValue, v)
+    }
+    rootValue = s.merge(rootValue, parentValue)
+    rootValue = s.addNode(rootValue, cid)
+    s.res[cid] = rootValue
+
+    // for children
+    accum := s.merge(s.ti, parentValue)
+    length := len(childValues)
+    if length == 0 {
+      return
+    }
+    if length == 1 {
+      s.reroot(nexts[0], cid, s.addNode(accum, cid))
+      return
+    }
+
+    // cid has more than one child
+    R, L := make([]T, length), make([]T, length)
+    L[0] = s.merge(s.ti, childValues[0])
+    for i := 1; i < length; i++ {
+      L[i] = s.merge(L[i-1], childValues[i])
+    }
+    R[length-1] = s.merge(s.ti, childValues[length-1])
+    for i := length - 2; i >= 0; i-- {
+      R[i] = s.merge(R[i+1], childValues[i])
+    }
+
+    for i, nid := range nexts {
+      if i == 0 {
+        s.reroot(nid, cid, s.addNode(s.merge(accum, R[1]), cid))
+      } else if i == length-1 {
+        s.reroot(nid, cid, s.addNode(s.merge(accum, L[length-2]), cid))
+      } else {
+        s.reroot(nid, cid, s.addNode(s.merge(accum, s.merge(L[i-1], R[i+1])), cid))
+      }
+    }
+  }

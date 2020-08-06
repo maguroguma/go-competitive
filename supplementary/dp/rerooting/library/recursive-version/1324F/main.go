@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc160/tasks/abc160_f
+https://codeforces.com/problemset/problem/1324/F
 */
 
 package main
@@ -58,11 +58,14 @@ func init() {
 
 var (
 	n int
+	A []int
+
 	G [200000 + 50][]int
 )
 
 func main() {
 	n = ReadInt()
+	A = ReadIntSlice(n)
 	for i := 0; i < n-1; i++ {
 		a, b := ReadInt2()
 		a--
@@ -72,29 +75,34 @@ func main() {
 		G[b] = append(G[b], a)
 	}
 
-	cf := NewCombFactorial(500000)
 	f := func(l, r T) T {
-		total := int(l.size + r.size)
-		res := cf.C(total, l.size)
-		res = CalcMod(res*l.num, MOD)
-		res = CalcMod(res*r.num, MOD)
-
-		return T{size: total, num: res}
+		res := T(0)
+		if l > 0 {
+			res += l
+		}
+		if r > 0 {
+			res += r
+		}
+		return res
 	}
 	g := func(t T, idx int) T {
-		return T{size: t.size + 1, num: t.num}
+		var diff T
+		if A[idx] == 0 {
+			diff = -1
+		} else {
+			diff = 1
+		}
+		return t + diff
 	}
-	ti := T{size: 0, num: 1}
-	s := NewReRooting(n, G[:n], ti, f, g)
+	s := NewReRooting(n, G[:n], 0, f, g)
+	ans := []int{}
 	for i := 0; i < n; i++ {
-		fmt.Println(s.Query(i).num)
+		ans = append(ans, int(s.Query(i)))
 	}
+	fmt.Println(PrintIntsLine(ans...))
 }
 
-// type T int
-type T struct {
-	size, num int
-}
+type T int
 
 type ReRooting struct {
 	n int
@@ -196,92 +204,19 @@ func (s *ReRooting) reroot(cid, pid int, parentValue T) {
 	}
 }
 
-// cf := NewCombFactorial(2000000) // maxNum == "maximum n" * 2 (for H(n,r))
-// res := cf.C(n, r) 	// 組み合わせ
-// res := cf.H(n, r) 	// 重複組合せ
-// res := cf.P(n, r) 	// 順列
-
-type CombFactorial struct {
-	factorial, invFactorial []int
-	maxNum                  int
-}
-
-func NewCombFactorial(maxNum int) *CombFactorial {
-	cf := new(CombFactorial)
-	cf.maxNum = maxNum
-	cf.factorial = make([]int, maxNum+50)
-	cf.invFactorial = make([]int, maxNum+50)
-	cf.initCF()
-
-	return cf
-}
-func (c *CombFactorial) modInv(a int) int {
-	return c.modpow(a, MOD-2)
-}
-func (c *CombFactorial) modpow(a, e int) int {
-	if e == 0 {
-		return 1
-	}
-
-	if e%2 == 0 {
-		halfE := e / 2
-		half := c.modpow(a, halfE)
-		return half * half % MOD
-	}
-
-	return a * c.modpow(a, e-1) % MOD
-}
-func (c *CombFactorial) initCF() {
-	var i int
-
-	for i = 0; i <= c.maxNum; i++ {
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
 		if i == 0 {
-			c.factorial[i] = 1
-			c.invFactorial[i] = c.modInv(c.factorial[i])
 			continue
 		}
-
-		num := i * c.factorial[i-1]
-		num %= MOD
-		c.factorial[i] = num
-		c.invFactorial[i] = c.modInv(c.factorial[i])
+		if m < integer {
+			m = integer
+		}
 	}
-}
-func (c *CombFactorial) C(n, r int) int {
-	var res int
-
-	res = 1
-	res *= c.factorial[n]
-	res %= MOD
-	res *= c.invFactorial[r]
-	res %= MOD
-	res *= c.invFactorial[n-r]
-	res %= MOD
-
-	return res
-}
-func (c *CombFactorial) P(n, r int) int {
-	var res int
-
-	res = 1
-	res *= c.factorial[n]
-	res %= MOD
-	res *= c.invFactorial[n-r]
-	res %= MOD
-
-	return res
-}
-func (c *CombFactorial) H(n, r int) int {
-	return c.C(n-1+r, r)
-}
-
-// CalcMod can calculate a right residual whether value is positive or negative.
-func CalcMod(val, m int) int {
-	res := val % m
-	if res < 0 {
-		res += m
-	}
-	return res
+	return m
 }
 
 /*******************************************************************/
