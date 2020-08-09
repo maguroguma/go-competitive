@@ -2,41 +2,41 @@ snippet     fenwickTree
 abbr        type BinaryIndexedTree struct
 options     head
   // Public methods
-  // bit := NewBIT(200000 + 5)
-  // s := bit.Sum(i) 						// Sum of [1, i] (1-based)
-  // bit.Add(i, x) 							// Add x to i (1-based)
-  // idx := bit.LowerBound(w) 	// minimum idx such that bit.Sum(idx) >= w
+  // ft := NewFenwickTree(200000 + 5)
+  // s := ft.Sum(i) 						// Sum of [1, i] (1-based)
+  // ft.Add(i, x) 							// Add x to i (1-based)
+  // idx := ft.LowerBound(w) 		// minimum idx such that bit.Sum(idx) >= w
 
-  type BinaryIndexedTree struct {
-    bit     []int
+  type FenwickTree struct {
+    dat     []int
     n       int
     minPow2 int
   }
 
   // n(>=1) is number of elements of original data
-  func NewBIT(n int) *BinaryIndexedTree {
-    newBit := new(BinaryIndexedTree)
+  func NewFenwickTree(n int) *FenwickTree {
+    ft := new(FenwickTree)
 
-    newBit.bit = make([]int, n+1)
-    newBit.n = n
+    ft.dat = make([]int, n+1)
+    ft.n = n
 
-    newBit.minPow2 = 1
+    ft.minPow2 = 1
     for {
-      if (newBit.minPow2 << 1) > n {
+      if (ft.minPow2 << 1) > n {
         break
       }
-      newBit.minPow2 <<= 1
+      ft.minPow2 <<= 1
     }
 
-    return newBit
+    return ft
   }
 
   // Sum of [1, i](1-based)
-  func (b *BinaryIndexedTree) Sum(i int) int {
+  func (ft *FenwickTree) Sum(i int) int {
     s := 0
 
     for i > 0 {
-      s += b.bit[i]
+      s += ft.dat[i]
       i -= i & (-i)
     }
 
@@ -44,23 +44,23 @@ options     head
   }
 
   // Add x to i(1-based)
-  func (b *BinaryIndexedTree) Add(i, x int) {
-    for i <= b.n {
-      b.bit[i] += x
+  func (ft *FenwickTree) Add(i, x int) {
+    for i <= ft.n {
+      ft.dat[i] += x
       i += i & (-i)
     }
   }
 
   // LowerBound returns minimum i such that bit.Sum(i) >= w.
-  func (b *BinaryIndexedTree) LowerBound(w int) int {
+  func (ft *FenwickTree) LowerBound(w int) int {
     if w <= 0 {
       return 0
     }
 
     x := 0
-    for k := b.minPow2; k > 0; k /= 2 {
-      if x+k <= b.n && b.bit[x+k] < w {
-        w -= b.bit[x+k]
+    for k := ft.minPow2; k > 0; k /= 2 {
+      if x+k <= ft.n && ft.dat[x+k] < w {
+        w -= ft.dat[x+k]
         x += k
       }
     }
