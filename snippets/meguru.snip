@@ -18,13 +18,31 @@ options     head
     }
   }
 
-snippet     meguruFunction
+snippet     binarySearch
 abbr        func BinarySearch(initOK, initNG int, isOK func(mid int) bool) (ok int)
 options     head
   func BinarySearch(initOK, initNG ${1:int}, isOK func(mid $1) bool) (ok $1) {
     ng := initNG
     ok = initOK
     for int(math.Abs(float64(ok-ng))) > 1 {
+      mid := (ok + ng) / 2
+      if isOK(mid) {
+        ok = mid
+      } else {
+        ng = mid
+      }
+    }
+
+    return ok
+  }
+
+snippet     binarySearchFloat
+abbr        for i := 0; i < 100; i++
+options     head
+  func BinarySearch(initOK, initNG float64, isOK func(mid float64) bool) (ok float64) {
+    ng := initNG
+    ok = initOK
+    for i := 0; i < 100; i++ {
       mid := (ok + ng) / 2
       if isOK(mid) {
         ok = mid
