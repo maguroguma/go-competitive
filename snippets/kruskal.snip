@@ -11,26 +11,16 @@ options     head
 snippet     kruskal
 abbr        if !uf.Same(e.from, e.to)
 options     head
-  // ※隣接リストのような形で辺を持たない
-  // ベルマンフォード法のような辺の管理を行う
-
-  // 頂点fromから頂点toへのコストcostの辺
-  // ソートする必要があるためsorterインタフェースを実装する
-  type KEdge struct {
-    from, to, cost int
-  }
-
-  // O(|E| * log|V|)
-  func Kruskal(L []KEdge, n int) int {
+  func Kruskal(n int, L []Edge) int {
     sort.SliceStable(L, func(i, j int) bool { return L[i].cost < L[j].cost })
 
-    // 閉路判定用のUF木
+    // union find tree for judge whther there is cycle or not.
     uf := NewUnionFind(n)
 
     res := 0
-    // すべての辺についてチェックする
+    // check all edges in ASC order for these costs
     for _, e := range L {
-      // 辺の両端が同じ連結成分に属していない場合のみ全域木のコストに加算する
+      // add an edge when the both sides are not in the same component.
       if !uf.Same(e.from, e.to) {
         uf.Unite(e.from, e.to)
         res += e.cost
@@ -38,6 +28,10 @@ options     head
     }
 
     return res
+  }
+
+  type Edge struct {
+    from, to, cost int
   }
 
   // UnionFind provides disjoint set algorithm.
