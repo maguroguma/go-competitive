@@ -68,7 +68,7 @@ options     head
   //str := ZeroPaddingRuneSlice(num, 32)
   //str := PrintIntsLine(X...)
 
-  /*********** I/O ***********/
+  /*********** Input ***********/
 
   var (
     // ReadString returns a WORD string.
@@ -170,39 +170,7 @@ options     head
     return []rune(ReadString())
   }
 
-  /*********** Debugging ***********/
-
-  // ZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
-  // For debugging use.
-  func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
-    sn := fmt.Sprintf("%b", n)
-
-    residualLength := digitsNum - len(sn)
-    if residualLength <= 0 {
-      return []rune(sn)
-    }
-
-    zeros := make([]rune, residualLength)
-    for i := 0; i < len(zeros); i++ {
-      zeros[i] = '0'
-    }
-
-    res := []rune{}
-    res = append(res, zeros...)
-    res = append(res, []rune(sn)...)
-
-    return res
-  }
-
-  // Strtoi is a wrapper of strconv.Atoi().
-  // If strconv.Atoi() returns an error, Strtoi calls panic.
-  func Strtoi(s string) int {
-    if i, err := strconv.Atoi(s); err != nil {
-      panic(errors.New("[argument error]: Strtoi only accepts integer string"))
-    } else {
-      return i
-    }
-  }
+  /*********** Output ***********/
 
   // PrintIntsLine returns integers string delimited by a space.
   func PrintIntsLine(A ...int) string {
@@ -236,14 +204,38 @@ options     head
     return string(res)
   }
 
+  // PrintfBufStdout is function for output strings to buffered os.Stdout.
+  // You may have to call stdout.Flush() finally.
+  func PrintfBufStdout(format string, a ...interface{}) {
+    fmt.Fprintf(stdout, format, a...)
+  }
+
+  /*********** Debugging ***********/
+
   // PrintfDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
   func PrintfDebug(format string, a ...interface{}) {
     fmt.Fprintf(os.Stderr, format, a...)
   }
 
-  // PrintfBufStdout is function for output strings to buffered os.Stdout.
-  // You may have to call stdout.Flush() finally.
-  func PrintfBufStdout(format string, a ...interface{}) {
-    fmt.Fprintf(stdout, format, a...)
+  // ZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
+  // For debugging use.
+  func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
+    sn := fmt.Sprintf("%b", n)
+
+    residualLength := digitsNum - len(sn)
+    if residualLength <= 0 {
+      return []rune(sn)
+    }
+
+    zeros := make([]rune, residualLength)
+    for i := 0; i < len(zeros); i++ {
+      zeros[i] = '0'
+    }
+
+    res := []rune{}
+    res = append(res, zeros...)
+    res = append(res, []rune(sn)...)
+
+    return res
   }
 
