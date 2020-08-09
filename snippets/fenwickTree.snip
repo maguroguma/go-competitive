@@ -1,4 +1,4 @@
-snippet     binaryIndexedTree
+snippet     fenwickTree
 abbr        type BinaryIndexedTree struct
 options     head
   // Public methods
@@ -68,27 +68,27 @@ options     head
     return x + 1
   }
 
-snippet     binaryIndexedTreeSetVer
-abbr        type BITSet struct
+snippet     FenwickTreeSet
+abbr        type FenwickTreeSet struct
 options     head
   // Public methods
-  // bit := NewBITSet(200000 + 5)
-  // c := bit.Count(b.n)
-  // bit.Insert(val, 1)
-  // bit.Delete(val, 1)
-  // ans := bit.Kth(k)
+  // ft := NewFenwickTreeSet(200000 + 5)
+  // c := ft.Count(b.n)
+  // ft.Insert(val, 1)
+  // ft.Delete(val, 1)
+  // ans := ft.Kth(k)
 
-  type BITSet struct {
-    bit     []int
+  type FenwickTreeSet struct {
+    dat     []int
     n       int
     minPow2 int
   }
 
   // n(>=1) is maximum integer for the set.
-  func NewBITSet(n int) *BITSet {
-    newBit := new(BITSet)
+  func NewFenwickTreeSet(n int) *FenwickTreeSet {
+    newBit := new(FenwickTreeSet)
 
-    newBit.bit = make([]int, n+1)
+    newBit.dat = make([]int, n+1)
     newBit.n = n
 
     newBit.minPow2 = 1
@@ -105,11 +105,11 @@ options     head
   // Count returns number of elements less or equal than e in the set.
   // b.Count(b.n) returns total number of elements in the set.
   // O(logN)
-  func (b *BITSet) Count(e int) int {
+  func (ft *FenwickTreeSet) Count(e int) int {
     s := 0
 
     for e > 0 {
-      s += b.bit[e]
+      s += ft.dat[e]
       e -= e & (-e)
     }
 
@@ -117,62 +117,35 @@ options     head
   }
 
   // Insert e(1<=e<=n) for num(>= 1) times.
-  func (b *BITSet) Insert(e, num int) {
-    for e <= b.n {
-      b.bit[e] += num
+  func (ft *FenwickTreeSet) Insert(e, num int) {
+    for e <= ft.n {
+      ft.dat[e] += num
       e += e & (-e)
     }
   }
 
   // Delete e(1<=e<=n) for num(>= 1) times.
-  func (b *BITSet) Delete(e, num int) {
+  func (ft *FenwickTreeSet) Delete(e, num int) {
     num *= -1
-    for e <= b.n {
-      b.bit[e] += num
+    for e <= ft.n {
+      ft.dat[e] += num
       e += e & (-e)
     }
   }
 
   // Kth returns kth(>=0) element in the set
-  func (b *BITSet) Kth(kth int) int {
+  func (ft *FenwickTreeSet) Kth(kth int) int {
     if kth <= 0 {
       return 0
     }
 
     x := 0
-    for k := b.minPow2; k > 0; k /= 2 {
-      if x+k <= b.n && b.bit[x+k] < kth {
-        kth -= b.bit[x+k]
+    for k := ft.minPow2; k > 0; k /= 2 {
+      if x+k <= ft.n && ft.dat[x+k] < kth {
+        kth -= ft.dat[x+k]
         x += k
       }
     }
 
     return x + 1
   }
-
-snippet     binaryIndexedTreeSimpleVersion
-abbr        var bit [1000000 + 1]int
-options     head
-  // [1, n]
-  var bit [1000000 + 1]int
-  var n int
-  var A []int
-
-  func sum(i int) int {
-    s := 0
-
-    for i > 0 {
-      s += bit[i]
-      i -= i & (-i)
-    }
-
-    return s
-  }
-
-  func add(i, x int) {
-    for i <= n {
-      bit[i] += x
-      i += i & (-i)
-    }
-  }
-
