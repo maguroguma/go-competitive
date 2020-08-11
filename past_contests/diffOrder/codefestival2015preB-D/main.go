@@ -7,7 +7,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -15,52 +14,11 @@ import (
 	"strconv"
 )
 
-/********** FAU standard libraries **********/
-
-//fmt.Sprintf("%b\n", 255) 	// binary expression
-
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
 /*******************************************************************/
-
-const (
-	// General purpose
-	MOD = 1000000000 + 7
-	// MOD          = 998244353
-	ALPHABET_NUM = 26
-	INF_INT64    = math.MaxInt64
-	INF_BIT60    = 1 << 60
-	INF_INT32    = math.MaxInt32
-	INF_BIT30    = 1 << 30
-	NIL          = -1
-
-	// for dijkstra, prim, and so on
-	WHITE = 0
-	GRAY  = 1
-	BLACK = 2
-)
-
-func init() {
-	// bufio.ScanWords <---> bufio.ScanLines
-	ReadString = newReadString(os.Stdin, bufio.ScanWords)
-	stdout = bufio.NewWriter(os.Stdout)
-}
 
 var (
 	n    int
 	S, C []int
-
-	R map[int]int
 )
 
 func main() {
@@ -71,36 +29,97 @@ func main() {
 		C = append(C, c)
 	}
 
-	R = make(map[int]int)
-	tr := NewTreap()
-	for i := 0; i < n; i++ {
-		s, c := S[i], C[i]
+	tr := NewTreap(func(l, r T) bool {
+		if l.s < r.s {
+			return true
+		} else if l.s > r.s {
+			return false
+		} else {
+			return l.t < r.t
+		}
+	})
 
+	for i := 0; i < n; i++ {
+		seg := T{s: S[i], t: S[i] + C[i] - 1}
+		// PrintfDebug("init seg: %v\n", seg)
+
+		bef := tr.MaxLeq(seg)
+		if bef != nil {
+			maxL := Max(bef.key.s, seg.s)
+			minR := Min(bef.key.t, seg.t)
+			// PrintfDebug("maxL: %d, minR: %d\n", maxL, minR)
+			if maxL <= minR {
+				tr.Delete(bef.key)
+				// PrintfDebug("deleted: %v\n", bef.key)
+				ns := Min(bef.key.s, seg.s)
+				// nt := ns + (minR - maxL + 1) + Max(bef.key.t, seg.t)
+				nt := (minR - maxL + 1) + Max(bef.key.t, seg.t)
+				seg = T{s: ns, t: nt}
+			}
+		}
+
+		for {
+			next := tr.MinGeq(seg)
+			if next == nil {
+				break
+			}
+
+			maxL := Max(next.key.s, seg.s)
+			minR := Min(next.key.t, seg.t)
+			if maxL > minR {
+				break
+			}
+
+			tr.Delete(next.key)
+			ns := Min(next.key.s, seg.s)
+			// nt := ns + (minR - maxL + 1) + Max(next.key.t, seg.t)
+			nt := (minR - maxL + 1) + Max(next.key.t, seg.t)
+			seg = T{s: ns, t: nt}
+		}
+		fmt.Println(seg.t)
+		tr.Insert(seg)
+		// PrintfDebug("inserted: %v\n", seg)
 	}
+
+	// B := tr.Inorder()
+	// for _, t := range B {
+	// 	PrintfDebug("%v\n", t)
+	// }
 }
 
 // Treap usage
-// tr := NewTreap()
-// tr.Insert(k)
-// node := tr.Find(k)
-// min := tr.FindMinimum()
-// max := tr.FindMaximum()
-// tr.Delete(k)
-// node := tr.MinGeq(x)
-// node := tr.MinGreater(x)
-// node := tr.MaxLeq(x)
-// node := tr.MaxLess(x)
+// tr := NewTreap() 				// constructor
+// tr.Insert(key) 					// insert one key node
+// cnt := tr.Count(key) 		// return a number of key nodes
+// node := tr.Find(key) 		// return a pointer
+// min := tr.FindMinimum() 	// return a pointer
+// max := tr.FindMaximum() 	// return a pointer
+// tr.Delete(key) 					// delete one key node
+// node := tr.MinGeq(x) 		// return a pointer
+// node := tr.MinGreater(x) // return a pointer
+// node := tr.MaxLeq(x) 		// return a pointer
+// node := tr.MaxLess(x) 		// return a pointer
+
 // fmt.Println(PrintIntsLine(tr.Inorder()...))
 // fmt.Println(PrintIntsLine(tr.Preorder()...))
-// tr.InsertBySettingPri(k, p)
+// tr.InsertBySettingPri(key, p)
+
+// type of key
+type T struct {
+	s, t int
+}
 
 type Node struct {
-	key, priority int
-	right, left   *Node
+	key         T
+	priority    int
+	right, left *Node
 }
 
 type Treap struct {
-	root *Node
+	root    *Node
+	cnts    map[T]int
+	randInt func() int
+	less    func(l, r T) bool // *strictly less*
 }
 
 /*************************************/
@@ -108,29 +127,18 @@ type Treap struct {
 /*************************************/
 
 // NewTreap returns a pointer of a Treap instance.
-func NewTreap() *Treap {
+func NewTreap(less func(l, r T) bool) *Treap {
 	tr := new(Treap)
+
 	tr.root = nil
-	return tr
-}
+	tr.cnts = make(map[T]int)
+	tr.less = less
 
-// InsertBySettingPri method inserts a new node consisting of new key and priority.
-// A duplicate key is ignored and nothing happens.
-func (tr *Treap) InsertBySettingPri(key, priority int) {
-	tr.root = tr.insert(tr.root, key, priority)
-}
-
-// for XorShift
-var _gtx, _gty, _gtz, _gtw = 123456789, 362436069, 521288629, 88675123
-
-// Insert method inserts a new node consisting o new key.
-// The priority is automatically set by random value.
-// A duplicate key is ignored and nothing happens.
-func (tr *Treap) Insert(key int) {
 	// XorShiftによる乱数生成
 	// 下記URLを参考
 	// https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
-	randInt := func() int {
+	_gtx, _gty, _gtz, _gtw := 123456789, 362436069, 521288629, 88675123
+	tr.randInt = func() int {
 		tt := (_gtx ^ (_gtx << 11))
 		_gtx = _gty
 		_gty = _gtz
@@ -139,15 +147,45 @@ func (tr *Treap) Insert(key int) {
 		return _gtw
 	}
 
-	tr.root = tr.insert(tr.root, key, randInt())
+	return tr
+}
+
+// Count method returns the number of the key.
+// If there hasn't been the key in the treap, this returns 0.
+func (tr *Treap) Count(key T) int {
+	return tr.cnts[key]
+}
+
+// InsertBySettingPri method inserts a new node consisting of new key and priority.
+// A duplicate key is ignored and nothing happens.
+// func (tr *Treap) InsertBySettingPri(key, priority int) {
+// 	tr.root = tr.insert(tr.root, key, priority)
+// }
+
+// Insert method inserts a new node consisting o new key.
+// The priority is automatically set by random value.
+// A duplicate key is ignored and nothing happens.
+func (tr *Treap) Insert(key T) {
+	preCnt := tr.Count(key)
+	tr.increase(key, 1)
+	if preCnt > 0 {
+		return
+	}
+
+	tr.root = tr.insert(tr.root, key, tr.randInt())
 }
 
 // Find returns a node that has an argument key value.
 // Find returns nil when there is no node that has an argument key value.
-func (tr *Treap) Find(k int) *Node {
+func (tr *Treap) Find(key T) *Node {
+	cnt := tr.cnts[key]
+	if cnt == 0 {
+		return nil
+	}
+
 	u := tr.root
-	for u != nil && k != u.key {
-		if k < u.key {
+	for u != nil && key != u.key {
+		if tr.less(key, u.key) {
 			u = u.left
 		} else {
 			u = u.right
@@ -178,46 +216,52 @@ func (tr *Treap) FindMaximum() *Node {
 
 // Delete method deletes a node that has an argument key value.
 // A duplicate key is ignored and nothing happens.
-func (tr *Treap) Delete(key int) {
+func (tr *Treap) Delete(key T) {
+	tr.decrease(key, 1)
+	curCnt := tr.Count(key)
+	if curCnt > 0 {
+		return
+	}
+
 	tr.root = tr.delete(tr.root, key)
 }
 
 // Inorder returns a slice consisting of treap nodes in order of INORDER.
 // The nodes are sorted by key values.
-func (tr *Treap) Inorder() []int {
-	res := make([]int, 0, 200000+5)
+func (tr *Treap) Inorder() []T {
+	res := make([]T, 0, 200000+5)
 	tr.inorder(tr.root, &res)
 	return res
 }
 
 // Preorder returns a slice consisting of treap nodes in order of PREORDER.
-func (tr *Treap) Preorder() []int {
-	res := make([]int, 0, 200000+5)
+func (tr *Treap) Preorder() []T {
+	res := make([]T, 0, 200000+5)
 	tr.preorder(tr.root, &res)
 	return res
 }
 
 // MinGeq returns a node that has MINIMUM KEY MEETING key >= x.
 // https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
-func (tr *Treap) MinGeq(x int) *Node {
+func (tr *Treap) MinGeq(x T) *Node {
 	return tr.biggerLowerBound(tr.root, x)
 }
 
 // MinGreater returns a node that has MINIMUM KEY MEETING key > x.
 // https://qiita.com/tubo28/items/f058582e457f6870a800#lower_bound-upper_bound
-func (tr *Treap) MinGreater(x int) *Node {
+func (tr *Treap) MinGreater(x T) *Node {
 	return tr.biggerUpperBound(tr.root, x)
 }
 
 // MaxLeq returns a node that has MAXIMUM KEY MEETING key <= x.
 // for AGC005-B
-func (tr *Treap) MaxLeq(x int) *Node {
+func (tr *Treap) MaxLeq(x T) *Node {
 	return tr.smallerUpperBound(tr.root, x)
 }
 
 // MaxLess returns a node that has MAXIMUM KEY MEETING key < x.
 // for AGC005-B
-func (tr *Treap) MaxLess(x int) *Node {
+func (tr *Treap) MaxLess(x T) *Node {
 	return tr.smallerLowerBound(tr.root, x)
 }
 
@@ -225,7 +269,20 @@ func (tr *Treap) MaxLess(x int) *Node {
 // Private method
 /*************************************/
 
-func (tr *Treap) insert(t *Node, key, priority int) *Node {
+func (tr *Treap) increase(key T, num int) {
+	tr.cnts[key] += num
+}
+
+func (tr *Treap) decrease(key T, num int) {
+	curCnt := tr.cnts[key]
+	if curCnt-num < 0 {
+		panic("too many elements is deleted!")
+	}
+
+	tr.cnts[key] -= num
+}
+
+func (tr *Treap) insert(t *Node, key T, priority int) *Node {
 	// 葉に到達したら新しい節点を生成して返す
 	if t == nil {
 		node := new(Node)
@@ -238,7 +295,7 @@ func (tr *Treap) insert(t *Node, key, priority int) *Node {
 		return t
 	}
 
-	if key < t.key {
+	if tr.less(key, t.key) {
 		// 左の子へ移動
 		t.left = tr.insert(t.left, key, priority) // 左の子へのポインタを更新
 		// 左の子の方が優先度が高い場合右回転
@@ -258,26 +315,26 @@ func (tr *Treap) insert(t *Node, key, priority int) *Node {
 }
 
 // 削除対象の節点を回転によって葉まで移動させた後に削除する
-func (tr *Treap) delete(t *Node, key int) *Node {
+func (tr *Treap) delete(t *Node, key T) *Node {
 	if t == nil {
 		return nil
 	}
 
 	// 削除対象を検索
-	if key < t.key {
-		t.left = tr.delete(t.left, key)
-	} else if key > t.key {
-		t.right = tr.delete(t.right, key)
-	} else {
+	if key == t.key {
 		// 削除対象を発見、葉ノードとなるように回転を繰り返す
 		return tr._delete(t, key)
+	} else if tr.less(key, t.key) {
+		t.left = tr.delete(t.left, key)
+	} else {
+		t.right = tr.delete(t.right, key)
 	}
 
 	return t
 }
 
 // 削除対象の節点の場合
-func (tr *Treap) _delete(t *Node, key int) *Node {
+func (tr *Treap) _delete(t *Node, key T) *Node {
 	if t.left == nil && t.right == nil {
 		// 葉の場合
 		return nil
@@ -314,10 +371,13 @@ func (tr *Treap) leftRotate(t *Node) *Node {
 }
 
 // rootからスタートする
-func (tr *Treap) biggerLowerBound(t *Node, x int) *Node {
+func (tr *Treap) biggerLowerBound(t *Node, x T) *Node {
 	if t == nil {
 		return nil
-	} else if t.key >= x {
+	} else if tr.less(t.key, x) {
+		// 探索キーxが現在のノードキーより大きい場合、右を探索する
+		return tr.biggerLowerBound(t.right, x)
+	} else {
 		// 探索キーxが現在のノードキー以下の場合、左を探索する
 		node := tr.biggerLowerBound(t.left, x)
 		if node != nil {
@@ -325,17 +385,17 @@ func (tr *Treap) biggerLowerBound(t *Node, x int) *Node {
 		} else {
 			return t
 		}
-	} else {
-		// 探索キーxが現在のノードキーより大きい場合、右を探索する
-		return tr.biggerLowerBound(t.right, x)
 	}
 }
 
 // rootからスタートする
-func (tr *Treap) biggerUpperBound(t *Node, x int) *Node {
+func (tr *Treap) biggerUpperBound(t *Node, x T) *Node {
 	if t == nil {
 		return nil
-	} else if t.key > x {
+	} else if tr.less(t.key, x) || t.key == x {
+		// 探索キーxが現在のノードキー以上の場合、右を探索する
+		return tr.biggerUpperBound(t.right, x)
+	} else {
 		// 探索キーxが現在のノードキーより小さい場合、左を探索する
 		node := tr.biggerUpperBound(t.left, x)
 		if node != nil {
@@ -343,17 +403,14 @@ func (tr *Treap) biggerUpperBound(t *Node, x int) *Node {
 		} else {
 			return t
 		}
-	} else {
-		// 探索キーxが現在のノードキー以上の場合、右を探索する
-		return tr.biggerUpperBound(t.right, x)
 	}
 }
 
 // rootからスタートする
-func (tr *Treap) smallerUpperBound(t *Node, x int) *Node {
+func (tr *Treap) smallerUpperBound(t *Node, x T) *Node {
 	if t == nil {
 		return nil
-	} else if t.key <= x {
+	} else if tr.less(t.key, x) || t.key == x {
 		node := tr.smallerUpperBound(t.right, x)
 		if node != nil {
 			return node
@@ -366,10 +423,10 @@ func (tr *Treap) smallerUpperBound(t *Node, x int) *Node {
 }
 
 // rootからスタートする
-func (tr *Treap) smallerLowerBound(t *Node, x int) *Node {
+func (tr *Treap) smallerLowerBound(t *Node, x T) *Node {
 	if t == nil {
 		return nil
-	} else if t.key < x {
+	} else if tr.less(t.key, x) {
 		node := tr.smallerLowerBound(t.right, x)
 		if node != nil {
 			return node
@@ -381,7 +438,7 @@ func (tr *Treap) smallerLowerBound(t *Node, x int) *Node {
 	}
 }
 
-func (tr *Treap) inorder(u *Node, res *[]int) {
+func (tr *Treap) inorder(u *Node, res *[]T) {
 	if u == nil {
 		return
 	}
@@ -390,7 +447,7 @@ func (tr *Treap) inorder(u *Node, res *[]int) {
 	tr.inorder(u.right, res)
 }
 
-func (tr *Treap) preorder(u *Node, res *[]int) {
+func (tr *Treap) preorder(u *Node, res *[]T) {
 	if u == nil {
 		return
 	}
@@ -399,12 +456,80 @@ func (tr *Treap) preorder(u *Node, res *[]int) {
 	tr.preorder(u.right, res)
 }
 
-func solve() {
+const (
+	// General purpose
+	MOD = 1000000000 + 7
+	// MOD          = 998244353
+	ALPHABET_NUM = 26
+	INF_INT64    = math.MaxInt64
+	INF_BIT60    = 1 << 60
+	INF_INT32    = math.MaxInt32
+	INF_BIT30    = 1 << 30
+	NIL          = -1
+
+	// for dijkstra, prim, and so on
+	WHITE = 0
+	GRAY  = 1
+	BLACK = 2
+)
+
+// Min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// Max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func Max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
 }
 
 /*******************************************************************/
 
-/*********** I/O ***********/
+/********** bufio setting **********/
+
+func init() {
+	// bufio.ScanWords <---> bufio.ScanLines
+	ReadString = newReadString(os.Stdin, bufio.ScanWords)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
+/********** FAU standard libraries **********/
+
+//fmt.Sprintf("%b\n", 255) 	// binary expression
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*********** Input ***********/
 
 var (
 	// ReadString returns a WORD string.
@@ -506,39 +631,7 @@ func ReadRuneSlice() []rune {
 	return []rune(ReadString())
 }
 
-/*********** Debugging ***********/
-
-// ZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
-// For debugging use.
-func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
-	sn := fmt.Sprintf("%b", n)
-
-	residualLength := digitsNum - len(sn)
-	if residualLength <= 0 {
-		return []rune(sn)
-	}
-
-	zeros := make([]rune, residualLength)
-	for i := 0; i < len(zeros); i++ {
-		zeros[i] = '0'
-	}
-
-	res := []rune{}
-	res = append(res, zeros...)
-	res = append(res, []rune(sn)...)
-
-	return res
-}
-
-// Strtoi is a wrapper of strconv.Atoi().
-// If strconv.Atoi() returns an error, Strtoi calls panic.
-func Strtoi(s string) int {
-	if i, err := strconv.Atoi(s); err != nil {
-		panic(errors.New("[argument error]: Strtoi only accepts integer string"))
-	} else {
-		return i
-	}
-}
+/*********** Output ***********/
 
 // PrintIntsLine returns integers string delimited by a space.
 func PrintIntsLine(A ...int) string {
@@ -572,13 +665,37 @@ func PrintInts64Line(A ...int64) string {
 	return string(res)
 }
 
+// PrintfBufStdout is function for output strings to buffered os.Stdout.
+// You may have to call stdout.Flush() finally.
+func PrintfBufStdout(format string, a ...interface{}) {
+	fmt.Fprintf(stdout, format, a...)
+}
+
+/*********** Debugging ***********/
+
 // PrintfDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
 func PrintfDebug(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
 }
 
-// PrintfBufStdout is function for output strings to buffered os.Stdout.
-// You may have to call stdout.Flush() finally.
-func PrintfBufStdout(format string, a ...interface{}) {
-	fmt.Fprintf(stdout, format, a...)
+// ZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
+// For debugging use.
+func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
+	sn := fmt.Sprintf("%b", n)
+
+	residualLength := digitsNum - len(sn)
+	if residualLength <= 0 {
+		return []rune(sn)
+	}
+
+	zeros := make([]rune, residualLength)
+	for i := 0; i < len(zeros); i++ {
+		zeros[i] = '0'
+	}
+
+	res := []rune{}
+	res = append(res, zeros...)
+	res = append(res, []rune(sn)...)
+
+	return res
 }
