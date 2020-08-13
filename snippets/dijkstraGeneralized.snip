@@ -1,0 +1,381 @@
+snippet     dijkstraGeneral
+abbr        type V struct
+options     head
+  // verified by ABC143-E
+  func Dijkstra(sid, n int, AG [][]Edge) []V {
+    // データをすべて初期化
+    dp, colors := InitAll(n)
+
+    // 始点の設定（問題によっては複数始点もありうる）
+    pq := InitStartPoint(sid, dp, colors)
+
+    // アルゴリズム本体
+    for pq.Len() > 0 {
+      pop := pq.pop()
+      colors[pop.id] = BLACK
+      if Less(dp[pop.id], pop.v) {
+        continue
+      }
+
+      // 次のノードへの遷移
+      for _, e := range AG[pop.id] {
+        if colors[e.to] == BLACK {
+          continue
+        }
+
+        // 値の更新
+        nv := GenNextV(pop, e, dp)
+
+        if Less(nv, dp[e.to]) {
+          dp[e.to] = nv
+          pq.push(&Vertex{id: e.to, v: nv})
+          colors[e.to] = GRAY
+        }
+      }
+    }
+
+    return dp
+  }
+
+  // DP value type
+  type V struct {
+    // {{
+    gas, times int
+    // }}
+  }
+
+  // InitAll returns initialized dp and colors slices.
+  func InitAll(n int) (dp []V, colors []int) {
+    dp, colors = make([]V, n), make([]int, n)
+    for i := 0; i < n; i++ {
+      dp[i] = DijkstraVInf()
+      colors[i] = WHITE
+    }
+
+    return dp, colors
+  }
+
+  // DijkstraVInf returns a infinite value for DP.
+  func DijkstraVInf() V {
+    // {{
+    return V{gas: -1, times: INF_BIT60}
+    // }}
+  }
+
+  // InitStartPoint returns initialized priority queue, and update dp and colors slices.
+  // *This function update arguments (side effects).*
+  func InitStartPoint(sid int, dp []V, colors []int) *VertexPQ {
+    pq := NewVertexPQ()
+
+    // {{
+    pq.push(&Vertex{id: sid, v: V{gas: l, times: 0}})
+    dp[sid] = V{gas: l, times: 0}
+    colors[sid] = GRAY
+    // }}
+
+    return pq
+  }
+
+  // Less returns whether l is strictly less than r.
+  // This function is also used by priority queue.
+  func Less(l, r V) bool {
+    // {{
+    if l.times < r.times {
+      return true
+    } else if l.times > r.times {
+      return false
+    } else {
+      return l.gas > r.gas
+    }
+    // }}
+  }
+
+  // GenNextV returns next value considered by transition.
+  func GenNextV(cv *Vertex, e Edge, dp []V) V {
+    // {{
+    if l < e.cost {
+      return DijkstraVInf()
+    }
+
+    if dp[cv.id].gas >= e.cost {
+      return V{gas: dp[cv.id].gas - e.cost, times: dp[cv.id].times}
+    }
+
+    return V{gas: l - e.cost, times: dp[cv.id].times + 1}
+    // }}
+  }
+
+  type Edge struct {
+    to   int
+    cost int
+  }
+
+  type Vertex struct {
+    id int
+    v  V
+  }
+  type VertexPQ []*Vertex
+
+  func NewVertexPQ() *VertexPQ {
+    temp := make(VertexPQ, 0)
+    pq := &temp
+    heap.Init(pq)
+
+    return pq
+  }
+  func (pq *VertexPQ) push(target *Vertex) {
+    heap.Push(pq, target)
+  }
+  func (pq *VertexPQ) pop() *Vertex {
+    return heap.Pop(pq).(*Vertex)
+  }
+
+  func (pq VertexPQ) Len() int { return len(pq) }
+  func (pq VertexPQ) Less(i, j int) bool {
+    return Less(pq[i].v, pq[j].v)
+  }
+  func (pq VertexPQ) Swap(i, j int) {
+    pq[i], pq[j] = pq[j], pq[i]
+  }
+  func (pq *VertexPQ) Push(x interface{}) {
+    item := x.(*Vertex)
+    *pq = append(*pq, item)
+  }
+  func (pq *VertexPQ) Pop() interface{} {
+    old := *pq
+    n := len(old)
+    item := old[n-1]
+    *pq = old[0 : n-1]
+    return item
+  }
+
+snippet     dijkstraGeneralAlter
+abbr        type DijkstraSolver struct
+options     head
+  // DP value type
+  type V struct {
+  }
+
+  // edge of graph
+  type Edge struct {
+    to   int
+    cost int
+  }
+
+  // for initializing start points of dijkstra algorithm
+  type StartPoint struct {
+    id    int
+    vinit V
+  }
+
+  type DijkstraSolver struct {
+    vinf     V
+    Less     func(l, r V) bool          // Less returns whether l is strictly less than r, and is also used for priority queue.
+    GenNextV func(cv *Vertex, e Edge) V // GenNextV returns next value considered by transition.
+  }
+
+  func NewDijkstraSolver(
+    vinf V, Less func(l, r V) bool, GenNextV func(cv *Vertex, e Edge) V,
+  ) *DijkstraSolver {
+    ds := new(DijkstraSolver)
+
+    __less = Less
+
+    ds.vinf, ds.Less, ds.GenNextV = vinf, Less, GenNextV
+
+    return ds
+  }
+
+  // InitAll returns initialized dp and colors slices.
+  func (ds *DijkstraSolver) InitAll(n int) (dp []V, colors []int) {
+    dp, colors = make([]V, n), make([]int, n)
+    for i := 0; i < n; i++ {
+      dp[i] = ds.vinf
+      colors[i] = WHITE
+    }
+
+    return dp, colors
+  }
+
+  // InitStartPoint returns initialized priority queue, and update dp and colors slices.
+  // *This function update arguments (side effects).*
+  func (ds *DijkstraSolver) InitStartPoint(S []StartPoint, dp []V, colors []int) *VertexPQ {
+    pq := NewVertexPQ()
+
+    for _, sp := range S {
+      pq.push(&Vertex{id: sp.id, v: sp.vinit})
+      dp[sp.id] = sp.vinit
+      colors[sp.id] = GRAY
+    }
+
+    return pq
+  }
+
+  // verified by [ABC143-E](https://atcoder.jp/contests/abc143/tasks/abc143_e)
+  func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]Edge) []V {
+    // initialize data
+    dp, colors := ds.InitAll(n)
+
+    // configure about start points (some problems have multi start points)
+    pq := ds.InitStartPoint(S, dp, colors)
+
+    // body of dijkstra algorithm
+    for pq.Len() > 0 {
+      pop := pq.pop()
+      colors[pop.id] = BLACK
+      if ds.Less(dp[pop.id], pop.v) {
+        continue
+      }
+
+      // to next node
+      for _, e := range AG[pop.id] {
+        if colors[e.to] == BLACK {
+          continue
+        }
+
+        // update optimal value of the next node
+        nv := ds.GenNextV(pop, e)
+
+        if ds.Less(nv, dp[e.to]) {
+          dp[e.to] = nv
+          pq.push(&Vertex{id: e.to, v: nv})
+          colors[e.to] = GRAY
+        }
+      }
+    }
+
+    return dp
+  }
+
+  var __less func(l, r V) bool
+
+  type Vertex struct {
+    id int
+    v  V
+  }
+  type VertexPQ []*Vertex
+
+  func NewVertexPQ() *VertexPQ {
+    temp := make(VertexPQ, 0)
+    pq := &temp
+    heap.Init(pq)
+
+    return pq
+  }
+  func (pq *VertexPQ) push(target *Vertex) {
+    heap.Push(pq, target)
+  }
+  func (pq *VertexPQ) pop() *Vertex {
+    return heap.Pop(pq).(*Vertex)
+  }
+
+  func (pq VertexPQ) Len() int { return len(pq) }
+  func (pq VertexPQ) Less(i, j int) bool {
+    return __less(pq[i].v, pq[j].v)
+  }
+  func (pq VertexPQ) Swap(i, j int) {
+    pq[i], pq[j] = pq[j], pq[i]
+  }
+  func (pq *VertexPQ) Push(x interface{}) {
+    item := x.(*Vertex)
+    *pq = append(*pq, item)
+  }
+  func (pq *VertexPQ) Pop() interface{} {
+    old := *pq
+    n := len(old)
+    item := old[n-1]
+    *pq = old[0 : n-1]
+    return item
+  }
+
+snippet     dijkstraGenSquareOrderVer
+abbr        G [2000][2000]int
+options     head
+  // DP value type
+  type V struct {
+  }
+
+  // for initializing start points of dijkstra algorithm
+  type StartPoint struct {
+    id    int
+    vinit V
+  }
+
+  type DijkstraSolver struct {
+    vinf     V
+    einf     int
+    Less     func(l, r V) bool   // Less returns whether l is strictly less than r, and is also used for priority queue.
+    GenNextV func(cv V, e int) V // GenNextV returns next value considered by transition.
+  }
+
+  func NewDijkstraSolver(
+    vinf V, einf int, Less func(l, r V) bool, GenNextV func(cv V, e int) V,
+  ) *DijkstraSolver {
+    ds := new(DijkstraSolver)
+
+    ds.vinf, ds.einf = vinf, einf
+    ds.Less, ds.GenNextV = Less, GenNextV
+
+    return ds
+  }
+
+  // InitAll returns initialized dp and colors slices.
+  func (ds *DijkstraSolver) InitAll(n int) (dp []V, colors []int) {
+    dp, colors = make([]V, n), make([]int, n)
+    for i := 0; i < n; i++ {
+      dp[i] = ds.vinf
+      colors[i] = WHITE
+    }
+
+    return dp, colors
+  }
+
+  // InitStartPoint returns initialized priority queue, and update dp and colors slices.
+  // *This function update arguments (side effects).*
+  func (ds *DijkstraSolver) InitStartPoint(S []StartPoint, dp []V, colors []int) {
+    for _, sp := range S {
+      dp[sp.id] = sp.vinit
+      colors[sp.id] = GRAY
+    }
+  }
+
+  // verified by [ABC143-E](https://atcoder.jp/contests/abc143/tasks/abc143_e)
+  func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]int) []V {
+    // initialize data
+    dp, colors := ds.InitAll(n)
+
+    // configure about start points (some problems have multi start points)
+    ds.InitStartPoint(S, dp, colors)
+
+    // body of dijkstra algorithm (O(n^2))
+    for {
+      minv, u := ds.vinf, -1
+
+      // find next optimal node
+      for i := 0; i < n; i++ {
+        if ds.Less(dp[i], minv) && colors[i] != BLACK {
+          u = i
+          minv = dp[i]
+        }
+      }
+      if u == -1 {
+        break
+      }
+
+      colors[u] = BLACK
+
+      // update all nodes v from node u
+      for v := 0; v < n; v++ {
+        if colors[v] != BLACK && AG[u][v] != ds.einf {
+          nv := ds.GenNextV(dp[u], AG[u][v])
+          if ds.Less(nv, dp[v]) {
+            dp[v] = nv
+            colors[v] = GRAY
+          }
+        }
+      }
+    }
+
+    return dp
+  }
+

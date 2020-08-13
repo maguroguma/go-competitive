@@ -8,7 +8,6 @@ package main
 import (
 	"bufio"
 	"container/heap"
-	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -16,57 +15,7 @@ import (
 	"strconv"
 )
 
-/********** FAU standard libraries **********/
-
-//fmt.Sprintf("%b\n", 255) 	// binary expression
-
-/********** I/O usage **********/
-
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
-
-//str := ZeroPaddingRuneSlice(num, 32)
-//str := PrintIntsLine(X...)
-
 /*******************************************************************/
-
-const (
-	// General purpose
-	MOD = 1000000000 + 7
-	// MOD          = 998244353
-	ALPHABET_NUM = 26
-	INF_INT64    = math.MaxInt64
-	INF_BIT60    = 1 << 60
-	INF_INT32    = math.MaxInt32
-	INF_BIT30    = 1 << 30
-	NIL          = -1
-
-	// for dijkstra, prim, and so on
-	WHITE = 0
-	GRAY  = 1
-	BLACK = 2
-)
-
-func init() {
-	// bufio.ScanWords <---> bufio.ScanLines
-	ReadString = newReadString(os.Stdin, bufio.ScanWords)
-	stdout = bufio.NewWriter(os.Stdout)
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
-}
 
 var (
 	h, w, k        int
@@ -75,7 +24,7 @@ var (
 
 	steps [4][2]int
 	N     int
-	G     [4000000 + 50][]int
+	G     [4000000 + 50][]Edge
 )
 
 func toid(y, x, d int) int {
@@ -117,7 +66,7 @@ func main() {
 				ny, nx := i+dy, j+dx
 				if 0 <= ny && ny < h && 0 <= nx && nx < w && C[ny][nx] == '.' {
 					nid := toid(ny, nx, d)
-					G[cid] = append(G[cid], nid)
+					G[cid] = append(G[cid], Edge{to: nid, cost: 1})
 				}
 
 				// 同じグリッドで異なる方向を向く
@@ -126,13 +75,48 @@ func main() {
 						continue
 					}
 					nid := toid(i, j, nd)
-					G[cid] = append(G[cid], nid)
+					G[cid] = append(G[cid], Edge{to: nid, cost: 1})
 				}
 			}
 		}
 	}
 
-	dp := Dijkstra(N, G[:N])
+	vinf := V{num: INF_BIT60, nokori: -1}
+	vinit := V{num: 0, nokori: 0}
+	less := func(l, r V) bool {
+		if l.num < r.num {
+			return true
+		} else if l.num > r.num {
+			return false
+		} else {
+			return l.nokori > r.nokori
+		}
+	}
+	genNextV := func(cv *Vertex, e Edge) V {
+		prevd := tod(cv.id)
+		nextd := tod(e.to)
+		nv := V{num: cv.v.num, nokori: cv.v.nokori}
+		if prevd != nextd {
+			// 方向転換
+			nv.num++
+			nv.nokori = k
+		} else if nv.nokori == 0 {
+			// 次へ進むがk-1にする
+			nv.num++
+			nv.nokori = k - 1
+		} else {
+			nv.nokori--
+		}
+
+		return nv
+	}
+	// ds := NewDijkstraSolve(vinf, vinit, less, genNextV)
+	ds := NewDijkstraSolver(vinf, less, genNextV)
+	S := []StartPoint{}
+	for d := 0; d < 4; d++ {
+		S = append(S, StartPoint{id: toid(y1, x1, d), vinit: vinit})
+	}
+	dp := ds.Dijkstra(S, N, G[:N])
 
 	ans := INF_BIT60
 	for d := 0; d < 4; d++ {
@@ -147,34 +131,95 @@ func main() {
 	}
 }
 
-func Dijkstra(n int, AG [][]int) []V {
-	// データをすべて初期化
-	dp, colors := InitAll(n)
+// DP value type
+type V struct {
+	num, nokori int
+}
 
-	// 始点の設定（問題によっては複数始点もありうる）
-	pq := InitStartPoint(dp, colors)
+// edge of graph
+type Edge struct {
+	to   int
+	cost int
+}
 
-	// アルゴリズム本体
+// for initializing start points of dijkstra algorithm
+type StartPoint struct {
+	id    int
+	vinit V
+}
+
+type DijkstraSolver struct {
+	vinf     V
+	Less     func(l, r V) bool          // Less returns whether l is strictly less than r, and is also used for priority queue.
+	GenNextV func(cv *Vertex, e Edge) V // GenNextV returns next value considered by transition.
+}
+
+func NewDijkstraSolver(
+	vinf V, Less func(l, r V) bool, GenNextV func(cv *Vertex, e Edge) V,
+) *DijkstraSolver {
+	ds := new(DijkstraSolver)
+
+	__less = Less
+
+	ds.vinf, ds.Less, ds.GenNextV = vinf, Less, GenNextV
+
+	return ds
+}
+
+// InitAll returns initialized dp and colors slices.
+func (ds *DijkstraSolver) InitAll(n int) (dp []V, colors []int) {
+	dp, colors = make([]V, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = ds.vinf
+		colors[i] = WHITE
+	}
+
+	return dp, colors
+}
+
+// InitStartPoint returns initialized priority queue, and update dp and colors slices.
+// *This function update arguments (side effects).*
+func (ds *DijkstraSolver) InitStartPoint(S []StartPoint, dp []V, colors []int) *VertexPQ {
+	pq := NewVertexPQ()
+
+	for _, sp := range S {
+		pq.push(&Vertex{id: sp.id, v: sp.vinit})
+		dp[sp.id] = sp.vinit
+		colors[sp.id] = GRAY
+	}
+
+	return pq
+}
+
+// verified by [ABC143-E](https://atcoder.jp/contests/abc143/tasks/abc143_e)
+func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]Edge) []V {
+	// initialize data
+	dp, colors := ds.InitAll(n)
+
+	// configure about start points (some problems have multi start points)
+	pq := ds.InitStartPoint(S, dp, colors)
+
+	// body of dijkstra algorithm
 	for pq.Len() > 0 {
 		pop := pq.pop()
 		colors[pop.id] = BLACK
-		if Less(dp[pop.id], pop.v) {
+		if ds.Less(dp[pop.id], pop.v) {
 			continue
 		}
 
-		// 次のノードへの遷移
-		for _, to := range AG[pop.id] {
-			if colors[to] == BLACK {
+		// to next node
+		for _, e := range AG[pop.id] {
+			if colors[e.to] == BLACK {
 				continue
 			}
 
-			// 値の更新
-			nv := GenNextV(pop, to, dp)
+			// update optimal value of the next node
+			nv := ds.GenNextV(pop, e)
 
-			if Less(nv, dp[to]) {
-				dp[to] = nv
-				pq.push(&Vertex{id: to, v: nv})
-				colors[to] = GRAY
+			if ds.Less(nv, dp[e.to]) {
+				dp[e.to] = nv
+				pq.push(&Vertex{id: e.to, v: nv})
+				colors[e.to] = GRAY
 			}
 		}
 	}
@@ -182,73 +227,7 @@ func Dijkstra(n int, AG [][]int) []V {
 	return dp
 }
 
-// InitAll returns initialized dp and colors slices.
-func InitAll(n int) (dp []V, colors []int) {
-	dp, colors = make([]V, n), make([]int, n)
-	for i := 0; i < n; i++ {
-		dp[i] = DijkstraVInf()
-		colors[i] = WHITE
-	}
-
-	return dp, colors
-}
-
-// DijkstraVInf returns a infinite value for DP.
-func DijkstraVInf() V {
-	return V{num: INF_BIT60, nokori: -1}
-}
-
-// InitStartPoint returns initialized priority queue, and update dp and colors slices.
-// *This function update arguments (side effects).*
-func InitStartPoint(dp []V, colors []int) *VertexPQ {
-	pq := NewVertexPQ()
-	for d := 0; d < 4; d++ {
-		cid := toid(y1, x1, d)
-		pq.push(&Vertex{id: cid, v: V{num: 0, nokori: 0}})
-
-		dp[cid].num, dp[cid].nokori = 0, 0
-		colors[cid] = GRAY
-	}
-
-	return pq
-}
-
-// Less returns whether l is strictly less than r.
-// This function is also used by priority queue.
-func Less(l, r V) bool {
-	if l.num < r.num {
-		return true
-	} else if l.num > r.num {
-		return false
-	} else {
-		return l.nokori > r.nokori
-	}
-}
-
-// GenNextV returns next value considered by transition.
-func GenNextV(cv *Vertex, to int, dp []V) V {
-	prevd := tod(cv.id)
-	nextd := tod(to)
-	nv := V{num: dp[cv.id].num, nokori: dp[cv.id].nokori}
-	if prevd != nextd {
-		// 方向転換
-		nv.num++
-		nv.nokori = k
-	} else if nv.nokori == 0 {
-		// 次へ進むがk-1にする
-		nv.num++
-		nv.nokori = k - 1
-	} else {
-		nv.nokori--
-	}
-
-	return nv
-}
-
-// DP value type
-type V struct {
-	num, nokori int
-}
+var __less func(l, r V) bool
 
 type Vertex struct {
 	id int
@@ -272,7 +251,7 @@ func (pq *VertexPQ) pop() *Vertex {
 
 func (pq VertexPQ) Len() int { return len(pq) }
 func (pq VertexPQ) Less(i, j int) bool {
-	return Less(pq[i].v, pq[j].v)
+	return __less(pq[i].v, pq[j].v)
 }
 func (pq VertexPQ) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
@@ -289,9 +268,61 @@ func (pq *VertexPQ) Pop() interface{} {
 	return item
 }
 
+// ChMin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func ChMin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+const (
+	// General purpose
+	MOD = 1000000000 + 7
+	// MOD          = 998244353
+	ALPHABET_NUM = 26
+	INF_INT64    = math.MaxInt64
+	INF_BIT60    = 1 << 60
+	INF_INT32    = math.MaxInt32
+	INF_BIT30    = 1 << 30
+	NIL          = -1
+
+	// for dijkstra, prim, and so on
+	WHITE = 0
+	GRAY  = 1
+	BLACK = 2
+)
+
 /*******************************************************************/
 
-/*********** I/O ***********/
+/********** bufio setting **********/
+
+func init() {
+	// bufio.ScanWords <---> bufio.ScanLines
+	ReadString = newReadString(os.Stdin, bufio.ScanWords)
+	stdout = bufio.NewWriter(os.Stdout)
+}
+
+/********** FAU standard libraries **********/
+
+//fmt.Sprintf("%b\n", 255) 	// binary expression
+
+/********** I/O usage **********/
+
+//str := ReadString()
+//i := ReadInt()
+//X := ReadIntSlice(n)
+//S := ReadRuneSlice()
+//a := ReadFloat64()
+//A := ReadFloat64Slice(n)
+
+//str := ZeroPaddingRuneSlice(num, 32)
+//str := PrintIntsLine(X...)
+
+/*********** Input ***********/
 
 var (
 	// ReadString returns a WORD string.
@@ -393,39 +424,7 @@ func ReadRuneSlice() []rune {
 	return []rune(ReadString())
 }
 
-/*********** Debugging ***********/
-
-// ZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
-// For debugging use.
-func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
-	sn := fmt.Sprintf("%b", n)
-
-	residualLength := digitsNum - len(sn)
-	if residualLength <= 0 {
-		return []rune(sn)
-	}
-
-	zeros := make([]rune, residualLength)
-	for i := 0; i < len(zeros); i++ {
-		zeros[i] = '0'
-	}
-
-	res := []rune{}
-	res = append(res, zeros...)
-	res = append(res, []rune(sn)...)
-
-	return res
-}
-
-// Strtoi is a wrapper of strconv.Atoi().
-// If strconv.Atoi() returns an error, Strtoi calls panic.
-func Strtoi(s string) int {
-	if i, err := strconv.Atoi(s); err != nil {
-		panic(errors.New("[argument error]: Strtoi only accepts integer string"))
-	} else {
-		return i
-	}
-}
+/*********** Output ***********/
 
 // PrintIntsLine returns integers string delimited by a space.
 func PrintIntsLine(A ...int) string {
@@ -459,13 +458,37 @@ func PrintInts64Line(A ...int64) string {
 	return string(res)
 }
 
+// PrintfBufStdout is function for output strings to buffered os.Stdout.
+// You may have to call stdout.Flush() finally.
+func PrintfBufStdout(format string, a ...interface{}) {
+	fmt.Fprintf(stdout, format, a...)
+}
+
+/*********** Debugging ***********/
+
 // PrintfDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
 func PrintfDebug(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
 }
 
-// PrintfBufStdout is function for output strings to buffered os.Stdout.
-// You may have to call stdout.Flush() finally.
-func PrintfBufStdout(format string, a ...interface{}) {
-	fmt.Fprintf(stdout, format, a...)
+// ZeroPaddingRuneSlice returns binary expressions of integer n with zero padding.
+// For debugging use.
+func ZeroPaddingRuneSlice(n, digitsNum int) []rune {
+	sn := fmt.Sprintf("%b", n)
+
+	residualLength := digitsNum - len(sn)
+	if residualLength <= 0 {
+		return []rune(sn)
+	}
+
+	zeros := make([]rune, residualLength)
+	for i := 0; i < len(zeros); i++ {
+		zeros[i] = '0'
+	}
+
+	res := []rune{}
+	res = append(res, zeros...)
+	res = append(res, []rune(sn)...)
+
+	return res
 }

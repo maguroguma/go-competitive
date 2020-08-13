@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc170/tasks/abc170_f
+https://atcoder.jp/contests/abc143/tasks/abc143_e
 */
 
 package main
@@ -57,124 +57,166 @@ func init() {
 	stdout = bufio.NewWriter(os.Stdout)
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
-}
-
 var (
-	h, w, k        int
-	x1, y1, x2, y2 int
-	C              [][]rune
+	n, m, l int
+	q       int
 
-	steps [4][2]int
-	N     int
-	G     [4000000 + 50][]int
+	A [300 + 5][300 + 5]int
+	G [300 + 5][]Edge
 )
 
-func toid(y, x, d int) int {
-	return (y*w+x)*4 + d
-}
-func toy(id int) int {
-	// return id / w / 4
-	return id / (w * 4)
-}
-func tox(id int) int {
-	return id / 4 % w
-}
-func tod(id int) int {
-	return id % 4
-}
-
 func main() {
-	h, w, k = ReadInt3()
-	y1, x1, y2, x2 = ReadInt4()
-	y1--
-	x1--
-	y2--
-	x2--
-	for i := 0; i < h; i++ {
-		row := ReadRuneSlice()
-		C = append(C, row)
+	n, m, l = ReadInt3()
+	for i := 0; i < m; i++ {
+		a, b, c := ReadInt3()
+		a--
+		b--
+
+		G[a] = append(G[a], Edge{to: b, cost: c})
+		G[b] = append(G[b], Edge{to: a, cost: c})
 	}
 
-	steps = [4][2]int{
-		[2]int{0, 1}, [2]int{0, -1}, [2]int{1, 0}, [2]int{-1, 0},
-	}
-	N = h * w * 4
-	for i := 0; i < h; i++ {
-		for j := 0; j < w; j++ {
-			for d := 0; d < 4; d++ {
-				cid := toid(i, j, d)
-
-				dy, dx := steps[d][0], steps[d][1]
-				ny, nx := i+dy, j+dx
-				if 0 <= ny && ny < h && 0 <= nx && nx < w && C[ny][nx] == '.' {
-					nid := toid(ny, nx, d)
-					G[cid] = append(G[cid], nid)
-				}
-
-				// 同じグリッドで異なる方向を向く
-				for nd := 0; nd < 4; nd++ {
-					if d == nd {
-						continue
-					}
-					nid := toid(i, j, nd)
-					G[cid] = append(G[cid], nid)
-				}
-			}
+	vinf := V{gas: -1, times: INF_BIT60} // inf
+	vzero := V{gas: l, times: 0}         // zerp
+	less := func(l, r V) bool {
+		if l.times < r.times {
+			return true
+		} else if l.times > r.times {
+			return false
+		} else {
+			return l.gas > r.gas
 		}
 	}
-
-	dp := Dijkstra(N, G[:N])
-
-	ans := INF_BIT60
-	for d := 0; d < 4; d++ {
-		id := toid(y2, x2, d)
-		ChMin(&ans, dp[id].num)
-	}
-
-	if ans >= INF_BIT60 {
-		fmt.Println(-1)
-	} else {
-		fmt.Println(ans)
-	}
-}
-
-func Dijkstra(n int, AG [][]int) []V {
-	// データをすべて初期化
-	dp, colors := InitAll(n)
-
-	// 始点の設定（問題によっては複数始点もありうる）
-	pq := InitStartPoint(dp, colors)
-
-	// アルゴリズム本体
-	for pq.Len() > 0 {
-		pop := pq.pop()
-		colors[pop.id] = BLACK
-		if Less(dp[pop.id], pop.v) {
-			continue
+	genNextV := func(cv *Vertex, e Edge) V {
+		if l < e.cost {
+			return vinf
 		}
 
-		// 次のノードへの遷移
-		for _, to := range AG[pop.id] {
-			if colors[to] == BLACK {
+		if cv.v.gas >= e.cost {
+			return V{gas: cv.v.gas - e.cost, times: cv.v.times}
+		}
+
+		return V{gas: l - e.cost, times: cv.v.times + 1}
+	}
+	// ds := NewDijkstraSolve(vinf, vzero, less, genNextV)
+	ds := NewDijkstraSolver(vinf, less, genNextV)
+
+	for i := 0; i < n; i++ {
+		// dp := ds.Dijkstra([]int{i}, n, G[:n])
+		dp := ds.Dijkstra([]StartPoint{StartPoint{id: i, vinit: vzero}}, n, G[:n])
+
+		for j := 0; j < n; j++ {
+			if i == j {
 				continue
 			}
 
-			// 値の更新
-			nv := GenNextV(pop, to, dp)
+			A[i][j] = dp[j].times
+		}
+	}
 
-			if Less(nv, dp[to]) {
-				dp[to] = nv
-				pq.push(&Vertex{id: to, v: nv})
-				colors[to] = GRAY
+	q = ReadInt()
+	for i := 0; i < q; i++ {
+		s, t := ReadInt2()
+		s--
+		t--
+
+		if A[s][t] >= INF_BIT60 {
+			fmt.Println(-1)
+		} else {
+			fmt.Println(A[s][t])
+		}
+	}
+}
+
+// DP value type
+type V struct {
+	gas, times int
+}
+
+// edge of graph
+type Edge struct {
+	to   int
+	cost int
+}
+
+// for initializing start points of dijkstra algorithm
+type StartPoint struct {
+	id    int
+	vinit V
+}
+
+type DijkstraSolver struct {
+	vinf     V
+	Less     func(l, r V) bool          // Less returns whether l is strictly less than r, and is also used for priority queue.
+	GenNextV func(cv *Vertex, e Edge) V // GenNextV returns next value considered by transition.
+}
+
+func NewDijkstraSolver(
+	vinf V, Less func(l, r V) bool, GenNextV func(cv *Vertex, e Edge) V,
+) *DijkstraSolver {
+	ds := new(DijkstraSolver)
+
+	__less = Less
+
+	ds.vinf, ds.Less, ds.GenNextV = vinf, Less, GenNextV
+
+	return ds
+}
+
+// InitAll returns initialized dp and colors slices.
+func (ds *DijkstraSolver) InitAll(n int) (dp []V, colors []int) {
+	dp, colors = make([]V, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = ds.vinf
+		colors[i] = WHITE
+	}
+
+	return dp, colors
+}
+
+// InitStartPoint returns initialized priority queue, and update dp and colors slices.
+// *This function update arguments (side effects).*
+func (ds *DijkstraSolver) InitStartPoint(S []StartPoint, dp []V, colors []int) *VertexPQ {
+	pq := NewVertexPQ()
+
+	for _, sp := range S {
+		pq.push(&Vertex{id: sp.id, v: sp.vinit})
+		dp[sp.id] = sp.vinit
+		colors[sp.id] = GRAY
+	}
+
+	return pq
+}
+
+// verified by [ABC143-E](https://atcoder.jp/contests/abc143/tasks/abc143_e)
+func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]Edge) []V {
+	// initialize data
+	dp, colors := ds.InitAll(n)
+
+	// configure about start points (some problems have multi start points)
+	pq := ds.InitStartPoint(S, dp, colors)
+
+	// body of dijkstra algorithm
+	for pq.Len() > 0 {
+		pop := pq.pop()
+		colors[pop.id] = BLACK
+		if ds.Less(dp[pop.id], pop.v) {
+			continue
+		}
+
+		// to next node
+		for _, e := range AG[pop.id] {
+			if colors[e.to] == BLACK {
+				continue
+			}
+
+			// update optimal value of the next node
+			nv := ds.GenNextV(pop, e)
+
+			if ds.Less(nv, dp[e.to]) {
+				dp[e.to] = nv
+				pq.push(&Vertex{id: e.to, v: nv})
+				colors[e.to] = GRAY
 			}
 		}
 	}
@@ -182,73 +224,7 @@ func Dijkstra(n int, AG [][]int) []V {
 	return dp
 }
 
-// InitAll returns initialized dp and colors slices.
-func InitAll(n int) (dp []V, colors []int) {
-	dp, colors = make([]V, n), make([]int, n)
-	for i := 0; i < n; i++ {
-		dp[i] = DijkstraVInf()
-		colors[i] = WHITE
-	}
-
-	return dp, colors
-}
-
-// DijkstraVInf returns a infinite value for DP.
-func DijkstraVInf() V {
-	return V{num: INF_BIT60, nokori: -1}
-}
-
-// InitStartPoint returns initialized priority queue, and update dp and colors slices.
-// *This function update arguments (side effects).*
-func InitStartPoint(dp []V, colors []int) *VertexPQ {
-	pq := NewVertexPQ()
-	for d := 0; d < 4; d++ {
-		cid := toid(y1, x1, d)
-		pq.push(&Vertex{id: cid, v: V{num: 0, nokori: 0}})
-
-		dp[cid].num, dp[cid].nokori = 0, 0
-		colors[cid] = GRAY
-	}
-
-	return pq
-}
-
-// Less returns whether l is strictly less than r.
-// This function is also used by priority queue.
-func Less(l, r V) bool {
-	if l.num < r.num {
-		return true
-	} else if l.num > r.num {
-		return false
-	} else {
-		return l.nokori > r.nokori
-	}
-}
-
-// GenNextV returns next value considered by transition.
-func GenNextV(cv *Vertex, to int, dp []V) V {
-	prevd := tod(cv.id)
-	nextd := tod(to)
-	nv := V{num: dp[cv.id].num, nokori: dp[cv.id].nokori}
-	if prevd != nextd {
-		// 方向転換
-		nv.num++
-		nv.nokori = k
-	} else if nv.nokori == 0 {
-		// 次へ進むがk-1にする
-		nv.num++
-		nv.nokori = k - 1
-	} else {
-		nv.nokori--
-	}
-
-	return nv
-}
-
-// DP value type
-type V struct {
-	num, nokori int
-}
+var __less func(l, r V) bool
 
 type Vertex struct {
 	id int
@@ -272,7 +248,7 @@ func (pq *VertexPQ) pop() *Vertex {
 
 func (pq VertexPQ) Len() int { return len(pq) }
 func (pq VertexPQ) Less(i, j int) bool {
-	return Less(pq[i].v, pq[j].v)
+	return __less(pq[i].v, pq[j].v)
 }
 func (pq VertexPQ) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
