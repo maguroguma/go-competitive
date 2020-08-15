@@ -123,7 +123,8 @@ abbr        Sum(integers ...int) int
 options     head
   // Sum returns multiple integers sum.
   func Sum(integers ...${1:int}) $1 {
-    s := 0
+    var s $1
+    s = 0
 
     for _, i := range integers {
       s += i
