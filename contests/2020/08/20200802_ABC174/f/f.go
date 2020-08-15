@@ -12,6 +12,7 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -56,79 +57,124 @@ func init() {
 	stdout = bufio.NewWriter(os.Stdout)
 }
 
+var (
+	n, q int
+	C    []int
+	Q    []Query
+
+	P       [500000 + 50]int
+	Answers [500000 + 50]int
+)
+
+type Query struct {
+	idx, l, r int
+}
+
 func main() {
-	fmt.Println("Hello World.")
-}
+	n, q = ReadInt2()
+	C = ReadIntSlice(n)
 
-type T int // (T, f): Monoid
-
-type SegmentTree struct {
-	sz   int              // minimum power of 2
-	data []T              // elements in T
-	f    func(lv, rv T) T // T <> T -> T
-	ti   T                // identity element of Monoid
-}
-
-func NewSegmentTree(
-	n int, f func(lv, rv T) T, ti T,
-) *SegmentTree {
-	st := new(SegmentTree)
-	st.ti = ti
-	st.f = f
-
-	st.sz = 1
-	for st.sz < n {
-		st.sz *= 2
+	for i := 1; i <= n; i++ {
+		P[i] = -1
 	}
 
-	st.data = make([]T, 2*st.sz-1)
-	for i := 0; i < 2*st.sz-1; i++ {
-		st.data[i] = st.ti
+	for i := 0; i < q; i++ {
+		l, r := ReadInt2()
+		query := Query{idx: i, l: l, r: r}
+		Q = append(Q, query)
 	}
 
-	return st
+	sort.SliceStable(Q, func(i, j int) bool { return Q[i].r < Q[j].r })
+	ft := NewFenwickTree(500000 + 50)
+
+	k := 0
+	for _, query := range Q {
+		for k < query.r {
+			if P[C[k]] != -1 {
+				ft.Add(P[C[k]]+1, -1)
+			}
+			P[C[k]] = k
+			ft.Add(k+1, 1)
+
+			k++
+		}
+		// PrintfDebug("P: %v\n", P[:n+1])
+
+		Answers[query.idx] = ft.Sum(query.r) - ft.Sum(query.l-1)
+	}
+
+	for i := 0; i < q; i++ {
+		// fmt.Println(Answers[i])
+		PrintfBufStdout("%d\n", Answers[i])
+	}
+	stdout.Flush()
 }
 
-func (st *SegmentTree) Set(k int, x T) {
-	st.data[k+(st.sz-1)] = x
+// Public methods
+// ft := NewFenwickTree(200000 + 5)
+// s := ft.Sum(i) 						// Sum of [1, i] (1-based)
+// ft.Add(i, x) 							// Add x to i (1-based)
+// idx := ft.LowerBound(w) 		// minimum idx such that bit.Sum(idx) >= w
+
+type FenwickTree struct {
+	dat     []int
+	n       int
+	minPow2 int
 }
 
-func (st *SegmentTree) Build() {
-	for i := st.sz - 2; i >= 0; i-- {
-		st.data[i] = st.f(st.data[2*i+1], st.data[2*i+2])
+// n(>=1) is number of elements of original data
+func NewFenwickTree(n int) *FenwickTree {
+	ft := new(FenwickTree)
+
+	ft.dat = make([]int, n+1)
+	ft.n = n
+
+	ft.minPow2 = 1
+	for {
+		if (ft.minPow2 << 1) > n {
+			break
+		}
+		ft.minPow2 <<= 1
+	}
+
+	return ft
+}
+
+// Sum of [1, i](1-based)
+func (ft *FenwickTree) Sum(i int) int {
+	s := 0
+
+	for i > 0 {
+		s += ft.dat[i]
+		i -= i & (-i)
+	}
+
+	return s
+}
+
+// Add x to i(1-based)
+func (ft *FenwickTree) Add(i, x int) {
+	for i <= ft.n {
+		ft.dat[i] += x
+		i += i & (-i)
 	}
 }
 
-func (st *SegmentTree) Update(k int, x T) {
-	k += st.sz - 1
-	st.data[k] = x
-
-	for k > 0 {
-		k = (k - 1) / 2
-		st.data[k] = st.f(st.data[2*k+1], st.data[2*k+2])
-	}
-}
-
-func (st *SegmentTree) Query(a, b int) T {
-	return st.query(a, b, 0, 0, st.sz)
-}
-
-func (st *SegmentTree) query(a, b, k, l, r int) T {
-	if r <= a || b <= l {
-		return st.ti
+// LowerBound returns minimum i such that bit.Sum(i) >= w.
+func (ft *FenwickTree) LowerBound(w int) int {
+	if w <= 0 {
+		return 0
 	}
 
-	if a <= l && r <= b {
-		return st.data[k]
+	x := 0
+	for k := ft.minPow2; k > 0; k /= 2 {
+		if x+k <= ft.n && ft.dat[x+k] < w {
+			w -= ft.dat[x+k]
+			x += k
+		}
 	}
 
-	lv := st.query(a, b, 2*k+1, l, (l+r)/2)
-	rv := st.query(a, b, 2*k+2, (l+r)/2, r)
-	return st.f(lv, rv)
-}
-
-func (st *SegmentTree) Get(k int) T {
-	return st.data[k+(st.sz-1)]
+	return x + 1
 }
 
 /*******************************************************************/
