@@ -48,10 +48,11 @@ options     head
   }
 
 snippet     divisorsSliceVer
-abbr        divisor(n int) []int
+abbr        Divisor(n int) []int
 options     head
-  // 約数の列挙: O(sqrt(n))
-  func divisor(n ${1:int}) []$1 {
+  // Divisors returns the divisors of an argument integer as []int.
+  // O(sqrt(n))
+  func Divisor(n ${1:int}) []$1 {
     var i $1
 
     res := []$1{}
