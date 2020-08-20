@@ -31,3 +31,31 @@ options     head
 
     return res
   }
+
+snippet     bitZentansaku
+abbr        func BruteForceByBits(l int, fn func([]bool))
+options     head
+  // BruteForceByBits(10, func(b []bool) { fmt.Println(b) }
+  // -> [false, false, false, false, false, false, false, false, false, false]
+  //    [true, false, false, false, false, false, false, false, false, false]
+  //    [false, true, false, false, false, false, false, false, false, false]
+  //    [true, true, false, false, false, false, false, false, false, false]
+  //    [false, false, true, false, false, false, false, false, false, false]
+  //    ...
+  // originated from ktateish@atcoder
+  // e.g.: https://atcoder.jp/contests/abc167/submissions/13042361
+  func BruteForceByBits(l int, fn func([]bool)) {
+    L := 1 << uint(l)
+    mask := make([]bool, l)
+    for i := 0; i < L; i++ {
+      for j := 0; j < l; j++ {
+        k := l - j - 1
+        if i&(1<<uint(j)) == 0 {
+          mask[k] = false
+        } else {
+          mask[k] = true
+        }
+      }
+      fn(mask)
+    }
+  }
