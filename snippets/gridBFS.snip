@@ -28,23 +28,24 @@ options     head
   }
 
 snippet     gridToGraph
-abbr        cid := m*i + j
+abbr        cid := w*i + j
 options     head
-  steps := [4][2]int{
-    [2]int{0, 1}, [2]int{0, -1}, [2]int{1, 0}, [2]int{-1, 0},
-  }
+  steps := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+  toid := func(i, j int) int { return w*i + j }
+  toy := func(id int) int { return id / w }
+  tox := func(id int) int { return id % w }
 
-  N = n * m
+  N := h * w
   G = make([][]int, N)
-  for i := 0; i < n; i++ {
-    for j := 0; j < m; j++ {
-      cid := m*i + j
+  for i := 0; i < h; i++ {
+    for j := 0; j < w; j++ {
+      cid := toid(i, j)
 
       for _, s := range steps {
         dy, dx := s[0], s[1]
         ny, nx := i+dy, j+dx
-        if 0 <= ny && ny < n && 0 <= nx && nx < m {
-          nid := m*ny + nx
+        if 0 <= ny && ny < h && 0 <= nx && nx < w {
+          nid := toid(ny, nx)
 
           G[cid] = append(G[cid], nid)
         }
