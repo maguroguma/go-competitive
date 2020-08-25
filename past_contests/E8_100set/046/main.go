@@ -1,6 +1,6 @@
 /*
 URL:
-https://onlinejudge.u-aizu.ac.jp/problems/2199
+https://onlinejudge.u-aizu.ac.jp/problems/ALDS1_10_B
 */
 
 package main
@@ -14,65 +14,7 @@ import (
 	"strconv"
 )
 
-var (
-	n, m int
-	C, X []int
-
-	dp [20000 + 5][300]int
-)
-
-const (
-	CM = 255
-)
-
 func main() {
-	for {
-		n, m = readi2()
-		C, X = readis(m), readis(n)
-
-		if n == 0 && m == 0 {
-			return
-		}
-
-		for i := 0; i <= n; i++ {
-			for j := 0; j <= CM; j++ {
-				dp[i][j] = INF_BIT60
-			}
-		}
-
-		dp[0][128] = 0
-		for i := 0; i < n; i++ {
-			x := X[i]
-			for j := 0; j <= CM; j++ {
-				for k := 0; k < m; k++ {
-					next := j + C[k]
-					if next < 0 {
-						next = 0
-					} else if next > CM {
-						next = CM
-					}
-					ChMin(&dp[i+1][next], dp[i][j]+(next-x)*(next-x))
-				}
-			}
-		}
-
-		ans := INF_BIT60
-		for j := 0; j <= CM; j++ {
-			ChMin(&ans, dp[n][j])
-		}
-		fmt.Println(ans)
-	}
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
 }
 
 /*******************************************************************/
