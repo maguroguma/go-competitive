@@ -1,6 +1,6 @@
 /*
 URL:
-https://onlinejudge.u-aizu.ac.jp/problems/ALDS1_10_B
+https://onlinejudge.u-aizu.ac.jp/problems/DPL_2_A
 */
 
 package main
@@ -15,49 +15,60 @@ import (
 )
 
 var (
-	n int
-	P [][]int
+	v, e int
+	G    [20][20]int
 
-	dp [100 + 5][100 + 5]int
+	dp [1 << 18][20]int
 )
 
 func main() {
-	n = readi()
-	for i := 0; i < n; i++ {
-		a, b := readi2()
-		P = append(P, []int{a, b})
-	}
-	// PrintfDebug("%v\n", P)
+	v, e = readi2()
 
-	for i := 0; i < n; i++ {
-		for j := i; j < n; j++ {
-			dp[i][j] = INF_BIT60
+	for i := 0; i < v; i++ {
+		for j := 0; j < v; j++ {
+			if i != j {
+				G[i][j] = INF_BIT60
+			}
 		}
 	}
 
-	fmt.Println(rec(0, n-1))
-}
-
-func rec(i, j int) int {
-	if dp[i][j] < INF_BIT60 {
-		return dp[i][j]
+	for i := 0; i < e; i++ {
+		s, t, d := readi3()
+		G[s][t] = d
 	}
 
-	if i == j {
-		dp[i][j] = 0
-		return dp[i][j]
+	for S := 0; S < 1<<uint(v); S++ {
+		for i := 0; i < v; i++ {
+			dp[S][i] = INF_BIT60
+		}
 	}
 
-	if j-i == 1 {
-		dp[i][j] = P[i][0] * P[i][1] * P[j][1]
-		return dp[i][j]
+	for i := 0; i < v; i++ {
+		dp[OnBit(0, 0)][0] = 0
+	}
+	for S := 0; S < 1<<uint(v); S++ {
+		for i := 0; i < v; i++ {
+			for j := 0; j < v; j++ {
+				if i == j {
+					continue
+				}
+
+				if NthBit(S, i) == 1 && NthBit(S, j) == 0 {
+					ChMin(&dp[OnBit(S, j)][j], dp[S][i]+G[i][j])
+				}
+			}
+		}
 	}
 
-	for k := i; k <= j-1; k++ {
-		ChMin(&dp[i][j], rec(i, k)+rec(k+1, j)+P[i][0]*P[k+1][0]*P[j][1])
+	ans := INF_BIT60
+	for i := 0; i < v; i++ {
+		ChMin(&ans, dp[1<<uint(v)-1][i]+G[i][0])
 	}
-
-	return dp[i][j]
+	if ans < INF_BIT60 {
+		fmt.Println(ans)
+	} else {
+		fmt.Println(-1)
+	}
 }
 
 // ChMin accepts a pointer of integer and a target value.
@@ -69,6 +80,37 @@ func ChMin(updatedValue *int, target int) bool {
 		return true
 	}
 	return false
+}
+
+// NthBit returns nth bit value of an argument.
+// n starts from 0.
+func NthBit(num int, nth int) int {
+	return num >> uint(nth) & 1
+}
+
+// OnBit returns the integer that has nth ON bit.
+// If an argument has nth ON bit, OnBit returns the argument.
+func OnBit(num int, nth int) int {
+	return num | (1 << uint(nth))
+}
+
+// OffBit returns the integer that has nth OFF bit.
+// If an argument has nth OFF bit, OffBit returns the argument.
+func OffBit(num int, nth int) int {
+	return num & ^(1 << uint(nth))
+}
+
+// PopCount returns the number of ON bit of an argument.
+func PopCount(num int, ub int) int {
+	res := 0
+
+	for i := 0; i < ub; i++ {
+		if ((num >> uint(i)) & 1) == 1 {
+			res++
+		}
+	}
+
+	return res
 }
 
 /*******************************************************************/

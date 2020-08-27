@@ -1,6 +1,6 @@
 /*
 URL:
-https://onlinejudge.u-aizu.ac.jp/problems/ALDS1_10_B
+https://atcoder.jp/contests/joi2015ho/tasks/joi2015ho_b
 */
 
 package main
@@ -16,55 +16,72 @@ import (
 
 var (
 	n int
-	P [][]int
+	A []int
 
-	dp [100 + 5][100 + 5]int
+	P  []int
+	dp [2000 + 5][2000 + 5]int
+	ok [2000 + 5][2000 + 5]bool
 )
 
 func main() {
 	n = readi()
-	for i := 0; i < n; i++ {
-		a, b := readi2()
-		P = append(P, []int{a, b})
-	}
-	// PrintfDebug("%v\n", P)
+	A = readis(n)
 
+	ans := 0
 	for i := 0; i < n; i++ {
-		for j := i; j < n; j++ {
-			dp[i][j] = INF_BIT60
+		P = []int{}
+		j := i + 1
+		for l := 0; l < n-1; l++ {
+			P = append(P, j%n)
+			j++
 		}
-	}
+		// PrintfDebug("%v\n", P)
 
-	fmt.Println(rec(0, n-1))
+		tmp := rec(0, n-2, 1) + A[i]
+		ChMax(&ans, tmp)
+	}
+	fmt.Println(ans)
 }
 
-func rec(i, j int) int {
-	if dp[i][j] < INF_BIT60 {
-		return dp[i][j]
+func rec(i, j, cnt int) int {
+	pi, pj := P[i], P[j]
+
+	if ok[pi][pj] {
+		return dp[pi][pj]
 	}
 
 	if i == j {
-		dp[i][j] = 0
-		return dp[i][j]
+		if cnt%2 == 1 {
+			dp[pi][pj] = 0
+		} else {
+			dp[pi][pj] = A[pi]
+		}
+
+		ok[pi][pj] = true
+		return dp[pi][pj]
 	}
 
-	if j-i == 1 {
-		dp[i][j] = P[i][0] * P[i][1] * P[j][1]
-		return dp[i][j]
+	ok[pi][pj] = true
+
+	if cnt%2 == 1 {
+		if A[pi] > A[pj] {
+			ChMax(&dp[pi][pj], rec(i+1, j, cnt+1))
+		} else {
+			ChMax(&dp[pi][pj], rec(i, j-1, cnt+1))
+		}
+		return dp[pi][pj]
 	}
 
-	for k := i; k <= j-1; k++ {
-		ChMin(&dp[i][j], rec(i, k)+rec(k+1, j)+P[i][0]*P[k+1][0]*P[j][1])
-	}
-
-	return dp[i][j]
+	ChMax(&dp[pi][pj], rec(i+1, j, cnt+1)+A[pi])
+	ChMax(&dp[pi][pj], rec(i, j-1, cnt+1)+A[pj])
+	return dp[pi][pj]
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
 //	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
 		*updatedValue = target
 		return true
 	}

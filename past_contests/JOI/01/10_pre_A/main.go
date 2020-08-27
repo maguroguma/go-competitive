@@ -1,6 +1,6 @@
 /*
 URL:
-https://onlinejudge.u-aizu.ac.jp/problems/ALDS1_10_B
+https://atcoder.jp/contests/joi2010yo/tasks/joi2010yo_a
 */
 
 package main
@@ -14,61 +14,23 @@ import (
 	"strconv"
 )
 
-var (
-	n int
-	P [][]int
-
-	dp [100 + 5][100 + 5]int
-)
-
 func main() {
-	n = readi()
-	for i := 0; i < n; i++ {
-		a, b := readi2()
-		P = append(P, []int{a, b})
-	}
-	// PrintfDebug("%v\n", P)
+	S := readi()
+	A := readis(9)
 
-	for i := 0; i < n; i++ {
-		for j := i; j < n; j++ {
-			dp[i][j] = INF_BIT60
-		}
-	}
-
-	fmt.Println(rec(0, n-1))
+	fmt.Println(S - Sum(A...))
 }
 
-func rec(i, j int) int {
-	if dp[i][j] < INF_BIT60 {
-		return dp[i][j]
+// Sum returns multiple integers sum.
+func Sum(integers ...int) int {
+	var s int
+	s = 0
+
+	for _, i := range integers {
+		s += i
 	}
 
-	if i == j {
-		dp[i][j] = 0
-		return dp[i][j]
-	}
-
-	if j-i == 1 {
-		dp[i][j] = P[i][0] * P[i][1] * P[j][1]
-		return dp[i][j]
-	}
-
-	for k := i; k <= j-1; k++ {
-		ChMin(&dp[i][j], rec(i, k)+rec(k+1, j)+P[i][0]*P[k+1][0]*P[j][1])
-	}
-
-	return dp[i][j]
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
+	return s
 }
 
 /*******************************************************************/

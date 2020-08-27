@@ -1,6 +1,6 @@
 /*
 URL:
-https://onlinejudge.u-aizu.ac.jp/problems/ALDS1_10_B
+https://onlinejudge.u-aizu.ac.jp/problems/1611
 */
 
 package main
@@ -16,55 +16,80 @@ import (
 
 var (
 	n int
-	P [][]int
+	W []int
 
-	dp [100 + 5][100 + 5]int
+	ok [300 + 5][300 + 5]bool
+	dp [300 + 5][300 + 5]int
 )
 
 func main() {
-	n = readi()
-	for i := 0; i < n; i++ {
-		a, b := readi2()
-		P = append(P, []int{a, b})
-	}
-	// PrintfDebug("%v\n", P)
-
-	for i := 0; i < n; i++ {
-		for j := i; j < n; j++ {
-			dp[i][j] = INF_BIT60
+	for {
+		n = readi()
+		if n == 0 {
+			return
 		}
-	}
+		W = readis(n)
 
-	fmt.Println(rec(0, n-1))
+		for i := 0; i <= n; i++ {
+			for j := 0; j <= n; j++ {
+				if i != j {
+					dp[i][j] = 0
+					ok[i][j] = false
+				} else {
+					dp[i][j] = 0
+					ok[i][j] = true
+				}
+			}
+		}
+
+		fmt.Println(rec(0, n-1))
+	}
 }
 
 func rec(i, j int) int {
-	if dp[i][j] < INF_BIT60 {
+	if ok[i][j] {
 		return dp[i][j]
 	}
 
-	if i == j {
-		dp[i][j] = 0
-		return dp[i][j]
-	}
+	ok[i][j] = true
 
 	if j-i == 1 {
-		dp[i][j] = P[i][0] * P[i][1] * P[j][1]
+		if AbsInt(W[i]-W[j]) <= 1 {
+			dp[i][j] = 2
+		} else {
+			dp[i][j] = 0
+		}
 		return dp[i][j]
 	}
 
-	for k := i; k <= j-1; k++ {
-		ChMin(&dp[i][j], rec(i, k)+rec(k+1, j)+P[i][0]*P[k+1][0]*P[j][1])
+	total := j - i + 1
+	if rec(i+1, j-1) == total-2 {
+		if AbsInt(W[i]-W[j]) <= 1 {
+			ChMax(&dp[i][j], total)
+		} else {
+			ChMax(&dp[i][j], total-2)
+		}
+	}
+	for k := i; k+1 <= j; k++ {
+		ChMax(&dp[i][j], rec(i, k)+rec(k+1, j))
 	}
 
 	return dp[i][j]
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
+// AbsInt is integer version of math.Abs
+func AbsInt(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
+}
+
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
 //	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
 		*updatedValue = target
 		return true
 	}
