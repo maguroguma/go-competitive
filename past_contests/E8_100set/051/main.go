@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/s8pc-1/tasks/s8pc_1_g
+https://atcoder.jp/contests/joi2014yo/tasks/joi2014yo_d
 */
 
 package main
@@ -15,88 +15,60 @@ import (
 )
 
 var (
-	n, m int
-	G    [20][20]Edge
+	n int
+	T []rune
 
-	dp  [1 << uint(16)][16]int
-	dp2 [1 << uint(16)][16]int
+	dp [1000 + 5][10]int
+)
+
+const (
+	M = 10007
 )
 
 func main() {
-	n, m = readi2()
+	n = readi()
+	T = ReadRuneSlice()
+	memo := map[rune]int{
+		'J': 0, 'O': 1, 'I': 2,
+	}
 
+	dp[0][0] = 1
 	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			G[i][j] = Edge{d: INF_BIT60, t: -1}
-		}
-	}
+		idx := memo[T[i]]
+		for S := 0; S < 1<<uint(3); S++ {
+			if i == 0 {
+				if NthBit(S, idx) == 1 && NthBit(S, 0) == 1 {
+					dp[i+1][S] += dp[i][0]
+					dp[i+1][S] %= M
+				}
+				continue
+			}
 
-	for i := 0; i < m; i++ {
-		s, t, d, time := readi4()
-		s--
-		t--
-		G[s][t] = Edge{d: d, t: time}
-		G[t][s] = Edge{d: d, t: time}
-	}
-
-	for S := 0; S < 1<<uint(n); S++ {
-		for j := 0; j < n; j++ {
-			dp[S][j] = INF_BIT60
-		}
-	}
-
-	dp[0][0] = 0
-	for S := 0; S < 1<<uint(n); S++ {
-		for i := 0; i < n; i++ {
-			for j := 0; j < n; j++ {
-				if NthBit(S, j) == 0 && G[i][j].d < INF_BIT60 {
-					curT := dp[S][i] + G[i][j].d
-					if curT <= G[i][j].t {
-						ChMin(&dp[OnBit(S, j)][j], dp[S][i]+G[i][j].d)
-					}
+			bef := memo[T[i-1]]
+			for U := 0; U < 1<<uint(3); U++ {
+				if NthBit(U, bef) == 1 && NthBit(S, idx) == 1 && PopCount(U&S, 60) > 0 {
+					dp[i+1][S] += dp[i][U]
+					dp[i+1][S] %= M
 				}
 			}
 		}
 	}
 
-	minD := dp[1<<uint(n)-1][0]
-	// PrintfDebug("minD: %d\n", minD)
-	if minD >= INF_BIT60 {
-		fmt.Println("IMPOSSIBLE")
-		return
-	}
-
-	dp2[1<<uint(n)-1][0] = 1
-	for S := 1<<uint(n) - 1; S >= 0; S-- {
-		for i := 0; i < n; i++ {
-			for j := 0; j < n; j++ {
-				if NthBit(S, j) == 1 && G[j][i].d < INF_BIT60 {
-					if dp[S][j] <= G[j][i].t && dp[S][j] == dp[OffBit(S, j)][i]+G[j][i].d {
-						dp2[OffBit(S, j)][i] += dp2[S][j]
-					}
-				}
-			}
-		}
-	}
-	// for i := 0; i < 1<<uint(n); i++ {
-	// 	PrintfDebug("%v\n", dp2[i][:n])
+	// for i := 0; i <= n; i++ {
+	// 	PrintfDebug("%d ===\n", i)
+	// 	for S := 0; S < 1<<uint(3); S++ {
+	// 		PrintfDebug("%s: %d\n", string(ZeroPaddingRuneSlice(S, 3)), dp[i][S])
+	// 	}
 	// }
-	fmt.Println(minD, dp2[0][0])
-}
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
+	ans := 0
+	for S := 0; S < 1<<uint(3); S++ {
+		// if NthBit(S, memo[T[n-1]]) == 1 {
+		ans += dp[n][S]
+		ans %= M
+		// }
 	}
-	return false
-}
-
-type Edge struct {
-	d, t int
+	fmt.Println(ans)
 }
 
 // NthBit returns nth bit value of an argument.

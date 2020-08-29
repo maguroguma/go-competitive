@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/s8pc-1/tasks/s8pc_1_g
+https://atcoder.jp/contests/joi2017yo/tasks/joi2017yo_d
 */
 
 package main
@@ -14,120 +14,8 @@ import (
 	"strconv"
 )
 
-var (
-	n, m int
-	G    [20][20]Edge
-
-	dp  [1 << uint(16)][16]int
-	dp2 [1 << uint(16)][16]int
-)
-
 func main() {
-	n, m = readi2()
-
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
-			G[i][j] = Edge{d: INF_BIT60, t: -1}
-		}
-	}
-
-	for i := 0; i < m; i++ {
-		s, t, d, time := readi4()
-		s--
-		t--
-		G[s][t] = Edge{d: d, t: time}
-		G[t][s] = Edge{d: d, t: time}
-	}
-
-	for S := 0; S < 1<<uint(n); S++ {
-		for j := 0; j < n; j++ {
-			dp[S][j] = INF_BIT60
-		}
-	}
-
-	dp[0][0] = 0
-	for S := 0; S < 1<<uint(n); S++ {
-		for i := 0; i < n; i++ {
-			for j := 0; j < n; j++ {
-				if NthBit(S, j) == 0 && G[i][j].d < INF_BIT60 {
-					curT := dp[S][i] + G[i][j].d
-					if curT <= G[i][j].t {
-						ChMin(&dp[OnBit(S, j)][j], dp[S][i]+G[i][j].d)
-					}
-				}
-			}
-		}
-	}
-
-	minD := dp[1<<uint(n)-1][0]
-	// PrintfDebug("minD: %d\n", minD)
-	if minD >= INF_BIT60 {
-		fmt.Println("IMPOSSIBLE")
-		return
-	}
-
-	dp2[1<<uint(n)-1][0] = 1
-	for S := 1<<uint(n) - 1; S >= 0; S-- {
-		for i := 0; i < n; i++ {
-			for j := 0; j < n; j++ {
-				if NthBit(S, j) == 1 && G[j][i].d < INF_BIT60 {
-					if dp[S][j] <= G[j][i].t && dp[S][j] == dp[OffBit(S, j)][i]+G[j][i].d {
-						dp2[OffBit(S, j)][i] += dp2[S][j]
-					}
-				}
-			}
-		}
-	}
-	// for i := 0; i < 1<<uint(n); i++ {
-	// 	PrintfDebug("%v\n", dp2[i][:n])
-	// }
-	fmt.Println(minD, dp2[0][0])
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
-}
-
-type Edge struct {
-	d, t int
-}
-
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int, ub int) int {
-	res := 0
-
-	for i := 0; i < ub; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
-		}
-	}
-
-	return res
+	fmt.Println("Hello World.")
 }
 
 /*******************************************************************/
