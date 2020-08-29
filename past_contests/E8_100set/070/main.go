@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2017yo/tasks/joi2017yo_d
+https://onlinejudge.u-aizu.ac.jp/problems/NTL_1_B
 */
 
 package main
@@ -15,109 +15,33 @@ import (
 )
 
 var (
-	n, m int
-	A    []int
-
-	N [20 + 5][100000 + 5]int
-
-	dp [1<<20 + 5]int
+	m, n int
 )
 
 func main() {
-	n, m = readi2()
-	A = readis(n)
-	for i := 0; i < n; i++ {
-		A[i]--
-	}
+	m, n = readi2()
 
-	for i := 0; i < m; i++ {
-		tmp := make([]int, n)
-		for j := 0; j < n; j++ {
-			if A[j] == i {
-				tmp[j] = 1
-			}
-		}
-
-		for j := 0; j < n; j++ {
-			N[i][j+1] = N[i][j] + tmp[j]
-		}
-	}
-	// for i := 0; i < m; i++ {
-	// 	PrintfDebug("%v\n", N[i][:n+1])
-	// }
-
-	for S := 0; S < 1<<uint(m); S++ {
-		dp[S] = INF_BIT60
-	}
-
-	dp[0] = 0
-	for S := 0; S < 1<<uint(m); S++ {
-		// S（元の集合）に含まれるぬいぐるみの個数を計算
-		prev := sub(S)
-
-		for i := 0; i < m; i++ {
-			if NthBit(S, i) == 0 {
-				total := N[i][n]
-				diff := total - (N[i][prev+total] - N[i][prev])
-				// PrintfDebug("diff: %v\n", diff)
-				ChMin(&dp[OnBit(S, i)], dp[S]+diff)
-			}
-		}
-	}
-	// PrintfDebug("%v\n", dp[:1<<uint(m)])
-	fmt.Println(dp[1<<uint(m)-1])
+	fmt.Println(modpow(m, n, MOD))
 }
 
-func sub(S int) int {
-	res := 0
-	for i := 0; i < m; i++ {
-		if NthBit(S, i) == 1 {
-			res += N[i][n]
-		}
-	}
-	return res
+// ModInv returns $a^{-1} mod m$ by Fermat's little theorem.
+// O(1), but C is nearly equal to 30 (when m is 1000000000+7).
+func ModInv(a, m int) int {
+	return modpow(a, m-2, m)
 }
 
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int, ub int) int {
-	res := 0
-
-	for i := 0; i < ub; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
-		}
+func modpow(a, e, m int) int {
+	if e == 0 {
+		return 1
 	}
 
-	return res
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
+	if e%2 == 0 {
+		halfE := e / 2
+		half := modpow(a, halfE, m)
+		return half * half % m
 	}
-	return false
+
+	return a * modpow(a, e-1, m) % m
 }
 
 /*******************************************************************/

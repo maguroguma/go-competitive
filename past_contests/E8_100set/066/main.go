@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2017yo/tasks/joi2017yo_d
+https://onlinejudge.u-aizu.ac.jp/problems/1127
 */
 
 package main
@@ -11,113 +11,154 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
 var (
-	n, m int
-	A    []int
+	n          int
+	X, Y, Z, R []float64
 
-	N [20 + 5][100000 + 5]int
-
-	dp [1<<20 + 5]int
+	G []Edge
 )
 
 func main() {
-	n, m = readi2()
-	A = readis(n)
-	for i := 0; i < n; i++ {
-		A[i]--
-	}
+	for {
+		n = readi()
+		if n == 0 {
+			return
+		}
 
-	for i := 0; i < m; i++ {
-		tmp := make([]int, n)
-		for j := 0; j < n; j++ {
-			if A[j] == i {
-				tmp[j] = 1
+		X, Y, Z, R = []float64{}, []float64{}, []float64{}, []float64{}
+		G = []Edge{}
+		for i := 0; i < n; i++ {
+			x, y, z, r := ReadFloat64(), ReadFloat64(), ReadFloat64(), ReadFloat64()
+			X = append(X, x)
+			Y = append(Y, y)
+			Z = append(Z, z)
+			R = append(R, r)
+		}
+
+		for i := 0; i < n; i++ {
+			for j := i + 1; j < n; j++ {
+				A := []float64{X[i], Y[i], Z[i], R[i]}
+				B := []float64{X[j], Y[j], Z[j], R[j]}
+				d := dist(A, B)
+				// PrintfDebug("(i, j) = (%d, %d)\n", i, j)
+				// PrintfDebug("d: %f\n", d)
+
+				edge := Edge{i, j, 0.0}
+				if d > 0.0 {
+					edge.cost = d
+				}
+				G = append(G, edge)
 			}
 		}
+		// PrintfDebug("===\n")
 
-		for j := 0; j < n; j++ {
-			N[i][j+1] = N[i][j] + tmp[j]
-		}
+		ans := Kruskal(n, G)
+		fmt.Printf("%.3f\n", ans)
 	}
-	// for i := 0; i < m; i++ {
-	// 	PrintfDebug("%v\n", N[i][:n+1])
-	// }
+}
 
-	for S := 0; S < 1<<uint(m); S++ {
-		dp[S] = INF_BIT60
+func dist(A, B []float64) float64 {
+	dist := 0.0
+	for i := 0; i < 3; i++ {
+		diff := A[i] - B[i]
+		dist += diff * diff
 	}
+	dist = math.Sqrt(dist)
 
-	dp[0] = 0
-	for S := 0; S < 1<<uint(m); S++ {
-		// S（元の集合）に含まれるぬいぐるみの個数を計算
-		prev := sub(S)
+	r := A[3] + B[3]
 
-		for i := 0; i < m; i++ {
-			if NthBit(S, i) == 0 {
-				total := N[i][n]
-				diff := total - (N[i][prev+total] - N[i][prev])
-				// PrintfDebug("diff: %v\n", diff)
-				ChMin(&dp[OnBit(S, i)], dp[S]+diff)
-			}
-		}
-	}
-	// PrintfDebug("%v\n", dp[:1<<uint(m)])
-	fmt.Println(dp[1<<uint(m)-1])
+	return dist - r
 }
 
-func sub(S int) int {
-	res := 0
-	for i := 0; i < m; i++ {
-		if NthBit(S, i) == 1 {
-			res += N[i][n]
-		}
-	}
-	return res
-}
+func Kruskal(n int, L []Edge) float64 {
+	sort.SliceStable(L, func(i, j int) bool { return L[i].cost < L[j].cost })
 
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
+	// union find tree for judge whther there is cycle or not.
+	uf := NewUnionFind(n)
 
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int, ub int) int {
-	res := 0
-
-	for i := 0; i < ub; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
+	res := 0.0
+	// check all edges in ASC order for these costs
+	for _, e := range L {
+		// add an edge when the both sides are not in the same component.
+		if !uf.Same(e.from, e.to) {
+			uf.Unite(e.from, e.to)
+			res += e.cost
 		}
 	}
 
 	return res
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
+type Edge struct {
+	// from, to, cost int
+	from, to int
+	cost     float64
+}
+
+// UnionFind provides disjoint set algorithm.
+// It accepts both 0-based and 1-based setting.
+type UnionFind struct {
+	parents []int
+}
+
+// NewUnionFind returns a pointer of a new instance of UnionFind.
+func NewUnionFind(n int) *UnionFind {
+	uf := new(UnionFind)
+	uf.parents = make([]int, n+1)
+
+	for i := 0; i <= n; i++ {
+		uf.parents[i] = -1
 	}
-	return false
+
+	return uf
+}
+
+// Root method returns root node of an argument node.
+// Root method is a recursive function.
+func (uf *UnionFind) Root(x int) int {
+	if uf.parents[x] < 0 {
+		return x
+	}
+
+	// route compression
+	uf.parents[x] = uf.Root(uf.parents[x])
+	return uf.parents[x]
+}
+
+// Unite method merges a set including x and a set including y.
+func (uf *UnionFind) Unite(x, y int) bool {
+	xp := uf.Root(x)
+	yp := uf.Root(y)
+
+	if xp == yp {
+		return false
+	}
+
+	// merge: xp -> yp
+	// merge larger set to smaller set
+	if uf.CcSize(xp) > uf.CcSize(yp) {
+		xp, yp = yp, xp
+	}
+	// update set size
+	uf.parents[yp] += uf.parents[xp]
+	// finally, merge
+	uf.parents[xp] = yp
+
+	return true
+}
+
+// Same method returns whether x is in the set including y or not.
+func (uf *UnionFind) Same(x, y int) bool {
+	return uf.Root(x) == uf.Root(y)
+}
+
+// CcSize method returns the size of a set including an argument node.
+func (uf *UnionFind) CcSize(x int) int {
+	return -uf.parents[uf.Root(x)]
 }
 
 /*******************************************************************/

@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2017yo/tasks/joi2017yo_d
+https://atcoder.jp/contests/joi2014yo/tasks/joi2014yo_e
 */
 
 package main
@@ -15,109 +15,183 @@ import (
 )
 
 var (
-	n, m int
-	A    []int
+	n, k int
 
-	N [20 + 5][100000 + 5]int
+	C [5000 + 5]int
+	R [5000 + 5]int
+	// M [5000 + 5][5000 + 5]int
+	M [][]int32
+	g [5000 + 5][]int
 
-	dp [1<<20 + 5]int
+	// G [5000 + 5][]Edge
 )
 
 func main() {
-	n, m = readi2()
-	A = readis(n)
+	n, k = readi2()
+
+	M = make([][]int32, n)
 	for i := 0; i < n; i++ {
-		A[i]--
+		M[i] = make([]int32, n)
 	}
 
-	for i := 0; i < m; i++ {
-		tmp := make([]int, n)
-		for j := 0; j < n; j++ {
-			if A[j] == i {
-				tmp[j] = 1
-			}
-		}
-
-		for j := 0; j < n; j++ {
-			N[i][j+1] = N[i][j] + tmp[j]
-		}
+	for i := 0; i < n; i++ {
+		c, r := readi2()
+		C[i], R[i] = c, r
 	}
-	// for i := 0; i < m; i++ {
-	// 	PrintfDebug("%v\n", N[i][:n+1])
+	for i := 0; i < k; i++ {
+		s, t := readi2()
+		s--
+		t--
+		g[s] = append(g[s], t)
+		g[t] = append(g[t], s)
+	}
+
+	for i := 0; i < n; i++ {
+		bfs(i)
+	}
+
+	// for i := 0; i < n; i++ {
+	// 	for j := 0; j < n; j++ {
+	// 		if i == j {
+	// 			continue
+	// 		}
+	// 		if M[i][j] >= INF_BIT60 {
+	// 			continue
+	// 		}
+	// 		G[i] = append(G[i], Edge{to: j, cost: M[i][j]})
+	// 	}
 	// }
 
-	for S := 0; S < 1<<uint(m); S++ {
-		dp[S] = INF_BIT60
+	less := func(l, r V) bool { return l < r }
+	// f := func(cv *Vertex, e Edge) V {
+	// 	return cv.v + V(e.cost)
+	// }
+	f := func(cv V, e int) V {
+		return cv + V(e)
+	}
+	// ds := NewDijkstraSolver(INF_BIT60, less, f)
+	ds := NewDijkstraSolver(INF_BIT30, INF_BIT30, less, f)
+	dp := ds.Dijkstra([]StartPoint{{0, 0}}, n, M)
+	fmt.Println(dp[n-1])
+}
+
+func bfs(sid int) {
+	visited := make([]bool, n)
+	dp := make([]int, n)
+
+	Q := []int{sid}
+	visited[sid], dp[sid] = true, 0
+	for len(Q) > 0 {
+		cid := Q[0]
+		Q = Q[1:]
+
+		for _, nid := range g[cid] {
+			if visited[nid] {
+				continue
+			}
+
+			visited[nid] = true
+			dp[nid] = dp[cid] + 1
+			Q = append(Q, nid)
+		}
 	}
 
-	dp[0] = 0
-	for S := 0; S < 1<<uint(m); S++ {
-		// S（元の集合）に含まれるぬいぐるみの個数を計算
-		prev := sub(S)
+	for i := 0; i < n; i++ {
+		if dp[i] <= R[sid] {
+			M[sid][i] = int32(C[sid])
+		} else {
+			M[sid][i] = int32(INF_BIT30)
+		}
+	}
+}
 
-		for i := 0; i < m; i++ {
-			if NthBit(S, i) == 0 {
-				total := N[i][n]
-				diff := total - (N[i][prev+total] - N[i][prev])
-				// PrintfDebug("diff: %v\n", diff)
-				ChMin(&dp[OnBit(S, i)], dp[S]+diff)
+// DP value type
+// type V struct {
+// }
+type V int
+
+// for initializing start points of dijkstra algorithm
+type StartPoint struct {
+	id    int
+	vinit V
+}
+
+type DijkstraSolver struct {
+	vinf     V
+	einf     int
+	Less     func(l, r V) bool   // Less returns whether l is strictly less than r, and is also used for priority queue.
+	GenNextV func(cv V, e int) V // GenNextV returns next value considered by transition.
+}
+
+func NewDijkstraSolver(
+	vinf V, einf int, Less func(l, r V) bool, GenNextV func(cv V, e int) V,
+) *DijkstraSolver {
+	ds := new(DijkstraSolver)
+
+	ds.vinf, ds.einf = vinf, einf
+	ds.Less, ds.GenNextV = Less, GenNextV
+
+	return ds
+}
+
+// verified by [ABC143-E](https://atcoder.jp/contests/abc143/tasks/abc143_e)
+func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]int32) []V {
+	// initialize data
+	dp, colors := ds.InitAll(n)
+
+	// configure about start points (some problems have multi start points)
+	ds.InitStartPoint(S, dp, colors)
+
+	// body of dijkstra algorithm (O(n^2))
+	for {
+		minv, u := ds.vinf, -1
+
+		// find next optimal node
+		for i := 0; i < n; i++ {
+			if ds.Less(dp[i], minv) && colors[i] != BLACK {
+				u = i
+				minv = dp[i]
+			}
+		}
+		if u == -1 {
+			break
+		}
+
+		colors[u] = BLACK
+
+		// update all nodes v from node u
+		for v := 0; v < n; v++ {
+			if colors[v] != BLACK && AG[u][v] != int32(ds.einf) {
+				nv := ds.GenNextV(dp[u], int(AG[u][v]))
+				if ds.Less(nv, dp[v]) {
+					dp[v] = nv
+					colors[v] = GRAY
+				}
 			}
 		}
 	}
-	// PrintfDebug("%v\n", dp[:1<<uint(m)])
-	fmt.Println(dp[1<<uint(m)-1])
+
+	return dp
 }
 
-func sub(S int) int {
-	res := 0
-	for i := 0; i < m; i++ {
-		if NthBit(S, i) == 1 {
-			res += N[i][n]
-		}
-	}
-	return res
-}
-
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int, ub int) int {
-	res := 0
-
-	for i := 0; i < ub; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
-		}
+// InitAll returns initialized dp and colors slices.
+func (ds *DijkstraSolver) InitAll(n int) (dp []V, colors []int) {
+	dp, colors = make([]V, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = ds.vinf
+		colors[i] = WHITE
 	}
 
-	return res
+	return dp, colors
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
+// InitStartPoint returns initialized priority queue, and update dp and colors slices.
+// *This function update arguments (side effects).*
+func (ds *DijkstraSolver) InitStartPoint(S []StartPoint, dp []V, colors []int) {
+	for _, sp := range S {
+		dp[sp.id] = sp.vinit
+		colors[sp.id] = GRAY
 	}
-	return false
 }
 
 /*******************************************************************/

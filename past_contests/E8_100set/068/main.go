@@ -1,123 +1,69 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2017yo/tasks/joi2017yo_d
+https://onlinejudge.u-aizu.ac.jp/problems/NTL_1_A
 */
 
 package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
 var (
-	n, m int
-	A    []int
-
-	N [20 + 5][100000 + 5]int
-
-	dp [1<<20 + 5]int
+	n int
 )
 
 func main() {
-	n, m = readi2()
-	A = readis(n)
-	for i := 0; i < n; i++ {
-		A[i]--
-	}
+	n = readi()
 
-	for i := 0; i < m; i++ {
-		tmp := make([]int, n)
-		for j := 0; j < n; j++ {
-			if A[j] == i {
-				tmp[j] = 1
-			}
-		}
+	memo := TrialDivision(n)
 
-		for j := 0; j < n; j++ {
-			N[i][j+1] = N[i][j] + tmp[j]
-		}
-	}
-	// for i := 0; i < m; i++ {
-	// 	PrintfDebug("%v\n", N[i][:n+1])
-	// }
-
-	for S := 0; S < 1<<uint(m); S++ {
-		dp[S] = INF_BIT60
-	}
-
-	dp[0] = 0
-	for S := 0; S < 1<<uint(m); S++ {
-		// S（元の集合）に含まれるぬいぐるみの個数を計算
-		prev := sub(S)
-
-		for i := 0; i < m; i++ {
-			if NthBit(S, i) == 0 {
-				total := N[i][n]
-				diff := total - (N[i][prev+total] - N[i][prev])
-				// PrintfDebug("diff: %v\n", diff)
-				ChMin(&dp[OnBit(S, i)], dp[S]+diff)
-			}
-		}
-	}
-	// PrintfDebug("%v\n", dp[:1<<uint(m)])
-	fmt.Println(dp[1<<uint(m)-1])
-}
-
-func sub(S int) int {
-	res := 0
-	for i := 0; i < m; i++ {
-		if NthBit(S, i) == 1 {
-			res += N[i][n]
-		}
-	}
-	return res
-}
-
-// NthBit returns nth bit value of an argument.
-// n starts from 0.
-func NthBit(num int, nth int) int {
-	return num >> uint(nth) & 1
-}
-
-// OnBit returns the integer that has nth ON bit.
-// If an argument has nth ON bit, OnBit returns the argument.
-func OnBit(num int, nth int) int {
-	return num | (1 << uint(nth))
-}
-
-// OffBit returns the integer that has nth OFF bit.
-// If an argument has nth OFF bit, OffBit returns the argument.
-func OffBit(num int, nth int) int {
-	return num & ^(1 << uint(nth))
-}
-
-// PopCount returns the number of ON bit of an argument.
-func PopCount(num int, ub int) int {
-	res := 0
-
-	for i := 0; i < ub; i++ {
-		if ((num >> uint(i)) & 1) == 1 {
-			res++
+	A := []int{}
+	for k, v := range memo {
+		for i := 0; i < v; i++ {
+			A = append(A, k)
 		}
 	}
 
-	return res
+	sort.Sort(sort.IntSlice(A))
+
+	fmt.Printf("%d: ", n)
+	fmt.Println(PrintIntsLine(A...))
 }
 
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
+// TrialDivision returns the result of prime factorization of integer N.
+func TrialDivision(n int) map[int]int {
+	var i, exp int
+	p := map[int]int{}
+
+	if n <= 1 {
+		panic(errors.New("[argument error]: TrialDivision only accepts a NATURAL number"))
 	}
-	return false
+
+	for i = 2; i*i <= n; i++ {
+		exp = 0
+		for n%i == 0 {
+			exp++
+			n /= i
+		}
+
+		if exp == 0 {
+			continue
+		}
+		p[i] = exp
+	}
+	if n > 1 {
+		p[n] = 1
+	}
+
+	return p
 }
 
 /*******************************************************************/
