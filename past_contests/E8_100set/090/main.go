@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2013ho/tasks/joi2013ho1
+https://atcoder.jp/contests/s8pc-5/tasks/s8pc_5_b
 */
 
 package main
@@ -15,66 +15,110 @@ import (
 )
 
 var (
-	n int
-	A []int
+	n, m    int
+	X, Y, R []float64
 )
+
+const ir = 100000.0
 
 func main() {
 	defer stdout.Flush()
 
-	n = readi()
-	A = readis(n)
+	n, m = readi2()
+	for i := 0; i < n; i++ {
+		x, y, r := readi3()
+		xf, yf, rf := float64(x), float64(y), float64(r)
+		X = append(X, xf)
+		Y = append(Y, yf)
+		R = append(R, rf)
+	}
+	for i := 0; i < m; i++ {
+		x, y := readi2()
+		xf, yf := float64(x), float64(y)
+		X = append(X, xf)
+		Y = append(Y, yf)
+	}
 
-	B := []int{}
-	pre := A[0]
-	cl := 1
-	for i := 1; i < n; i++ {
-		cur := A[i]
+	ok := BinarySearch(0.0, ir, func(r float64) bool {
+		for i := 0; i < n+m; i++ {
+			for j := i + 1; j < n+m; j++ {
+				var x1, y1, r1, x2, y2, r2 float64
+				x1, y1, x2, y2 = X[i], Y[i], X[j], Y[j]
+				if i < n {
+					r1 = R[i]
+				} else {
+					r1 = r
+				}
+				if j < n {
+					r2 = R[j]
+				} else {
+					r2 = r
+				}
 
-		if pre != cur {
-			cl++
-		} else {
-			B = append(B, cl)
-			cl = 1
+				if isOverlap(x1, y1, r1, x2, y2, r2) {
+					return false
+				}
+			}
 		}
 
-		pre = cur
-	}
-	B = append(B, cl)
-	// PrintfDebug("%v\n", B)
-
-	ans := 0
-	if len(B) >= 3 {
-		for i := 0; i+3 <= len(B); i++ {
-			ChMax(&ans, Sum(B[i:i+3]...))
-		}
-	} else {
-		ans = Sum(B...)
-	}
-	fmt.Println(ans)
-}
-
-// Sum returns multiple integers sum.
-func Sum(integers ...int) int {
-	var s int
-	s = 0
-
-	for _, i := range integers {
-		s += i
-	}
-
-	return s
-}
-
-// ChMax accepts a pointer of integer and a target value.
-// If target value is LARGER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMax(updatedValue *int, target int) bool {
-	if *updatedValue < target {
-		*updatedValue = target
 		return true
+	})
+
+	// if ok >= ir-1.0 {
+	if m == 0 || n == 0 {
+		for i := 0; i < n; i++ {
+			ok = math.Min(ok, R[i])
+		}
+		PrintfBufStdout("%v\n", ok)
+	} else {
+		PrintfBufStdout("%v\n", ok)
 	}
-	return false
+}
+
+func isOverlap(x1, y1, r1, x2, y2, r2 float64) bool {
+	d := Distance(x1, y1, x2, y2)
+
+	// 統合を含めるとWAになる
+	return d <= r1+r2
+	// return d < r1+r2
+}
+
+func Distance(x1, y1, x2, y2 float64) float64 {
+	return math.Sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
+}
+
+func UnitVector(dx, dy float64) (ex, ey float64) {
+	dist := math.Sqrt(dx*dx + dy*dy)
+	return dx / dist, dy / dist
+}
+
+func Rotate90(cx, cy float64) (nx, ny float64) {
+	return -cy, cx
+}
+
+func RotateN(cx, cy, radi float64) (nx, ny float64) {
+	nx = math.Cos(radi)*cx - math.Sin(radi)*cy
+	ny = math.Sin(radi)*cx + math.Cos(radi)*cy
+	return nx, ny
+}
+
+func Midpoint(x1, y1, x2, y2 float64) (mx, my float64) {
+	return (x1 + x2) / 2.0, (y1 + y2) / 2.0
+}
+
+func BinarySearch(initOK, initNG float64, isOK func(mid float64) bool) (ok float64) {
+	ng := initNG
+	ok = initOK
+	for i := 0; i < 1000; i++ {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
 }
 
 /*******************************************************************/
