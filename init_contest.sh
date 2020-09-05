@@ -11,7 +11,7 @@ readonly SCRIPT_NAME=${0##*/}
 for dirName in "$@"
 do
   mkdir $dirName
-  cp "${GOCOMPE}/_TEMPLATE.go" "${dirName}/${dirName}.go"
+  cp "${GOCOMPE}/template/go/base-competitive.go" "${dirName}/${dirName}.go"
 done
 
 touch 'README.md'

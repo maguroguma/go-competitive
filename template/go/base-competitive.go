@@ -15,7 +15,9 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello World.")
+	defer stdout.Flush()
+
+	printf("Hello World.\n")
 }
 
 /*******************************************************************/
@@ -39,11 +41,29 @@ const (
 	BLACK = 2
 )
 
+// modi can calculate a right residual whether value is positive or negative.
+func modi(val, m int) int {
+	res := val % m
+	if res < 0 {
+		res += m
+	}
+	return res
+}
+
+// modll can calculate a right residual whether value is positive or negative.
+func modll(val, m int64) int64 {
+	res := val % m
+	if res < 0 {
+		res += m
+	}
+	return res
+}
+
 /********** bufio setting **********/
 
 func init() {
 	// bufio.ScanWords <---> bufio.ScanLines
-	ReadString = newReadString(os.Stdin, bufio.ScanWords)
+	reads = newReadString(os.Stdin, bufio.ScanWords)
 	stdout = bufio.NewWriter(os.Stdout)
 }
 
@@ -53,12 +73,12 @@ func init() {
 
 /********** I/O usage **********/
 
-//str := ReadString()
-//i := ReadInt()
-//X := ReadIntSlice(n)
-//S := ReadRuneSlice()
-//a := ReadFloat64()
-//A := ReadFloat64Slice(n)
+//str := reads()
+//i := readi()
+//X := readis(n)
+//S := readrs()
+//a := readf()
+//A := readfs(n)
 
 //str := ZeroPaddingRuneSlice(num, 32)
 //str := PrintIntsLine(X...)
@@ -66,9 +86,9 @@ func init() {
 /*********** Input ***********/
 
 var (
-	// ReadString returns a WORD string.
-	ReadString func() string
-	stdout     *bufio.Writer
+	// reads returns a WORD string.
+	reads  func() string
+	stdout *bufio.Writer
 )
 
 func newReadString(ior io.Reader, sf bufio.SplitFunc) func() string {
@@ -86,34 +106,34 @@ func newReadString(ior io.Reader, sf bufio.SplitFunc) func() string {
 
 // readi returns an integer.
 func readi() int {
-	return int(readInt64())
+	return int(_readInt64())
 }
 func readi2() (int, int) {
-	return int(readInt64()), int(readInt64())
+	return int(_readInt64()), int(_readInt64())
 }
 func readi3() (int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64())
+	return int(_readInt64()), int(_readInt64()), int(_readInt64())
 }
 func readi4() (int, int, int, int) {
-	return int(readInt64()), int(readInt64()), int(readInt64()), int(readInt64())
+	return int(_readInt64()), int(_readInt64()), int(_readInt64()), int(_readInt64())
 }
 
 // readll returns as integer as int64.
 func readll() int64 {
-	return readInt64()
+	return _readInt64()
 }
 func readll2() (int64, int64) {
-	return readInt64(), readInt64()
+	return _readInt64(), _readInt64()
 }
 func readll3() (int64, int64, int64) {
-	return readInt64(), readInt64(), readInt64()
+	return _readInt64(), _readInt64(), _readInt64()
 }
 func readll4() (int64, int64, int64, int64) {
-	return readInt64(), readInt64(), readInt64(), readInt64()
+	return _readInt64(), _readInt64(), _readInt64(), _readInt64()
 }
 
-func readInt64() int64 {
-	i, err := strconv.ParseInt(ReadString(), 0, 64)
+func _readInt64() int64 {
+	i, err := strconv.ParseInt(reads(), 0, 64)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -138,13 +158,13 @@ func readlls(n int) []int64 {
 	return b
 }
 
-// ReadFloat64 returns an float64.
-func ReadFloat64() float64 {
-	return float64(readFloat64())
+// readf returns an float64.
+func readf() float64 {
+	return float64(_readFloat64())
 }
 
-func readFloat64() float64 {
-	f, err := strconv.ParseFloat(ReadString(), 64)
+func _readFloat64() float64 {
+	f, err := strconv.ParseFloat(reads(), 64)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -152,17 +172,17 @@ func readFloat64() float64 {
 }
 
 // ReadFloatSlice returns an float64 slice that has n float64.
-func ReadFloat64Slice(n int) []float64 {
+func readfs(n int) []float64 {
 	b := make([]float64, n)
 	for i := 0; i < n; i++ {
-		b[i] = ReadFloat64()
+		b[i] = readf()
 	}
 	return b
 }
 
-// ReadRuneSlice returns a rune slice.
-func ReadRuneSlice() []rune {
-	return []rune(ReadString())
+// readrs returns a rune slice.
+func readrs() []rune {
+	return []rune(reads())
 }
 
 /*********** Output ***********/
@@ -199,16 +219,16 @@ func PrintInts64Line(A ...int64) string {
 	return string(res)
 }
 
-// PrintfBufStdout is function for output strings to buffered os.Stdout.
+// Printf is function for output strings to buffered os.Stdout.
 // You may have to call stdout.Flush() finally.
-func PrintfBufStdout(format string, a ...interface{}) {
+func printf(format string, a ...interface{}) {
 	fmt.Fprintf(stdout, format, a...)
 }
 
 /*********** Debugging ***********/
 
-// PrintfDebug is wrapper of fmt.Fprintf(os.Stderr, format, a...)
-func PrintfDebug(format string, a ...interface{}) {
+// debugf is wrapper of fmt.Fprintf(os.Stderr, format, a...)
+func debugf(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
 }
 
