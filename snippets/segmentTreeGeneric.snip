@@ -1,4 +1,4 @@
-snippet     segmentTreeGeneralized
+snippet     segmentTreeGeneric
 abbr        func NewSegmentTree() *SegmentTree
 options     head
   type T int // (T, f): Monoid
@@ -72,7 +72,7 @@ options     head
     return st.data[k+(st.sz-1)]
   }
 
-snippet     lazySegmentTreeGeneralized
+snippet     lazySegmentTreeGeneric
 abbr        func NewLazySegmentTree() *LazySegmentTree
 options     head
   // Assumption: T == E
