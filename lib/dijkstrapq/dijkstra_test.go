@@ -1,4 +1,4 @@
-package spfa
+package dijkstrapq
 
 import (
 	"fmt"
