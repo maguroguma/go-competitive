@@ -1,0 +1,98 @@
+package strings
+
+import (
+	"math"
+	"math/rand"
+	"time"
+)
+
+// rolling hash (by keymoon@atcoder)
+// originated from: https://qiita.com/keymoon/items/11fac5627672a6d6a9f6
+// reference: https://atcoder.jp/contests/abc141/submissions/7717102
+
+// NewRHash returns rolling hashs of the string.
+func NewRHash(s string) *RHash {
+	if !_isInitialized {
+		initRHashConfing()
+		_isInitialized = true
+	}
+
+	rh := new(RHash)
+
+	rh.hash = make([]uint64, len(s)+1)
+	for i := 0; i < len(s); i++ {
+		rh.hash[i+1] = rhCalcMod(rhMul(rh.hash[i], _rhBase) + uint64(s[i]))
+	}
+
+	return rh
+}
+
+// SliceHash returns a rolling hash of a slice of the string.
+// The slice is expressed like [l, r).
+// This function can be used like Golang slice(S[l:r]).
+func (rh *RHash) SliceHash(l, r int) uint64 {
+	begin, length := l, r-l
+	return rhCalcMod(
+		rh.hash[begin+length] + _RH_POSITIVIZER - rhMul(rh.hash[begin], _rhPowMemo[length]),
+	)
+}
+
+// OffsetHash returns a rolling hash of a slice of the string.
+// The slice is expressed like [begin, begin+length).
+func (rh *RHash) OffsetHash(begin, length int) uint64 {
+	return rhCalcMod(
+		rh.hash[begin+length] + _RH_POSITIVIZER - rhMul(rh.hash[begin], _rhPowMemo[length]),
+	)
+}
+
+// Len returns a length of an original string.
+func (rh *RHash) Len() int {
+	return len(rh.hash) - 1
+}
+
+type RHash struct {
+	hash []uint64
+}
+
+const (
+	_RH_MASK30       uint64 = (1 << 30) - 1
+	_RH_MASK31       uint64 = (1 << 31) - 1
+	_RH_MOD          uint64 = (1 << 61) - 1
+	_RH_POSITIVIZER  uint64 = _RH_MOD * ((1 << 3) - 1)
+	_RH_MAX_S_LENGTH        = 2000000 + 50
+)
+
+var (
+	_rhBase        uint64
+	_rhPowMemo     []uint64
+	_isInitialized = false
+)
+
+func initRHashConfing() {
+	rand.Seed(time.Now().UnixNano())
+
+	_rhBase = uint64(rand.Int31n(math.MaxInt32-129)) + uint64(129)
+	_rhPowMemo = make([]uint64, _RH_MAX_S_LENGTH)
+	_rhPowMemo[0] = 1
+	for i := 1; i < len(_rhPowMemo); i++ {
+		_rhPowMemo[i] = rhCalcMod(rhMul(_rhPowMemo[i-1], _rhBase))
+	}
+}
+
+func rhMul(l, r uint64) uint64 {
+	var lu uint64 = l >> 31
+	var ld uint64 = l & _RH_MASK31
+	var ru uint64 = r >> 31
+	var rd uint64 = r & _RH_MASK31
+	var middleBit uint64 = ld*ru + lu*rd
+
+	return ((lu * ru) << 1) + ld*rd + ((middleBit & _RH_MASK30) << 31) + (middleBit >> 30)
+}
+
+func rhCalcMod(val uint64) uint64 {
+	val = (val & _RH_MOD) + (val >> 61)
+	if val > _RH_MOD {
+		val -= _RH_MOD
+	}
+	return val
+}
