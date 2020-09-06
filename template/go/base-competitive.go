@@ -25,20 +25,14 @@ func main() {
 /********** common constants **********/
 
 const (
-	// General purpose
 	MOD = 1000000000 + 7
 	// MOD          = 998244353
-	ALPHABET_NUM = 26
-	INF_INT64    = math.MaxInt64
-	INF_BIT60    = 1 << 60
-	INF_INT32    = math.MaxInt32
-	INF_BIT30    = 1 << 30
-	NIL          = -1
-
-	// for dijkstra, prim, and so on
-	WHITE = 0
-	GRAY  = 1
-	BLACK = 2
+	ALPH_N  = 26
+	INF_I64 = math.MaxInt64
+	INF_B60 = 1 << 60
+	INF_I32 = math.MaxInt32
+	INF_B30 = 1 << 30
+	NIL     = -1
 )
 
 // modi can calculate a right residual whether value is positive or negative.
