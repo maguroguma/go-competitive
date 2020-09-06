@@ -21,15 +21,15 @@ var (
 	q       int
 
 	A [300 + 5][300 + 5]int
-	G [][]int
+	G [][]EdgeWeight
 )
 
 func main() {
 	n, m, l = ReadInt3()
 	for i := 0; i < n; i++ {
-		row := make([]int, n)
+		row := make([]EdgeWeight, n)
 		for j := 0; j < n; j++ {
-			row[j] = INF_BIT30
+			row[j] = EdgeWeight{gas: INF_BIT30}
 		}
 		G = append(G, row)
 	}
@@ -38,12 +38,13 @@ func main() {
 		a--
 		b--
 
-		G[a][b] = c
-		G[b][a] = c
+		ew := EdgeWeight{gas: c}
+		G[a][b] = ew
+		G[b][a] = ew
 	}
 
 	vinf := V{gas: -1, times: INF_BIT60}
-	einf := INF_BIT30
+	einf := EdgeWeight{gas: INF_BIT30}
 	vzero := V{gas: l, times: 0}
 	less := func(l, r V) bool {
 		if l.times < r.times {
@@ -54,21 +55,21 @@ func main() {
 			return l.gas > r.gas
 		}
 	}
-	genNextV := func(cv V, e int) V {
-		if l < e {
+	genNextV := func(cv V, e EdgeWeight) V {
+		if l < e.gas {
 			return vinf
 		}
 
-		if cv.gas >= e {
-			return V{gas: cv.gas - e, times: cv.times}
+		if cv.gas >= e.gas {
+			return V{gas: cv.gas - e.gas, times: cv.times}
 		}
 
-		return V{gas: l - e, times: cv.times + 1}
+		return V{gas: l - e.gas, times: cv.times + 1}
 	}
 	ds := NewDijkstraSolver(vinf, einf, less, genNextV)
 
 	for i := 0; i < n; i++ {
-		dp := ds.Dijkstra([]StartPoint{StartPoint{id: i, vinit: vzero}}, n, G)
+		dp := ds.Dijkstra([]StartPoint{{id: i, vzero: vzero}}, n, G)
 
 		for j := 0; j < n; j++ {
 			if i == j {
@@ -93,62 +94,57 @@ func main() {
 	}
 }
 
+const (
+	WHITE = 0
+	GRAY  = 1
+	BLACK = 2
+)
+
 // DP value type
 type V struct {
+	// {{
 	gas, times int
+	// }}
+}
+
+// weight of edges
+type EdgeWeight struct {
+	// {{
+	gas int
+	// }}
 }
 
 // for initializing start points of dijkstra algorithm
 type StartPoint struct {
 	id    int
-	vinit V
+	vzero V
 }
 
 type DijkstraSolver struct {
-	vinf     V
-	einf     int
-	Less     func(l, r V) bool   // Less returns whether l is strictly less than r, and is also used for priority queue.
-	GenNextV func(cv V, e int) V // GenNextV returns next value considered by transition.
+	vinf  V
+	ewinf EdgeWeight
+	Less  func(l, r V) bool          // Less returns l < r.
+	NextV func(cv V, e EdgeWeight) V // NextV returns next value considered by transition.
 }
 
 func NewDijkstraSolver(
-	vinf V, einf int, Less func(l, r V) bool, GenNextV func(cv V, e int) V,
+	vinf V, ewinf EdgeWeight, Less func(l, r V) bool, NextV func(cv V, ew EdgeWeight) V,
 ) *DijkstraSolver {
 	ds := new(DijkstraSolver)
 
-	ds.vinf, ds.einf = vinf, einf
-	ds.Less, ds.GenNextV = Less, GenNextV
+	ds.vinf, ds.ewinf = vinf, ewinf
+	ds.Less, ds.NextV = Less, NextV
 
 	return ds
 }
 
-// InitAll returns initialized dp and colors slices.
-func (ds *DijkstraSolver) InitAll(n int) (dp []V, colors []int) {
-	dp, colors = make([]V, n), make([]int, n)
-	for i := 0; i < n; i++ {
-		dp[i] = ds.vinf
-		colors[i] = WHITE
-	}
-
-	return dp, colors
-}
-
-// InitStartPoint returns initialized priority queue, and update dp and colors slices.
-// *This function update arguments (side effects).*
-func (ds *DijkstraSolver) InitStartPoint(S []StartPoint, dp []V, colors []int) {
-	for _, sp := range S {
-		dp[sp.id] = sp.vinit
-		colors[sp.id] = GRAY
-	}
-}
-
 // verified by [ABC143-E](https://atcoder.jp/contests/abc143/tasks/abc143_e)
-func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]int) []V {
+func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]EdgeWeight) []V {
 	// initialize data
-	dp, colors := ds.InitAll(n)
+	dp, colors := ds.initAll(n)
 
 	// configure about start points (some problems have multi start points)
-	ds.InitStartPoint(S, dp, colors)
+	ds.initStartPoint(S, dp, colors)
 
 	// body of dijkstra algorithm (O(n^2))
 	for {
@@ -169,8 +165,8 @@ func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]int) []V {
 
 		// update all nodes v from node u
 		for v := 0; v < n; v++ {
-			if colors[v] != BLACK && AG[u][v] != ds.einf {
-				nv := ds.GenNextV(dp[u], AG[u][v])
+			if colors[v] != BLACK && AG[u][v] != ds.ewinf {
+				nv := ds.NextV(dp[u], AG[u][v])
 				if ds.Less(nv, dp[v]) {
 					dp[v] = nv
 					colors[v] = GRAY
@@ -180,6 +176,26 @@ func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]int) []V {
 	}
 
 	return dp
+}
+
+// initAll returns initialized dp and colors slices.
+func (ds *DijkstraSolver) initAll(n int) (dp []V, colors []int) {
+	dp, colors = make([]V, n), make([]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = ds.vinf
+		colors[i] = WHITE
+	}
+
+	return dp, colors
+}
+
+// initStartPoint returns initialized priority queue, and update dp and colors slices.
+// *This function update arguments (side effects).*
+func (ds *DijkstraSolver) initStartPoint(S []StartPoint, dp []V, colors []int) {
+	for _, sp := range S {
+		dp[sp.id] = sp.vzero
+		colors[sp.id] = GRAY
+	}
 }
 
 const (
@@ -194,9 +210,9 @@ const (
 	NIL          = -1
 
 	// for dijkstra, prim, and so on
-	WHITE = 0
-	GRAY  = 1
-	BLACK = 2
+	// WHITE = 0
+	// GRAY  = 1
+	// BLACK = 2
 )
 
 /*******************************************************************/
