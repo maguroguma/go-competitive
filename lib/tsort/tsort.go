@@ -1,4 +1,4 @@
-package graph
+package tsort
 
 // TSort returns a node ids list in topological order.
 // node id is 0-based.
