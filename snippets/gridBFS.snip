@@ -1,3 +1,29 @@
+snippet     gridToGraph
+abbr        cid := w*i + j
+options     head
+  steps := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
+  toid := func(i, j int) int { return w*i + j }
+  toy := func(id int) int { return id / w }
+  tox := func(id int) int { return id % w }
+
+  N := h * w
+  G = make([][]int, N)
+  for i := 0; i < h; i++ {
+    for j := 0; j < w; j++ {
+      cid := toid(i, j)
+
+      for _, s := range steps {
+        dy, dx := s[0], s[1]
+        ny, nx := i+dy, j+dx
+        if 0 <= ny && ny < h && 0 <= nx && nx < w {
+          nid := toid(ny, nx)
+
+          G[cid] = append(G[cid], nid)
+        }
+      }
+    }
+  }
+
 snippet     gridBFS
 abbr        steps := [4][2]int
 options     head
@@ -23,32 +49,6 @@ options     head
       if 0 <= ny && ny < $1 && 0 <= nx && nx < $2 && ${4:#:enqueue-condition} {
         newCoord := [2]int{ny, nx}
         queue = append(queue, newCoord)
-      }
-    }
-  }
-
-snippet     gridToGraph
-abbr        cid := w*i + j
-options     head
-  steps := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
-  toid := func(i, j int) int { return w*i + j }
-  toy := func(id int) int { return id / w }
-  tox := func(id int) int { return id % w }
-
-  N := h * w
-  G = make([][]int, N)
-  for i := 0; i < h; i++ {
-    for j := 0; j < w; j++ {
-      cid := toid(i, j)
-
-      for _, s := range steps {
-        dy, dx := s[0], s[1]
-        ny, nx := i+dy, j+dx
-        if 0 <= ny && ny < h && 0 <= nx && nx < w {
-          nid := toid(ny, nx)
-
-          G[cid] = append(G[cid], nid)
-        }
       }
     }
   }
