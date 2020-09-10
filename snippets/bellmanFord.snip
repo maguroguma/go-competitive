@@ -1,104 +1,58 @@
-snippet     bellmanFordRoopCheckVer
-abbr        dist[e.to] = dist[e.from] + e.cost; if isRoop[i] {}
+snippet     bellmanford
+abbr        func Bellmanford(sid, n int, L []Edge) (dist []int, negaRoop []bool)
 options     head
-  // node idは0-based
-  // AOJ
-  // 閉路チェックあり
-
-  const INF_30 = 1 << 30
-  const MAX_NODE_NUM = 3000
-
-  var es []Edge                     // 辺
-  var dist [MAX_NODE_NUM + 5]int    // 最短距離
-  var isRoop [MAX_NODE_NUM + 5]bool // 閉路チェック
-  var v, e int                      // vは頂点数, eは辺数
-
-  // 頂点fromから頂点toへのコストcostの辺
   type Edge struct {
     from, to, cost int
   }
 
-  // s番目の頂点から各頂点への最短距離を求める
-  // O(|V| * |E|)
-  func shortestPath(s int) {
-    // 初期化
-    for i := 0; i < v; i++ {
-      dist[i] = INF_30
-    }
-    dist[s] = 0
+  // Bellmanford calculates shortest paths from node sid.
+  // Node ids are 0-based.
+  // dist[i]: shortest path from sid to i
+  // roop[i]: whether node i is in a negative roop.
+  // Time complexity: O(|V| * |E|)
+  func Bellmanford(sid, n int, L []Edge) (dist []int, negaRoop []bool) {
+    const BEL_INF = 1 << 60
 
-    // まずは普通に更新
-    for c := 0; c < v; c++ {
+    dist, negaRoop = make([]int, n), make([]bool, n)
+
+    // Initialization
+    for i := 0; i < n; i++ {
+      dist[i], negaRoop[i] = BEL_INF, false
+    }
+    dist[sid] = 0
+
+    // main algorithm (at least n-1 times updates)
+    for c := 0; c < n; c++ {
       isUpdate := false
 
-      for i := 0; i < e; i++ {
-        e := es[i]
-        if dist[e.from] != INF_30 && dist[e.to] > dist[e.from]+e.cost {
+      for i := 0; i < len(L); i++ {
+        e := L[i]
+        if dist[e.from] != BEL_INF && dist[e.to] > dist[e.from]+e.cost {
           dist[e.to] = dist[e.from] + e.cost
           isUpdate = true
         }
       }
 
-      // 更新がなかったらループを抜ける
       if !isUpdate {
         break
       }
     }
 
-    // 閉路チェック
-    for c := 0; c < v; c++ {
-      for _, e := range es {
-        // 起こらないはずの更新が起こる
-        if dist[e.from] != INF_30 && dist[e.to] > dist[e.from]+e.cost {
+    // check negative roops (at least n-1 times updates)
+    for c := 0; c < n; c++ {
+      for _, e := range L {
+        // abnormal updates
+        if dist[e.from] != BEL_INF && dist[e.to] > dist[e.from]+e.cost {
           dist[e.to] = dist[e.from] + e.cost
-          isRoop[e.to] = true
+          negaRoop[e.to] = true
         }
 
-        if isRoop[e.from] {
-          isRoop[e.to] = true
+        if negaRoop[e.from] {
+          negaRoop[e.to] = true
         }
       }
     }
-  }
 
-snippet     bellmanFord
-abbr        dist[e.to] = dist[e.from] + e.cost
-options     head
-  // 頂点fromから頂点toへのコストcostの辺
-  type Edge struct {
-    from, to, cost int
-  }
-
-  const INF = 1 << 60
-
-  var es []Edge       // 辺
-  var dist [3000]int  // 最短距離
-  var v, e int        // vは頂点数, eは辺数
-
-  // s番目の頂点から各頂点への最短距離を求める
-  // O(|V| * |E|)
-  func shortestPath(s int) {
-    // 初期化
-    for i := 0; i < v; i++ {
-      dist[i] = INF
-    }
-    dist[s] = 0
-
-    for {
-      isUpdate := false
-
-      for i := 0; i < e; i++ {
-        e := es[i]
-        if dist[e.from] != INF && dist[e.to] > dist[e.from]+e.cost {
-          dist[e.to] = dist[e.from] + e.cost
-          isUpdate = true
-        }
-      }
-
-      // 更新がなかったらループを抜ける
-      if !isUpdate {
-        break
-      }
-    }
+    return
   }
 
