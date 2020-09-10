@@ -1,40 +1,39 @@
 snippet     treeDiameter
-abbr        func Diameter() int
+abbr        func TreeDiameter(TG [][]Edge) int
 options     head
-  var edges [][]Edge
-
   type Edge struct {
-    // nid: 向き先ノードID, weight: 重み
-    nid, weight int
+    to, cost int
   }
 
-  type Result struct {
-    // dist: 距離, nid: 終点ノードID
-    dist, nid int
-  }
+  // TreeDiameter returns a diameter of a tree graph.
+  // Time complexity: O(|E|)
+  func TreeDiameter(TG [][]Edge) int {
+    // temporal data type
+    type result struct {
+      dist int // distance
+      tid  int // terminal node id
+    }
 
-  // 木の直径を返す
-  // O(|E|)
-  func Diameter() int {
-    r := visit(-1, 0)     // nodeID: 0からの最遠ノード(とその距離)を計算
-    t := visit(-1, r.nid) // 0からの最遠ノードからの最遠ノードとその距離を計算
-    return t.dist         // 最遠距離のみを返す
-  }
-
-  // pidからcidに遷移したときの、cidからの最遠ノードを返す
-  // pid: 直前の遷移元ノードID, cid: 現在観ているノードID
-  func visit(pid, cid int) Result {
-    r := Result{dist: 0, nid: cid}
-    // DFS
-    for _, e := range edges[cid] {
-      if e.nid != pid {
-        t := visit(cid, e.nid) // 次の遷移先へ
-        t.dist += e.weight
-        if r.dist < t.dist {
-          r = t
+    // recursive function (DFS)
+    // visit returns the farthest node from cid, when pid -> cid.
+    var visit func(pid, cid int) result
+    visit = func(pid, cid int) result {
+      r := result{dist: 0, tid: cid}
+      // DFS
+      for _, e := range TG[cid] {
+        if e.to != pid {
+          t := visit(cid, e.to) // next transition (neighbor node)
+          t.dist += e.cost
+          if r.dist < t.dist {
+            r = t
+          }
         }
       }
+      return r
     }
-    return r
-  }
 
+    // main algorithm (0 -> u, u -> v, ans := dist(u, v))
+    r := visit(-1, 0)
+    t := visit(-1, r.tid)
+    return t.dist
+  }
