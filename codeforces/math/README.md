@@ -1,6 +1,6 @@
 # Codeforcesのmathタグの問題
 
-Last Change: 2020-06-26 20:43:38.
+Last Change: 2020-09-12 22:12:59.
 
 ## [1354A](https://codeforces.com/problemset/problem/1354/A)
 
@@ -564,4 +564,10 @@ zero sum rangesの要領でやればよいが、ちょっと頭がこんがら�
 
 場合分けが多いので丁寧に。
 簡単な条件から早期returnを活用してバグらないように注意する。
+
+## [1372B](https://codeforces.com/problemset/problem/1372/B) @2020-09-12
+
+1300。軽くエスパーした。
+
+証明読んだが結構長いし、むずい。
 
