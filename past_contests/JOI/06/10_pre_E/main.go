@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2009yo/tasks/joi2009yo_c
+https://atcoder.jp/contests/joi2010yo/tasks/joi2010yo_e
 */
 
 package main
@@ -15,133 +15,47 @@ import (
 )
 
 var (
-	n int
-	A []int
+	w, h int
+
+	dp [105][105][2][2]int
+)
+
+const (
+	U, R   = 0, 1
+	OK, NG = 0, 1
 )
 
 func main() {
 	defer stdout.Flush()
 
-	n = readi()
-	A = readis(n)
+	w, h = readi2()
 
-	ans := INF_B30
+	dp[1][1][U][NG] = 1
+	dp[1][1][R][NG] = 1
+	for i := 1; i <= h; i++ {
+		for j := 1; j <= w; j++ {
+			dp[i+1][j][U][OK] += dp[i][j][U][OK] + dp[i][j][U][NG]
+			dp[i+1][j][U][NG] += dp[i][j][R][OK]
 
-	for i := 0; i < n; i++ {
-		for j := 1; j <= 3; j++ {
-			tmp := A[i]
+			dp[i][j+1][R][OK] += dp[i][j][R][OK] + dp[i][j][R][NG]
+			dp[i][j+1][R][NG] += dp[i][j][U][OK]
 
-			A[i] = j
-			ChMin(&ans, calc(i))
-			A[i] = tmp
+			dp[i+1][j][U][OK] %= MOD
+			dp[i+1][j][U][NG] %= MOD
+
+			dp[i][j+1][R][OK] %= MOD
+			dp[i][j+1][R][NG] %= MOD
 		}
 	}
 
+	ans := 0
+	for i := 0; i < 2; i++ {
+		for j := 0; j < 2; j++ {
+			ans += dp[h][w][i][j]
+			ans %= MOD
+		}
+	}
 	fmt.Println(ans)
-}
-
-func calc(idx int) int {
-	res := 0
-
-	l, r := idx, idx
-	for l >= 0 && r < n {
-		if A[l] != A[r] {
-			break
-		}
-
-		color := A[l]
-		var cnt int
-		if l == r {
-			cnt = 1
-		} else {
-			cnt = 2
-		}
-
-		for l >= 1 {
-			if A[l-1] == color {
-				l--
-				cnt++
-			} else {
-				l--
-				break
-			}
-		}
-
-		for r < n-1 {
-			if A[r+1] == color {
-				r++
-				cnt++
-			} else {
-				r++
-				break
-			}
-		}
-
-		if cnt >= 4 {
-			res += cnt
-		} else {
-			break
-		}
-	}
-
-	return n - res
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
-//	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
-		*updatedValue = target
-		return true
-	}
-	return false
-}
-
-// RunLengthEncoding returns encoded slice of an input.
-func RunLengthEncoding(S []int) ([]int, []int) {
-	runes := []int{}
-	lengths := []int{}
-
-	l := 0
-	for i := 0; i < len(S); i++ {
-		// 1文字目の場合保持
-		if i == 0 {
-			l = 1
-			continue
-		}
-
-		if S[i-1] == S[i] {
-			// 直前の文字と一致していればインクリメント
-			l++
-		} else {
-			// 不一致のタイミングで追加し、長さをリセットする
-			runes = append(runes, S[i-1])
-			lengths = append(lengths, l)
-			l = 1
-		}
-	}
-	runes = append(runes, S[len(S)-1])
-	lengths = append(lengths, l)
-
-	return runes, lengths
-}
-
-// RunLengthDecoding decodes RLE results.
-func RunLengthDecoding(S []int, L []int) []int {
-	if len(S) != len(L) {
-		panic("S, L are not RunLengthEncoding results")
-	}
-
-	res := []int{}
-
-	for i := 0; i < len(S); i++ {
-		for j := 0; j < L[i]; j++ {
-			res = append(res, S[i])
-		}
-	}
-
-	return res
 }
 
 /*******************************************************************/
@@ -149,8 +63,9 @@ func RunLengthDecoding(S []int, L []int) []int {
 /********** common constants **********/
 
 const (
-	MOD = 1000000000 + 7
+	// MOD = 1000000000 + 7
 	// MOD          = 998244353
+	MOD     = 100000
 	ALPH_N  = 26
 	INF_I64 = math.MaxInt64
 	INF_B60 = 1 << 60

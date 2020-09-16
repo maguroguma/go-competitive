@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2009yo/tasks/joi2009yo_c
+https://atcoder.jp/contests/joi2010ho/tasks/joi2010ho_c
 */
 
 package main
@@ -15,133 +15,131 @@ import (
 )
 
 var (
-	n int
-	A []int
+	n, l int
+	A    []int
+
+	GG [100000 + 5][]int
+	G  [100000 + 5][]Edge
 )
+
+type Edge struct {
+	to, cost int
+}
 
 func main() {
 	defer stdout.Flush()
 
-	n = readi()
+	n, l = readi2()
 	A = readis(n)
 
-	ans := INF_B30
-
-	for i := 0; i < n; i++ {
-		for j := 1; j <= 3; j++ {
-			tmp := A[i]
-
-			A[i] = j
-			ChMin(&ans, calc(i))
-			A[i] = tmp
+	for i := 1; i < n; i++ {
+		if A[i-1] < A[i] {
+			GG[i] = append(GG[i], i-1)
+			G[i] = append(G[i], Edge{i - 1, l - A[i]})
+		} else {
+			GG[i-1] = append(GG[i-1], i)
+			G[i-1] = append(G[i-1], Edge{i, l - A[i-1]})
 		}
+	}
+
+	_, ids := TSort(n, GG[:n])
+	debugf("ids: %v\n", ids)
+
+	dp := make([]int, n)
+	for i := 0; i < n; i++ {
+		cid := ids[i]
+		for _, e := range G[cid] {
+			ChMax(&dp[e.to], dp[cid]+e.cost)
+		}
+	}
+
+	ans := 0
+	for i := 0; i < n; i++ {
+		ChMax(&ans, dp[i]+(l-A[i]))
 	}
 
 	fmt.Println(ans)
 }
 
-func calc(idx int) int {
-	res := 0
-
-	l, r := idx, idx
-	for l >= 0 && r < n {
-		if A[l] != A[r] {
-			break
-		}
-
-		color := A[l]
-		var cnt int
-		if l == r {
-			cnt = 1
-		} else {
-			cnt = 2
-		}
-
-		for l >= 1 {
-			if A[l-1] == color {
-				l--
-				cnt++
-			} else {
-				l--
-				break
-			}
-		}
-
-		for r < n-1 {
-			if A[r+1] == color {
-				r++
-				cnt++
-			} else {
-				r++
-				break
-			}
-		}
-
-		if cnt >= 4 {
-			res += cnt
-		} else {
-			break
-		}
-	}
-
-	return n - res
-}
-
-// ChMin accepts a pointer of integer and a target value.
-// If target value is SMALLER than the first argument,
+// ChMax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
 //	then the first argument will be updated by the second argument.
-func ChMin(updatedValue *int, target int) bool {
-	if *updatedValue > target {
+func ChMax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
 		*updatedValue = target
 		return true
 	}
 	return false
 }
 
-// RunLengthEncoding returns encoded slice of an input.
-func RunLengthEncoding(S []int) ([]int, []int) {
-	runes := []int{}
-	lengths := []int{}
+// TSort returns a node ids list in topological order.
+// node id is 0-based.
+// Time complexity: O(|E| + |V|)
+func TSort(nn int, AG [][]int) (ok bool, tsortedIDs []int) {
+	tsortedIDs = []int{}
 
-	l := 0
-	for i := 0; i < len(S); i++ {
-		// 1文字目の場合保持
-		if i == 0 {
-			l = 1
-			continue
-		}
-
-		if S[i-1] == S[i] {
-			// 直前の文字と一致していればインクリメント
-			l++
-		} else {
-			// 不一致のタイミングで追加し、長さをリセットする
-			runes = append(runes, S[i-1])
-			lengths = append(lengths, l)
-			l = 1
+	inDegrees := make([]int, nn)
+	for s := 0; s < nn; s++ {
+		for _, t := range AG[s] {
+			inDegrees[t]++
 		}
 	}
-	runes = append(runes, S[len(S)-1])
-	lengths = append(lengths, l)
 
-	return runes, lengths
+	stack := []int{}
+	for nid := 0; nid < nn; nid++ {
+		if inDegrees[nid] == 0 {
+			stack = append(stack, nid)
+		}
+	}
+
+	for len(stack) > 0 {
+		cid := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		tsortedIDs = append(tsortedIDs, cid)
+
+		for _, nid := range AG[cid] {
+			inDegrees[nid]--
+			if inDegrees[nid] == 0 {
+				stack = append(stack, nid)
+			}
+		}
+	}
+
+	if len(tsortedIDs) != nn {
+		return false, nil
+	}
+
+	return true, tsortedIDs
 }
 
-// RunLengthDecoding decodes RLE results.
-func RunLengthDecoding(S []int, L []int) []int {
-	if len(S) != len(L) {
-		panic("S, L are not RunLengthEncoding results")
+// LongestPath returns a length of longest path of a given graph.
+// This function assumes that all costs of edges are 1.
+// Time complexity: O(|E| + |V|)
+func LongestPath(tsortedIDs []int, AG [][]int) (maxLength int, dp []int) {
+	_chmax := func(updatedValue *int, target int) bool {
+		if *updatedValue < target {
+			*updatedValue = target
+			return true
+		}
+		return false
 	}
 
-	res := []int{}
+	dp = make([]int, len(tsortedIDs)+1)
 
-	for i := 0; i < len(S); i++ {
-		for j := 0; j < L[i]; j++ {
-			res = append(res, S[i])
+	for i := 0; i < len(tsortedIDs); i++ {
+		cid := tsortedIDs[i]
+		for _, nid := range AG[cid] {
+			_chmax(&dp[nid], dp[cid]+1)
 		}
 	}
 
-	return res
+	maxLength = 0
+	for i := 0; i < len(tsortedIDs); i++ {
+		_chmax(&maxLength, dp[i])
+	}
+
+	return maxLength, dp
 }
 
 /*******************************************************************/
