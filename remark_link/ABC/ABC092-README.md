@@ -1,1 +1,0 @@
-/Users/yokoyamamasahiro/go/src/github.com/myokoyama0712/go-competitive/past_contests/ABC/090-099/ABC092/README.md
