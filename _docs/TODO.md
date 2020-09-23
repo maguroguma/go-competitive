@@ -1,0 +1,218 @@
+# TODO
+
+- [x] スペース区切りの文字列を、string型のスライスで返す関数
+- [x] 1行あたり最大10^5個のスペース区切りの要素を読み込める関数
+- [ ] 1行の文字列のデリミタを指定できる関数（の実装の検討）
+- [ ] 複数行のエッジ入力から隣接行列を返す関数
+- [ ] 配列の初期化のスニペットを追加（グローバルでは宣言だけで初期化、ローカルでは定数を用いて波括弧を省くだけで初期化できるはず）
+- [x] `rune` 型から `string` 型への変換（`[]rune` ではなく）
+- [x] `strconv.Atoi()` のエラー処理を無視した関数
+- [x] `rune` 型の文字の大文字・小文字変換関数（`string` ではなく）
+- [x] `map` のキーについて例えば構造体を用いる場合の挙動のチェック（ABC113のC問題）
+- [x] 1次元スライスの先頭、末尾を中心に向かって行うスキャンの方法（ABC066のC問題）
+- [ ] ABC068のC問題を、模範解答のもの2パターンで再実装する
+- [ ] ABC070B問題の復習
+- [ ] `strconv.Itoa` 関数について、`int64, uint64` の変換方法について調べる
+- [x] 最小公倍数の関数の修正（ABC070）
+- [ ] 整数、浮動小数点型の各型について制限を確認しておく
+- [ ] おおまかな計算量と時間・空間の制限の関係を把握しておく
+- [ ] 1文字の文字列や1桁の整数値を `rune` 型に変換する方法
+- [ ] ABC075のC問題の解き直し
+- [x] 全探索系の復習（次のコンテスト参加までに）
+- [x] ABC077のC問題のリトライ
+- [ ] ABC051のD問題のリトライ（無駄が少なく、きれいなコードを意識して）
+- [x] ABC054のD問題の最初に間違えたコードのバグ原因を特定
+- [ ] ABC054のD問題のリトライ
+- [ ] ABC060のD問題の想定解の解き方でリトライ（優先度低）
+- [ ] ABC061のD問題およびベルマンフォード法の習熟
+- [ ] ダイクストラ法について、競技向けのシンプルなコードを書く（優先度付きキューも使うこと）
+- [x] union-findをモジュール化する
+- [ ] ABC065, 067のD問題の他の人の解答を読む（特に065優先）
+- [ ] ABC069のD問題の他の人の解答を読む（深さ優先探索の書き方の勉強）
+- [ ] ABC074のD問題
+- [ ] ABC075のD問題（全列挙の考え方を学び直せるため重要）
+- [ ] ABC076のD問題（解答を理解するところから）
+- [x] ABC114の復習（≒順列の復習）
+- [ ] スライスを反転させる方法の確認
+- [ ] stringsパッケージのSplit関数の仕様確認
+- [ ] ABC084のD問題を模範解答どおりにとき直す（エラトステネスの篩の実装）
+- [x] ABC086のD問題を解説放送で理解し、解いてみる。
+- [x] ABC087のD問題の再検討（グラフじゃないと解けない？）
+- [x] ABC088のD問題の解き直し
+- [ ] AGC029のB,C問題の学習
+- [x] 素因数分解の計算量の調査
+- [ ] ニムの必勝法について調査
+- [ ] ハノイの塔の再帰
+- [ ] ABC095のD問題
+- [x] ABC096のD問題
+- [ ] ABC098のD問題としゃくとり法の学習
+- [ ] ABC099のC問題の復習、DP系解き方の勉強
+- [x] ABC099のD問題の提出
+- [ ] ABC100のD問題の全探索部分の他の方のコードを参考にする
+- [ ] ABC101のC,D問題の学習
+- [x] ABC104のD問題の解説放送の視聴と理解
+- [x] ABC106のD問題の提出
+- [ ] AISing 2019のD問題の学習
+- [ ] ABC108のB問題の解き方を解説放送で学習
+- [ ] KEYENCE 2019のB問題の解き直し
+- [ ] KEYENCE 2019のD問題の解説を学習した上で提出する。
+- [x] ABC109のD問題の提出
+- [ ] ABC110のD問題の提出
+- [x] ABC111のC問題の理解と提出
+- [ ] 2分累乗法によるPowInt関数のテストと更新
+- [ ] 試し割り法による素因数分解の関数のテストと更新（chokudaiさんのコードを参考に）、およびABC110D問題の再提出
+- [ ] Various Sushiの優先度付きキューを使った解法のコードを書く
+- [ ] KEYENCEコンテストのD問題でトポロジカルソートを使った手法を理解する
+- [ ] 同問題でトポロジカルソートを使わない手法を理解する
+- [ ] ABC038のD問題でBinary Indexed Treeを理解する
+- [ ] XORの調査（ライブラリ、テスト）
+- [ ] Union-Findのライブラリをサイズ付きにアップデート（ABC120の解説放送を観る）
+- [ ] util関数の整備
+- [ ] 組み合わせ、パスカルの三角形のライブラリ化
+- [ ] ビット演算のデバッグ用関数
+
+## @2020-06-21
+
+- [x] [multisetのライブラリ作成](https://atcoder.jp/contests/abc170/tasks/abc170_e)
+  - https://minus9d.hatenablog.com/entry/2019/07/25/212453
+- [x] [ABC171-C](https://atcoder.jp/contests/abc171/tasks/abc171_c)の明確な理解
+- [x] ABC172を動画で復習
+- [x] 包除原理の特訓
+- [x] こどふぉの問題でBFSライブラリをチェック
+- [ ] Z-Algorithmの勉強
+  - https://sen-comp.hatenablog.com/entry/2020/01/16/174230
+- [x] ローリングハッシュの勉強
+  - https://qiita.com/keymoon/items/11fac5627672a6d6a9f6
+- [x] 全方位木DPの勉強
+  - https://qiita.com/keymoon/items/2a52f1b0fb7ef67fb89e
+- [x] ECR90の復習
+- [ ] ABC161-EのDPバージョンの復習
+  - https://atcoder.jp/contests/abc161/tasks/abc161_e
+- [x] ダブリングについて勉強する
+  - https://atcoder.jp/contests/abc167/tasks/abc167_d
+  - https://drken1215.hatenablog.com/entry/2020/06/20/190700
+- [ ] ランダムテストケースの作成環境を準備する
+  - できるだけ汎用的な形で持っておく、ojも調べて良さそうなら活用する。
+  - Goで標準出力で良い。リダイレクト前提で考える。
+- [x] クラスカルのスニペットを書き直す
+  - 変数名とかスコープとか全体的にひどすぎるので
+- [x] girdToGraphのスニペットを改良する
+  - `n, m` とかは `h, w` にしたいのと、 `toid, toy, tox` といった関数を用意しておきたい
+- [x] Enclose allで使った幾何計算をライブラリ化する。
+  - elementaryGeometryのスニペットファイルに纏めてしまう。
+- [x] `mod` 演算をトータルする関数を作ってしまう
+  - `NegativeMod` の名称を変更してしまえば良い。
+- [x] 全方位木DPを抽象化する
+- [x] [ABC159-F](https://atcoder.jp/contests/abc159/tasks/abc159_f)のPDF解答を理解する
+- [x] [AGC046-B](https://atcoder.jp/contests/agc046/tasks/agc046_b)のPDF解答で解き直す
+- [ ] [AGC040-B](https://atcoder.jp/contests/agc040/tasks/agc040_b)を復習する
+- [ ] [AGC026-B](https://atcoder.jp/contests/agc026/tasks/agc026_b)をGCDの基礎とともに復習する
+- [ ] Nimを学習する
+- [ ] [ARC098-E](https://atcoder.jp/contests/arc098/tasks/arc098_c)の他のひとのコードを参考にする
+- [ ] [ABC093-D](https://atcoder.jp/contests/abc093/tasks/arc094_b)を勉強する（ACする）
+  - マッチングについて勉強しないと理解が厳しいかもしれない。
+  - https://drken1215.hatenablog.com/entry/2018/09/08/195000
+  - https://kmjp.hatenablog.jp/entry/2018/04/07/0900
+- [ ] [天下一二三パズル](https://atcoder.jp/contests/tenka1-2013-quala/tasks/tenka1_2013_qualA_c)
+  - [公式解説](https://tenka1.klab.jp/2013/explain/a_c.html)
+  - [kmjpさんのブログ解説](https://kmjp.hatenablog.jp/entry/2013/08/04/0930)
+    - DFSの枝刈りでまずは部分点を取るべき。
+- [x] Golangのスライシングの仕様について改めて整理する
+  - panicする状況について整理したい
+- [x] [これ](https://qiita.com/drken/items/7c6ff2aa4d8fce1c9361#7-%E4%B8%8E%E3%81%88%E3%82%89%E3%82%8C%E3%81%9F%E9%83%A8%E5%88%86%E9%9B%86%E5%90%88%E3%81%AE%E9%83%A8%E5%88%86%E9%9B%86%E5%90%88%E3%82%92%E5%88%97%E6%8C%99)の実験とスニペット化
+- [x] `solve()` をテンプレートから消す
+- [x] 決め打ち二分探索用のスニペットを独立させて作る
+- [x] [ABC174-F](https://atcoder.jp/contests/abc174/tasks/abc174_f)の復習
+- [x] BITのスニペットをすべてfenwick treeで命名し直す
+- [x] tsortのスニペットの命名が一部微妙なので直したい
+- [x] ローリングハッシュの練習（？）
+- [ ] monkukuiさんのグラフツールをseleniumから使ってみる
+- [ ] [最短経路問題](https://qiita.com/ageprocpp/items/cdf67e828e1b09316f6e)を解いてみる
+- [x] スライスを引数に取る関数の副作用について調査する
+  - appendはスコープ外で行うと危険
+- [ ] 平面走査法の練習として2問通す
+- [x] 平方数、立法数のチェックを二分探索で行う、それをスニペット化する
+- [x] AGC-Bでtrie木の学習
+  - https://algo-logic.info/trie-tree/
+  - https://sayakaamemiya.hatenablog.com/entry/2020/08/10/225926
+- [x] ABC176-Dで01BFSを学ぶ
+  - https://betrue12.hateblo.jp/entry/2018/12/08/000020
+- [ ] [ABC175-D](https://atcoder.jp/contests/abc175/tasks/abc175_d)をダブリングで通す
+- [x] ABC176-Eの解説放送を観る
+- [x] この記事をよく調べる
+  - https://qiita.com/ktateish/items/ab2df3e0864d2e931bf2#0-c%E3%81%A7%E3%81%AE%E5%8F%82%E6%88%A6%E3%82%92%E6%A4%9C%E8%A8%8E%E3%81%99%E3%82%8B
+- [ ] ↑の `next_permutation` を理解する
+- [x] セグメントの併合ライブラリを作る
+- [x] 整数のオーバーフローチェッカーをライブラリにする
+  - 天井関数使う部分とかとっさになかなか出てこないので。
+- [ ] CR666div2-Dの復習
+  - 証明まで理解すること
+- [x] 変数名と一緒に出力するデバッグ関数のスニペットを作る
+- [x] ABC177-Eの高速因数分解解法を学ぶ
+- [x] `init_contest.sh` のコピーもとを、sonictemplateのものと揃える
+- [ ] 区間Osa_kを実装＆テストする
+  - https://qiita.com/rsk0315_h4x/items/ff3b542a4468679fb409
+- [x] ローリングハッシュを整理する（名前を変更する、などインターフェースをわかりやすくする）
+- [ ] AGC047-Bをもっと賢く書けるような、Trieの抽象化を行う。
+  - 新しいメソッドをコンテスト中に生やすのは、バグが怖い
+- [ ] 木の直径のスニペットを書き換える、テストも書く
+- [x] ベルマンフォードを復習する、スニペットも書き換える
+- [ ] クラスカルのスニペットを隣接リストを引数に取るように書き換える
+  - ※メモリを無駄遣いして危険そうなので保留。
+- [ ] 共通部分文字列DPをスニペット化する
+  - https://atcoder.jp/contests/joi2008ho/tasks/joi2008ho_b
+- [ ] ↑と同じ問題の模範解答を実装してみる。
+- [ ] KMP法を学んで観る
+  - https://atcoder.jp/contests/joi2009ho/tasks/joi2009ho_a
+- [ ] JOIポスターの再帰での解き方を学ぶ
+  - https://atcoder.jp/contests/joisc2010/tasks/joisc2010_poster
+- [ ] 木の重心分解のライブラリを作る
+  - https://codeforces.com/contest/1406/problem/C
+- [ ] [この問題](https://codeforces.com/contest/1406/problem/B)をDPで解く
+- [ ] [treapのmerge, split](http://algoogle.hadrori.jp/algorithm/treap.html)
+- [ ] 2次元の座標圧縮について復習
+  - https://atcoder.jp/contests/joisc2008/tasks/joisc2008_origami
+- [ ] ABC178-DのDP解法を理解する
+- [ ] ABC178-Eの以下を理解する
+  - https://twitter.com/tanakh/status/1305144604585410562
+  - 45度回転とかいうよくわからないものも調べる
+    - [最近の45度回転事情](https://kagamiz.hatenablog.com/entry/2014/12/21/213931)
+- [ ] ABC179-Eのダブリング解法を実装する
+  - https://atcoder.jp/contests/abc179/submissions/16869422
+  - これを写経したいが。。
+- [ ] ABC179-Fを解説放送を観て理解する（C, D, E, F）
+- [ ] テンプレートファイルに `Min, Max, ChMin, ChMin` の `int, int64` バージョンを載せてしまう。
+- [ ] [この問題](https://atcoder.jp/contests/joi2020ho/tasks/joi2020ho_a)で累積Maxのベンチマークを取っておく。
+- [ ] 参考にしたい記事たち
+  - [最短経路の個数も一緒に数え上げる最短経路アルゴリズム](https://drken1215.hatenablog.com/entry/2018/02/09/003200)
+  - [三分探索を救いたい](https://qiita.com/ganariya/items/1553ff2bf8d6d7789127)
+  - [AGC037-A（はまやんはまやん）](https://www.hamayanhamayan.com/entry/2019/08/18/090108)
+  - [よくやる再帰関数の書き方](https://drken1215.hatenablog.com/entry/2020/05/04/190252)
+    - これも自己流でやってきたので、他の人の考えを知っておくべき
+  - [n重ループを書きたくなる再帰全探索を巻き戻しテクを使って得](https://null-mn.hatenablog.com/entry/2020/05/03/074917?_ga=2.251700430.672253753.1588448542-2118017014.1557058971)
+    - 多分知っている話だが、やはり自己流でやってしまっているので、他の人の言語化を参考にする
+  - [Qiitaに書くほどでもないテクニック集](https://zrkkkk.hatenablog.com/entry/2020/03/09/165604)
+    - Rhoさんのもの。自分でも作ってみたい。
+  - [典型なのか典型じゃないのかよくわからないテクニックっぽいやつをまとめようとした](https://shibh308.hatenablog.com/entry/2019/02/28/195542)
+    - こちらは塚本さんのもの。
+  - [セグメント木を徹底解説！](https://algo-logic.info/segment-tree/)
+    - この方の解説はかなり充実しているので、確認の意味でも周遊してみるのも良いかもしれない
+  - [よくやる二項係数](https://drken1215.hatenablog.com/entry/2018/06/08/210000)
+    - 全部理解しておきたい。
+  - [LISでも大活躍！DPの配列使いまわしテクニックを特集](https://qiita.com/drken/items/68b8503ad4ffb469624c)
+    - そろそろ学び時のはず
+  - [厳選！C++アルゴリズム実装に使える25のSTL機能](https://qiita.com/e869120/items/518297c6816adb67f9a5#3-25-bitset)
+    - とりあえずbitsetは作りたい。bitsetの具体的な活用例は後編にある。
+  - [Z-algorithm詳解と具体例](https://sen-comp.hatenablog.com/entry/2020/01/16/174230)
+    - そろそろ覚えてみたい。
+  - [遅延伝搬の一般化](https://kuretchi.hateblo.jp/entry/lazy_propagation)
+    - ちょっとむずかしいが参考用に。
+  - [非再帰セグ木サイコー！一番すきなセグ木です](https://hcpc-hokudai.github.io/archive/structure_segtree_001.pdf)
+    - 正直まだやらなくても良いかもしれない。
+  - [2005年度東大前期入試](https://service.zkai.co.jp/juku/05toudai04.pdf)
+    - ALC1stのB問題がこれと類似しているっぽい。
+  - [中国剰余定理（CRT）の解説と、それを用いる問題のまとめ](https://qiita.com/drken/items/ae02240cd1f8edfc86fd)
+    - 難しそうだがしっかり理解したい。
+- [ ] `map[Struct][]Struct` のようなデータ構造について、正当性を検証しておく。
+- [ ] ACLC1stの解説放送を観る（A, B, C）
+
