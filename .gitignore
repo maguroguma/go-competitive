@@ -19,3 +19,7 @@ PAST/*
 
 # vim undo file
 $XDG_CACHE_HOME/*
+
+# oj files
+# *.in
+# *.out

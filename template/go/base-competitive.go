@@ -33,6 +33,7 @@ const (
 	INF_I32 = math.MaxInt32
 	INF_B30 = 1 << 30
 	NIL     = -1
+	EPS     = 1e-10
 )
 
 // modi can calculate a right residual whether value is positive or negative.
