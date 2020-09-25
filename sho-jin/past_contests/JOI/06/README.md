@@ -1,6 +1,6 @@
-# 日本情報オリンピック過去問 難易度5まとめ
+# 日本情報オリンピック過去問 難易度6まとめ
 
-Last Change: 2020-09-22 21:43:09.
+Last Change: 2020-09-26 01:51:30.
 
 ## [A. アナグラム ★](https://atcoder.jp/contests/joisc2007/tasks/joisc2007_anagra)
 
