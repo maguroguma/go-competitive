@@ -1,3 +1,5 @@
+// https://atcoder.jp/contests/abc128/tasks/abc128_b
+
 package main
 
 import (
@@ -311,6 +313,7 @@ func main() {
 	for i := 0; i < n; i++ {
 		fmt.Println(SS[i], P[i])
 	}
+	fmt.Println("---")
 
 	sort.Sort(sort.StringSlice(SS))
 
