@@ -1,12 +1,6 @@
 snippet     fenwickTree
 abbr        type BinaryIndexedTree struct
 options     head
-  // Public methods
-  // ft := NewFenwickTree(200000 + 5)
-  // s := ft.Sum(i) 						// Sum of [1, i] (1-based)
-  // ft.Add(i, x) 							// Add x to i (1-based)
-  // idx := ft.LowerBound(w) 		// minimum idx such that bit.Sum(idx) >= w
-
   type FenwickTree struct {
     dat     []int
     n       int
@@ -31,27 +25,22 @@ options     head
     return ft
   }
 
-  // Sum of [1, i](1-based)
-  func (ft *FenwickTree) Sum(i int) int {
-    s := 0
-
-    for i > 0 {
-      s += ft.dat[i]
-      i -= i & (-i)
-    }
-
-    return s
+  // Add x to i.
+  // i is 0-index.
+  func (ft *FenwickTree) Add(i int, x int) {
+    ft._add(i+1, x)
   }
 
-  // Add x to i(1-based)
-  func (ft *FenwickTree) Add(i, x int) {
-    for i <= ft.n {
-      ft.dat[i] += x
-      i += i & (-i)
-    }
+  // RangeSum calculates a range sum of [l, r).
+  // l, r are 0-index.
+  func (ft *FenwickTree) RangeSum(l, r int) int {
+    res := ft._cumsum(r) - ft._cumsum(l)
+
+    return res
   }
 
   // LowerBound returns minimum i such that bit.Sum(i) >= w.
+  // LowerBound returns n, if the total sum is less than w.
   func (ft *FenwickTree) LowerBound(w int) int {
     if w <= 0 {
       return 0
@@ -65,7 +54,27 @@ options     head
       }
     }
 
-    return x + 1
+    return x
+  }
+
+  // private: Sum of [1, i](1-based)
+  func (ft *FenwickTree) _cumsum(i int) int {
+    s := 0
+
+    for i > 0 {
+      s += ft.dat[i]
+      i -= i & (-i)
+    }
+
+    return s
+  }
+
+  // private: Add x to i(1-based)
+  func (ft *FenwickTree) _add(i, x int) {
+    for i <= ft.n {
+      ft.dat[i] += x
+      i += i & (-i)
+    }
   }
 
 snippet     FenwickTreeSet
@@ -133,7 +142,8 @@ options     head
     }
   }
 
-  // Kth returns kth(>=0) element in the set
+  // Kth returns kth(>=0) element in the set.
+  // Kth returns n+1, if there are less than k elements in the set.
   func (ft *FenwickTreeSet) Kth(kth int) int {
     if kth <= 0 {
       return 0
