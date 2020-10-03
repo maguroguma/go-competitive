@@ -36,30 +36,85 @@ const (
 	EPS     = 1e-10
 )
 
-// modi can calculate a right residual whether value is positive or negative.
-func modi(val, m int) int {
-	res := val % m
-	if res < 0 {
-		res += m
-	}
-	return res
-}
-
-// modll can calculate a right residual whether value is positive or negative.
-func modll(val, m int64) int64 {
-	res := val % m
-	if res < 0 {
-		res += m
-	}
-	return res
-}
-
 /********** bufio setting **********/
 
 func init() {
 	// bufio.ScanWords <---> bufio.ScanLines
 	reads = newReadString(os.Stdin, bufio.ScanWords)
 	stdout = bufio.NewWriter(os.Stdout)
+}
+
+// mod can calculate a right residual whether value is positive or negative.
+func mod(val, m int) int {
+	res := val % m
+	if res < 0 {
+		res += m
+	}
+	return res
+}
+
+// min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// chmin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func chmin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// chmax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func chmax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// sum returns multiple integers sum.
+func sum(integers ...int) int {
+	var s int
+	s = 0
+
+	for _, i := range integers {
+		s += i
+	}
+
+	return s
 }
 
 /********** FAU standard libraries **********/
