@@ -20,6 +20,9 @@ PAST/*
 # vim undo file
 $XDG_CACHE_HOME/*
 
+# sandbox directory
+sandbox/*
+
 # oj files
 # *.in
 # *.out
