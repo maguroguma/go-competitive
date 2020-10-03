@@ -34,7 +34,9 @@ options     head
 snippet     sieveOsa_kVersion
 abbr        func NewOsa_kSieve(n int) *Osa_kSieve
 options     head
-  // originated from: https://qiita.com/rsk0315_h4x/items/ff3b542a4468679fb409
+  // originated from:
+  // https://qiita.com/rsk0315_h4x/items/ff3b542a4468679fb409
+  // https://blog.manuel1024.com/archives/79
   type Osa_kSieve struct {
     n      int
     minp   []int
@@ -42,6 +44,7 @@ options     head
   }
 
   // NewOsa_kSieve returns sieve for [0, n).
+  // Time complexity: O(N*log(logN))
   func NewOsa_kSieve(n int) *Osa_kSieve {
     os := new(Osa_kSieve)
     os.n = n
@@ -68,6 +71,7 @@ options     head
   }
 
   // Factors returns prime factors consisting of a.
+  // Time complexity: O(logA)
   func (os *Osa_kSieve) Factors(a int) []int {
     if a <= 1 || a >= os.n {
       panic(os.errMsg)
@@ -84,6 +88,7 @@ options     head
   }
 
   // IsPrime returns whether a is prime number or not.
+  // Time complexity: O(1)
   func (os *Osa_kSieve) IsPrime(a int) bool {
     return !(os.minp[a] < a)
   }

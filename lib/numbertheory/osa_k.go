@@ -2,7 +2,9 @@ package numtheo
 
 import "fmt"
 
-// originated from: https://qiita.com/rsk0315_h4x/items/ff3b542a4468679fb409
+// originated from:
+// https://qiita.com/rsk0315_h4x/items/ff3b542a4468679fb409
+// https://blog.manuel1024.com/archives/79
 
 type Osa_kSieve struct {
 	n      int
@@ -11,6 +13,7 @@ type Osa_kSieve struct {
 }
 
 // NewOsa_kSieve returns sieve for [0, n).
+// Time complexity: O(N*log(logN))
 func NewOsa_kSieve(n int) *Osa_kSieve {
 	os := new(Osa_kSieve)
 	os.n = n
@@ -37,6 +40,7 @@ func NewOsa_kSieve(n int) *Osa_kSieve {
 }
 
 // Factors returns prime factors consisting of a.
+// Time complexity: O(logA)
 func (os *Osa_kSieve) Factors(a int) []int {
 	if a <= 1 || a >= os.n {
 		panic(os.errMsg)
@@ -53,6 +57,7 @@ func (os *Osa_kSieve) Factors(a int) []int {
 }
 
 // IsPrime returns whether a is prime number or not.
+// Time complexity: O(1)
 func (os *Osa_kSieve) IsPrime(a int) bool {
 	return !(os.minp[a] < a)
 }
