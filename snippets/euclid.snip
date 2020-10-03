@@ -1,36 +1,51 @@
-snippet     euclid
-abbr        gcd(a, b int) int
+snippet     gcdAndLcm
+abbr        Gcd(a, b int) int, Lcm(a, b int) int
 options     head
-  func gcd(a, b int) int {
+  // Gcd returns the Greatest Common Divisor of two natural numbers.
+  // Gcd only accepts two natural numbers (a, b >= 0).
+  // Negative number causes panic.
+  // Gcd uses the Euclidean Algorithm.
+  func Gcd(a, b ${1:int}) $1 {
+    if a < 0 || b < 0 {
+      panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
+    }
+
     if b == 0 {
       return a
     }
-    return gcd(b, a%b)
+    return Gcd(b, a%b)
   }
 
-snippet     extendedEuclid
-abbr        extgcd(a, b int, x, y *int) int
-options     head
-  // 返り値: a, bの最大公約数
-  // ax + by = gcd(a, b) を満たす (x, y) が格納される
-  func extgcd(a, b int, x, y *int) int {
-    // 再帰の終了条件
-    if b == 0 {
-      *x, *y = 1, 0
-      return a
+  // Lcm returns the Least Common Multiple of two natural numbers.
+  // Lcd only accepts two natural numbers (a, b >= 0).
+  // Negative number causes panic.
+  // Lcd uses the Euclidean Algorithm indirectly.
+  func Lcm(a, b $1) $1 {
+    if a < 0 || b < 0 {
+      panic(errors.New("[argument error]: Gcd only accepts two NATURAL numbers"))
     }
 
-    d := extgcd(b, a%b, y, x)
-    *y -= (a / b) * (*x)
-    return d
+    if a == 0 || b == 0 {
+      return 0
+    }
+
+    // a = a'*gcd, b = b'*gcd, a*b = a'*b'*gcd^2
+    // a' and b' are relatively prime numbers
+    // gcd consists of prime numbers, that are included in a and b
+    g := Gcd(a, b)
+
+    // not (a * b / gcd), because of reducing a probability of overflow
+    return (a / g) * b
   }
 
 snippet     extgcd
 abbr        func ExtGCD(a, b int) (g, x, y int)
 options     head
   // ExtGCD solve an equation: "a*x + b*y = Gcd(a, b)"
+  // (x, y) satisfies that
+  // "|x|+|y| is minimized" and "if there are some such ones, x <= y".
   // g is Gcd(a, b)
-  func ExtGCD(a, b int) (g, x, y int) {
+  func ExtGCD(a, b ${1:int}) (g, x, y $1) {
     if b == 0 {
       return a, 1, 0
     }
