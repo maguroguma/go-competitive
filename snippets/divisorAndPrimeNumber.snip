@@ -2,6 +2,7 @@ snippet     trialDivision
 abbr        TrialDivision(n int) map[int]int
 options     head
   // TrialDivision returns the result of prime factorization of integer N.
+  // Time complexity: O(sqrt(N))
   func TrialDivision(n ${1:int}) map[$1]$1 {
     var i, exp $1
     p := map[$1]$1{}
@@ -27,6 +28,20 @@ options     head
     }
 
     return p
+  }
+
+  // EulerPhi returns the number of x that satisfies "x in [1, N]" and "Gcd(N, x) == 1".
+  // Time complexity: O(sqrt(N))
+  func EulerPhi(n $1) $1 {
+    P := TrialDivision(n)
+    res := n
+
+    for p := range P {
+      res /= p
+      res *= p - 1
+    }
+
+    return res
   }
 
 snippet     divisorsMapVer
