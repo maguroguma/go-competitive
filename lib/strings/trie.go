@@ -1,12 +1,13 @@
 package strings
 
+// Nodes are managed by slice(vector).
+
 const (
 	// assume words consisting of only lower case or upper case
 	_TRIE_CHAR_SIZE = 26
 )
 
 // NewTrie returns a trie managing words starting from base character.
-// Nodes are managed by slice(vector).
 // e.g.: NewTrie('a')
 func NewTrie(base rune) *Trie {
 	t := new(Trie)
@@ -25,16 +26,24 @@ func (t *Trie) Insert(word string) {
 
 // Find returns whether the trie has the word or not.
 func (t *Trie) Find(word string) bool {
-	return t._search(word, false)
+	noop := func(curNodeID int, c int) {}
+	return t._search(word, false, noop)
 }
 
 // FindStartWith returns whether the trie has the word having the prefix or not.
 func (t *Trie) FindStartWith(prefix string) bool {
-	return t._search(prefix, true)
+	noop := func(curNodeID int, c int) {}
+	return t._search(prefix, true, noop)
+}
+
+// Traverse walk on the tree while operating something.
+// Operation function receives current node id and current node offset from a base.
+func (t *Trie) Traverse(word string, op func(curNodeID int, c int)) {
+	t._search(word, false, op)
 }
 
 // CountWord returns the number of the words that the trie has.
-// CountWord cannot count the number of UNIQUE words.
+// CountWord can NOT count the number of UNIQUE words.
 func (t *Trie) CountWord() int {
 	return t.nodes[0].common
 }
@@ -42,6 +51,11 @@ func (t *Trie) CountWord() int {
 // SizeTrie returns the number of the nodes that the trie has.
 func (t *Trie) SizeTrie() int {
 	return len(t.nodes)
+}
+
+// IsAccept returns whether a trie node says accept or not.
+func (t *Trie) IsAccept(curNodeID int) bool {
+	return len(t.nodes[curNodeID].accept) > 0
 }
 
 type Trie struct {
@@ -70,35 +84,38 @@ func newTrieNode(c int) *trieNode {
 }
 
 func (t *Trie) _insert(word string, wordID int) {
-	nodeID := t.root
+	curNodeID := t.root
 
 	for _, r := range word {
 		c := int(r - t.base)
 
-		nextID := &t.nodes[nodeID].next[c]
+		nextID := &t.nodes[curNodeID].next[c]
 		if *nextID == -1 {
 			// add nodes when there is not the next node
 			*nextID = len(t.nodes)
 			t.nodes = append(t.nodes, newTrieNode(c))
 		}
-		t.nodes[nodeID].common++
-		nodeID = *nextID
+		t.nodes[curNodeID].common++
+		curNodeID = *nextID
 	}
-	t.nodes[nodeID].common++
-	t.nodes[nodeID].accept = append(t.nodes[nodeID].accept, wordID)
+	t.nodes[curNodeID].common++
+	t.nodes[curNodeID].accept = append(t.nodes[curNodeID].accept, wordID)
 }
 
-func (t *Trie) _search(word string, isPrefix bool) bool {
-	nodeID := t.root
+func (t *Trie) _search(word string, isPrefix bool, op func(curNodeID int, c int)) bool {
+	curNodeID := t.root
 
 	for _, r := range word {
 		c := int(r - t.base)
 
-		nextID := t.nodes[nodeID].next[c]
-		if nextID == -1 {
+		// operate something (do nothing if op is noop)
+		op(curNodeID, c)
+
+		nextNodeID := t.nodes[curNodeID].next[c]
+		if nextNodeID == -1 {
 			return false
 		}
-		nodeID = nextID
+		curNodeID = nextNodeID
 	}
 
 	if isPrefix {
@@ -106,5 +123,5 @@ func (t *Trie) _search(word string, isPrefix bool) bool {
 	}
 
 	// check whether the word is accepted or not
-	return len(t.nodes[nodeID].accept) > 0
+	return t.IsAccept(curNodeID)
 }
