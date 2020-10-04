@@ -1,3 +1,7 @@
 .PHONY: testlib
 testlib:
-	go test -cover ./lib/*
+	go test ./lib/*
+
+.PHONY: testlib-fully
+testlib-fully:
+	go test -v -cover ./lib/*
