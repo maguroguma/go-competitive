@@ -78,10 +78,16 @@ func main() {
 	}
 }
 
+// originated from: https://qiita.com/EmptyBox_0/items/2f8e3cf7bd44e0f789d5#lazysegtree
+// docs: https://atcoder.github.io/ac-library/production/document_ja/lazysegtree.html
+
+// type of monoid
 type S struct {
 	one, zero int
 	ans       int
 }
+
+// type of mapping
 type F int
 
 type E func() S
@@ -90,20 +96,10 @@ type Mapper func(f F, x S) S
 type Composer func(f, g F) F
 type Id func() F
 type Compare func(v S) bool
-type LazySegtree struct {
-	n        int
-	size     int
-	log      int
-	d        []S
-	lz       []F
-	e        E
-	merger   Merger
-	mapper   Mapper
-	composer Composer
-	id       Id
-}
 
-func NewLazySegtree(v []S, e E, merger Merger, mapper Mapper, composer Composer, id Id) *LazySegtree {
+func NewLazySegtree(
+	v []S, e E, merger Merger, mapper Mapper, composer Composer, id Id,
+) *LazySegtree {
 	lseg := new(LazySegtree)
 	lseg.n = len(v)
 	lseg.log = lseg._ceilPow2(lseg.n)
@@ -125,47 +121,49 @@ func NewLazySegtree(v []S, e E, merger Merger, mapper Mapper, composer Composer,
 		lseg.d[lseg.size+i] = v[i]
 	}
 	for i := lseg.size - 1; i >= 1; i-- {
-		lseg.Update(i)
+		lseg._update(i)
 	}
 	return lseg
 }
 
-func (lseg *LazySegtree) Update(k int) {
-	lseg.d[k] = lseg.merger(lseg.d[2*k], lseg.d[2*k+1])
+type LazySegtree struct {
+	n        int
+	size     int
+	log      int
+	d        []S
+	lz       []F
+	e        E
+	merger   Merger
+	mapper   Mapper
+	composer Composer
+	id       Id
 }
 
-func (lseg *LazySegtree) AllApply(k int, f F) {
-	lseg.d[k] = lseg.mapper(f, lseg.d[k])
-	if k < lseg.size {
-		lseg.lz[k] = lseg.composer(f, lseg.lz[k])
-	}
-}
-
-func (lseg *LazySegtree) Push(k int) {
-	lseg.AllApply(2*k, lseg.lz[k])
-	lseg.AllApply(2*k+1, lseg.lz[k])
-	lseg.lz[k] = lseg.id()
-}
-
+// Set sets a[p] = x
+// Time complexity: O(logn)
 func (lseg *LazySegtree) Set(p int, x S) {
 	p += lseg.size
 	for i := lseg.log; i <= 1; i-- {
-		lseg.Push(p >> uint(i))
+		lseg._push(p >> uint(i))
 	}
 	lseg.d[p] = x
 	for i := 1; i <= lseg.log; i++ {
-		lseg.Update(p >> uint(i))
+		lseg._update(p >> uint(i))
 	}
 }
 
+// Get returns a[p]
+// Time complexity: O(logn)
 func (lseg *LazySegtree) Get(p int) S {
 	p += lseg.size
 	for i := lseg.log; i >= 1; i-- {
-		lseg.Push(p >> uint(i))
+		lseg._push(p >> uint(i))
 	}
 	return lseg.d[p]
 }
 
+// Prod returns op(a[l:r]...)
+// Time complexity: O(logn)
 func (lseg *LazySegtree) Prod(l, r int) S {
 	if l == r {
 		return lseg.e()
@@ -174,10 +172,10 @@ func (lseg *LazySegtree) Prod(l, r int) S {
 	r += lseg.size
 	for i := lseg.log; i >= 1; i-- {
 		if (l>>uint(i))<<uint(i) != l {
-			lseg.Push(l >> uint(i))
+			lseg._push(l >> uint(i))
 		}
 		if (r>>uint(i))<<uint(i) != r {
-			lseg.Push(r >> uint(i))
+			lseg._push(r >> uint(i))
 		}
 	}
 	sml, smr := lseg.e(), lseg.e()
@@ -196,21 +194,27 @@ func (lseg *LazySegtree) Prod(l, r int) S {
 	return lseg.merger(sml, smr)
 }
 
+// AllProd returns op(a...)
+// Time complexity: O(1)
 func (lseg *LazySegtree) AllProd() S {
 	return lseg.d[1]
 }
 
+// Apply sets a[p] = f(a[p])
+// Time complexity: O(logn)
 func (lseg *LazySegtree) Apply(p int, f F) {
 	p += lseg.size
 	for i := lseg.log; i >= 1; i-- {
-		lseg.Push(p >> uint(i))
+		lseg._push(p >> uint(i))
 	}
 	lseg.d[p] = lseg.mapper(f, lseg.d[p])
 	for i := 1; i <= lseg.log; i++ {
-		lseg.Update(p >> uint(i))
+		lseg._update(p >> uint(i))
 	}
 }
 
+// RangeApply sets a[i] = f(a[i]) (i in [l, r-1])
+// Time complexity: O(logn)
 func (lseg *LazySegtree) RangeApply(l int, r int, f F) {
 	if l == r {
 		return
@@ -219,21 +223,21 @@ func (lseg *LazySegtree) RangeApply(l int, r int, f F) {
 	r += lseg.size
 	for i := lseg.log; i >= 1; i-- {
 		if (l>>uint(i))<<uint(i) != l {
-			lseg.Push(l >> uint(i))
+			lseg._push(l >> uint(i))
 		}
 		if (r>>uint(i))<<uint(i) != r {
-			lseg.Push((r - 1) >> uint(i))
+			lseg._push((r - 1) >> uint(i))
 		}
 	}
 	l2, r2 := l, r
 	for l < r {
 		if l&1 == 1 {
-			lseg.AllApply(l, f)
+			lseg._allApply(l, f)
 			l++
 		}
 		if r&1 == 1 {
 			r--
-			lseg.AllApply(r, f)
+			lseg._allApply(r, f)
 		}
 		l >>= 1
 		r >>= 1
@@ -241,21 +245,22 @@ func (lseg *LazySegtree) RangeApply(l int, r int, f F) {
 	l, r = l2, r2
 	for i := 1; i <= lseg.log; i++ {
 		if (l>>uint(i))<<uint(i) != l {
-			lseg.Update(l >> uint(i))
+			lseg._update(l >> uint(i))
 		}
 		if (r>>uint(i))<<uint(i) != r {
-			lseg.Update((r - 1) >> uint(i))
+			lseg._update((r - 1) >> uint(i))
 		}
 	}
 }
 
+// Time complexity: O(logn)
 func (lseg *LazySegtree) MaxRight(l int, cmp Compare) int {
 	if l == lseg.n {
 		return lseg.n
 	}
 	l += lseg.size
 	for i := lseg.log; i >= 1; i-- {
-		lseg.Push(l >> uint(i))
+		lseg._push(l >> uint(i))
 	}
 	sm := lseg.e()
 	for {
@@ -264,7 +269,7 @@ func (lseg *LazySegtree) MaxRight(l int, cmp Compare) int {
 		}
 		if !cmp(lseg.merger(sm, lseg.d[l])) {
 			for l < lseg.size {
-				lseg.Push(l)
+				lseg._push(l)
 				l = 2 * l
 				if cmp(lseg.merger(sm, lseg.d[l])) {
 					sm = lseg.merger(sm, lseg.d[l])
@@ -282,13 +287,14 @@ func (lseg *LazySegtree) MaxRight(l int, cmp Compare) int {
 	return lseg.n
 }
 
+// Time complexity: O(logn)
 func (lseg *LazySegtree) MinLeft(r int, cmp Compare) int {
 	if r == 0 {
 		return 0
 	}
 	r += lseg.size
 	for i := lseg.log; i >= 1; i-- {
-		lseg.Push(r - 1>>uint(i))
+		lseg._push(r - 1>>uint(i))
 	}
 	sm := lseg.e()
 	for {
@@ -298,7 +304,7 @@ func (lseg *LazySegtree) MinLeft(r int, cmp Compare) int {
 		}
 		if !cmp(lseg.merger(lseg.d[r], sm)) {
 			for r < lseg.size {
-				lseg.Push(r)
+				lseg._push(r)
 				r = 2*r + 1
 				if cmp(lseg.merger(lseg.d[r], sm)) {
 					sm = lseg.merger(lseg.d[r], sm)
@@ -313,6 +319,23 @@ func (lseg *LazySegtree) MinLeft(r int, cmp Compare) int {
 		}
 	}
 	return 0
+}
+
+func (lseg *LazySegtree) _allApply(k int, f F) {
+	lseg.d[k] = lseg.mapper(f, lseg.d[k])
+	if k < lseg.size {
+		lseg.lz[k] = lseg.composer(f, lseg.lz[k])
+	}
+}
+
+func (lseg *LazySegtree) _update(k int) {
+	lseg.d[k] = lseg.merger(lseg.d[2*k], lseg.d[2*k+1])
+}
+
+func (lseg *LazySegtree) _push(k int) {
+	lseg._allApply(2*k, lseg.lz[k])
+	lseg._allApply(2*k+1, lseg.lz[k])
+	lseg.lz[k] = lseg.id()
 }
 
 func (lseg *LazySegtree) _ceilPow2(n int) int {

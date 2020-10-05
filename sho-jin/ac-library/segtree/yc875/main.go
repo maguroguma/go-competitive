@@ -58,8 +58,10 @@ func main() {
 	}
 }
 
-// originated from:
-// https://qiita.com/EmptyBox_0/items/2f8e3cf7bd44e0f789d5#segtree
+// originated from: https://qiita.com/EmptyBox_0/items/2f8e3cf7bd44e0f789d5#segtree
+// docs: https://atcoder.github.io/ac-library/production/document_ja/segtree.html
+
+// type of monoid
 type S struct {
 	val, idx int
 }
@@ -67,14 +69,6 @@ type S struct {
 type E func() S
 type Merger func(a, b S) S
 type Compare func(v S) bool
-type Segtree struct {
-	n      int
-	size   int
-	log    int
-	d      []S
-	e      E
-	merger Merger
-}
 
 func NewSegtree(v []S, e E, m Merger) *Segtree {
 	seg := new(Segtree)
@@ -96,10 +90,17 @@ func NewSegtree(v []S, e E, m Merger) *Segtree {
 	return seg
 }
 
-func (seg *Segtree) _update(k int) {
-	seg.d[k] = seg.merger(seg.d[2*k], seg.d[2*k+1])
+type Segtree struct {
+	n      int
+	size   int
+	log    int
+	d      []S
+	e      E
+	merger Merger
 }
 
+// Set sets a[p] = x
+// Time complexity: O(logn)
 func (seg *Segtree) Set(p int, x S) {
 	p += seg.size
 	seg.d[p] = x
@@ -108,10 +109,14 @@ func (seg *Segtree) Set(p int, x S) {
 	}
 }
 
+// Get returns a[p]
+// Time complexity: O(1)
 func (seg *Segtree) Get(p int) S {
 	return seg.d[p+seg.size]
 }
 
+// Prod returns op(a[l:r]...)
+// Time complexity: O(logn)
 func (seg *Segtree) Prod(l, r int) S {
 	sml, smr := seg.e(), seg.e()
 	l += seg.size
@@ -131,10 +136,13 @@ func (seg *Segtree) Prod(l, r int) S {
 	return seg.merger(sml, smr)
 }
 
+// AllProd returns op(a...)
+// Time complexity: O(1)
 func (seg *Segtree) AllProd() S {
 	return seg.d[1]
 }
 
+// Time complexity: O(logn)
 func (seg *Segtree) MaxRight(l int, cmp Compare) int {
 	if l == seg.n {
 		return seg.n
@@ -164,6 +172,7 @@ func (seg *Segtree) MaxRight(l int, cmp Compare) int {
 	return seg.n
 }
 
+// Time complexity: O(logn)
 func (seg *Segtree) MinLeft(r int, cmp Compare) int {
 	if r == 0 {
 		return 0
@@ -191,6 +200,10 @@ func (seg *Segtree) MinLeft(r int, cmp Compare) int {
 		}
 	}
 	return 0
+}
+
+func (seg *Segtree) _update(k int) {
+	seg.d[k] = seg.merger(seg.d[2*k], seg.d[2*k+1])
 }
 
 func (seg *Segtree) _ceilPow2(n int) int {
