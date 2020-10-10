@@ -28,7 +28,8 @@ func TestKMPTable(t *testing.T) {
 	for i, tc := range testcases {
 		testName := fmt.Sprintf("%d test", i)
 		t.Run(testName, func(t *testing.T) {
-			actual := KMPTable(tc.pattern)
+			kmp := NewKMP(tc.pattern)
+			actual := kmp.kmpTable
 			if !reflect.DeepEqual(actual, tc.expected) {
 				t.Errorf("got %v, want %v", actual, tc.expected)
 			}
@@ -62,8 +63,8 @@ func TestKMPSearch(t *testing.T) {
 	for i, tc := range testcases {
 		testName := fmt.Sprintf("%d test", i)
 		t.Run(testName, func(t *testing.T) {
-			kmpTable := KMPTable(tc.pattern)
-			actual := KMPSearch(tc.text, tc.pattern, kmpTable)
+			kmp := NewKMP(tc.pattern)
+			actual := kmp.Search(tc.text)
 
 			if !reflect.DeepEqual(actual, tc.expected) {
 				t.Errorf("got %v, want %v", actual, tc.expected)
@@ -90,8 +91,8 @@ func TestKMPStringPeriod(t *testing.T) {
 	for i, tc := range testcases {
 		testName := fmt.Sprintf("%d test", i)
 		t.Run(testName, func(t *testing.T) {
-			kmpTable := KMPTable(tc.pattern)
-			actual := KMPStringPeriod(kmpTable)
+			kmp := NewKMP(tc.pattern)
+			actual := kmp.Periods()
 
 			if !reflect.DeepEqual(actual, tc.expected) {
 				t.Errorf("got %v, want %v", actual, tc.expected)
