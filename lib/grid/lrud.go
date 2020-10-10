@@ -1,0 +1,70 @@
+package grid
+
+// GridLRUD returns matrices that say how many cells you can move from S[i][j].
+func GridLRUD(S [][]rune) (L, R, U, D [][]int) {
+	const BLOCK_CELL, EMPTY_CELL = '#', '.'
+
+	h, w := len(S), len(S[0])
+	T := [][]rune{}
+
+	wall := make([]rune, w+2)
+	for i := 0; i < len(wall); i++ {
+		wall[i] = BLOCK_CELL
+	}
+
+	T = append(T, wall)
+	for i := 0; i < h; i++ {
+		row := []rune{BLOCK_CELL}
+		row = append(row, S[i]...)
+		row = append(row, BLOCK_CELL)
+		T = append(T, row)
+	}
+	T = append(T, wall)
+
+	L, R, U, D =
+		make([][]int, h+2), make([][]int, h+2), make([][]int, h+2), make([][]int, h+2)
+	for i := 0; i < h+2; i++ {
+		L[i], R[i], U[i], D[i] =
+			make([]int, w+2), make([]int, w+2), make([]int, w+2), make([]int, w+2)
+	}
+	for i := 0; i < h+2; i++ {
+		for j := 0; j < w+2; j++ {
+			if T[i][j] == EMPTY_CELL {
+				continue
+			}
+			// for block
+			U[i][j], D[i][j], L[i][j], R[i][j] = -1, -1, -1, -1
+		}
+	}
+
+	for y := 1; y <= h; y++ {
+		for x := 1; x <= w; x++ {
+			if T[y][x] == BLOCK_CELL {
+				continue
+			}
+			U[y][x] = U[y-1][x] + 1
+			L[y][x] = L[y][x-1] + 1
+		}
+	}
+	for y := h; y >= 1; y-- {
+		for x := w; x >= 1; x-- {
+			if T[y][x] == BLOCK_CELL {
+				continue
+			}
+			D[y][x] = D[y+1][x] + 1
+			R[y][x] = R[y][x+1] + 1
+		}
+	}
+
+	cut := func(G [][]int) [][]int {
+		res := [][]int{}
+		for i := 1; i <= h; i++ {
+			res = append(res, G[i][1:w+1])
+		}
+		return res
+	}
+
+	L, R, U, D = cut(L), cut(R), cut(U), cut(D)
+
+	return
+}
