@@ -21,17 +21,17 @@ var (
 
 	ds *DijkstraSolver
 	A  [300 + 5][300 + 5]int
-	G  [][]EdgeWeight
+	G  [][]Weight
 )
 
 func initTest() {
 	n, l = 5, 4
 
 	for i := 0; i < n; i++ {
-		row := make([]EdgeWeight, n)
+		row := make([]Weight, n)
 		for j := 0; j < n; j++ {
 			// row[j] = INF_BIT60
-			row[j] = EdgeWeight{gas: INF_BIT60}
+			row[j] = Weight{gas: INF_BIT60}
 		}
 		G = append(G, row)
 	}
@@ -44,7 +44,7 @@ func initTest() {
 		a--
 		b--
 
-		ew := EdgeWeight{gas: c}
+		ew := Weight{gas: c}
 		G[a][b] = ew
 		G[b][a] = ew
 	}
@@ -86,10 +86,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestDijkstraSquareOrderGeneric(t *testing.T) {
-	vinf := V{gas: -1, times: INF_BIT60}
-	einf := EdgeWeight{gas: INF_BIT60}
-	vzero := V{gas: l, times: 0}
-	less := func(l, r V) bool {
+	vinf := Value{gas: -1, times: INF_BIT60}
+	einf := Weight{gas: INF_BIT60}
+	vzero := Value{gas: l, times: 0}
+	less := func(l, r Value) bool {
 		if l.times < r.times {
 			return true
 		} else if l.times > r.times {
@@ -98,18 +98,18 @@ func TestDijkstraSquareOrderGeneric(t *testing.T) {
 			return l.gas > r.gas
 		}
 	}
-	genNextV := func(cv V, e EdgeWeight) V {
+	estimate := func(cv Value, e Weight) Value {
 		if l < e.gas {
 			return vinf
 		}
 
 		if cv.gas >= e.gas {
-			return V{gas: cv.gas - e.gas, times: cv.times}
+			return Value{gas: cv.gas - e.gas, times: cv.times}
 		}
 
-		return V{gas: l - e.gas, times: cv.times + 1}
+		return Value{gas: l - e.gas, times: cv.times + 1}
 	}
-	ds := NewDijkstraSolver(vinf, einf, less, genNextV)
+	ds := NewDijkstraSolver(vinf, einf, less, estimate)
 
 	for i := 0; i < n; i++ {
 		dp := ds.Dijkstra([]StartPoint{{id: i, vzero: vzero}}, n, G)
