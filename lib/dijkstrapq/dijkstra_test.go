@@ -35,9 +35,9 @@ func initTest() {
 		a--
 		b--
 
-		w := EdgeWeight{gas: c}
-		G[a] = append(G[a], Edge{to: b, ew: w})
-		G[b] = append(G[b], Edge{to: a, ew: w})
+		w := Weight{gas: c}
+		G[a] = append(G[a], Edge{to: b, w: w})
+		G[b] = append(G[b], Edge{to: a, w: w})
 	}
 
 	Q := [][2]int{
@@ -77,9 +77,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestDijkstraGeneric(t *testing.T) {
-	vinf := V{gas: -1, times: INF_BIT60}
-	vzero := V{gas: l, times: 0}
-	less := func(l, r V) bool {
+	vinf := Value{gas: -1, times: INF_BIT60}
+	vzero := Value{gas: l, times: 0}
+	less := func(l, r Value) bool {
 		if l.times < r.times {
 			return true
 		} else if l.times > r.times {
@@ -88,19 +88,19 @@ func TestDijkstraGeneric(t *testing.T) {
 			return l.gas > r.gas
 		}
 	}
-	genNextV := func(cv *Vertex, e Edge) V {
-		if l < e.ew.gas {
+	estimate := func(cid int, cv Value, e Edge) Value {
+		if l < e.w.gas {
 			return vinf
 		}
 
-		if cv.v.gas >= e.ew.gas {
-			return V{gas: cv.v.gas - e.ew.gas, times: cv.v.times}
+		if cv.gas >= e.w.gas {
+			return Value{gas: cv.gas - e.w.gas, times: cv.times}
 		}
 
-		return V{gas: l - e.ew.gas, times: cv.v.times + 1}
+		return Value{gas: l - e.w.gas, times: cv.times + 1}
 	}
 
-	ds := NewDijkstraSolver(vinf, less, genNextV)
+	ds := NewDijkstraSolver(vinf, less, estimate)
 
 	for i := 0; i < n; i++ {
 		dp := ds.Dijkstra([]StartPoint{{id: i, vzero: vzero}}, n, G[:n])
