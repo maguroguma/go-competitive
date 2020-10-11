@@ -7,6 +7,9 @@ const (
 	_TRIE_CHAR_SIZE = 26
 )
 
+// Operate do something in a trie node while traversing automaton.
+type Operate func(curNodeID int, c int)
+
 // NewTrie returns a trie managing words starting from base character.
 // e.g.: NewTrie('a')
 func NewTrie(base rune) *Trie {
@@ -15,6 +18,7 @@ func NewTrie(base rune) *Trie {
 	t.root = 0
 	t.nodes = append(t.nodes, newTrieNode(t.root))
 	t.base = base
+	t.noop = func(curNodeID int, c int) {}
 
 	return t
 }
@@ -26,19 +30,17 @@ func (t *Trie) Insert(word string) {
 
 // Find returns whether the trie has the word or not.
 func (t *Trie) Find(word string) bool {
-	noop := func(curNodeID int, c int) {}
-	return t._search(word, false, noop)
+	return t._search(word, false, t.noop)
 }
 
 // FindStartWith returns whether the trie has the word having the prefix or not.
 func (t *Trie) FindStartWith(prefix string) bool {
-	noop := func(curNodeID int, c int) {}
-	return t._search(prefix, true, noop)
+	return t._search(prefix, true, t.noop)
 }
 
 // Traverse walk on the tree while operating something.
 // Operation function receives current node id and current node offset from a base.
-func (t *Trie) Traverse(word string, op func(curNodeID int, c int)) {
+func (t *Trie) Traverse(word string, op Operate) {
 	t._search(word, false, op)
 }
 
@@ -62,6 +64,7 @@ type Trie struct {
 	nodes []*trieNode // nodes managed by the trie
 	root  int         // root node id
 	base  rune        // base character
+	noop  Operate     // do nothing
 }
 
 type trieNode struct {
@@ -102,7 +105,7 @@ func (t *Trie) _insert(word string, wordID int) {
 	t.nodes[curNodeID].accept = append(t.nodes[curNodeID].accept, wordID)
 }
 
-func (t *Trie) _search(word string, isPrefix bool, op func(curNodeID int, c int)) bool {
+func (t *Trie) _search(word string, isPrefix bool, op Operate) bool {
 	curNodeID := t.root
 
 	for _, r := range word {
