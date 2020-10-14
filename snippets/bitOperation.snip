@@ -35,27 +35,53 @@ options     head
 snippet     bitZentansaku
 abbr        func BruteForceByBits(l int, fn func([]bool))
 options     head
-  // BruteForceByBits(10, func(b []bool) { fmt.Println(b) }
+  // originated from ktateish@AtCoder
+  // e.g.: https://atcoder.jp/contests/abc167/submissions/13042361
+
+  // BruteForceByBits01(n, fn) calls fn with []int for each n-bit 0/1 pattern
+  // e.g.
+  // BruteForceByBits01(10, func(b []int) { fmt.Println(b) }
+  // -> [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  //    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  //    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+  //    [1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+  //    [0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+  //    ...
+  func BruteForceByBits01(n int, fn func([]int)) {
+    N := 1 << uint(n)
+    a := make([]int, n)
+    for i := 0; i < N; i++ {
+      for j := 0; j < n; j++ {
+        k := n - j - 1
+        if i&(1<<uint(j)) == 0 {
+          a[k] = 0
+        } else {
+          a[k] = 1
+        }
+      }
+      fn(a)
+    }
+  }
+
+  // BruteForceByBitsTF(n, fn) calls fn with []bool for each n-bit true/false pattern
+  // e.g.
+  // BruteForceByBitsTF(10, func(b []bool) { fmt.Println(b) }
   // -> [false, false, false, false, false, false, false, false, false, false]
   //    [true, false, false, false, false, false, false, false, false, false]
   //    [false, true, false, false, false, false, false, false, false, false]
-  //    [true, true, false, false, false, false, false, false, false, false]
-  //    [false, false, true, false, false, false, false, false, false, false]
   //    ...
-  // originated from ktateish@atcoder
-  // e.g.: https://atcoder.jp/contests/abc167/submissions/13042361
-  func BruteForceByBits(l int, fn func([]bool)) {
-    L := 1 << uint(l)
-    mask := make([]bool, l)
-    for i := 0; i < L; i++ {
-      for j := 0; j < l; j++ {
-        k := l - j - 1
+  func BruteForceByBitsTF(n int, fn func([]bool)) {
+    N := 1 << uint(n)
+    a := make([]bool, n)
+    for i := 0; i < N; i++ {
+      for j := 0; j < n; j++ {
+        k := n - j - 1
         if i&(1<<uint(j)) == 0 {
-          mask[k] = false
+          a[k] = false
         } else {
-          mask[k] = true
+          a[k] = true
         }
       }
-      fn(mask)
+      fn(a)
     }
   }
