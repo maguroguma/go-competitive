@@ -10,7 +10,7 @@ var (
 	A [][]int
 
 	num int
-	G   [1000000 + 50][]int
+	G   [1000000 + 50][]Edge
 )
 
 func min(a, b int) int {
@@ -46,7 +46,7 @@ func initTest() {
 
 			cid := min(i, bef) + n*max(i, bef)
 			nid := min(i, aft) + n*max(i, aft)
-			G[cid] = append(G[cid], nid)
+			G[cid] = append(G[cid], Edge{nid, 1})
 		}
 	}
 

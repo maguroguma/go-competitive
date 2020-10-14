@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc139/tasks/abc139_e
+https://atcoder.jp/contests/arc105/tasks/arc105_c
 */
 
 package main
@@ -11,47 +11,108 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
 var (
-	n int
-	A [][]int
+	n, m int
+	W    []int
+	L, V []int
 
-	G [1000000 + 50][]Edge
+	B, C []Bridge
 )
 
 func main() {
-	n = readi()
-	for i := 0; i < n; i++ {
-		row := readis(n - 1)
-		for i := 0; i < len(row); i++ {
-			row[i]--
-		}
-		A = append(A, row)
+	defer stdout.Flush()
+
+	n, m = readi2()
+	W = readis(n)
+	L, V = make([]int, m), make([]int, m)
+	B = make([]Bridge, m)
+	for i := 0; i < m; i++ {
+		l, v := readi2()
+		L[i], V[i] = l, v
+		B[i] = Bridge{l, v}
 	}
 
+	// impossibleチェック
 	for i := 0; i < n; i++ {
-		for j := 1; j < len(A[i]); j++ {
-			bef := A[i][j-1]
-			aft := A[i][j]
-
-			cid := Min(i, bef) + n*Max(i, bef)
-			nid := Min(i, aft) + n*Max(i, aft)
-			G[cid] = append(G[cid], Edge{nid, 1})
+		for j := 0; j < m; j++ {
+			if W[i] > V[j] {
+				fmt.Println(-1)
+				return
+			}
 		}
 	}
 
-	num := n * n
-	ok, sorted := TSort(num, G[:num])
+	sort.Slice(B, func(i, j int) bool {
+		if B[i].v < B[j].v {
+			return true
+		} else if B[i].v > B[j].v {
+			return false
+		} else {
+			return B[i].l > B[j].l
+		}
+	})
+	// debugf("B: %v\n", B)
 
-	if !ok {
+	C = append(C, B[0])
+	for i := 1; i < m; i++ {
+		j := len(C) - 1
+		if C[j].v < B[i].v && C[j].l < B[i].l {
+			C = append(C, B[i])
+		}
+	}
+	// debugf("C: %v\n", C)
+
+	tmp := make([]int, n)
+	for i := 0; i < n; i++ {
+		tmp[i] = i
+	}
+	patterns := FactorialPatterns(tmp)
+
+	ans := INF_B60
+	for _, P := range patterns {
+		val := calc(P)
+		chmin(&ans, val)
+	}
+
+	if ans == INF_B60 {
 		fmt.Println(-1)
-		return
 	} else {
-		ans, _ := LongestPath(sorted, G[:num])
-		fmt.Println(ans + 1)
+		fmt.Println(ans)
 	}
+}
+
+func calc(P []int) int {
+	G := make([][]Edge, n)
+
+	for i := 1; i < n; i++ {
+		rid := P[i]
+		cw := W[rid]
+		for j := i - 1; j >= 0; j-- {
+			lid := P[j]
+			cw += W[lid]
+
+			ok := BinarySearch(-1, len(C), func(mid int) bool {
+				return C[mid].v < cw
+			})
+
+			length := 0
+			if ok != -1 {
+				length = C[ok].l
+			}
+
+			G[j] = append(G[j], Edge{i, length})
+		}
+	}
+
+	_, ids := TSort(n, G)
+	// debugf("ids: %v\n", ids)
+	res, _ := LongestPath(ids, G)
+
+	return res
 }
 
 type Edge struct {
@@ -131,34 +192,53 @@ func LongestPath(tsortedIDs []int, AG [][]Edge) (maxLength int, dp []int) {
 	return maxLength, dp
 }
 
-// Max returns the max integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Max(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m < integer {
-			m = integer
-		}
-	}
-	return m
+type Bridge struct {
+	l, v int
 }
 
-// Min returns the min integer among input set.
-// This function needs at least 1 argument (no argument causes panic).
-func Min(integers ...int) int {
-	m := integers[0]
-	for i, integer := range integers {
-		if i == 0 {
-			continue
-		}
-		if m > integer {
-			m = integer
+// FactorialPatterns returns all patterns of n! of elems([]int).
+func FactorialPatterns(elems []int) [][]int {
+	newResi := make([]int, len(elems))
+	copy(newResi, elems)
+
+	return factRec([]int{}, newResi)
+}
+
+// DFS function for FactorialPatterns.
+func factRec(pattern, residual []int) [][]int {
+	if len(residual) == 0 {
+		return [][]int{pattern}
+	}
+
+	res := [][]int{}
+	for i, e := range residual {
+		newPattern := make([]int, len(pattern))
+		copy(newPattern, pattern)
+		newPattern = append(newPattern, e)
+
+		newResi := []int{}
+		newResi = append(newResi, residual[:i]...)
+		newResi = append(newResi, residual[i+1:]...)
+
+		res = append(res, factRec(newPattern, newResi)...)
+	}
+
+	return res
+}
+
+func BinarySearch(initOK, initNG int, isOK func(mid int) bool) (ok int) {
+	ng := initNG
+	ok = initOK
+	for int(math.Abs(float64(ok-ng))) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
 		}
 	}
-	return m
+
+	return ok
 }
 
 /*******************************************************************/
@@ -174,25 +254,8 @@ const (
 	INF_I32 = math.MaxInt32
 	INF_B30 = 1 << 30
 	NIL     = -1
+	EPS     = 1e-10
 )
-
-// modi can calculate a right residual whether value is positive or negative.
-func modi(val, m int) int {
-	res := val % m
-	if res < 0 {
-		res += m
-	}
-	return res
-}
-
-// modll can calculate a right residual whether value is positive or negative.
-func modll(val, m int64) int64 {
-	res := val % m
-	if res < 0 {
-		res += m
-	}
-	return res
-}
 
 /********** bufio setting **********/
 
@@ -200,6 +263,79 @@ func init() {
 	// bufio.ScanWords <---> bufio.ScanLines
 	reads = newReadString(os.Stdin, bufio.ScanWords)
 	stdout = bufio.NewWriter(os.Stdout)
+}
+
+// mod can calculate a right residual whether value is positive or negative.
+func mod(val, m int) int {
+	res := val % m
+	if res < 0 {
+		res += m
+	}
+	return res
+}
+
+// min returns the min integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func min(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m > integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// max returns the max integer among input set.
+// This function needs at least 1 argument (no argument causes panic).
+func max(integers ...int) int {
+	m := integers[0]
+	for i, integer := range integers {
+		if i == 0 {
+			continue
+		}
+		if m < integer {
+			m = integer
+		}
+	}
+	return m
+}
+
+// chmin accepts a pointer of integer and a target value.
+// If target value is SMALLER than the first argument,
+//	then the first argument will be updated by the second argument.
+func chmin(updatedValue *int, target int) bool {
+	if *updatedValue > target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// chmax accepts a pointer of integer and a target value.
+// If target value is LARGER than the first argument,
+//	then the first argument will be updated by the second argument.
+func chmax(updatedValue *int, target int) bool {
+	if *updatedValue < target {
+		*updatedValue = target
+		return true
+	}
+	return false
+}
+
+// sum returns multiple integers sum.
+func sum(integers ...int) int {
+	var s int
+	s = 0
+
+	for _, i := range integers {
+		s += i
+	}
+
+	return s
 }
 
 /********** FAU standard libraries **********/

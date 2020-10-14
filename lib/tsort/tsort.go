@@ -1,15 +1,21 @@
 package tsort
 
+type Edge struct {
+	to   int
+	cost int
+}
+
 // TSort returns a node ids list in topological order.
 // node id is 0-based.
 // Time complexity: O(|E| + |V|)
-func TSort(nn int, AG [][]int) (ok bool, tsortedIDs []int) {
+func TSort(nn int, AG [][]Edge) (ok bool, tsortedIDs []int) {
 	tsortedIDs = []int{}
 
 	inDegrees := make([]int, nn)
 	for s := 0; s < nn; s++ {
-		for _, t := range AG[s] {
-			inDegrees[t]++
+		for _, e := range AG[s] {
+			id := e.to
+			inDegrees[id]++
 		}
 	}
 
@@ -26,7 +32,8 @@ func TSort(nn int, AG [][]int) (ok bool, tsortedIDs []int) {
 
 		tsortedIDs = append(tsortedIDs, cid)
 
-		for _, nid := range AG[cid] {
+		for _, e := range AG[cid] {
+			nid := e.to
 			inDegrees[nid]--
 			if inDegrees[nid] == 0 {
 				stack = append(stack, nid)
@@ -42,9 +49,8 @@ func TSort(nn int, AG [][]int) (ok bool, tsortedIDs []int) {
 }
 
 // LongestPath returns a length of longest path of a given graph.
-// This function assumes that all costs of edges are 1.
 // Time complexity: O(|E| + |V|)
-func LongestPath(tsortedIDs []int, AG [][]int) (maxLength int, dp []int) {
+func LongestPath(tsortedIDs []int, AG [][]Edge) (maxLength int, dp []int) {
 	_chmax := func(updatedValue *int, target int) bool {
 		if *updatedValue < target {
 			*updatedValue = target
@@ -53,12 +59,13 @@ func LongestPath(tsortedIDs []int, AG [][]int) (maxLength int, dp []int) {
 		return false
 	}
 
-	dp = make([]int, len(tsortedIDs)+1)
+	dp = make([]int, len(tsortedIDs))
 
 	for i := 0; i < len(tsortedIDs); i++ {
 		cid := tsortedIDs[i]
-		for _, nid := range AG[cid] {
-			_chmax(&dp[nid], dp[cid]+1)
+		for _, e := range AG[cid] {
+			nid := e.to
+			_chmax(&dp[nid], dp[cid]+e.cost)
 		}
 	}
 
