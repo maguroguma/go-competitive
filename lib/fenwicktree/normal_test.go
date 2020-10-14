@@ -66,3 +66,41 @@ func TestFenwickTreeLowerBound(t *testing.T) {
 		})
 	}
 }
+
+func TestInversionNumber(t *testing.T) {
+	testcases := []struct {
+		A        []int
+		expected int64
+	}{
+		{
+			[]int{0, 1, 2, 3, 4, 5},
+			0,
+		},
+		{
+			[]int{5, 4, 3, 2, 1, 0},
+			15,
+		},
+		{
+			[]int{3, 5, 2, 4, 1, 0},
+			3 + 4 + 2 + 2 + 1 + 0,
+		},
+		{
+			[]int{0, 0, 1, 1, 2, 2},
+			0,
+		},
+		{
+			[]int{2, 2, 1, 1, 0, 0},
+			4 + 4 + 2 + 2 + 0 + 0,
+		},
+	}
+
+	for i, tc := range testcases {
+		testName := fmt.Sprintf("test %d", i)
+		t.Run(testName, func(t *testing.T) {
+			actual := InversionNumber(tc.A)
+			if actual != tc.expected {
+				t.Errorf("got %v, want %v", actual, tc.expected)
+			}
+		})
+	}
+}

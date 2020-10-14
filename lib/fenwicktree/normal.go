@@ -75,3 +75,32 @@ func (ft *FenwickTree) _add(i, x int) {
 		i += i & (-i)
 	}
 }
+
+// InversionNumber returns 転倒数 of slice A.
+// Time complexity: O(NlogN)
+func InversionNumber(A []int) (res int64) {
+	_max := func(integers ...int) int {
+		m := integers[0]
+		for i, integer := range integers {
+			if i == 0 {
+				continue
+			}
+			if m < integer {
+				m = integer
+			}
+		}
+		return m
+	}
+
+	res = 0
+
+	maximum := _max(A...)
+	ft := NewFenwickTree(maximum + 1)
+
+	for i := 0; i < len(A); i++ {
+		res += int64(i - ft.RangeSum(0, A[i]+1))
+		ft.Add(A[i], 1)
+	}
+
+	return res
+}
