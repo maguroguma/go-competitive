@@ -26,6 +26,7 @@ func TestProdOthers(t *testing.T) {
 		}
 		return _gcd(y, x%y)
 	}
+	_sum := func(x, y int) int { return x + y }
 
 	testcases := []struct {
 		A        []int
@@ -46,6 +47,11 @@ func TestProdOthers(t *testing.T) {
 			[]int{0, 2, 4, 8},
 			_gcd,
 			[]int{2, 4, 2, 2},
+		},
+		{
+			[]int{2, 4, 7, 8, 0, 3, 5, 9},
+			_sum,
+			[]int{36, 34, 31, 30, 38, 35, 33, 29},
 		},
 	}
 
