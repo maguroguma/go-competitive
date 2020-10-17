@@ -6,12 +6,13 @@ options     head
 
   // type of monoid
   type S struct {
-    one, zero int
-    ans       int
+    val int
   }
 
   // type of mapping
-  type F int
+  type F struct {
+    val int
+  }
 
   type E func() S
   type Merger func(a, b S) S
