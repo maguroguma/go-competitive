@@ -117,6 +117,14 @@ func sum(integers ...int) int {
 	return s
 }
 
+// abs is integer version of math.Abs
+func abs(a int) int {
+	if a < 0 {
+		return -a
+	}
+	return a
+}
+
 /********** FAU standard libraries **********/
 
 //fmt.Sprintf("%b\n", 255) 	// binary expression
