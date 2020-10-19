@@ -220,14 +220,34 @@ options     head
 snippet     overflowChecker
 abbr        func IsProductLeq(a, b, ub int) bool
 options     head
+  // IsProductOverflow returns whether a*b <= MAX_INT64 or not.
+  // IsProductOverflow panics when it accepts negative integers.
+  func IsProductOverflow(a, b ${1:int}) bool {
+    if a < 0 || b < 0 {
+      panic("IsProductOverflow does not accept negative integers")
+    }
+
+    return a <= (math.MaxInt64 / b)
+  }
+
+  // IsSumOverflow returns whether a*b <= MAX_INT64 or not.
+  // IsSumOverflow panics when it accepts negative integers.
+  func IsSumOverflow(a, b $1) bool {
+    if a < 0 || b < 0 {
+      panic("IsSumOverflow does not accept negative integers")
+    }
+
+    return a <= (math.MaxInt64 - b)
+  }
+
   // IsProductLeq returns whether a*b <= ub or not.
   // IsProductLeq panics when it accepts negative integers.
-  func IsProductLeq(a, b, ub ${1:int}) bool {
+  func IsProductLeq(a, b, ub $1) bool {
     if a < 0 || b < 0 || ub < 0 {
       panic("IsProductLeq does not accept negative integers")
     }
 
-    return a <= ub/b
+    return a <= (ub / b)
   }
 
   // IsSumLeq returns whether a*b <= ub or not.
@@ -237,5 +257,5 @@ options     head
       panic("IsSumLeq does not accept negative integers")
     }
 
-    return a <= ub-b
+    return a <= (ub - b)
   }

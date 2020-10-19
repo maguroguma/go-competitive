@@ -2,6 +2,7 @@ package arithmetic
 
 import (
 	"fmt"
+	"math"
 	"testing"
 )
 
@@ -84,6 +85,66 @@ func TestSumOverflow(t *testing.T) {
 			actual := IsSumLeq(tc.a, tc.b, tc.ub)
 			if actual != tc.leq {
 				t.Errorf("got %v, want %v", actual, tc.leq)
+			}
+		})
+	}
+}
+
+func TestProductOverflowInt64(t *testing.T) {
+	testcases := []struct {
+		a, b int
+		ok   bool
+	}{
+		{
+			a: 1, b: math.MaxInt64,
+			ok: true,
+		},
+		{
+			a: 2, b: math.MaxInt64,
+			ok: false,
+		},
+		{
+			a: 1 << uint(31), b: 1 << uint(31),
+			ok: true,
+		},
+		{
+			a: 1 << uint(32), b: 1 << uint(32),
+			ok: false,
+		},
+	}
+
+	for i, tc := range testcases {
+		testName := fmt.Sprintf("test %d", i)
+		t.Run(testName, func(t *testing.T) {
+			actual := IsProductOverflow(tc.a, tc.b)
+			if actual != tc.ok {
+				t.Errorf("got %v, want %v", actual, tc.ok)
+			}
+		})
+	}
+}
+
+func TestSumOverflowInt64(t *testing.T) {
+	testcases := []struct {
+		a, b int
+		ok   bool
+	}{
+		{
+			a: 1, b: math.MaxInt64,
+			ok: false,
+		},
+		{
+			a: 1, b: math.MaxInt64 - 1,
+			ok: true,
+		},
+	}
+
+	for i, tc := range testcases {
+		testName := fmt.Sprintf("test %d", i)
+		t.Run(testName, func(t *testing.T) {
+			actual := IsSumOverflow(tc.a, tc.b)
+			if actual != tc.ok {
+				t.Errorf("got %v, want %v", actual, tc.ok)
 			}
 		})
 	}
