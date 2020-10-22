@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2013yo/tasks/joi2013yo_e
+https://atcoder.jp/contests/joi2015yo/tasks/joi2015yo_e
 */
 
 package main
@@ -11,80 +11,65 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
 var (
-	n, k int
-
-	X, Y, Z    []int
-	A, B, C    []int
-	SX, SY, SZ []int
-
-	// V [200][200][200]int
-	V [400][400][400]int
+	h, w int
+	S    [][]int
 )
-
-const MAX = 400
 
 func main() {
 	defer stdout.Flush()
 
-	n, k = readi2()
-	X, Y, Z = make([]int, n), make([]int, n), make([]int, n)
-	A, B, C = make([]int, n), make([]int, n), make([]int, n)
-	for i := 0; i < n; i++ {
-		x, y, z := readi3()
-		X[i], Y[i], Z[i] = x, y, z
-		a, b, c := readi3()
-		A[i], B[i], C[i] = a, b, c
+	h, w = readi2()
+	for i := 0; i < h; i++ {
+		row := readrs()
+		A := make([]int, w)
+		for j := 0; j < w; j++ {
+			if row[j] == '.' {
+				A[j] = 0
+			} else {
+				A[j] = int(row[j] - '0')
+			}
+		}
 
-		// SX = append(SX, x, a)
-		// SY = append(SY, y, b)
-		// SZ = append(SZ, z, c)
-
-		// なぜか↓では駄目だった
-		SX = append(SX, x-1, x, x+1, a-1, a, a+1)
-		SY = append(SY, y-1, y, y+1, b-1, b, b+1)
-		SZ = append(SZ, z-1, z, z+1, c-1, c, c+1)
+		S = append(S, A)
 	}
 
-	_, tox, invx := ZaAtsu1Dim(SX, 0)
-	_, toy, invy := ZaAtsu1Dim(SY, 0)
-	_, toz, invz := ZaAtsu1Dim(SZ, 0)
-
-	for idx := 0; idx < n; idx++ {
-		x, y, z, a, b, c := X[idx], Y[idx], Z[idx], A[idx], B[idx], C[idx]
-		xs := tox[x]
-		xt := tox[a]
-		ys := toy[y]
-		yt := toy[b]
-		zs := toz[z]
-		zt := toz[c]
-
-		for i := xs; i < xt; i++ {
-			for j := ys; j < yt; j++ {
-				for l := zs; l < zt; l++ {
-					V[i][j][l]++
-				}
+	Q := []Coord{}
+	for i := 0; i < h; i++ {
+		for j := 0; j < w; j++ {
+			if S[i][j] == 0 {
+				c := Coord{y: i, x: j, num: 0}
+				Q = append(Q, c)
 			}
 		}
 	}
 
 	ans := 0
-	for i := 0; i < MAX; i++ {
-		for j := 0; j < MAX; j++ {
-			for l := 0; l < MAX; l++ {
-				if V[i][j][l] >= k {
-					xs := invx[i]
-					xt := invx[i+1]
-					ys := invy[j]
-					yt := invy[j+1]
-					zs := invz[l]
-					zt := invz[l+1]
+	for len(Q) > 0 {
+		cc := Q[0]
+		Q = Q[1:]
 
-					ans += (xt - xs) * (yt - ys) * (zt - zs)
+		chmax(&ans, cc.num)
+
+		for i := -1; i <= 1; i++ {
+			for j := -1; j <= 1; j++ {
+				ny := cc.y + i
+				nx := cc.x + j
+				if !(0 <= ny && ny < h && 0 <= nx && nx < w) {
+					continue
+				}
+
+				if S[ny][nx] <= 0 {
+					continue
+				}
+
+				S[ny][nx]--
+				if S[ny][nx] <= 0 {
+					nc := Coord{y: ny, x: nx, num: cc.num + 1}
+					Q = append(Q, nc)
 				}
 			}
 		}
@@ -93,39 +78,9 @@ func main() {
 	fmt.Println(ans)
 }
 
-// ZaAtsu1Dim returns 3 values.
-// pressed: pressed slice of the original slice
-// orgToPress: map for translating original value to pressed value
-// pressToOrg: reverse resolution of orgToPress
-// O(nlogn)
-func ZaAtsu1Dim(org []int, initVal int) (pressed []int, orgToPress, pressToOrg map[int]int) {
-	pressed = make([]int, len(org))
-	copy(pressed, org)
-	sort.Sort(sort.IntSlice(pressed))
-
-	orgToPress = make(map[int]int)
-	for i := 0; i < len(org); i++ {
-		if i == 0 {
-			orgToPress[pressed[0]] = initVal
-			continue
-		}
-
-		if pressed[i-1] != pressed[i] {
-			initVal++
-			orgToPress[pressed[i]] = initVal
-		}
-	}
-
-	for i := 0; i < len(org); i++ {
-		pressed[i] = orgToPress[org[i]]
-	}
-
-	pressToOrg = make(map[int]int)
-	for k, v := range orgToPress {
-		pressToOrg[v] = k
-	}
-
-	return
+type Coord struct {
+	y, x int
+	num  int
 }
 
 /*******************************************************************/

@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2013yo/tasks/joi2013yo_e
+https://atcoder.jp/contests/joisc2014/tasks/joisc2014_m
 */
 
 package main
@@ -16,116 +16,66 @@ import (
 )
 
 var (
-	n, k int
+	n    int
+	A, B []int
 
-	X, Y, Z    []int
-	A, B, C    []int
-	SX, SY, SZ []int
-
-	// V [200][200][200]int
-	V [400][400][400]int
+	S  []Strap
+	dp [2000 + 50][4000 + 50]int
 )
-
-const MAX = 400
 
 func main() {
 	defer stdout.Flush()
 
-	n, k = readi2()
-	X, Y, Z = make([]int, n), make([]int, n), make([]int, n)
-	A, B, C = make([]int, n), make([]int, n), make([]int, n)
+	n = readi()
+	A, B = make([]int, n), make([]int, n)
+	S = make([]Strap, n)
 	for i := 0; i < n; i++ {
-		x, y, z := readi3()
-		X[i], Y[i], Z[i] = x, y, z
-		a, b, c := readi3()
-		A[i], B[i], C[i] = a, b, c
+		a, b := readi2()
+		A[i], B[i] = a, b
 
-		// SX = append(SX, x, a)
-		// SY = append(SY, y, b)
-		// SZ = append(SZ, z, c)
-
-		// なぜか↓では駄目だった
-		SX = append(SX, x-1, x, x+1, a-1, a, a+1)
-		SY = append(SY, y-1, y, y+1, b-1, b, b+1)
-		SZ = append(SZ, z-1, z, z+1, c-1, c, c+1)
+		S[i] = Strap{a, b}
 	}
 
-	_, tox, invx := ZaAtsu1Dim(SX, 0)
-	_, toy, invy := ZaAtsu1Dim(SY, 0)
-	_, toz, invz := ZaAtsu1Dim(SZ, 0)
+	sort.Slice(S, func(i, j int) bool {
+		return S[i].a > S[j].a
+	})
+	// debugf("S: %v\n", S)
 
-	for idx := 0; idx < n; idx++ {
-		x, y, z, a, b, c := X[idx], Y[idx], Z[idx], A[idx], B[idx], C[idx]
-		xs := tox[x]
-		xt := tox[a]
-		ys := toy[y]
-		yt := toy[b]
-		zs := toz[z]
-		zt := toz[c]
-
-		for i := xs; i < xt; i++ {
-			for j := ys; j < yt; j++ {
-				for l := zs; l < zt; l++ {
-					V[i][j][l]++
-				}
-			}
+	for i := 0; i <= n; i++ {
+		for j := 0; j <= n; j++ {
+			dp[i][j] = -INF_B60
 		}
 	}
+
+	dp[0][1] = 0
+	for i := 0; i < n; i++ {
+		// a, b := A[i], B[i]
+		a, b := S[i].a, S[i].b
+		for j := 0; j <= n; j++ {
+			// 使う
+			if j-1+a >= 0 {
+				c := min(n, j-1+a)
+				chmax(&dp[i+1][c], dp[i][j]+b)
+			}
+			// 使わない
+			chmax(&dp[i+1][j], dp[i][j])
+		}
+	}
+
+	// for i := 0; i <= n; i++ {
+	// 	debugf("%v\n", dp[i][:n+1])
+	// }
 
 	ans := 0
-	for i := 0; i < MAX; i++ {
-		for j := 0; j < MAX; j++ {
-			for l := 0; l < MAX; l++ {
-				if V[i][j][l] >= k {
-					xs := invx[i]
-					xt := invx[i+1]
-					ys := invy[j]
-					yt := invy[j+1]
-					zs := invz[l]
-					zt := invz[l+1]
-
-					ans += (xt - xs) * (yt - ys) * (zt - zs)
-				}
-			}
-		}
+	for j := 0; j <= n; j++ {
+		chmax(&ans, dp[n][j])
 	}
 
 	fmt.Println(ans)
 }
 
-// ZaAtsu1Dim returns 3 values.
-// pressed: pressed slice of the original slice
-// orgToPress: map for translating original value to pressed value
-// pressToOrg: reverse resolution of orgToPress
-// O(nlogn)
-func ZaAtsu1Dim(org []int, initVal int) (pressed []int, orgToPress, pressToOrg map[int]int) {
-	pressed = make([]int, len(org))
-	copy(pressed, org)
-	sort.Sort(sort.IntSlice(pressed))
-
-	orgToPress = make(map[int]int)
-	for i := 0; i < len(org); i++ {
-		if i == 0 {
-			orgToPress[pressed[0]] = initVal
-			continue
-		}
-
-		if pressed[i-1] != pressed[i] {
-			initVal++
-			orgToPress[pressed[i]] = initVal
-		}
-	}
-
-	for i := 0; i < len(org); i++ {
-		pressed[i] = orgToPress[org[i]]
-	}
-
-	pressToOrg = make(map[int]int)
-	for k, v := range orgToPress {
-		pressToOrg[v] = k
-	}
-
-	return
+type Strap struct {
+	a, b int
 }
 
 /*******************************************************************/
