@@ -27,7 +27,7 @@ func main() {
 
 	c := 1
 	for i := 0; i <= 60; i++ {
-		if !IsProductOverflow(c, x) {
+		if IsProductOverflow(c, x) {
 			break
 		}
 
@@ -43,7 +43,7 @@ func main() {
 
 		chmax(&ans, i+j)
 
-		if !IsProductOverflow(c, a) {
+		if IsProductOverflow(c, a) {
 			break
 		}
 		c *= a
@@ -52,24 +52,24 @@ func main() {
 	fmt.Println(ans)
 }
 
-// IsProductOverflow returns whether a*b <= MAX_INT64 or not.
+// IsProductOverflow returns whether a*b > MAX_INT64 or not.
 // IsProductOverflow panics when it accepts negative integers.
 func IsProductOverflow(a, b int) bool {
 	if a < 0 || b < 0 {
 		panic("IsProductOverflow does not accept negative integers")
 	}
 
-	return a <= (math.MaxInt64 / b)
+	return a > (math.MaxInt64 / b)
 }
 
-// IsSumOverflow returns whether a*b <= MAX_INT64 or not.
+// IsSumOverflow returns whether a+b > MAX_INT64 or not.
 // IsSumOverflow panics when it accepts negative integers.
 func IsSumOverflow(a, b int) bool {
 	if a < 0 || b < 0 {
 		panic("IsSumOverflow does not accept negative integers")
 	}
 
-	return a <= (math.MaxInt64 - b)
+	return a > (math.MaxInt64 - b)
 }
 
 // IsProductLeq returns whether a*b <= ub or not.
@@ -82,7 +82,7 @@ func IsProductLeq(a, b, ub int) bool {
 	return a <= (ub / b)
 }
 
-// IsSumLeq returns whether a*b <= ub or not.
+// IsSumLeq returns whether a+b <= ub or not.
 // IsSumLeq panics when it accepts negative integers.
 func IsSumLeq(a, b, ub int) bool {
 	if a < 0 || b < 0 || ub < 0 {

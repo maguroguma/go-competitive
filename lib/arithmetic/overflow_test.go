@@ -97,19 +97,19 @@ func TestProductOverflowInt64(t *testing.T) {
 	}{
 		{
 			a: 1, b: math.MaxInt64,
-			ok: true,
+			ok: false,
 		},
 		{
 			a: 2, b: math.MaxInt64,
-			ok: false,
-		},
-		{
-			a: 1 << uint(31), b: 1 << uint(31),
 			ok: true,
 		},
 		{
-			a: 1 << uint(32), b: 1 << uint(32),
+			a: 1 << uint(31), b: 1 << uint(31),
 			ok: false,
+		},
+		{
+			a: 1 << uint(32), b: 1 << uint(32),
+			ok: true,
 		},
 	}
 
@@ -131,11 +131,11 @@ func TestSumOverflowInt64(t *testing.T) {
 	}{
 		{
 			a: 1, b: math.MaxInt64,
-			ok: false,
+			ok: true,
 		},
 		{
 			a: 1, b: math.MaxInt64 - 1,
-			ok: true,
+			ok: false,
 		},
 	}
 
