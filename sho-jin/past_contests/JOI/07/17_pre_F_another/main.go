@@ -28,6 +28,19 @@ const (
 	CC, HC        = 0, 1
 )
 
+func toid(cf, cx, id int) int {
+	return (cf*(x+1)+cx)*n + id
+}
+func tof(nid int) int {
+	return nid / n / (x + 1)
+}
+func tod(nid int) int {
+	return (nid / n) % (x + 1)
+}
+func toi(nid int) int {
+	return nid % n
+}
+
 func main() {
 	defer stdout.Flush()
 
@@ -42,30 +55,11 @@ func main() {
 		A[i], B[i], D[i] = a, b, d
 	}
 
-	toid := func(cf, cx, id int) int {
-		return (cf*(x+1)+cx)*n + id
-	}
-	tof := func(nid int) int {
-		return nid / n / (x + 1)
-	}
-	tod := func(nid int) int {
-		return (nid / n) % (x + 1)
-	}
-	toi := func(nid int) int {
-		return nid % n
-	}
-
 	for i := 0; i < m; i++ {
 		a, b, d := A[i], B[i], D[i]
 
-		for y := 0; y <= x; y++ {
-			nx := min(y+d, x)
-			for f := 0; f <= 1; f++ {
-				for g := 0; g <= 1; g++ {
-					s := toid(f, y)
-				}
-			}
-		}
+		G[a] = append(G[a], Edge{to: b, w: Weight{d}})
+		G[b] = append(G[b], Edge{to: a, w: Weight{d}})
 	}
 
 	vinf := Value{INF_B60}
@@ -147,18 +141,48 @@ func (ds *DijkstraSolver) Dijkstra(S []StartPoint, n int, AG [][]Edge) []Value {
 		}
 
 		// to next node
-		for _, e := range AG[pop.id] {
-			if colors[e.to] == BLACK {
+		cid := toi(pop.id)
+		cd := tod(pop.id)
+		cf := tof(pop.id)
+		for _, e := range AG[cid] {
+			nid := e.to
+			nf := F[e.to]
+			var ff int
+			if nf == OK {
+				ff = cf
+			} else if nf == COLD {
+				ff = CC
+			} else {
+				ff = HC
+			}
+
+			var nx int
+
+			if nf == OK {
+				nx = min(cd+e.w.v, x)
+			} else {
+				if cf != ff {
+					dd := min(cd+e.w.v, x)
+					if dd < x {
+						continue
+					}
+				}
+				nx = 0
+			}
+
+			next := toid(ff, nx, nid)
+
+			if colors[next] == BLACK {
 				continue
 			}
 
 			// update optimal value of the next node
 			nv := ds.estimate(pop.id, pop.v, e)
 
-			if ds.less(nv, dp[e.to]) {
-				dp[e.to] = nv
-				pq.push(&Vertex{id: e.to, v: nv})
-				colors[e.to] = GRAY
+			if ds.less(nv, dp[next]) {
+				dp[next] = nv
+				pq.push(&Vertex{id: next, v: nv})
+				colors[next] = GRAY
 			}
 		}
 	}
