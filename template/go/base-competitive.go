@@ -7,6 +7,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -123,6 +124,26 @@ func abs(a int) int {
 		return -a
 	}
 	return a
+}
+
+// pow is integer version of math.Pow
+// pow calculate a power by Binary Power (二分累乗法(O(log e))).
+func pow(a, e int) int {
+	if a < 0 || e < 0 {
+		panic(errors.New("[argument error]: PowInt does not accept negative integers"))
+	}
+
+	if e == 0 {
+		return 1
+	}
+
+	if e%2 == 0 {
+		halfE := e / 2
+		half := pow(a, halfE)
+		return half * half
+	}
+
+	return a * pow(a, e-1)
 }
 
 /********** FAU standard libraries **********/
