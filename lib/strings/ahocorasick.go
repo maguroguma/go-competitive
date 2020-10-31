@@ -78,6 +78,7 @@ func NewPMA(patterns [][]rune, base rune) *PMA {
 // res[i] has word indices that matches the last character in i index (0-index).
 // res[i] can have multiple word indices, and in that case,
 //  its order is not deterministic.
+// res has shallow copy of accept slices, so you should not update the res.
 func (pma *PMA) Match(text []rune) [][]int {
 	res := make([][]int, len(text))
 
@@ -92,9 +93,7 @@ func (pma *PMA) Match(text []rune) [][]int {
 		curNode = curNode.next[c] // consume a character
 
 		// check pattern match
-		tmp := make([]int, len(curNode.accept))
-		copy(tmp, curNode.accept)
-		res[i] = tmp
+		res[i] = curNode.accept
 	}
 
 	return res
