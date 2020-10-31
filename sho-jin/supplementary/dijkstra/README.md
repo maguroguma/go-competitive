@@ -65,6 +65,10 @@
   - 最短距離ではなく、「その頂点に至るまでのパスのうち、最小のノード番号を記憶し、DP値を最大にするように更新していく」というふうにする。
 - [ABC164 E.Two Currencies](https://atcoder.jp/contests/abc164/tasks/abc164_e)
   - 拡張ダイクストラ
+- [JOI F.ヘビのJOI君 ★★★](https://atcoder.jp/contests/joi2017yo/tasks/joi2017yo_f)
+- [JOI E.森林伐採 ★★](https://atcoder.jp/contests/joi2018yo/tasks/joi2018_yo_e)
+- [ABC170 F.Pond Skater](https://atcoder.jp/contests/abc170/tasks/abc170_f)
+  - 全て拡張ダイクストラ
 
 ### ダイクストラと見抜くために
 
