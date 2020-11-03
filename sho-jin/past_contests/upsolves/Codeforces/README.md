@@ -1,6 +1,6 @@
 # Codeforcesのupsolveした問題たち
 
-Last Change: 2020-11-03 13:03:04.
+Last Change: 2020-11-03 16:04:23.
 
 ## [Raif Round 1 E.Carrots for Rabbits](https://codeforces.com/contest/1428/problem/E)
 
@@ -8,6 +8,10 @@ Last Change: 2020-11-03 13:03:04.
 丸暗記してしまってもいいのかもしれない。
 
 ![](./raifround-e.jpg)
+
+追記: 肝となる不等式の証明も追加。
+
+![](./raifround-e-proof.jpg)
 
 ## [CR681 div2 D.Extreme Subtraction](https://codeforces.com/contest/1443/problem/D)
 
