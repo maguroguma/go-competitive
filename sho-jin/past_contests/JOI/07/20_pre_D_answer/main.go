@@ -18,74 +18,71 @@ import (
 var (
 	m, r int
 
-	G [10][10]int
-
-	dp [60][10][100000 + 5]int
+	G  [10][]int
+	dp [10 + 5][100000 + 50]int
 )
 
 func main() {
 	defer stdout.Flush()
 
-	for i := 0; i < 10; i++ {
-		if i == 0 {
-			base := 1
-			for j := 1; j < 10; j++ {
-				q := (j - 1) / 3
-				rr := (j - 1) % 3
-				G[i][j] = base + (q + rr)
-				G[j][i] = base + (q + rr)
-			}
-			continue
-		}
-		for j := i + 1; j < 10; j++ {
-			dy := abs((i-1)/3 - (j-1)/3)
-			dx := abs((i-1)%3 - (j-1)%3)
-			G[i][j] = dy + dx
-			G[j][i] = dy + dx
-		}
-	}
-	// debugf("G: %v\n", G)
-
 	m, r = readi2()
 
-	// ans := INF_B60
-	// for y := 0; y <= 1000000; y++ {
-	// 	chmin(&ans, calc(m*y+r))
-	// }
-	// fmt.Println(ans)
+	G[0] = []int{1}
+	G[1] = []int{0, 2, 4}
+	G[2] = []int{1, 3, 5}
+	G[3] = []int{2, 6}
+	G[4] = []int{1, 5, 7}
+	G[5] = []int{2, 4, 6, 8}
+	G[6] = []int{3, 5, 9}
+	G[7] = []int{4, 8}
+	G[8] = []int{5, 7, 9}
+	G[9] = []int{6, 8}
 
-	for i := 0; i < 60; i++ {
-		for j := 0; j < 10; j++ {
-			for k := 0; k < 100000; k++ {
-				dp[i][j][k] = INF_B60
-			}
-		}
-	}
-	dp[0][0][0] = 0
-	for i := 0; i < 50; i++ {
-		for j := 0; j < 10; j++ {
-			for k := 0; k < m; k++ {
-
-			}
-		}
-	}
+	fmt.Println(bfs())
 }
 
-func calc(val int) int {
-	S := []rune(strconv.Itoa(val))
-
-	res := 0
-
-	cur := 0
-	for _, r := range S {
-		dig := int(r - '0')
-
-		res += 1 + G[cur][dig]
-
-		cur = dig
+func bfs() int {
+	for i := 0; i < 10; i++ {
+		for j := 0; j < m; j++ {
+			dp[i][j] = INF_B60
+		}
 	}
 
-	return res
+	Q := []V{
+		{0, 0, 0},
+	}
+	for len(Q) > 0 {
+		pop := Q[0]
+		Q = Q[1:]
+
+		// dp[pop.curD][pop.curResi] = pop.num
+
+		if pop.curResi == r {
+			return pop.num
+		}
+
+		// 押す場合
+		resi := (pop.curResi*10 + pop.curD) % m
+		if dp[pop.curD][resi] >= INF_B60 {
+			Q = append(Q, V{pop.curD, resi, pop.num + 1})
+			dp[pop.curD][resi] = pop.num + 1
+		}
+
+		for _, nxt := range G[pop.curD] {
+			if dp[nxt][pop.curResi] >= INF_B60 {
+				v := V{nxt, pop.curResi, pop.num + 1}
+				Q = append(Q, v)
+				dp[nxt][pop.curResi] = pop.num + 1
+			}
+		}
+	}
+
+	return -1
+}
+
+type V struct {
+	curD, curResi int
+	num           int
 }
 
 /*******************************************************************/

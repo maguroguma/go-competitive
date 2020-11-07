@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joi2020yo2/tasks/joi2020_yo2_d
+https://atcoder.jp/contests/joi2007ho/tasks/joi2007ho_d
 */
 
 package main
@@ -16,76 +16,136 @@ import (
 )
 
 var (
-	m, r int
+	n, m int
 
-	G [10][10]int
-
-	dp [60][10][100000 + 5]int
+	G [][]Edge
 )
 
 func main() {
 	defer stdout.Flush()
 
-	for i := 0; i < 10; i++ {
-		if i == 0 {
-			base := 1
-			for j := 1; j < 10; j++ {
-				q := (j - 1) / 3
-				rr := (j - 1) % 3
-				G[i][j] = base + (q + rr)
-				G[j][i] = base + (q + rr)
-			}
-			continue
-		}
-		for j := i + 1; j < 10; j++ {
-			dy := abs((i-1)/3 - (j-1)/3)
-			dx := abs((i-1)%3 - (j-1)%3)
-			G[i][j] = dy + dx
-			G[j][i] = dy + dx
-		}
+	n, m = readi2()
+	G = make([][]Edge, n)
+	for i := 0; i < m; i++ {
+		a, b := readi2()
+		a--
+		b--
+
+		G[a] = append(G[a], Edge{b, 1})
 	}
-	// debugf("G: %v\n", G)
 
-	m, r = readi2()
+	_, ids := TSort(n, G)
 
-	// ans := INF_B60
-	// for y := 0; y <= 1000000; y++ {
-	// 	chmin(&ans, calc(m*y+r))
+	_, dp := LongestPath(ids, G)
+
+	// cnt := 0
+	cnts := make([]int, n)
+	for i := 0; i < n; i++ {
+		// if dp[i] == maxi {
+		// 	cnt++
+		// }
+		cnts[dp[i]]++
+	}
+
+	for _, id := range ids {
+		printf("%d\n", id+1)
+	}
+	// if cnt >= 2 {
+	// 	printf("1\n")
+	// } else {
+	// 	printf("0\n")
 	// }
-	// fmt.Println(ans)
 
-	for i := 0; i < 60; i++ {
-		for j := 0; j < 10; j++ {
-			for k := 0; k < 100000; k++ {
-				dp[i][j][k] = INF_B60
-			}
+	flag := true
+	for i := 0; i < n; i++ {
+		if cnts[i] >= 2 {
+			flag = false
+			break
 		}
 	}
-	dp[0][0][0] = 0
-	for i := 0; i < 50; i++ {
-		for j := 0; j < 10; j++ {
-			for k := 0; k < m; k++ {
 
-			}
-		}
+	if flag {
+		printf("0\n")
+	} else {
+		printf("1\n")
 	}
 }
 
-func calc(val int) int {
-	S := []rune(strconv.Itoa(val))
+type Edge struct {
+	to   int
+	cost int
+}
 
-	res := 0
+// TSort returns a node ids list in topological order.
+// node id is 0-based.
+// Time complexity: O(|E| + |V|)
+func TSort(nn int, AG [][]Edge) (ok bool, tsortedIDs []int) {
+	tsortedIDs = []int{}
 
-	cur := 0
-	for _, r := range S {
-		dig := int(r - '0')
-
-		res += 1 + G[cur][dig]
-
-		cur = dig
+	inDegrees := make([]int, nn)
+	for s := 0; s < nn; s++ {
+		for _, e := range AG[s] {
+			id := e.to
+			inDegrees[id]++
+		}
 	}
 
-	return res
+	stack := []int{}
+	for nid := 0; nid < nn; nid++ {
+		if inDegrees[nid] == 0 {
+			stack = append(stack, nid)
+		}
+	}
+
+	for len(stack) > 0 {
+		cid := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		tsortedIDs = append(tsortedIDs, cid)
+
+		for _, e := range AG[cid] {
+			nid := e.to
+			inDegrees[nid]--
+			if inDegrees[nid] == 0 {
+				stack = append(stack, nid)
+			}
+		}
+	}
+
+	if len(tsortedIDs) != nn {
+		return false, nil
+	}
+
+	return true, tsortedIDs
+}
+
+// LongestPath returns a length of longest path of a given graph.
+// Time complexity: O(|E| + |V|)
+func LongestPath(tsortedIDs []int, AG [][]Edge) (maxLength int, dp []int) {
+	_chmax := func(updatedValue *int, target int) bool {
+		if *updatedValue < target {
+			*updatedValue = target
+			return true
+		}
+		return false
+	}
+
+	dp = make([]int, len(tsortedIDs))
+
+	for i := 0; i < len(tsortedIDs); i++ {
+		cid := tsortedIDs[i]
+		for _, e := range AG[cid] {
+			nid := e.to
+			_chmax(&dp[nid], dp[cid]+e.cost)
+		}
+	}
+
+	maxLength = 0
+	for i := 0; i < len(tsortedIDs); i++ {
+		_chmax(&maxLength, dp[i])
+	}
+
+	return maxLength, dp
 }
 
 /*******************************************************************/
