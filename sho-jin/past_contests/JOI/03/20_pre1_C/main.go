@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/joisc2008/tasks/joisc2008_flu
+https://atcoder.jp/contests/joi2020yo1a/tasks/joi2020_yo1a_c
 */
 
 package main
@@ -12,105 +12,30 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
 var (
-	n, m, d, k int
-	X, Y       []int
-
-	A [1000 + 50][1000 + 50]int
-	G [100000 + 50][]int
+	n, m int
+	A, B []int
 )
 
 func main() {
 	defer stdout.Flush()
 
-	n, m, d, k = readi4()
-	X, Y = make([]int, n), make([]int, n)
-	for i := 0; i < n; i++ {
-		x, y := readi2()
-		X[i], Y[i] = x, y
-		A[y][x] = i + 1
+	n, m = readi2()
+	A, B = readis(n), readis(m)
+
+	ans := []int{}
+	ans = append(ans, A...)
+	ans = append(ans, B...)
+
+	sort.Sort(sort.IntSlice(ans))
+
+	for _, a := range ans {
+		printf("%d\n", a)
 	}
-
-	// グラフを愚直に作る
-	for i := 0; i < n; i++ {
-		cy, cx := Y[i], X[i]
-		for dy := -d; dy <= d; dy++ {
-			for dx := 0; dx*dx+dy*dy <= d*d; dx++ {
-				ny, nx := cy+dy, cx+dx
-				if 0 <= ny && ny < 1000 && 0 <= nx && nx < 1000 && A[ny][nx] > 0 && A[ny][nx]-1 != i {
-					j := A[ny][nx] - 1
-					G[i] = append(G[i], j)
-				}
-
-				if dx == 0 {
-					continue
-				}
-
-				ny, nx = cy+dy, cx-dx
-				if 0 <= ny && ny < 1000 && 0 <= nx && nx < 1000 && A[ny][nx] > 0 && A[ny][nx]-1 != i {
-					j := A[ny][nx] - 1
-					G[i] = append(G[i], j)
-				}
-			}
-		}
-	}
-
-	// for i := 0; i < n; i++ {
-	// 	debugf("G[i]: %v\n", G[i])
-	// }
-
-	dp, _ := SSSPByBFS(0, n, G[:n])
-	// debugf("dp: %v\n", dp)
-
-	ans := 0
-	for i := 0; i < n; i++ {
-		if dp[i] <= k && k < dp[i]+m {
-			ans++
-		}
-	}
-
-	fmt.Println(ans)
-}
-
-// verified by https://codeforces.com/contest/1320/problem/B
-func SSSPByBFS(sid, n int, AG [][]int) (dp []int, visited []bool) {
-	dp = make([]int, n)
-	visited = make([]bool, n)
-
-	for i := 0; i < n; i++ {
-		dp[i] = INF_B30
-		visited[i] = false
-	}
-
-	Q := []Node{}
-	dp[sid] = 0
-	visited[sid] = true
-	Q = append(Q, Node{id: sid, cost: dp[sid]})
-
-	for len(Q) > 0 {
-		cnode := Q[0]
-		Q = Q[1:]
-
-		for _, nid := range G[cnode.id] {
-			// 訪問済みならパス
-			if visited[nid] {
-				continue
-			}
-
-			dp[nid] = cnode.cost + 1
-			visited[nid] = true
-			Q = append(Q, Node{id: nid, cost: dp[nid]})
-		}
-	}
-
-	return dp, visited
-}
-
-type Node struct {
-	id, cost int
 }
 
 /*******************************************************************/
