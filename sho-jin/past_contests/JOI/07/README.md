@@ -1,6 +1,6 @@
 # 日本情報オリンピック過去問 難易度6まとめ
 
-Last Change: 2020-11-10 21:53:52.
+Last Change: 2020-11-12 01:39:01.
 
 ## [B. お菓子の分割 ★★★](https://atcoder.jp/contests/joi2010ho/tasks/joi2010ho_b)
 
@@ -286,4 +286,23 @@ LCSっぽい雰囲気のあるDPをする必要があり、まずこれを考え
 [非公式解法？](http://qnighy.github.io/informatics-olympiad/joi2008-day1-flu-comment.html)を読むと、
 「バケット法を使え」とある。  
 確かに9種類に分けてしまえば、細かい分類はあとでやれば良さそう。
+
+## [B. カンニング対策](https://atcoder.jp/contests/joisc2008/tasks/joisc2008_cheating)
+
+`d` を決めてしまえば、カメラの配置は貪欲に決めれば最適になるので、二分探索して最小値を探る。
+
+判定関数のデバッグに時間がかかってしまった。
+
+## [B. 分数 ★★★](https://atcoder.jp/contests/joisc2008/tasks/joisc2008_fraction)
+
+priority queueを使う発想は良かったが、TLEしないための工夫が足りなかった。
+
+初期値を `(1, m)` だけにして `(i+1, j) or (i, j-1)` を探索するような方法を取ったが、
+模範解答では `(1, i)` をすべて最初にpriority queueに入れていた。  
+ここから、取り出したものについて、既約分数のみをpriority queueに突っ込む形にしてやれば良い。
+
+priority queueの初期化と更新の仕方は勉強になったが、この方法の計算量解析は結構大変な気がするが。。？  
+更新の際に、次の既約分数を求める部分が計算量を膨らませてしまう気がする。  
+しかしながら、「スキップしたものはいずれどこかでスキップせずにpriority queueに突っ込まれる」ような気もしており、
+実際に120msecぐらいで通ってしまう。
 
