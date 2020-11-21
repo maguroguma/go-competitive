@@ -1,0 +1,11 @@
+language: go
+
+go:
+  - 1.13.x
+
+env:
+  matrix:
+    - GO111MODULE=on
+
+script:
+  - make testlib-fully
