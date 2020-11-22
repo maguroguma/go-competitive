@@ -17,8 +17,17 @@ import (
 var (
 	n, m, S int
 
-	dp [55][3000 + 5][2000 + 5]int32
+	// dp [55][3000 + 5][2000 + 5]int32
+	cur, prv [3000 + 5][2000 + 5]int32
 )
+
+func swap() {
+	for i := 0; i <= S; i++ {
+		for j := 0; j <= m; j++ {
+			prv[i][j] = cur[i][j]
+		}
+	}
+}
 
 const M = 100000
 
@@ -26,28 +35,62 @@ func main() {
 	defer stdout.Flush()
 
 	n, m, S = readi3()
-
-	// for k := 0; k <= m; k++ {
-	// 	dp[0][0][k] = 1
-	// }
-	dp[0][0][0] = 1
-	for i := 1; i <= n*n; i++ {
+	cur[0][0] = 1
+	for i := 0; i < n*n; i++ {
+		swap()
 		for j := 0; j <= S; j++ {
-			for k := 0; k <= m; k++ {
-				if j-i >= 0 && k-1 >= 0 {
-					dp[i][j][k] = mod(dp[i][j-i][k-1]+dp[i-1][j][k], M)
-				} else {
-					dp[i][j][k] = dp[i-1][j][k]
-				}
+			cur[j][0] = 0
+			for k := 0; k < min(m, j); k++ {
+				cur[j][k+1] = (cur[j-1][k] + prv[j-k-1][k]) % M
 			}
 		}
 	}
 
 	ans := int32(0)
 	for k := 0; k <= m; k++ {
-		ans = mod(ans+dp[n*n][S][k], M)
+		ans = mod(ans+cur[S][k], M)
 	}
 	fmt.Println(ans)
+
+	// これはメモリが足りないのでアウト
+	// dp[0][0][0] = 1
+	// for i := 0; i < n*n; i++ {
+	// 	for j := 0; j <= S; j++ {
+	// 		for k := 0; k < min(m, j); k++ {
+	// 			dp[i+1][j][k+1] = dp[i+1][j-1][k] + dp[i][j-k-1][k]
+	// 			dp[i+1][j][k+1] %= M
+	// 		}
+	// 	}
+	// }
+
+	// ans := int32(0)
+	// for k := 0; k <= m; k++ {
+	// 	ans = mod(ans+dp[n*n][S][k], M)
+	// }
+	// fmt.Println(ans)
+
+	// これはO(N^2 * M^2 * S) なのでアウト
+	// dp[0][0][0] = 1
+	// for i := 0; i < n*n; i++ {
+	// 	for j := 0; j <= S; j++ {
+	// 		for k := 0; k <= m; k++ {
+	// 			for l := k + 1; l <= m; l++ {
+	// 				if j+l > S {
+	// 					continue
+	// 				}
+
+	// 				dp[i+1][j+l][l] += dp[i][j][k]
+	// 				dp[i+1][j+l][l] %= M
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// ans := int32(0)
+	// for k := 0; k <= m; k++ {
+	// 	ans = mod(ans+dp[n*n][S][k], M)
+	// }
+	// fmt.Println(ans)
 }
 
 /*******************************************************************/
