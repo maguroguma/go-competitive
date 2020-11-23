@@ -1,36 +1,37 @@
 snippet     bipartiteJudge
 abbr        func dfs(v, c int) bool
 options     head
-  // BipartiteJudge returns whether a graph is the bipartite graph or not,
+  // IsBipartiteGraph returns whether a graph is the bipartite graph or not,
   //  and colors of nodes consisting the graph.
+  // BLACK: 1, WHITE: -1, UNKNOWN: 0
   // O(|V|)
-  func BipartiteJudge(G [][]int) ([]int, bool) {
+  func IsBipartiteGraph(G [][]int) (ok bool, colors []int) {
+    var dfs func(int, int) bool
+    dfs = func(cid, cc int) bool {
+      colors[cid] = cc
+      for _, nid := range G[cid] {
+        if colors[nid] == cc {
+          return false
+        }
+        if colors[nid] == 0 && !dfs(nid, -cc) {
+          return false
+        }
+      }
+
+      return true
+    }
+
     v := len(G)
-    colors := make([]int, v)
+    colors = make([]int, v)
 
     for i := 0; i < v; i++ {
       if colors[i] == 0 {
-        // まだ頂点iが塗られていなければ1で塗る
-        if !dfs(i, 1, colors, G) {
-          return colors, false
+        // label 1 to a node i if the node is still unknown
+        if !dfs(i, 1) {
+          return false, colors
         }
       }
     }
 
-    return colors, true
-  }
-
-  // v: current node id, c: color
-  func dfs(v, c int, colors []int, G [][]int) bool {
-    colors[v] = c
-    for _, nid := range G[v] {
-      if colors[nid] == c {
-        return false
-      }
-      if colors[nid] == 0 && !dfs(nid, -c, colors, G) {
-        return false
-      }
-    }
-
-    return true
+    return true, colors
   }
