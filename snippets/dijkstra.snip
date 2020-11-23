@@ -86,12 +86,14 @@ snippet     dijkstraByBFS
 abbr        func SSSPByBFS(sid, n int, AG [][]int) (dp []int, visited []bool)
 options     head
   // verified by https://codeforces.com/contest/1320/problem/B
-  func SSSPByBFS(sid, n int, AG [][]int) (dp []int, visited []bool) {
+  func SSSPByBFS(sid int, n int, AG [][]int, edgeCost int) (dp []int, visited []bool) {
+    const INF_SSSP = 1 << uint(30)
+
     dp = make([]int, n)
     visited = make([]bool, n)
 
     for i := 0; i < n; i++ {
-      dp[i] = INF_BIT30
+      dp[i] = INF_SSSP
       visited[i] = false
     }
 
@@ -104,13 +106,12 @@ options     head
       cnode := Q[0]
       Q = Q[1:]
 
-      for _, nid := range G[cnode.id] {
-        // 訪問済みならパス
+      for _, nid := range AG[cnode.id] {
         if visited[nid] {
           continue
         }
 
-        dp[nid] = cnode.cost + 1
+        dp[nid] = cnode.cost + edgeCost
         visited[nid] = true
         Q = append(Q, Node{id: nid, cost: dp[nid]})
       }
