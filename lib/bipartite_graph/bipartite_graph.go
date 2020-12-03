@@ -1,0 +1,36 @@
+package bipartite_graph
+
+// IsBipartiteGraph returns whether a graph is the bipartite graph or not,
+//  and colors of nodes consisting the graph.
+// BLACK: 1, WHITE: -1, UNKNOWN: 0
+// O(|V|)
+func IsBipartiteGraph(G [][]int) (ok bool, colors []int) {
+	var dfs func(int, int) bool
+	dfs = func(cid, cc int) bool {
+		colors[cid] = cc
+		for _, nid := range G[cid] {
+			if colors[nid] == cc {
+				return false
+			}
+			if colors[nid] == 0 && !dfs(nid, -cc) {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	v := len(G)
+	colors = make([]int, v)
+
+	for i := 0; i < v; i++ {
+		if colors[i] == 0 {
+			// label 1 to a node i if the node is still unknown
+			if !dfs(i, 1) {
+				return false, colors
+			}
+		}
+	}
+
+	return true, colors
+}
