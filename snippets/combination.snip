@@ -1,40 +1,3 @@
-snippet     pascalTriangle
-abbr        C[n][r]
-options     head
-  var C [5001][5001]int
-  func InitPascalTriangle(m int) {
-    for i := 0; i <= 5000; i++ {
-      for j := 0; j <= i; j++ {
-        if j == 0 || j == i {
-          C[i][j] = 1
-        } else {
-          C[i][j] = C[i-1][j-1] + C[i-1][j]
-          C[i][j] %= m
-        }
-      }
-    }
-  }
-
-snippet     pascalTriangleProbabilityVer
-abbr        CP[n][r]
-options     head
-  var CP [5001][5001]float64
-
-  func InitPascalTriangle() {
-    CP[0][0] = 1.0
-    for i := 1; i <= 5000; i++ {
-      for j := 0; j <= i; j++ {
-        if j == 0 {
-          CP[i][j] = CP[i-1][j] / 2.0
-        } else if j == i {
-          CP[i][j] = CP[i-1][j-1] / 2.0
-        } else {
-          CP[i][j] = (CP[i-1][j-1] + CP[i-1][j]) / 2.0
-        }
-      }
-    }
-  }
-
 snippet     combinationFactorial
 abbr        func (cf *CombFactorial) C(n, r int64) int64
 options     head
@@ -115,4 +78,71 @@ options     head
   }
   func (c *CombFactorial) H(n, r $1) $1 {
     return c.C(n-1+r, r)
+  }
+
+snippet     pascalTriangle
+abbr        func NewPascalTriangle(n int) *PascalTriangle
+options     head
+  type PascalTriangle struct {
+    CombTable [][]int
+  }
+
+  // NewPascalTriangle receive maximal n of nCr.
+  // n should be 60 at most, because Sum(C(n, i)) == 2^n.
+  // Time complexity: O(n^2)
+  func NewPascalTriangle(n int) *PascalTriangle {
+    pt := new(PascalTriangle)
+
+    C := make([][]int, n+1)
+    for i := 0; i <= n; i++ {
+      C[i] = make([]int, n+1)
+    }
+
+    C[0][0] = 1
+    for i := 0; i < n; i++ {
+      for j := 0; j <= i; j++ {
+        C[i+1][j] += C[i][j]
+        C[i+1][j+1] += C[i][j]
+      }
+    }
+
+    pt.CombTable = C
+    return pt
+  }
+
+  // C(n, r) returns the value of nCr.
+  func (pt *PascalTriangle) C(n, r int) int {
+    return pt.CombTable[n][r]
+  }
+
+  type PascalTriangleProb struct {
+    CombProbTable [][]float64
+  }
+
+  // NewPascalTriangleProb receive maximal n of nCr.
+  // Time complexity: O(n^2)
+  func NewPascalTriangleProb(n int) *PascalTriangleProb {
+    pt := new(PascalTriangleProb)
+
+    C := make([][]float64, n+1)
+    for i := 0; i <= n; i++ {
+      C[i] = make([]float64, n+1)
+    }
+
+    C[0][0] = 1.0
+    for i := 0; i < n; i++ {
+      for j := 0; j <= i; j++ {
+        C[i+1][j] += C[i][j] * 0.5
+        C[i+1][j+1] += C[i][j] * 0.5
+      }
+    }
+
+    pt.CombProbTable = C
+    return pt
+  }
+
+  // C(n, r) returns the probability of nCr,
+  //  the probability of event is 1/2.
+  func (pt *PascalTriangleProb) CP(n, r int) float64 {
+    return pt.CombProbTable[n][r]
   }
