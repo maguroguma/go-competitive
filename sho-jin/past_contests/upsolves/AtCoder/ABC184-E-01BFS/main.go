@@ -60,8 +60,10 @@ func GridToAdjacencyList(h, w int) (G [][]Edge, N int) {
 				cid := toid(i, j)
 				nid := h*w + int(S[i][j]-'a')
 
-				G[cid] = append(G[cid], Edge{nid, 1})
-				G[nid] = append(G[nid], Edge{cid, 1})
+				// G[cid] = append(G[cid], Edge{nid, 1})
+				// G[nid] = append(G[nid], Edge{cid, 1})
+				G[cid] = append(G[cid], Edge{nid, 2})
+				G[nid] = append(G[nid], Edge{cid, 0})
 			}
 		}
 	}
