@@ -15,10 +15,15 @@ import (
 	"strconv"
 )
 
+var (
+	println = fmt.Println
+)
+
 func main() {
 	defer stdout.Flush()
 
 	printf("Hello World.\n")
+	println(0, 1, 2)
 }
 
 /*******************************************************************/

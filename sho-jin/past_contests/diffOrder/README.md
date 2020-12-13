@@ -1,11 +1,11 @@
 # difficulty順に埋める
 
-Last Change: 2020-11-29 23:14:09.
+Last Change: 2020-12-06 18:56:14.
 
 @2020-06-29より、埋めていないところから順に埋めていく。
 おそらくは復習が必要な問題が並ぶはずなので、最初から集めておく。
 
-## [ABC161-F ★](https://atcoder.jp/contests/abc161/tasks/abc161_f) @2020-06-29
+## [ABC161 F.Division or Subtraction ★](https://atcoder.jp/contests/abc161/tasks/abc161_f) @2020-06-29
 
 こどふぉならmath, number theoryタグがついてdiff 1600ぐらいになりそうな問題。
 でもわからずに解説AC。
@@ -14,7 +14,7 @@ Last Change: 2020-11-29 23:14:09.
 
 ていうか誤読してた、死にたい。
 
-## [ABC030-D](https://atcoder.jp/contests/abc030/tasks/abc030_d) @2020-06-30
+## [ABC030 D.へんてこ辞書](https://atcoder.jp/contests/abc030/tasks/abc030_d) @2020-06-30
 
 [ABC167-D](https://atcoder.jp/contests/abc167/tasks/abc167_d)とほぼ同じな気がする。
 
@@ -23,14 +23,14 @@ Last Change: 2020-11-29 23:14:09.
 これもダブリングをするとライブラリ貼るだけとかにできるのかもしれないが、
 ライブラリチェックはよりシンプルな問題の方だけで試せば良い気がする。
 
-## [AGC044-A ★](https://atcoder.jp/contests/agc044/tasks/agc044_a) @2020-06-30
+## [AGC044 A.Pay to Win ★](https://atcoder.jp/contests/agc044/tasks/agc044_a) @2020-06-30
 
 難しい。答えを効いても計算量見積もりが非常に難しい。
 すぬけさんの解説放送でのざっくりとした見積もりが一番わかり易い気がする。
 
 とりあえずは「ハッシュマップを使ったメモ化再帰」というのがこの問題で一番手にしておきたい経験値だと思う。
 
-## [ABC025-C ★★](https://atcoder.jp/contests/abc025/tasks/abc025_c) @2020-07-01
+## [ABC025 C.双子とoxゲーム ★★](https://atcoder.jp/contests/abc025/tasks/abc025_c) @2020-07-01
 
 答えを見たが面白かった。ゲーム木の基本問題として覚えておきたい。
 
@@ -38,14 +38,14 @@ Last Change: 2020-11-29 23:14:09.
 「ゲームにおいて最大化と最小化を考える2プレイヤーがいるとき、総和が一定であることに注目すると見通しが良くなる」
 という部分は応用の幅が広そうであるため、ぜひ覚えておきたい。
 
-## [ABC013-D](https://atcoder.jp/contests/abc013/tasks/abc013_4) @2020-07-01
+## [ABC013 D.阿弥陀](https://atcoder.jp/contests/abc013/tasks/abc013_4) @2020-07-01
 
 自力。ダブリングの練習ができた。
 
 ダブリングのコードは[けんちょんさんのブログ](https://drken1215.hatenablog.com/entry/2020/06/20/190700)
 がわかりやすかったので、変数名なども含めて写経した感じになった。
 
-## [ARC023-C](https://atcoder.jp/contests/arc023/tasks/arc023_3) @2020-07-02
+## [ARC023 C.タコヤ木](https://atcoder.jp/contests/arc023/tasks/arc023_3) @2020-07-02
 
 自力。
 
@@ -53,7 +53,7 @@ Last Change: 2020-11-29 23:14:09.
 注意点としては、制約が最近では見ない感じで、もろもろを前計算する自前の組み合わせライブラリではうまく行かず、
 コンビネーションを愚直に計算しないと駄目なタイプだった。
 
-## [ABC011-D ★](https://atcoder.jp/contests/abc011/tasks/abc011_4) @2020-07-02
+## [ABC011 D.大ジャンプ ★](https://atcoder.jp/contests/abc011/tasks/abc011_4) @2020-07-02
 
 解説AC。
 
@@ -66,7 +66,7 @@ Last Change: 2020-11-29 23:14:09.
 
 `O(N^2)` で任意の確率が求まる可能性があることについては覚えておきたい（これから出題される可能性は低そうだが）。
 
-## [ABC023-D](https://atcoder.jp/contests/abc023/tasks/abc023_d) @2020-07-03
+## [ABC023 D.射撃王](https://atcoder.jp/contests/abc023/tasks/abc023_d) @2020-07-03
 
 自力。
 
@@ -76,7 +76,7 @@ Last Change: 2020-11-29 23:14:09.
 制限時間が5秒なので大抵の言語で余裕だと思う。
 Goだと1100msecぐらいだった。
 
-## [ABC014-D](https://atcoder.jp/contests/abc014/tasks/abc014_4) @2020-07-04
+## [ABC014 D.閉路](https://atcoder.jp/contests/abc014/tasks/abc014_4) @2020-07-04
 
 自力。
 
@@ -85,7 +85,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 
 ※LCAはフルスクラッチで書ける必要はないが、アルゴリズムの動作原理や内部で保持しているデータ構造（ `depth` ）については理解しておくべきだと思う。
 
-## [ABC162-F ★★](https://atcoder.jp/contests/abc162/tasks/abc162_f) @2020-07-04
+## [ABC162 F.Select Half ★★](https://atcoder.jp/contests/abc162/tasks/abc162_f) @2020-07-04
 
 解説放送AC。
 
@@ -94,7 +94,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 
 制約が厳しいことから状況を整理して、最終的にやるべきDPを見出したい。
 
-## [ABC171-F ★★](https://atcoder.jp/contests/abc171/tasks/abc171_f) @2020-07-05
+## [ABC171 F.Strivore ★★](https://atcoder.jp/contests/abc171/tasks/abc171_f) @2020-07-05
 
 解説放送AC。
 
@@ -109,7 +109,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 - **挿入後に出来上がる文字列が「どういう性質を持つか？」から考える。**
 - ある文字列が部分列を含むか？の判定はシンプルに前からみる貪欲法で良い。
 
-## [ABC154-F ★★](https://atcoder.jp/contests/abc154/tasks/abc154_f) @2020-07-05
+## [ABC154 F.Many Many Paths ★★](https://atcoder.jp/contests/abc154/tasks/abc154_f) @2020-07-05
 
 解説（放送）AC。
 
@@ -123,7 +123,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 
 **※今までパスカルの三角形は「貰うDP」っぽく考えていたが、すぬけさんの解説のように「配るDP」の視点も持てると、色々と応用幅が出そうな気がした。**
 
-## [ABC165-F](https://atcoder.jp/contests/abc165/tasks/abc165_f) @2020-07-05
+## [ABC165 F.LIS on Tree](https://atcoder.jp/contests/abc165/tasks/abc165_f) @2020-07-05
 
 久しぶりに自力で解けるABC-Fが出てきた。
 
@@ -134,7 +134,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 
 ※同じ値の要素が存在するLISは少し注意が必要！（1回WAしてしまったので）
 
-## [ABC159-F ★★](https://atcoder.jp/contests/abc159/tasks/abc159_f) @2020-07-05
+## [ABC159 F.Knapsack for All Segments ★★](https://atcoder.jp/contests/abc159/tasks/abc159_f) @2020-07-05
 
 解説AC。
 
@@ -147,7 +147,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 
 ※いつも頼りになる[けんちょんさんの解説ブログ](https://drken1215.hatenablog.com/entry/2020/03/22/224200)
 
-## [ABC173-E ★](https://atcoder.jp/contests/abc173/tasks/abc173_e) @2020-07-06
+## [ABC173 E.Multiplication 4 ★](https://atcoder.jp/contests/abc173/tasks/abc173_e) @2020-07-06
 
 コンテスト中に解けなかった問題。注意力要素も強めな気がする。
 
@@ -159,7 +159,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
   - 「正が1つでもあるかどうか」という視点は重要（最後の1つで帳尻合わせできる）
     - 実際、「負の数をk個選んだらどうなるか」を考えると、帳尻合わせが簡単に出来る（正は1つかならず残るので）。
 
-## [ABC173-F ★★](https://atcoder.jp/contests/abc173/tasks/abc173_f) @2020-07-06
+## [ABC173 F.Intervals on Tree ★★](https://atcoder.jp/contests/abc173/tasks/abc173_f) @2020-07-06
 
 解説放送AC。簡単とか言われてたが、PDFを読んだ感じ初めて出会う考察だったように見える。
 
@@ -170,7 +170,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 - 辺数を数えるときは「横から見るものを縦から見る」やつで数える
   - 「主客転倒」とか「寄与ゲー」とかも言われるらしい（個人的に前者の言い回しが好き）
 
-## [ARC014-D](https://atcoder.jp/contests/arc014/tasks/arc014_4) @2020-07-07
+## [ARC014 D.grepマスター](https://atcoder.jp/contests/arc014/tasks/arc014_4) @2020-07-07
 
 自力。易しめではあるものの、ノーミスで通せたのは嬉しい。
 
@@ -184,7 +184,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 
 端っこの処理に注意。
 
-## [ABC131-F ★★](https://atcoder.jp/contests/abc131/tasks/abc131_f) @2020-07-07
+## [ABC131 F.Must Be Rectangular! ★★](https://atcoder.jp/contests/abc131/tasks/abc131_f) @2020-07-07
 
 解説放送AC。PDFだけでは考察の流れ（気持ち）がわからなかった。
 
@@ -200,7 +200,7 @@ LCAの利用問題としては最易の部類だと思う（ので、verify用�
 連結成分でちょっと複雑なことをしたいときは、アドホックにDFSを書いたほうが融通がききそう。
 （ABCの序盤ではunion findで雑にやるのも検討したい。）
 
-## [ABC142-F ★★](https://atcoder.jp/contests/abc142/tasks/abc142_f)
+## [ABC142 F.Pure ★★](https://atcoder.jp/contests/abc142/tasks/abc142_f)
 
 解説放送AC。
 
@@ -226,7 +226,7 @@ BFS, DFS両方の実装をやってみたい。
 
 ※DFSの実装は[毎度おなじみのけんちょんさんのブログ](https://drken1215.hatenablog.com/entry/2019/09/29/012000)が大いに参考になりそう。
 
-## [ARC031-C ★★](https://atcoder.jp/contests/arc031/tasks/arc031_3) @2020-07-10
+## [ARC031 C.積み木 ★★](https://atcoder.jp/contests/arc031/tasks/arc031_3) @2020-07-10
 
 解説AC。簡単だと思ったが、多分どこかに間違いがあり、サンプルを除いて全然テストをパスしていなかった。
 
@@ -242,7 +242,7 @@ BFS, DFS両方の実装をやってみたい。
 
 ※転倒数を考えて全探索する方法もあまり間違いっぽくはない気がするので、どこかで解き直してみても良いかもしれない。
 
-## [ARC051-C ★](https://atcoder.jp/contests/arc051/tasks/arc051_c) @2020-07-10
+## [ARC051 C.掛け算 ★](https://atcoder.jp/contests/arc051/tasks/arc051_c) @2020-07-10
 
 解説AC。というか、公式PDFを読んでもよくわからなかったので、色々なブログ解説を読んだ。
 が、それでも最初はよくわからなかった。
@@ -260,7 +260,7 @@ BFS, DFS両方の実装をやってみたい。
 最大値を超えるまでに必要な掛け算の数はせいぜい30回もあれば十分なのはすぐわかる。
 よって、そんなに悩む必要はない。
 
-## [CODE FESTIVAL 2014 予選A C ★★](https://atcoder.jp/contests/code-festival-2014-quala/tasks/code_festival_qualA_d) @2020-07-11
+## [CODE FESTIVAL 2014 予選A D.壊れた電卓 ★★](https://atcoder.jp/contests/code-festival-2014-quala/tasks/code_festival_qualA_d) @2020-07-11
 
 解説AC。実装でコーナーに気づけず、地獄を見た。
 
@@ -281,7 +281,7 @@ BFS, DFS両方の実装をやってみたい。
 
 ※bitDPと桁DPをあわせたようなDPでも解けるようなので、いつか練習してみても良いかもしれない。
 
-## [Indeedなう予選A D ★★](https://atcoder.jp/contests/indeednow-quala/tasks/indeednow_2015_quala_4) @2020-07-11
+## [Indeedなう予選A D.パズル ★★](https://atcoder.jp/contests/indeednow-quala/tasks/indeednow_2015_quala_4) @2020-07-11
 
 解説AC。実装が大変だが面白かった。
 
@@ -299,7 +299,7 @@ BFS, DFS両方の実装をやってみたい。
 
 ※Aスターアルゴリズムでも解けるっぽい。kenkooooさんがブログを上げていた。
 
-## [ABC167-F ★](https://atcoder.jp/contests/abc167/tasks/abc167_f) @2020-07-11
+## [ABC167 F.Bracket Sequencing ★](https://atcoder.jp/contests/abc167/tasks/abc167_f) @2020-07-11
 
 解説（放送）AC。
 
@@ -319,7 +319,7 @@ BFS, DFS両方の実装をやってみたい。
     - くっつけやすいものからくっつけていることになるので、それが無理ならどうあがいても無理。
   - 下がるときは難しい。逆から考えると同じ話になっていることに着目しないといけない。
 
-## [ABC152-F ★★★](https://atcoder.jp/contests/abc152/tasks/abc152_f) @2020-07-11
+## [ABC152 F.Tree and Constraints ★★★](https://atcoder.jp/contests/abc152/tasks/abc152_f) @2020-07-11
 
 解説（放送）AC。これも包除原理だった。
 
@@ -340,7 +340,7 @@ BFS, DFS両方の実装をやってみたい。
 
 ※LCAを使った「木上の累積和」というのは結局謎のままだった。
 
-## [CODE FESTIVAL 2014 Easy D ★★](https://atcoder.jp/contests/code-festival-2014-morning-easy/tasks/code_festival_morning_easy_d) @2020-07-12
+## [CODE FESTIVAL 2014 Easy D.枕決め ★★](https://atcoder.jp/contests/code-festival-2014-morning-easy/tasks/code_festival_morning_easy_d) @2020-07-12
 
 非公式の解説ブログを読んでAC。
 
@@ -375,7 +375,7 @@ BFS, DFS両方の実装をやってみたい。
 詰めるフェーズが終わったら、queueから右端が小さいものを順に取り出し、
 適合するものが見つかったら（それが最も選べる人集合の中で最適なので）それを選んで次の枕に進む。
 
-## [ARC075-E](https://atcoder.jp/contests/arc075/tasks/arc075_c) @2020-07-12
+## [ARC075 E.Meaningful Mean](https://atcoder.jp/contests/arc075/tasks/arc075_c) @2020-07-12
 
 自力、というかもはや超有名問題。
 
@@ -388,7 +388,7 @@ BFS, DFS両方の実装をやってみたい。
 
 多分treapなどのordered setでもできると思うが、普段の使用頻度が小さいものを練習してみた。
 
-## [ARC026-C](https://atcoder.jp/contests/arc026/tasks/arc026_3) @2020-07-12
+## [ARC026 C.蛍光灯](https://atcoder.jp/contests/arc026/tasks/arc026_3) @2020-07-12
 
 自力。以前にも似たようなものを解いたことがあったためできた。とはいえ時間かかりすぎ。。
 
@@ -398,14 +398,14 @@ BFS, DFS両方の実装をやってみたい。
 更新は `dp[l] ~ dp[r-1]` までの最小値がわかれば、それプラス現在観ている蛍光灯のコストとの和をみて、
 更新すべきかどうかの判断ができる。
 
-## [ARC029-C](https://atcoder.jp/contests/arc029/tasks/arc029_3) @2020-07-14
+## [ARC029 C.高橋君と国家](https://atcoder.jp/contests/arc029/tasks/arc029_3) @2020-07-14
 
 自力。こどふぉでほぼ同じ問題を解いたことが合った。
 
 交易所を作る、というのを架空の都市との間に同じコストでエッジを張る、という操作とみなすと、
 エッジ数のオーダーが変わらない範囲でエッジ数が増えた上での、単なる最小全域木を求める問題になる。
 
-## [ABC170-F ★★★★](https://atcoder.jp/contests/abc170/tasks/abc170_f) @2020-07-14
+## [ABC170 F.Pond Skater ★★★★](https://atcoder.jp/contests/abc170/tasks/abc170_f) @2020-07-14
 
 解説放送AC。
 
@@ -416,7 +416,7 @@ BFS, DFS両方の実装をやってみたい。
 
 順序が定義できる構造体のダイクストラや、3次元の複雑なグリッドグラフの変換など、練習できる要素が多い。
 
-## [ABC151-F ★](https://atcoder.jp/contests/abc151/tasks/abc151_f) @2020-07-14
+## [ABC151 F.Enclose All ★](https://atcoder.jp/contests/abc151/tasks/abc151_f) @2020-07-14
 
 最初から解説放送を観た。
 
@@ -455,7 +455,7 @@ BFS, DFS両方の実装をやってみたい。
 
 ※解説放送では三分探索の説明を詳しくしているので、いつか練習問題として解き直してみても良いかもしれない。
 
-## [ABC166-F](https://atcoder.jp/contests/abc166/tasks/abc166_f) @2020-07-14
+## [ABC166 F.Three Variables Game](https://atcoder.jp/contests/abc166/tasks/abc166_f) @2020-07-14
 
 解説放送で思考の流れを学びたかった。
 
@@ -471,7 +471,7 @@ BFS, DFS両方の実装をやってみたい。
 
 ※すぬけさんのクロージャを使う実装がとてもキレイ。
 
-## [ARC032-C ★★★](https://atcoder.jp/contests/arc032/tasks/arc032_3) @2020-07-14
+## [ARC032 C.仕事計画 ★★★](https://atcoder.jp/contests/arc032/tasks/arc032_3) @2020-07-14
 
 解説AC。
 
@@ -483,7 +483,7 @@ BFS, DFS両方の実装をやってみたい。
 - `dp[i] <= dp[i+1]` のような遷移になるため、後ろから埋めていく。
   - あまり慣れていないので、いい練習問題としてキープしておきたい。
 
-## [ARC045-C ★★](https://atcoder.jp/contests/arc045/tasks/arc045_c) @2020-07-15
+## [ARC045 C.エックスオア多橋君 ★★](https://atcoder.jp/contests/arc045/tasks/arc045_c) @2020-07-15
 
 解説AC。これは解けないとだめだった。
 
@@ -500,7 +500,7 @@ LCAとかでよく考える「根からのコストのXOR」というのを考�
 ※練習のため、 `C(n, 2)` で最後に数え上げをまとめる方法を取ってみたが、コーナーケースの処理が難しかった。
 「もれなく、重複なく」の数え上げの原則を考えると、組み合わせを使うよりは逐次加算するほうが良い方法だと感じた。
 
-## [ARC009-C](https://atcoder.jp/contests/arc009/tasks/arc009_3) @2020-07-15
+## [ARC009 C.高橋君、24歳](https://atcoder.jp/contests/arc009/tasks/arc009_3) @2020-07-15
 
 自力。ABC172-Eを解いた後だと自力で考えられた。
 
@@ -510,7 +510,7 @@ ABC172-Eと同じく、包除原理の応用によって `O(k)` で求められ�
 
 `N` が法外に大きいため、掛け算の前に単項に対してMODを取らないと駄目なケースがあり、1WAしてしまった。
 
-## [ARC053-C ★](https://atcoder.jp/contests/arc053/tasks/arc053_c) @2020-07-16
+## [ARC053 C.魔法使い高橋君 ★](https://atcoder.jp/contests/arc053/tasks/arc053_c) @2020-07-16
 
 ABC167-Fと酷似している。
 自力。。でやりたかったが嘘解法に陥ってしまったため、解説ACした。
@@ -523,7 +523,7 @@ ABC167-Fと酷似している。
 後半ついては「降下量が大きいものから並べるのが最適」となる。
 ABC167-Fと同じく、反転して考えたら対称的な問題になるため、このように考えれば良い（けど、定性的に？一瞬では納得しづらい気がする。。）。
 
-## [ARC008-C](https://atcoder.jp/contests/arc008/tasks/arc008_3) @2020-07-16
+## [ARC008 C.THE☆たこ焼き祭り2012](https://atcoder.jp/contests/arc008/tasks/arc008_3) @2020-07-16
 
 自力。だが、色々勘違いして2WAしてしまった。
 
@@ -537,7 +537,7 @@ ABC167-Fと同じく、反転して考えたら対称的な問題になるため
 
 。。油断すると「最後に自分に向けて投げる」ような形となり、不必要な更新が行われる可能性があるので、この点は注意。
 
-## [ARC025-C](https://atcoder.jp/contests/arc025/tasks/arc025_3) @2020-07-16
+## [ARC025 C.ウサギとカメ](https://atcoder.jp/contests/arc025/tasks/arc025_3) @2020-07-16
 
 自力一発！
 
@@ -550,7 +550,7 @@ ABC167-Fと同じく、反転して考えたら対称的な問題になるため
 面倒な点として、目的地・亀・うさぎはすべて異なっている必要があるため、そこで違反しないように数え上げのときは注意する。
 自分は、二分探索部分で面倒を起こしたくなかったので、二分探索はなるべくシンプルにして、数えてはいけないものを後から引く方針でやった。
 
-## [ARC039-C ★★★](https://atcoder.jp/contests/arc039/tasks/arc039_c) @2020-07-17
+## [ARC039 C.幼稚園児高橋君 ★★★](https://atcoder.jp/contests/arc039/tasks/arc039_c) @2020-07-17
 
 解説AC。なんとなくこんな感じだろうな〜という予想はついたが、詳細部分はおそらく解説を見ないとわからなかった。
 
@@ -567,7 +567,7 @@ ABC167-Fと同じく、反転して考えたら対称的な問題になるため
 
 **※このような4近傍の情報を持つデータ構造はDancingLinksと呼ばれるらしい。**
 
-## [Code Formula 2014 予選B D ★★★](https://atcoder.jp/contests/code-formula-2014-qualb/tasks/code_formula_2014_qualB_d) @2020-07-18
+## [Code Formula 2014 予選B D.お釣りの嫌いな高橋君 ★★★](https://atcoder.jp/contests/code-formula-2014-qualb/tasks/code_formula_2014_qualB_d) @2020-07-18
 
 解説AC。できそうでできない。
 
@@ -583,7 +583,7 @@ ABC167-Fと同じく、反転して考えたら対称的な問題になるため
 。。実際に写経してみても難しく感じる。
 とはいえ、DPとしては結構重要な問題だと思う。
 
-## [Code Formula 2014 本選 D ★](https://atcoder.jp/contests/code-formula-2014-final/tasks/code_formula_2014_final_d)
+## [Code Formula 2014 本選 D.映画の連続視聴 ★](https://atcoder.jp/contests/code-formula-2014-final/tasks/code_formula_2014_final_d)
 
 苦しんだけどなんとか自力。
 
@@ -596,7 +596,7 @@ ABC167-Fと同じく、反転して考えたら対称的な問題になるため
 最初、種類ごとを始点ソートしてしまい、最適な連続視聴を考慮できていなかった。
 こういう勘違いを減らしたい。。
 
-## [ARC010-C](https://atcoder.jp/contests/arc010/tasks/arc010_3) @2020-07-23
+## [ARC010 C.積み上げパズル](https://atcoder.jp/contests/arc010/tasks/arc010_3) @2020-07-23
 
 時間がかかってしまったが自力。
 
@@ -610,7 +610,7 @@ ABC167-Fと同じく、反転して考えたら対称的な問題になるため
 状態数を工夫して減らしていくのが楽しい問題だった。
 **20とか（50でもいいかも）極端に小さな数が登場したら、かならずビットマスク・冪集合を検討したい。**
 
-## [ARC098-E ★★★](https://atcoder.jp/contests/arc098/tasks/arc098_c) @2020-07-23
+## [ARC098 E.Range Minimum Queries ★★★](https://atcoder.jp/contests/arc098/tasks/arc098_c) @2020-07-23
 
 解説AC。ただ、かなり出だしの考察が良かったので、もう少し粘るべきだった。
 
@@ -630,7 +630,7 @@ ABC167-Fと同じく、反転して考えたら対称的な問題になるため
 
 ※この問題は、例えばtourist氏の実装を参考にするなどして勉強したほうが良い。
 
-## [天下一プログラマーコンテスト2013予選A-C ★★](https://atcoder.jp/contests/tenka1-2013-quala/tasks/tenka1_2013_qualA_c)
+## [天下一プログラマーコンテスト2013予選A C.天下一二三パズル ★★](https://atcoder.jp/contests/tenka1-2013-quala/tasks/tenka1_2013_qualA_c)
 
 @2020-07-24に着手。未AC。
 
@@ -641,7 +641,7 @@ ABC167-Fと同じく、反転して考えたら対称的な問題になるため
 - [kmjpさんのブログ解説](https://kmjp.hatenablog.jp/entry/2013/08/04/0930)
   - DFSの枝刈りでまずは部分点を取るべき。
 
-## [天下一プログラマーコンテスト2014予選A-C ★★★★](https://atcoder.jp/contests/tenka1-2014-quala/tasks/tenka1_2014_qualA_c) @2020-07-24
+## [天下一プログラマーコンテスト2014予選A C.天下一文字列集合 ★★★★](https://atcoder.jp/contests/tenka1-2014-quala/tasks/tenka1_2014_qualA_c) @2020-07-24
 
 渾身の回答がガッツリ嘘解法だったので、解説AC。
 
@@ -667,7 +667,7 @@ TLが大きめなのもあるが、 `268435456 >= 2 * 10^8` でも割と余裕�
 ※↓の問題もほぼ同じbitDPの考え方が必要で、↓の制約ではもっと効率の良いことをやる必要がある！
 具体的には `3^n` になるが、こちらは600msec -> 100msecとかなり高速になる。
 
-## [天下一プログラマーコンテスト2012予選B-C ★★★★](https://atcoder.jp/contests/tenka1-2012-qualB/tasks/tenka1_2012_7) @2020-07-25
+## [天下一プログラマーコンテスト2012予選B C.席が足りない ★★★★](https://atcoder.jp/contests/tenka1-2012-qualB/tasks/tenka1_2012_7) @2020-07-25
 
 こちらも区間スケジューリングを使った適当な嘘解法しかわからなかった。
 
@@ -689,7 +689,7 @@ TLが大きめなのもあるが、 `268435456 >= 2 * 10^8` でも割と余裕�
 ※部分集合列挙については、今回のコードで用いた降順列挙の他、昇順列挙も可能。
 ただし、元の集合に対してXORをとってやれば逆順のものが得られるので、片方だけ知っていれば十分っぽい。
 
-## [ARC091-C ★★★](https://atcoder.jp/contests/arc091/tasks/arc091_c) @2020-07-28
+## [ARC091 C.LISDL ★★★](https://atcoder.jp/contests/arc091/tasks/arc091_c) @2020-07-28
 
 実験もして自信のあった解法は全くの嘘だった。
 解説AC。
@@ -701,7 +701,7 @@ LIS/LDSの性質？を見つめ直すのには言い問題だと思うが、
 そもそも適当に実装したらTLEになるし、気をつけると例外処理みたいなことに気をつけないといけないしで、
 トータルめっちゃむずい。。
 
-## [CODE FESTIVAL 2015予選B D ★★★](https://atcoder.jp/contests/code-festival-2015-qualb/tasks/codefestival_2015_qualB_d) @2020-08-10
+## [CODE FESTIVAL 2015予選B D.マスと駒と色塗り ★★★](https://atcoder.jp/contests/code-festival-2015-qualb/tasks/codefestival_2015_qualB_d) @2020-08-10
 
 色々な解説をあたりながら、大分時間を開いたもののACできた。
 
@@ -726,14 +726,14 @@ treap上の区間は、終点と始点が重ならないようにしながら管
 
 **ちょっと大変だが、区間の交差判定の部分などは、基本の区間操作の知識が活きてくる部分で、成長を実感できる。**
 
-## [ARC064-E](https://atcoder.jp/contests/arc064/tasks/arc064_c) @2020-11-06
+## [ARC064 E.Cosmic Rays](https://atcoder.jp/contests/arc064/tasks/arc064_c) @2020-11-06
 
 一見してわけがわからないが、ABC181-Fを解いてみるとすぐに分かる。
 
 結局は密グラフを作って `O(N^2)` のダイクストラ法をやるだけとなる。  
 priority queueを使ったダイクストラだとどうなるのか気になる。。
 
-## [ABC022-D ★★](https://atcoder.jp/contests/abc022/tasks/abc022_d) @2020-11-29
+## [ABC022 D.Big Bang ★★](https://atcoder.jp/contests/abc022/tasks/abc022_d) @2020-11-29
 
 全くわからなかったので答えを見た。  
 この問題では「長さ」に注目するのが鍵となる。  
@@ -755,7 +755,7 @@ priority queueを使ったダイクストラだとどうなるのか気になる
 
 とりあえず初回ACは「重心からの最遠点までの距離」で解いた。
 
-## [ARC004-C ★★★](https://atcoder.jp/contests/arc004/tasks/arc004_3) @2020-11-29
+## [ARC004 C.平均値太郎の憂鬱 ★★★](https://atcoder.jp/contests/arc004/tasks/arc004_3) @2020-11-29
 
 苦手な算数の問題。  
 整数系の問題だが、約数とかはあまり直接的には重要ではない問題。
@@ -776,7 +776,7 @@ priority queueを使ったダイクストラだとどうなるのか気になる
   - これはちょっと怪しいかも。。
   - とはいえ、正しく計算できていれば最後の `1 <= m <= n` の条件が厳し目に弾いてくれると思う
 
-## [ABC009-C](https://atcoder.jp/contests/abc009/tasks/abc009_3) @2020-11-29
+## [ABC009 C.辞書式順序ふたたび](https://atcoder.jp/contests/abc009/tasks/abc009_3) @2020-11-29
 
 「辞書式順序ふたたび」というなんともいかつい名前と青Diffということで後回しにしていたが、
 ヒントを見せてもらえればそれほど難しくはないと思う（そのヒントがなければ難しいと思うが）。  
@@ -785,7 +785,7 @@ priority queueを使ったダイクストラだとどうなるのか気になる
 解法スライドも読んだが、後半部分のマッチングの最適なやり方、の部分が考察ポイントっぽい？  
 とはいえ、「辞書式順序最小→前から貪欲に」の考え方を身につけるにはいい問題なのかもしれない。
 
-## [ARC003-C ★★](https://atcoder.jp/contests/arc003/tasks/arc003_3) @2020-11-29
+## [ARC003 C.暗闇帰り道 ★★](https://atcoder.jp/contests/arc003/tasks/arc003_3) @2020-11-29
 
 最短経路＋二分探索という形で、非常に勉強にはなったがTLE, MLEとの戦いが苦しかった。。
 
@@ -845,4 +845,10 @@ intからint32に変更したりしたが、大きな変化はなかった。
 
 最初のパース部分でかなり詰まってしまった。  
 これだけ複雑なものはなかなかもう出ないとは思うが、サンプルからの思い込みというのは恐ろしい。
+
+## [Mujin Programming Challenge 2017 A.Robot Racing](https://atcoder.jp/contests/mujin-pc-2017/tasks/mujin_pc_2017_a) @2020-12-04
+
+久しぶりに青Diffが自力で解けた。  
+考察も完璧に想定解法通りだった。  
+性質を見抜けたのもよかったが、順列の通り数を正しく数え上げられたのも良かった。
 
