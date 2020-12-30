@@ -1,6 +1,6 @@
 /*
 URL:
-https://codeforces.com/contest/1443/problem/D
+https://codeforces.com/contest/1469/problem/C
 */
 
 package main
@@ -16,39 +16,45 @@ import (
 )
 
 var (
-	t int
+	println = fmt.Println
 
-	n int
-	A []int
+	t    int
+	n, k int
+	H    []int
 )
 
 func main() {
 	defer stdout.Flush()
 
-	debugf("aaa")
-
 	t = readi()
 	for tc := 0; tc < t; tc++ {
-		n = readi()
-		A = readis(n)
+		n, k = readi2()
+		H = readis(n)
 
 		solve()
 	}
 }
 
 func solve() {
-	befB := 0
-	for i := 1; i < n; i++ {
-		diff := max(0, A[i]-A[i-1])
-		chmax(&diff, befB)
+	cL, cR := max(H[0]-(k-1), 0), H[0]+(k-1)
 
-		nextA := A[i] - diff
-		if nextA < 0 {
+	for i := 1; i < n-1; i++ {
+		nL, nR := H[i], H[i]+(k-1)
+
+		bL, bR := max(cL, nL), min(cR, nR)
+		if bL > bR {
 			printf("NO\n")
 			return
 		}
-		A[i] = nextA
-		befB = diff
+
+		cL, cR = max(bL-(k-1), 0), bR+(k-1)
+	}
+
+	nL, nR := H[n-1], H[n-1]
+	bL, bR := max(cL, nL), min(cR, nR)
+	if bL > bR {
+		printf("NO\n")
+		return
 	}
 
 	printf("YES\n")

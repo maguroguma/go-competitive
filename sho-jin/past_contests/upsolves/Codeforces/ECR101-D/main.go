@@ -1,6 +1,6 @@
 /*
 URL:
-https://codeforces.com/contest/1443/problem/D
+https://codeforces.com/contest/1469/problem/D
 */
 
 package main
@@ -16,42 +16,76 @@ import (
 )
 
 var (
-	t int
+	println = fmt.Println
 
+	t int
 	n int
-	A []int
 )
 
 func main() {
 	defer stdout.Flush()
 
-	debugf("aaa")
-
 	t = readi()
+	debugf("diff\n")
 	for tc := 0; tc < t; tc++ {
 		n = readi()
-		A = readis(n)
 
 		solve()
 	}
 }
 
 func solve() {
-	befB := 0
-	for i := 1; i < n; i++ {
-		diff := max(0, A[i]-A[i-1])
-		chmax(&diff, befB)
+	A := [][2]int{}
 
-		nextA := A[i] - diff
-		if nextA < 0 {
-			printf("NO\n")
-			return
+	x := n
+	for x > 2 {
+		y := BinarySearch(x, 1, func(mid int) bool {
+			return mid >= Kiriage(x, mid)
+		})
+
+		for i := y + 1; i < x; i++ {
+			A = append(A, [2]int{i, x})
 		}
-		A[i] = nextA
-		befB = diff
+		A = append(A, [2]int{x, y})
+		A = append(A, [2]int{x, y})
+
+		x = y
 	}
 
-	printf("YES\n")
+	printf("%d\n", len(A))
+	for _, p := range A {
+		printf("%d %d\n", p[0], p[1])
+	}
+}
+
+type jf func(mid int) bool
+
+func BinarySearch(initOK, initNG int, isOK jf) (ok int) {
+	_abs := func(a int) int {
+		if a < 0 {
+			return -a
+		}
+		return a
+	}
+
+	ng := initNG
+	ok = initOK
+	for _abs(ok-ng) > 1 {
+		mid := (ok + ng) / 2
+		if isOK(mid) {
+			ok = mid
+		} else {
+			ng = mid
+		}
+	}
+
+	return ok
+}
+
+// Kiriage returns Ceil(a/b)
+// a >= 0, b > 0
+func Kiriage(a, b int) int {
+	return (a + (b - 1)) / b
 }
 
 /*******************************************************************/
