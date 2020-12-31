@@ -8,11 +8,14 @@
 
 readonly SCRIPT_NAME=${0##*/}
 
+# make files for each problem directory
 for dirName in "$@"
 do
   mkdir $dirName
+  mkdir "$dirName/random"
   cp "${GOCOMPE}/template/go/base-competitive.go" "${dirName}/${dirName}.go"
 done
 
+# make files for current directory
 touch 'README.md'
-
+cp "${GOCOMPE}/_tools/generate.go" "${PWD}/"
