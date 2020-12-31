@@ -16,6 +16,53 @@ func ExtGCD(a, b int) (g, x, y int) {
 	return g, t, s - (a/b)*t
 }
 
+// ModInvByExtGCD calculates x^-1 (mod m) by ExtGCD.
+// m can not necessarily be prime number.
+// ok is false if gcd(x, m) != 1 because x^-1 does not exist.
+func ModInvByExtGCD(x, m int) (ix int, ok bool) {
+	g, ix, _ := ExtGCD(x, m)
+
+	if g != 1 {
+		return -1, false
+	}
+
+	if ix < 0 {
+		ix += m
+	}
+
+	return ix, true
+}
+
+// CongruenceEquation calculates x that satisfies an equation a*x == b (mod m).
+// No answer exists if ok is false.
+func CongruenceEquation(a, b, m int) (x int, ok bool) {
+	_mod := func(val, m int) int {
+		res := val % m
+		if res < 0 {
+			res += m
+		}
+		return res
+	}
+
+	a, b = _mod(a, m), _mod(b, m)
+
+	g, ia, _ := ExtGCD(a, m)
+	ia = _mod(ia, m)
+	if g == 1 {
+		return _mod(ia*b, m), true
+	}
+
+	if b%g != 0 {
+		return -1, false
+	}
+
+	a, b, m = a/g, b/g, m/g
+	_, ia, _ = ExtGCD(a, m)
+	ia = _mod(ia, m)
+
+	return _mod(ia*b, m), true
+}
+
 // Gcd returns the Greatest Common Divisor of two natural numbers.
 // Gcd only accepts two natural numbers (a, b >= 0).
 // Negative number causes panic.
