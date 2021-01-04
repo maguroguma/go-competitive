@@ -39,6 +39,12 @@ options     head
     return res
   }
 
+  // Get calculates a value of index i.
+  // i is 0-index.
+  func (ft *FenwickTree) Get(i int) int {
+    return ft.RangeSum(i, i+1)
+  }
+
   // LowerBound returns minimum i such that bit.Sum(i) >= w.
   // LowerBound returns n, if the total sum is less than w.
   func (ft *FenwickTree) LowerBound(w int) int {

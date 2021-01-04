@@ -1,0 +1,78 @@
+snippet     nearestPairDistance
+abbr        func NearestPairDistance(P []Coord) float64
+options     head
+  type Coord struct {
+    x, y float64
+  }
+
+  // NearestPairDistance calculates minimum distance of points P
+  //  by divide-and-conquer method.
+  // Time complexity: O(|P|log|P|)
+  func NearestPairDistance(P []Coord) float64 {
+    var _rec func(P []Coord, l, r int) float64
+    _rec = func(P []Coord, l, r int) float64 {
+      if r-l <= 1 {
+        return 1e60
+      }
+
+      mid := (l + r) / 2
+      x := P[mid].x
+      d := math.Min(_rec(P, l, mid), _rec(P, mid, r))
+
+      // merge by order of y coordinate.
+      L, R := []Coord{}, []Coord{}
+      for i := l; i < r; i++ {
+        if i < mid {
+          L = append(L, P[i])
+        } else {
+          R = append(R, P[i])
+        }
+      }
+      cur, j := l, 0
+      for i := 0; i < len(L); i++ {
+        for j < len(R) && L[i].y > R[j].y {
+          P[cur] = R[j]
+          cur, j = cur+1, j+1
+        }
+
+        P[cur] = L[i]
+        cur++
+      }
+      for ; j < len(R); j++ {
+        P[cur] = R[j]
+        cur++
+      }
+
+      nearLine := []Coord{}
+      for i := l; i < r; i++ {
+        if math.Abs(P[i].x-x) >= d {
+          continue
+        }
+
+        sz := len(nearLine)
+        for j := sz - 1; j >= 0; j-- {
+          dx := P[i].x - nearLine[j].x
+          dy := P[i].y - nearLine[j].y
+          if dy >= d {
+            break
+          }
+          d = math.Min(d, math.Sqrt(dx*dx+dy*dy))
+        }
+        nearLine = append(nearLine, P[i])
+      }
+
+      return d
+    }
+
+    sort.Slice(P, func(i, j int) bool {
+      if P[i].x < P[j].x {
+        return true
+      } else if P[i].x > P[j].x {
+        return false
+      } else {
+        return P[i].y < P[j].y
+      }
+    })
+
+    return _rec(P, 0, len(P))
+  }

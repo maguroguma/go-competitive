@@ -25,6 +25,8 @@ var (
 func main() {
 	defer stdout.Flush()
 
+	debugf("aaa")
+
 	t = readi()
 	for tc := 0; tc < t; tc++ {
 		n = readi()

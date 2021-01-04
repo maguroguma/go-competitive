@@ -35,6 +35,51 @@ func TestExtGCD(t *testing.T) {
 	}
 }
 
+func TestModInvByExtGCD(t *testing.T) {
+	testcases := []struct {
+		a, m int
+		ia   int
+		ok   bool
+	}{
+		{a: 3, m: 10, ia: 7, ok: true},
+		{a: 2, m: 10, ia: -1, ok: false},
+	}
+
+	for i, tc := range testcases {
+		testName := fmt.Sprintf("test %d", i)
+		t.Run(testName, func(t *testing.T) {
+			ia, ok := ModInvByExtGCD(tc.a, tc.m)
+			if ia != tc.ia || ok != tc.ok {
+				t.Errorf("got (%v, %v), want (%v, %v)", ia, ok, tc.ia, tc.ok)
+			}
+		})
+	}
+}
+
+// https://atcoder.jp/contests/abc186/tasks/abc186_e
+func TestCongruenceEquation(t *testing.T) {
+	testcases := []struct {
+		a, b, m int
+		x       int
+		ok      bool
+	}{
+		{a: 3, b: -4, m: 10, x: 2, ok: true},
+		{a: 2, b: -11, m: 1000, x: -1, ok: false},
+		{a: 595591169, b: -897581057, m: 998244353, x: 249561088, ok: true},
+		{a: 14, b: -6, m: 10000, x: 3571, ok: true},
+	}
+
+	for i, tc := range testcases {
+		testName := fmt.Sprintf("test %d", i)
+		t.Run(testName, func(t *testing.T) {
+			x, ok := CongruenceEquation(tc.a, tc.b, tc.m)
+			if x != tc.x || ok != tc.ok {
+				t.Errorf("got (%v, %v), want (%v, %v)", x, ok, tc.x, tc.ok)
+			}
+		})
+	}
+}
+
 func TestGcd(t *testing.T) {
 	testcases := []struct {
 		a, b int
