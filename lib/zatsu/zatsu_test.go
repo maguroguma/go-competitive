@@ -14,6 +14,24 @@ func TestCompress(t *testing.T) {
 		if actual != int64(i) {
 			t.Errorf("got %v, want %v", actual, i)
 		}
+		actual = comp.InvGet(int64(i))
+		if actual != int64(a) {
+			t.Errorf("got %v, want %v", actual, a)
+		}
+	}
+}
+
+func TestCompressKind(t *testing.T) {
+	A := []int64{1, 10, 100, 1, 10, 100}
+	expected := 3
+
+	comp := NewCompress()
+	comp.Add(A...)
+	comp.Build()
+
+	actual := comp.Kind()
+	if actual != expected {
+		t.Errorf("got %v, want %v", actual, expected)
 	}
 }
 

@@ -75,6 +75,7 @@ options     head
   }
 
   // Get returns index that is equal to by binary search.
+  // Results are in [0, len(c.cs)).
   // Time complexity: O(logN)
   func (c *Compress) Get(x $1) $1 {
     _abs := func(a $1) $1 {
@@ -97,7 +98,23 @@ options     head
     return ok
   }
 
+  // InvGet returns original value that equals to i (compressed values).
+  // InvGet accepts [0, len(c.cs))
+  // Time complexity: O(1)
+  func (c *Compress) InvGet(i $1) $1 {
+    if !(0 <= i && i < $1(len(c.cs))) {
+      panic("i is out of range")
+    }
+    return c.cs[i]
+  }
+
+  // Kind returns number of different values, that is len(c.cs).
+  // Time complexity: O(1)
+  func (c *Compress) Kind() int {
+    return len(c.cs)
+  }
+
   type Compress struct {
     xs []$1 // sorted original values
-    cs []$1 // sorted compressed values
+    cs []$1 // sorted and compressed original values
   }
