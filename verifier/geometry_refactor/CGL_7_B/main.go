@@ -28,17 +28,8 @@ func main() {
 	x0, y0, x1, y1, x2, y2 := readf(), readf(), readf(), readf(), readf(), readf()
 	a, b, c := NewPoint(x0, y0), NewPoint(x1, y1), NewPoint(x2, y2)
 
-	C, A, B := b.Minus(a), c.Minus(b), a.Minus(c)
-	da, db, dc := A.Norm(), B.Norm(), C.Norm()
-	p := da + db + dc
-
-	x := (da*a.x + db*b.x + dc*c.x) / p
-	y := (da*a.y + db*b.y + dc*c.y) / p
-
-	s := p / 2.0
-	r := gsqrt((s - da) * (s - db) * (s - dc) / s)
-
-	printf("%.10f %.10f %.10f\n", x, y, r)
+	ic := IncircleOfTriangle(a, b, c)
+	printf("%.10f %.10f %.10f\n", ic.p.x, ic.p.y, ic.r)
 }
 
 // originated from:
@@ -153,6 +144,10 @@ func RotateTheta(t float64, p Point) Point {
 	return NewPoint(x, y)
 }
 
+func Rotate90(p Point) Point {
+	return NewPoint(-p.y, p.x)
+}
+
 func RadianToDegree(r float64) float64 {
 	return (r * 180.0) / G_PI
 }
@@ -260,6 +255,13 @@ func ProjectionToLine(l Line, p Point) Point {
 func ProjectionToSegment(l Segment, p Point) Point {
 	line := NewLine(l.a, l.b)
 	return ProjectionToLine(line, p)
+}
+
+// 垂直二等分線
+func VerticalBisector(a, b Point) Line {
+	m := a.Add(b).Mul(0.5)
+	n := m.Add(Rotate90(b.Minus(a)))
+	return NewLine(m, n)
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_1_B
@@ -729,6 +731,46 @@ func AreaCircleCircle(ac1, ac2 Circle) float64 {
 	}
 
 	return res
+}
+
+// 外接円
+// https://drken1215.hatenablog.com/entry/2020/10/16/074400
+func CircumscribedCircleOfTriangle(a, b, c Point) Circle {
+	l1, l2 := VerticalBisector(a, b), VerticalBisector(b, c)
+	v := CrossPointLineLine(l1, l2)
+	r := v.Minus(a).Norm()
+
+	return NewCircle(NewPoint(v.x, v.y), r)
+}
+
+// 内接円
+// https://drken1215.hatenablog.com/entry/2020/10/16/073700
+// func IncircleOfTriangle(a, b, c Point) Circle {
+// 	argA := Angle(b, a, c)
+// 	argB := Angle(a, b, c)
+// 	l1 := NewLine(a, a.Add(RotateTheta(argA/2.0, b.Minus(a))))
+// 	l2 := NewLine(b, b.Add(RotateTheta(argB/2.0, c.Minus(b))))
+
+// 	p := CrossPointLineLine(l1, l2)
+// 	h := ProjectionToLine(NewLine(a, b), p)
+// 	r := p.Minus(h).Norm()
+
+// 	return NewCircle(NewPoint(p.x, p.y), r)
+// }
+// 内接円
+// http://prognote.web.fc2.com/win_c_cpp/tri_incircle/index.html
+func IncircleOfTriangle(a, b, c Point) Circle {
+	C, A, B := b.Minus(a), c.Minus(b), a.Minus(c)
+	da, db, dc := A.Norm(), B.Norm(), C.Norm()
+	p := da + db + dc
+
+	x := (da*a.x + db*b.x + dc*c.x) / p
+	y := (da*a.y + db*b.y + dc*c.y) / p
+
+	s := p / 2.0
+	r := gsqrt((s - da) * (s - db) * (s - dc) / s)
+
+	return NewCircle(NewPoint(x, y), r)
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_4_B
