@@ -126,19 +126,27 @@ func DegreeToRadian(d float64) float64 {
 	return (d * G_PI) / 180.0
 }
 
-// a-b-cの角度のうち小さい方を返す
+// a-b-cの角度のうち小さい方を返す（オリジナルはバグあり？）
+// func Angle(a, b, c *Point) float64 {
+// 	v := b.Minus(a)
+// 	w := c.Minus(b)
+// 	alpha := gatan2(v.y, v.x)
+// 	beta := gatan2(w.y, w.x)
+
+// 	if alpha > beta {
+// 		alpha, beta = beta, alpha
+// 	}
+
+// 	theta := beta - alpha
+// 	return gmin(theta, 2.0*G_PI-theta)
+// }
+
+// 余弦定理でa-b-cの角度のうち小さい方を返す
 func Angle(a, b, c *Point) float64 {
-	v := b.Minus(a)
-	w := c.Minus(b)
-	alpha := gatan2(v.y, v.x)
-	beta := gatan2(w.y, w.x)
-
-	if alpha > beta {
-		alpha, beta = beta, alpha
-	}
-
-	theta := beta - alpha
-	return gmin(theta, 2.0*G_PI-theta)
+	v, w, z := a.Minus(b), c.Minus(b), a.Minus(c)
+	cosTheta := (v.Norm2() + w.Norm2() - z.Norm2()) / (2.0 * v.Norm() * w.Norm())
+	theta := gacos(cosTheta)
+	return theta
 }
 
 func pLess(a, b *Point) bool {
@@ -659,6 +667,33 @@ func AreaPolygonCircle(P []*Point, c *Circle) float64 {
 		A += _cross_area(c, P[i], P[(i+1)%n])
 	}
 	return A
+}
+
+// originated from:
+// https://onlinejudge.u-aizu.ac.jp/solutions/problem/CGL_7_I/review/4554366/beet/C++14
+func AreaCircleCircle(ac1, ac2 *Circle) float64 {
+	c1, c2 := NewCircle(ac1.p, ac1.r), NewCircle(ac2.p, ac2.r)
+
+	d := c1.p.Minus(c2.p).Norm()
+	if c1.r+c2.r <= d+G_EPS {
+		return 0.0
+	}
+	if d <= gabs(c1.r-c2.r) {
+		r := gmin(c1.r, c2.r)
+		return G_PI * r * r
+	}
+
+	P := CrossPointsCircleCircle(c1, c2)
+
+	res := 0.0
+	for i := 0; i < 2; i++ {
+		th := Angle(c2.p, c1.p, P[0]) * 2.0
+		res += (th - gsin(th)) * c1.r * c1.r / 2.0
+
+		c1, c2 = c2, c1
+	}
+
+	return res
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_4_B

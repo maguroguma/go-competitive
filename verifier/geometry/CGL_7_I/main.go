@@ -28,6 +28,7 @@ func main() {
 	x1, y1, r1 := readf(), readf(), readf()
 	c1, c2 := NewCircle(NewPoint(x0, y0), r0), NewCircle(NewPoint(x1, y1), r1)
 
+	// printf("%.10f\n", AreaCircleCircle(c1, c2))
 	printf("%.10f\n", AreaCircleCircle(c1, c2))
 
 	// num := IsIntersectCircleCircle(c1, c2)
@@ -50,6 +51,30 @@ func main() {
 
 // originated from:
 // https://onlinejudge.u-aizu.ac.jp/solutions/problem/CGL_7_I/review/4554366/beet/C++14
+// func AreaCircleCircleByBeetSan(ac1, ac2 *Circle) float64 {
+// 	c1, c2 := NewCircle(ac1.p, ac1.r), NewCircle(ac2.p, ac2.r)
+
+// 	d := c1.p.Minus(c2.p).Norm()
+// 	if c1.r+c2.r <= d+G_EPS {
+// 		return 0.0
+// 	}
+// 	if d <= gabs(c1.r-c2.r) {
+// 		r := gmin(c1.r, c2.r)
+// 		return G_PI * r * r
+// 	}
+
+// 	res := 0.0
+// 	for i := 0; i < 2; i++ {
+// 		rc := (d*d + c1.r*c1.r - c2.r*c2.r) / (2.0 * d * c1.r)
+// 		th := gacos(rc) * 2
+// 		res += (th - gsin(th)) * c1.r * c1.r / 2.0
+
+// 		c1, c2 = c2, c1
+// 	}
+
+// 	return res
+// }
+
 func AreaCircleCircle(ac1, ac2 *Circle) float64 {
 	c1, c2 := NewCircle(ac1.p, ac1.r), NewCircle(ac2.p, ac2.r)
 
@@ -62,10 +87,11 @@ func AreaCircleCircle(ac1, ac2 *Circle) float64 {
 		return G_PI * r * r
 	}
 
+	P := CrossPointsCircleCircle(c1, c2)
+
 	res := 0.0
 	for i := 0; i < 2; i++ {
-		rc := (d*d + c1.r*c1.r - c2.r*c2.r) / (2.0 * d * c1.r)
-		th := gacos(rc) * 2
+		th := Angle(c2.p, c1.p, P[0]) * 2.0
 		res += (th - gsin(th)) * c1.r * c1.r / 2.0
 
 		c1, c2 = c2, c1
