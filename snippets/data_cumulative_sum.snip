@@ -1,0 +1,107 @@
+snippet     imosMethod
+abbr        s, t := S[i], T[i]
+options     head
+  // Imos manages event processing.
+  type Imos struct {
+    ts []${1:int}
+  }
+
+  func NewImos(maxT int) *Imos {
+    im := new(Imos)
+    im.ts = make([]$1, maxT+1)
+    return im
+  }
+
+  // AddEvent process an event by adding an event value to timestamp t.
+  func (im *Imos) AddEvent(t int, ev $1) {
+    im.ts[t] += ev
+  }
+
+  // Build simulates all registered events, and then return results.
+  func (im *Imos) Build() []$1 {
+    n := len(im.ts)
+    for i := 1; i < n; i++ {
+      im.ts[i] += im.ts[i-1]
+    }
+
+    res := make([]$1, len(im.ts))
+    copy(res, im.ts)
+
+    return res
+  }
+
+snippet     cumulativeSum
+abbr        s[i+1] = s[i] + A[i]
+options     head
+  type CumulativeSum struct {
+    csum []${1:int}
+  }
+
+  func NewCumulativeSum(A []$1) *CumulativeSum {
+    cs := new(CumulativeSum)
+
+    n := len(A)
+    cs.csum = make([]$1, n+1)
+    for i := 0; i < n; i++ {
+      cs.csum[i+1] = cs.csum[i] + A[i]
+    }
+
+    return cs
+  }
+
+  // RangeSum returns sum of [l, r) elements of original array,
+  //  that is, Sum(A[l:r+1]...).
+  func (cs *CumulativeSum) RangeSum(l, r int) $1 {
+    return cs.csum[r] - cs.csum[l]
+  }
+
+snippet     cumulativeSum2Dimension
+abbr        type RectangleSum struct
+options     head
+  type RectangleSum struct {
+    recSum [][]${1:int}
+  }
+
+  func NewRectangleSum(m [][]$1) *RectangleSum {
+    rs := new(RectangleSum)
+
+    h, w := len(m), len(m[0])
+    for y := 0; y < h; y++ {
+      tmp := make([]$1, w)
+      rs.recSum = append(rs.recSum, tmp)
+    }
+
+    // Build
+    for y := 0; y < h; y++ {
+      for x := 0; x < w; x++ {
+        rs.recSum[y][x] = m[y][x]
+        if y > 0 {
+          rs.recSum[y][x] += rs.recSum[y-1][x]
+        }
+        if x > 0 {
+          rs.recSum[y][x] += rs.recSum[y][x-1]
+        }
+        if y > 0 && x > 0 {
+          rs.recSum[y][x] -= rs.recSum[y-1][x-1]
+        }
+      }
+    }
+
+    return rs
+  }
+
+  // RangeSum returns a result of \sum_{i=top to bottom, j=left to right}
+  // Time complexity: O(1)
+  func (rs *RectangleSum) RangeSum(top, left, bottom, right int) $1 {
+    res := rs.recSum[bottom][right]
+    if left > 0 {
+      res -= rs.recSum[bottom][left-1]
+    }
+    if top > 0 {
+      res -= rs.recSum[top-1][right]
+    }
+    if left > 0 && top > 0 {
+      res += rs.recSum[top-1][left-1]
+    }
+    return res
+  }

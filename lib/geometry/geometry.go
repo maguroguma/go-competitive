@@ -14,65 +14,65 @@ type Point struct {
 }
 
 type Line struct {
-	a, b *Point
+	a, b Point
 }
 
 type Segment struct {
-	a, b *Point
+	a, b Point
 }
 
 type Circle struct {
-	p *Point
+	p Point
 	r float64
 }
 
-func NewPoint(x, y float64) *Point {
-	return &Point{x: x, y: y}
+func NewPoint(x, y float64) Point {
+	return Point{x: x, y: y}
 }
 
-func (p *Point) Add(q *Point) *Point {
+func (p Point) Add(q Point) Point {
 	x, y := p.x+q.x, p.y+q.y
 	return NewPoint(x, y)
 }
 
-func (p *Point) Minus(q *Point) *Point {
+func (p Point) Minus(q Point) Point {
 	x, y := p.x-q.x, p.y-q.y
 	return NewPoint(x, y)
 }
 
-func (p *Point) Mul(a float64) *Point {
+func (p Point) Mul(a float64) Point {
 	return NewPoint(p.x*a, p.y*a)
 }
 
-func (p *Point) Dot(q *Point) float64 {
+func (p Point) Dot(q Point) float64 {
 	return p.x*q.x + p.y*q.y
 }
 
-func (p *Point) Cross(q *Point) float64 {
+func (p Point) Cross(q Point) float64 {
 	return p.x*q.y - p.y*q.x
 }
 
-func Dot(p, q *Point) float64 {
+func Dot(p, q Point) float64 {
 	return p.Dot(q)
 }
 
-func Cross(p, q *Point) float64 {
+func Cross(p, q Point) float64 {
 	return p.Cross(q)
 }
 
-func (p *Point) Norm2() float64 {
+func (p Point) Norm2() float64 {
 	return p.x*p.x + p.y*p.y
 }
 
-func (p *Point) Norm() float64 {
+func (p Point) Norm() float64 {
 	return gsqrt(p.Norm2())
 }
 
-func Arg(p *Point) float64 {
+func Arg(p Point) float64 {
 	return gatan2(p.y, p.x)
 }
 
-func Conj(p *Point) *Point {
+func Conj(p Point) Point {
 	return NewPoint(p.x, -p.y)
 }
 
@@ -107,15 +107,19 @@ func fEq(v, w float64) bool {
 	return gabs(v-w) < G_EPS
 }
 
-func pEq(p, q *Point) bool {
+func pEq(p, q Point) bool {
 	dx, dy := p.x-q.x, p.y-q.y
 	return fEq(dx, 0.0) && fEq(dy, 0.0)
 }
 
-func RotateTheta(t float64, p *Point) *Point {
+func RotateTheta(t float64, p Point) Point {
 	x := gcos(t)*p.x - gsin(t)*p.y
 	y := gsin(t)*p.x + gcos(t)*p.y
 	return NewPoint(x, y)
+}
+
+func Rotate90(p Point) Point {
+	return NewPoint(-p.y, p.x)
 }
 
 func RadianToDegree(r float64) float64 {
@@ -126,46 +130,54 @@ func DegreeToRadian(d float64) float64 {
 	return (d * G_PI) / 180.0
 }
 
-// a-b-cの角度のうち小さい方を返す
-func Angle(a, b, c *Point) float64 {
-	v := b.Minus(a)
-	w := c.Minus(b)
-	alpha := gatan2(v.y, v.x)
-	beta := gatan2(w.y, w.x)
+// a-b-cの角度のうち小さい方を返す（オリジナルはバグあり？）
+// func Angle(a, b, c *Point) float64 {
+// 	v := b.Minus(a)
+// 	w := c.Minus(b)
+// 	alpha := gatan2(v.y, v.x)
+// 	beta := gatan2(w.y, w.x)
 
-	if alpha > beta {
-		alpha, beta = beta, alpha
-	}
+// 	if alpha > beta {
+// 		alpha, beta = beta, alpha
+// 	}
 
-	theta := beta - alpha
-	return gmin(theta, 2.0*G_PI-theta)
+// 	theta := beta - alpha
+// 	return gmin(theta, 2.0*G_PI-theta)
+// }
+
+// 余弦定理でa-b-cの角度のうち小さい方を返す
+func Angle(a, b, c Point) float64 {
+	v, w, z := a.Minus(b), c.Minus(b), a.Minus(c)
+	cosTheta := (v.Norm2() + w.Norm2() - z.Norm2()) / (2.0 * v.Norm() * w.Norm())
+	theta := gacos(cosTheta)
+	return theta
 }
 
-func pLess(a, b *Point) bool {
+func pLess(a, b Point) bool {
 	if !fEq(a.x, b.x) {
 		return a.x < b.x
 	}
 	return a.y < b.y
 }
 
-func NewLine(a, b *Point) *Line {
+func NewLine(a, b Point) Line {
 	na, nb := NewPoint(a.x, a.y), NewPoint(b.x, b.y)
-	return &Line{a: na, b: nb}
+	return Line{a: na, b: nb}
 }
 
-func NewSegment(a, b *Point) *Segment {
+func NewSegment(a, b Point) Segment {
 	na, nb := NewPoint(a.x, a.y), NewPoint(b.x, b.y)
-	return &Segment{a: na, b: nb}
+	return Segment{a: na, b: nb}
 }
 
-func NewCircle(p *Point, r float64) *Circle {
+func NewCircle(p Point, r float64) Circle {
 	np := NewPoint(p.x, p.y)
-	return &Circle{p: np, r: r}
+	return Circle{p: np, r: r}
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_1_C
 // 点の回転方向
-func Ccw(a, b, c *Point) int {
+func Ccw(a, b, c Point) int {
 	d, e := b.Minus(a), c.Minus(a)
 
 	cross := Cross(d, e)
@@ -189,7 +201,7 @@ func Ccw(a, b, c *Point) int {
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_2_A
 // 平行判定
-func IsParallel(a, b *Line) bool {
+func IsParallel(a, b Line) bool {
 	AB := a.b.Minus(a.a)
 	CD := b.b.Minus(b.a)
 	cross := Cross(AB, CD)
@@ -198,7 +210,7 @@ func IsParallel(a, b *Line) bool {
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_2_A
 // 垂直判定
-func IsOrthogonal(a, b *Line) bool {
+func IsOrthogonal(a, b Line) bool {
 	BA := a.a.Minus(a.b)
 	DC := b.a.Minus(b.b)
 	dot := Dot(BA, DC)
@@ -208,61 +220,68 @@ func IsOrthogonal(a, b *Line) bool {
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_1_A
 // 射影
 // 直線 l に p から垂線を引いた交点を求める
-func ProjectionToLine(l *Line, p *Point) *Point {
+func ProjectionToLine(l Line, p Point) Point {
 	AP := p.Minus(l.a)
 	BA := l.a.Minus(l.b)
 	t := Dot(AP, BA) / BA.Norm2()
 	return l.a.Add(BA.Mul(t))
 }
-func ProjectionToSegment(l *Segment, p *Point) *Point {
+func ProjectionToSegment(l Segment, p Point) Point {
 	line := NewLine(l.a, l.b)
 	return ProjectionToLine(line, p)
+}
+
+// 垂直二等分線
+func VerticalBisector(a, b Point) Line {
+	m := a.Add(b).Mul(0.5)
+	n := m.Add(Rotate90(b.Minus(a)))
+	return NewLine(m, n)
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_1_B
 // 反射
 // 直線 l を対称軸として点 p  と線対称にある点を求める
-func Reflection(l *Line, p *Point) *Point {
+func Reflection(l Line, p Point) Point {
 	plus := ProjectionToLine(l, p).Minus(p).Mul(2.0)
 	return p.Add(plus)
 }
 
 // 交差判定
-func IsIntersectLinePoint(l *Line, p *Point) bool {
+func IsIntersectLinePoint(l Line, p Point) bool {
 	ccw := Ccw(l.a, l.b, p)
 	return ccw != G_CLOCKWISE && ccw != G_COUNTER_CLOCKWISE
 }
-func IsIntersectLineLine(l, m *Line) bool {
+func IsIntersectLineLine(l, m Line) bool {
 	AB := l.b.Minus(l.a)
 	CD := m.b.Minus(m.a)
 	cross := Cross(AB, CD)
 	return !fEq(cross, 0.0)
 }
-func IsIntersectSegmentPoint(s *Segment, p *Point) bool {
+func IsIntersectSegmentPoint(s Segment, p Point) bool {
 	return Ccw(s.a, s.b, p) == G_ON_SEGMENT
 }
-func IsIntersectLineSegment(l *Line, s *Segment) bool {
+func IsIntersectLineSegment(l Line, s Segment) bool {
 	AB := l.b.Minus(l.a)
 	AC := s.a.Minus(l.a)
 	AD := s.b.Minus(l.a)
 	return Cross(AB, AC)*Cross(AB, AD) < G_EPS
 }
-func IsIntersectCircleLine(c *Circle, l *Line) bool {
+func IsIntersectCircleLine(c Circle, l Line) bool {
 	return DistanceLinePoint(l, c.p) <= c.r+G_EPS
 }
-func IsIntersectCirclePoint(c *Circle, p *Point) bool {
+func IsIntersectCirclePoint(c Circle, p Point) bool {
 	CP := p.Minus(c.p)
 	return gabs(CP.Norm()-c.r) < G_EPS
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_2_B
-func IsIntersectSegmentSegment(s, t *Segment) bool {
+func IsIntersectSegmentSegment(s, t Segment) bool {
 	lb := Ccw(s.a, s.b, t.a)*Ccw(s.a, s.b, t.b) <= 0
 	rb := Ccw(t.a, t.b, s.a)*Ccw(t.a, t.b, s.b) <= 0
 	return lb && rb
 }
 
-func IsIntersectCircleSegment(c *Circle, s *Segment) int {
+func IsIntersectCircleSegment(c Circle, s Segment) int {
 	m := ProjectionToSegment(s, c.p)
 	CM := m.Minus(c.p)
 
@@ -290,7 +309,7 @@ func IsIntersectCircleSegment(c *Circle, s *Segment) int {
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_7_A&lang=jp
-func IsIntersectCircleCircle(c1, c2 *Circle) int {
+func IsIntersectCircleCircle(c1, c2 Circle) int {
 	if c1.r < c2.r {
 		c1, c2 = NewCircle(c2.p, c2.r), NewCircle(c1.p, c1.r)
 	}
@@ -312,22 +331,22 @@ func IsIntersectCircleCircle(c1, c2 *Circle) int {
 	return 0
 }
 
-func DistancePointPoint(a, b *Point) float64 {
+func DistancePointPoint(a, b Point) float64 {
 	AB := a.Minus(b)
 	return AB.Norm()
 }
-func DistanceLinePoint(l *Line, p *Point) float64 {
+func DistanceLinePoint(l Line, p Point) float64 {
 	q := ProjectionToLine(l, p)
 	QP := p.Minus(q)
 	return QP.Norm()
 }
-func DistanceLineLine(l, m *Line) float64 {
+func DistanceLineLine(l, m Line) float64 {
 	if IsIntersectLineLine(l, m) {
 		return 0.0
 	}
 	return DistanceLinePoint(l, m.a)
 }
-func DistanceSegmentPoint(s *Segment, p *Point) float64 {
+func DistanceSegmentPoint(s Segment, p Point) float64 {
 	r := ProjectionToSegment(s, p)
 
 	if IsIntersectSegmentPoint(s, r) {
@@ -341,7 +360,7 @@ func DistanceSegmentPoint(s *Segment, p *Point) float64 {
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_2_D
-func DistanceSegmentSegment(a, b *Segment) float64 {
+func DistanceSegmentSegment(a, b Segment) float64 {
 	if IsIntersectSegmentSegment(a, b) {
 		return 0.0
 	}
@@ -353,7 +372,7 @@ func DistanceSegmentSegment(a, b *Segment) float64 {
 
 	return gmin(d1, gmin(d2, gmin(d3, d4)))
 }
-func DistanceLineSegment(l *Line, s *Segment) float64 {
+func DistanceLineSegment(l Line, s Segment) float64 {
 	if IsIntersectLineSegment(l, s) {
 		return 0.0
 	}
@@ -363,7 +382,7 @@ func DistanceLineSegment(l *Line, s *Segment) float64 {
 	return gmin(d1, d2)
 }
 
-func CrossPointLineLine(l, m *Line) *Point {
+func CrossPointLineLine(l, m Line) Point {
 	AB := l.b.Minus(l.a)
 	CD := m.b.Minus(m.a)
 	CB := l.b.Minus(m.a)
@@ -379,29 +398,29 @@ func CrossPointLineLine(l, m *Line) *Point {
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_2_C
-func CrossPointSegmentSegment(l, m *Segment) *Point {
+func CrossPointSegmentSegment(l, m Segment) Point {
 	a := NewLine(l.a, l.b)
 	b := NewLine(m.a, m.b)
 	return CrossPointLineLine(a, b)
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_7_D
-func CrossPointsCircleLine(c *Circle, l *Line) [2]*Point {
+func CrossPointsCircleLine(c Circle, l Line) [2]Point {
 	M := ProjectionToLine(l, c.p)
 	AB := l.b.Minus(l.a)
 	e := AB.Mul(1.0 / AB.Norm())
 
 	if fEq(DistanceLinePoint(l, c.p), c.r) {
-		return [2]*Point{NewPoint(M.x, M.y), NewPoint(M.x, M.y)}
+		return [2]Point{NewPoint(M.x, M.y), NewPoint(M.x, M.y)}
 	}
 
 	CM := M.Minus(c.p)
 	base := gsqrt(c.r*c.r - CM.Norm2())
 	eb := e.Mul(base)
-	return [2]*Point{M.Minus(eb), M.Add(eb)}
+	return [2]Point{M.Minus(eb), M.Add(eb)}
 }
 
-func CrossPointsCircleSegment(c *Circle, l *Segment) [2]*Point {
+func CrossPointsCircleSegment(c Circle, l Segment) [2]Point {
 	aa := NewLine(l.a, l.b)
 	if IsIntersectCircleSegment(c, l) == 2 {
 		return CrossPointsCircleLine(c, aa)
@@ -420,7 +439,7 @@ func CrossPointsCircleSegment(c *Circle, l *Segment) [2]*Point {
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_7_E
-func CrossPointsCircleCircle(c1, c2 *Circle) [2]*Point {
+func CrossPointsCircleCircle(c1, c2 Circle) [2]Point {
 	d := c1.p.Minus(c2.p).Norm()
 
 	a := gacos((c1.r*c1.r + d*d - c2.r*c2.r) / (2 * c1.r * d))
@@ -431,20 +450,20 @@ func CrossPointsCircleCircle(c1, c2 *Circle) [2]*Point {
 	p1 := c1.p.Add(tmp1)
 	p2 := c1.p.Add(tmp2)
 
-	return [2]*Point{p1, p2}
+	return [2]Point{p1, p2}
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_7_F
 // 点 p を通る円 c の接線
-func TangentCirclePoint(c1 *Circle, p2 *Point) [2]*Point {
+func TangentCirclePoint(c1 Circle, p2 Point) [2]Point {
 	c2 := NewCircle(p2, gsqrt(c1.p.Minus(p2).Norm2()-c1.r*c1.r))
 	return CrossPointsCircleCircle(c1, c2)
 }
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_7_G
 // 円 c1, c2 の共通接線
-func TangentCircleCircle(c1, c2 *Circle) []*Line {
-	ret := []*Line{}
+func TangentCircleCircle(c1, c2 Circle) []Line {
+	ret := []Line{}
 
 	if c1.r < c2.r {
 		c1, c2 = NewCircle(c2.p, c2.r), NewCircle(c1.p, c1.r)
@@ -482,7 +501,7 @@ func TangentCircleCircle(c1, c2 *Circle) []*Line {
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_3_B
 // 凸性判定
-func IsConvex(P []*Point) bool {
+func IsConvex(P []Point) bool {
 	n := len(P)
 	for i := 0; i < n; i++ {
 		a, b, c := P[(i+n-1)%n], P[i], P[(i+1)%n]
@@ -495,7 +514,7 @@ func IsConvex(P []*Point) bool {
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_4_A
 // 凸包
-func ConvexHull(P []*Point) []*Point {
+func ConvexHull(P []Point) []Point {
 	n := len(P)
 	k := 0
 
@@ -507,7 +526,7 @@ func ConvexHull(P []*Point) []*Point {
 		return pLess(P[i], P[j])
 	})
 
-	ch := make([]*Point, 2*n)
+	ch := make([]Point, 2*n)
 	for i := 0; i < n; i++ {
 		for k >= 2 {
 			CB := ch[k-1].Minus(ch[k-2])
@@ -540,7 +559,7 @@ func ConvexHull(P []*Point) []*Point {
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_3_C
 // 多角形と点の包含判定
-func Contains(P []*Point, q *Point) int {
+func Contains(P []Point, q Point) int {
 	n := len(P)
 	isIn := false
 
@@ -584,9 +603,9 @@ func Contains(P []*Point, q *Point) int {
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_4_C
 // 凸多角形の切断
 // 直線 l.a-l.b で切断しその左側にできる凸多角形を返す
-func ConvexCut(U []*Point, l *Line) []*Point {
+func ConvexCut(U []Point, l Line) []Point {
 	n := len(U)
-	ret := []*Point{}
+	ret := []Point{}
 
 	for i := 0; i < n; i++ {
 		a, b := U[i], U[(i+1)%n]
@@ -607,7 +626,7 @@ func ConvexCut(U []*Point, l *Line) []*Point {
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_3_A
 // 多角形の面積
-func AreaPolygon(P []*Point) float64 {
+func AreaPolygon(P []Point) float64 {
 	n := len(P)
 	A := 0.0
 	for i := 0; i < n; i++ {
@@ -618,14 +637,14 @@ func AreaPolygon(P []*Point) float64 {
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_7_H
 // 円と多角形の共通部分の面積
-func AreaPolygonCircle(P []*Point, c *Circle) float64 {
+func AreaPolygonCircle(P []Point, c Circle) float64 {
 	n := len(P)
 	if n < 3 {
 		return 0.0
 	}
 
-	var _cross_area func(c *Circle, a, b *Point) float64
-	_cross_area = func(c *Circle, a, b *Point) float64 {
+	var _cross_area func(c Circle, a, b Point) float64
+	_cross_area = func(c Circle, a, b Point) float64 {
 		va := c.p.Minus(a)
 		vb := c.p.Minus(b)
 		f := Cross(va, vb)
@@ -646,7 +665,7 @@ func AreaPolygonCircle(P []*Point, c *Circle) float64 {
 		}
 
 		u := CrossPointsCircleSegment(c, NewSegment(a, b))
-		tot := []*Point{a, u[0], u[1], b}
+		tot := []Point{a, u[0], u[1], b}
 		for i := 0; i+1 < len(tot); i++ {
 			ret += _cross_area(c, tot[i], tot[i+1])
 		}
@@ -661,9 +680,76 @@ func AreaPolygonCircle(P []*Point, c *Circle) float64 {
 	return A
 }
 
+// originated from:
+// https://onlinejudge.u-aizu.ac.jp/solutions/problem/CGL_7_I/review/4554366/beet/C++14
+func AreaCircleCircle(ac1, ac2 Circle) float64 {
+	c1, c2 := NewCircle(ac1.p, ac1.r), NewCircle(ac2.p, ac2.r)
+
+	d := c1.p.Minus(c2.p).Norm()
+	if c1.r+c2.r <= d+G_EPS {
+		return 0.0
+	}
+	if d <= gabs(c1.r-c2.r) {
+		r := gmin(c1.r, c2.r)
+		return G_PI * r * r
+	}
+
+	P := CrossPointsCircleCircle(c1, c2)
+
+	res := 0.0
+	for i := 0; i < 2; i++ {
+		th := Angle(c2.p, c1.p, P[0]) * 2.0
+		res += (th - gsin(th)) * c1.r * c1.r / 2.0
+
+		c1, c2 = c2, c1
+	}
+
+	return res
+}
+
+// 外接円
+// https://drken1215.hatenablog.com/entry/2020/10/16/074400
+func CircumscribedCircleOfTriangle(a, b, c Point) Circle {
+	l1, l2 := VerticalBisector(a, b), VerticalBisector(b, c)
+	v := CrossPointLineLine(l1, l2)
+	r := v.Minus(a).Norm()
+
+	return NewCircle(NewPoint(v.x, v.y), r)
+}
+
+// 内接円
+// https://drken1215.hatenablog.com/entry/2020/10/16/073700
+// func IncircleOfTriangle(a, b, c Point) Circle {
+// 	argA := Angle(b, a, c)
+// 	argB := Angle(a, b, c)
+// 	l1 := NewLine(a, a.Add(RotateTheta(argA/2.0, b.Minus(a))))
+// 	l2 := NewLine(b, b.Add(RotateTheta(argB/2.0, c.Minus(b))))
+
+// 	p := CrossPointLineLine(l1, l2)
+// 	h := ProjectionToLine(NewLine(a, b), p)
+// 	r := p.Minus(h).Norm()
+
+// 	return NewCircle(NewPoint(p.x, p.y), r)
+// }
+// 内接円
+// http://prognote.web.fc2.com/win_c_cpp/tri_incircle/index.html
+func IncircleOfTriangle(a, b, c Point) Circle {
+	C, A, B := b.Minus(a), c.Minus(b), a.Minus(c)
+	da, db, dc := A.Norm(), B.Norm(), C.Norm()
+	p := da + db + dc
+
+	x := (da*a.x + db*b.x + dc*c.x) / p
+	y := (da*a.y + db*b.y + dc*c.y) / p
+
+	s := p / 2.0
+	r := gsqrt((s - da) * (s - db) * (s - dc) / s)
+
+	return NewCircle(NewPoint(x, y), r)
+}
+
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_4_B
 // 凸多角形の直径(最遠頂点対間距離)
-func ConvexDiameter(P []*Point) (maxDist float64, mi, mj int) {
+func ConvexDiameter(P []Point) (maxDist float64, mi, mj int) {
 	n := len(P)
 
 	is, js := 0, 0
@@ -701,9 +787,9 @@ func ConvexDiameter(P []*Point) (maxDist float64, mi, mj int) {
 
 // http://judge.u-aizu.ac.jp/onlinejudge/description.jsp?id=CGL_5_A
 // 最近点対
-func ClosestPair(P []*Point) float64 {
-	var _rec func(P []*Point, l, r int) float64
-	_rec = func(P []*Point, l, r int) float64 {
+func ClosestPair(P []Point) float64 {
+	var _rec func(P []Point, l, r int) float64
+	_rec = func(P []Point, l, r int) float64 {
 		if r-l <= 1 {
 			return 1e60
 		}
@@ -713,7 +799,7 @@ func ClosestPair(P []*Point) float64 {
 		d := gmin(_rec(P, l, mid), _rec(P, mid, r))
 
 		// merge by order of y Pointinate.
-		L, R := []*Point{}, []*Point{}
+		L, R := []Point{}, []Point{}
 		for i := l; i < r; i++ {
 			if i < mid {
 				L = append(L, P[i])
@@ -736,7 +822,7 @@ func ClosestPair(P []*Point) float64 {
 			cur++
 		}
 
-		nearLine := []*Point{}
+		nearLine := []Point{}
 		for i := l; i < r; i++ {
 			if gabs(P[i].x-x) >= d {
 				continue

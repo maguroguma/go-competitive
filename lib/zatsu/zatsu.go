@@ -40,6 +40,7 @@ func (c *Compress) Build() {
 }
 
 // Get returns index that is equal to by binary search.
+// Results are in [0, len(c.cs)).
 // Time complexity: O(logN)
 func (c *Compress) Get(x int64) int64 {
 	_abs := func(a int64) int64 {
@@ -62,7 +63,23 @@ func (c *Compress) Get(x int64) int64 {
 	return ok
 }
 
+// InvGet returns original value that equals to i (compressed values).
+// InvGet accepts [0, len(c.cs))
+// Time complexity: O(1)
+func (c *Compress) InvGet(i int64) int64 {
+	if !(0 <= i && i < int64(len(c.cs))) {
+		panic("i is out of range")
+	}
+	return c.cs[i]
+}
+
+// Kind returns number of different values, that is len(c.cs).
+// Time complexity: O(1)
+func (c *Compress) Kind() int {
+	return len(c.cs)
+}
+
 type Compress struct {
 	xs []int64 // sorted original values
-	cs []int64 // sorted compressed values
+	cs []int64 // sorted and compressed original values
 }

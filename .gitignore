@@ -15,13 +15,13 @@
 *.vscode
 
 # PAST
-PAST/*
+_PAST/*
 
 # vim undo file
 $XDG_CACHE_HOME/*
 
 # sandbox directory
-sandbox/*
+_sandbox/*
 
 # oj files
 # *.in
