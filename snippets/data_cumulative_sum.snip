@@ -59,33 +59,30 @@ snippet     cumulativeSum2Dimension
 abbr        type RectangleSum struct
 options     head
   type RectangleSum struct {
-    matrix [][]int
-    recSum [][]int
+    recSum [][]${1:int}
   }
 
-  // NewRectangleSum は2次元累積和を計算するための構造体のポインタを返す
-  func NewRectangleSum(m [][]int) *RectangleSum {
+  func NewRectangleSum(m [][]$1) *RectangleSum {
     rs := new(RectangleSum)
-    rs.matrix = m
 
     h, w := len(m), len(m[0])
     for y := 0; y < h; y++ {
-      tmp := make([]int, w)
+      tmp := make([]$1, w)
       rs.recSum = append(rs.recSum, tmp)
     }
 
-    // 1行ずつスキャンする
+    // Build
     for y := 0; y < h; y++ {
       for x := 0; x < w; x++ {
-        rs.recSum[y][x] = rs.matrix[y][x] // 同じ座標の値を加算
+        rs.recSum[y][x] = m[y][x]
         if y > 0 {
-          rs.recSum[y][x] += rs.recSum[y-1][x] // 1マス上の座標と原点座標がなす長方形の和を加算
+          rs.recSum[y][x] += rs.recSum[y-1][x]
         }
         if x > 0 {
-          rs.recSum[y][x] += rs.recSum[y][x-1] // 1マス左の座標と原点座標がなす長方形の和を加算
+          rs.recSum[y][x] += rs.recSum[y][x-1]
         }
         if y > 0 && x > 0 {
-          rs.recSum[y][x] -= rs.recSum[y-1][x-1] // 過剰に加算した部分（左上のマスと原点座標がなす長方形の和）を減算
+          rs.recSum[y][x] -= rs.recSum[y-1][x-1]
         }
       }
     }
@@ -93,8 +90,9 @@ options     head
     return rs
   }
 
-  // GetSum は2次元累積和の初期化と逆の要領で、グリッド内の任意の長方形の和を計算し返す
-  func (rs *RectangleSum) GetSum(top, left, bottom, right int) int {
+  // RangeSum returns a result of \sum_{i=top to bottom, j=left to right}
+  // Time complexity: O(1)
+  func (rs *RectangleSum) RangeSum(top, left, bottom, right int) $1 {
     res := rs.recSum[bottom][right]
     if left > 0 {
       res -= rs.recSum[bottom][left-1]
@@ -107,4 +105,3 @@ options     head
     }
     return res
   }
-
