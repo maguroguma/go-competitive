@@ -1,73 +1,150 @@
 /*
 URL:
-https://atcoder.jp/contests/language-test-ver1/tasks/test001_c
+https://atcoder.jp/contests/abc127/tasks/abc127_f
 */
 
 package main
 
 import (
 	"bufio"
+	"container/heap"
 	"errors"
 	"fmt"
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
 var (
 	println = fmt.Println
-
-	B []int
-	n int
-	A [][]rune
-
-	M map[rune]rune
-	C []Value
 )
 
 func main() {
 	defer stdout.Flush()
 
-	B = readis(10)
-	n = readi()
-	for i := 0; i < n; i++ {
-		A = append(A, readrs())
-	}
+	q := readi()
 
-	M = make(map[rune]rune)
-	for i := 0; i < 10; i++ {
-		M['0'+rune(B[i])] = '0' + rune(i)
-	}
-	// for k, v := range M {
-	// 	debugf("%c: %c\n", k, v)
-	// }
+	lq, rq := NewLeftPQ(), NewRightPQ()
 
-	C = make([]Value, n)
-	for i := 0; i < n; i++ {
-		R := []rune{}
-		for _, a := range A[i] {
-			// R = append(R, a)
-			R = append(R, M[a])
+	mini := 0
+	B := 0
+	for i := 0; i < q; i++ {
+		com := readi()
+		if com == 1 {
+			a, b := readi2()
+			B += b
+
+			if lq.Len() > 0 {
+				llp := lq.pop()
+				rrp := rq.pop()
+				if !(llp.pri <= a && a <= rrp.pri) {
+					mini += min(abs(rrp.pri-a), abs(llp.pri-a))
+				}
+				lq.push(llp)
+				rq.push(rrp)
+			}
+
+			// PQの中央値管理のための調整
+
+			lq.push(&Left{a})
+			rq.push(&Right{a})
+
+			lp := lq.pop()
+			rp := rq.pop()
+			lv, rv := lp.pri, rp.pri
+			if lv > rv {
+				lq.push(&Left{rv})
+				rq.push(&Right{lv})
+			} else {
+				lq.push(lp)
+				rq.push(rp)
+			}
+
+			// debugf("mini: %v\n", mini)
+		} else {
+			ans := mini + B
+			lp := lq.pop()
+			lv := lp.pri
+			lq.push(lp)
+
+			printf("%d %d\n", lv, ans)
 		}
-
-		str := string(R)
-		v, _ := strconv.Atoi(str)
-		C[i] = Value{v: v, idx: i}
-	}
-
-	sort.Slice(C, func(i, j int) bool {
-		return C[i].v < C[j].v
-	})
-
-	for i := 0; i < n; i++ {
-		printf("%s\n", string(A[C[i].idx]))
 	}
 }
 
-type Value struct {
-	v, idx int
+type Left struct {
+	pri int
+}
+type LeftPQ []*Left
+
+// Interfaces
+func NewLeftPQ() *LeftPQ {
+	temp := make(LeftPQ, 0)
+	pq := &temp
+	heap.Init(pq)
+
+	return pq
+}
+func (pq *LeftPQ) push(target *Left) {
+	heap.Push(pq, target)
+}
+func (pq *LeftPQ) pop() *Left {
+	return heap.Pop(pq).(*Left)
+}
+
+func (pq LeftPQ) Len() int           { return len(pq) }
+func (pq LeftPQ) Less(i, j int) bool { return pq[i].pri > pq[j].pri } // <: ASC, >: DESC
+func (pq LeftPQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *LeftPQ) Push(x interface{}) {
+	item := x.(*Left)
+	*pq = append(*pq, item)
+}
+func (pq *LeftPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
+}
+
+type Right struct {
+	pri int
+}
+type RightPQ []*Right
+
+// Interfaces
+func NewRightPQ() *RightPQ {
+	temp := make(RightPQ, 0)
+	pq := &temp
+	heap.Init(pq)
+
+	return pq
+}
+func (pq *RightPQ) push(target *Right) {
+	heap.Push(pq, target)
+}
+func (pq *RightPQ) pop() *Right {
+	return heap.Pop(pq).(*Right)
+}
+
+func (pq RightPQ) Len() int           { return len(pq) }
+func (pq RightPQ) Less(i, j int) bool { return pq[i].pri < pq[j].pri } // <: ASC, >: DESC
+func (pq RightPQ) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *RightPQ) Push(x interface{}) {
+	item := x.(*Right)
+	*pq = append(*pq, item)
+}
+func (pq *RightPQ) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
 }
 
 /*******************************************************************/
