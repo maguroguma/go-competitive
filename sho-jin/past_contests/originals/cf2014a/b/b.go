@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/code-festival-2014-relay/tasks/code_festival_relay_b
+https://atcoder.jp/contests/code-thanks-festival-2014-a-open/tasks/code_thanks_festival_14_quala_b
 */
 
 package main
@@ -18,18 +18,64 @@ import (
 var (
 	println = fmt.Println
 
-	a, s int
+	n int
+	A []int
 )
 
 func main() {
 	defer stdout.Flush()
 
-	a, s = readi2()
-	if a >= s {
-		println("Congratulations!")
-	} else {
-		println("Enjoy another semester...")
+	n = readi()
+	A = readis(3)
+
+	P := PermutationPatterns([]int{0, 1, 2}, 3)
+
+	ans := INF_B60
+	for _, pat := range P {
+		cur := 0
+		i := 0
+		for cur < n {
+			idx := i % 3
+			val := A[pat[idx]]
+
+			cur += val
+			i++
+		}
+
+		chmin(&ans, i)
 	}
+
+	println(ans)
+}
+
+// PermutationPatterns returns all patterns of nPk of elems([]int).
+func PermutationPatterns(elems []int, k int) [][]int {
+	newResi := make([]int, len(elems))
+	copy(newResi, elems)
+
+	return permRec([]int{}, newResi, k)
+}
+
+// DFS function for PermutationPatterns.
+func permRec(pattern, residual []int, k int) [][]int {
+	if len(pattern) == k {
+		return [][]int{pattern}
+	}
+
+	res := [][]int{}
+	for i, e := range residual {
+		newPattern := make([]int, len(pattern))
+		copy(newPattern, pattern)
+		newPattern = append(newPattern, e)
+
+		newResi := []int{}
+		newResi = append(newResi, residual[:i]...)
+		newResi = append(newResi, residual[i+1:]...)
+
+		res = append(res, permRec(newPattern, newResi, k)...)
+	}
+
+	return res
 }
 
 /*******************************************************************/
