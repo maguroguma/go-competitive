@@ -116,3 +116,62 @@ options     head
     *m = m.Div(x)
     return m
   }
+
+  // cf := NewCombFactorial(2000000)
+  // maxNum == "maximum n" * 2 (for H(n,r))
+  // res := cf.C(n, r) 	// 組み合わせ
+  // res := cf.H(n, r) 	// 重複組合せ
+  // res := cf.P(n, r) 	// 順列
+
+  type CombFactorial struct {
+    maxNum Mint
+    fact   func(x Mint) Mint
+    invf   func(x Mint) Mint
+  }
+
+  func NewCombFactorial(maxNum Mint) *CombFactorial {
+    cf := new(CombFactorial)
+    cf.maxNum = maxNum
+    cf.initCF()
+
+    return cf
+  }
+
+  func (c *CombFactorial) initCF() {
+    var i Mint
+
+    factTable := make([]Mint, c.maxNum+50)
+    invfTable := make([]Mint, c.maxNum+50)
+
+    factTable[0] = 1
+    invfTable[0] = factTable[0].Inv()
+    for i = 1; i <= c.maxNum; i++ {
+      val := factTable[i-1].Mul(Mint(i))
+      factTable[i] = val
+      invfTable[i] = factTable[i].Inv()
+    }
+
+    c.fact = func(x Mint) Mint { return factTable[x] }
+    c.invf = func(x Mint) Mint { return invfTable[x] }
+  }
+  func (c *CombFactorial) C(n, r Mint) Mint {
+    var res Mint
+
+    res = Mint(1).
+      Mul(c.fact(n)).
+      Mul(c.invf(r)).
+      Mul(c.invf(n - r))
+
+    return res
+  }
+  func (c *CombFactorial) P(n, r Mint) Mint {
+    var res Mint
+
+    res = 1
+    res.MulAs(c.fact(n)).MulAs(c.invf(n - r))
+
+    return res
+  }
+  func (c *CombFactorial) H(n, r Mint) Mint {
+    return c.C(n-1+r, r)
+  }
