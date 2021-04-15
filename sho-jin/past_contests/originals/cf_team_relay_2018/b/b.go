@@ -1,6 +1,6 @@
 /*
 URL:
-https://atcoder.jp/contests/abc198/tasks/abc198_d
+https://atcoder.jp/contests/cf18-relay-open/tasks/relay2018_b
 */
 
 package main
@@ -12,146 +12,79 @@ import (
 	"io"
 	"math"
 	"os"
-	"sort"
 	"strconv"
 )
 
 var (
 	println          = fmt.Println
-	yes, no, invalid = "Yes", "No", "UNSOLVABLE"
+	yes, no, invalid = "Yes", "No", -1
 
-	A, B, C []rune
-
-	memo map[rune]int
-	R    []rune
-	I    map[rune]int
+	S      []rune
+	gx, gy int
 )
 
 func main() {
 	defer stdout.Flush()
 
-	A, B, C = readrs(), readrs(), readrs()
+	S = readrs()
+	gx, gy = readi2()
 
-	memo := make(map[rune]int)
-	for _, r := range A {
-		memo[r] = 1
-	}
-	for _, r := range B {
-		memo[r] = 1
-	}
-	for _, r := range C {
-		memo[r] = 1
-	}
-	if len(memo) > 10 {
-		println(invalid)
-		return
-	}
+	L := []rune{'L', 'R', 'U', 'D'}
 
-	R = []rune{}
-	for k := range memo {
-		R = append(R, k)
-	}
-	sort.Slice(R, func(i, j int) bool {
-		return R[i] < R[j]
-	})
-	I = make(map[rune]int)
-	for i, r := range R {
-		I[r] = i
-	}
-
-	numbers := []rune{}
-	for i := 0; i < 10; i++ {
-		numbers = append(numbers, '0'+rune(i))
-	}
-
-	// patterns := PermutationPatterns(numbers, len(R))
-	// for _, pat := range patterns {
-	// 	X := convert(A, pat)
-	// 	Y := convert(B, pat)
-	// 	Z := convert(C, pat)
-	// 	if X[0] == '0' || Y[0] == '0' || Z[0] == '0' {
-	// 		continue
-	// 	}
-
-	// 	x, y, z := Atoi(X), Atoi(Y), Atoi(Z)
-	// 	if x+y == z {
-	// 		println(x)
-	// 		println(y)
-	// 		println(z)
-	// 		return
-	// 	}
-	// }
-
-	ok, gx, gy, gz := false, -1, -1, -1
-	PermutationPatterns(numbers, len(R), func(seq []rune) {
+	ok := false
+	FactorialPatterns(L, func(seq []rune) {
 		if ok {
 			return
 		}
 
-		X := convert(A, seq)
-		Y := convert(B, seq)
-		Z := convert(C, seq)
-		if X[0] == '0' || Y[0] == '0' || Z[0] == '0' {
+		memo := map[rune]rune{
+			'W': seq[0],
+			'X': seq[1],
+			'Y': seq[2],
+			'Z': seq[3],
+		}
+
+		cx, cy := 0, 0
+		if cx == gx && cy == gy {
+			ok = true
 			return
 		}
 
-		x, y, z := Atoi(X), Atoi(Y), Atoi(Z)
-		if x+y == z {
-			ok, gx, gy, gz = true, x, y, z
-			return
+		for _, r := range S {
+			com := memo[r]
+			if com == 'L' {
+				cx--
+			} else if com == 'R' {
+				cx++
+			} else if com == 'U' {
+				cy++
+			} else {
+				cy--
+			}
+
+			if cx == gx && cy == gy {
+				ok = true
+				return
+			}
 		}
 	})
 
 	if ok {
-		println(gx)
-		println(gy)
-		println(gz)
-		return
+		println(yes)
+	} else {
+		println(no)
 	}
-
-	println(invalid)
 }
 
-func Atoi(A []rune) int {
-	res := 0
-
-	base := 1
-	for i := 0; i < len(A)-1; i++ {
-		base *= 10
-	}
-
-	for _, r := range A {
-		if !('0' <= r && r <= '9') {
-			panic(fmt.Sprintf("%v: cannot convert to an integer", string(A)))
-		}
-		res += int(r-'0') * base
-		base /= 10
-	}
-
-	return res
-}
-
-func convert(A []rune, table []rune) []rune {
-	res := []rune{}
-	for _, r := range A {
-		idx := I[r]
-		res = append(res, table[idx])
-	}
-	return res
-}
-
-// https://atcoder.jp/contests/cf18-relay-open/tasks/relay2018_b
 func FactorialPatterns(N []rune, fn func(seq []rune)) {
 	PermutationPatterns(N, len(N), fn)
 }
 
-// https://atcoder.jp/contests/abc198/tasks/abc198_d
 func PermutationPatterns(N []rune, k int, fn func(seq []rune)) {
 	curSeq := []rune{}
-	flags := make([]bool, len(N))
 
-	var rec func()
-	rec = func() {
+	var rec func(flags []bool, k int, fn func(seq []rune))
+	rec = func(flags []bool, k int, fn func(seq []rune)) {
 		if len(curSeq) == k {
 			fn(curSeq)
 		}
@@ -164,13 +97,14 @@ func PermutationPatterns(N []rune, k int, fn func(seq []rune)) {
 			curSeq = append(curSeq, N[i])
 			flags[i] = true
 
-			rec()
+			rec(flags, k, fn)
 			curSeq = curSeq[:len(curSeq)-1]
 			flags[i] = false
 		}
 	}
 
-	rec()
+	flags := make([]bool, len(N))
+	rec(flags, k, fn)
 }
 
 /*******************************************************************/
