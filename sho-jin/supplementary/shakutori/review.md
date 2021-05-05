@@ -1,6 +1,6 @@
 # しゃくとり法
 
-Last Change: 2020-06-21 13:15:18.
+Last Change: 2021-04-26 00:06:02.
 
 問題集など。しゃくとり法は半開区間でとらえるのがすべて、というのが個人的な考え。
 
@@ -20,6 +20,8 @@ Last Change: 2020-06-21 13:15:18.
   - こういう区間の数え方はちょっと慣れないと難しい、もしくは無駄に悩むことになるかもしれない。
 - [Codeforces 1333C](https://codeforces.com/problemset/problem/1333/C)
   - 累積和を使うので添字で頭がぶっ壊れる、という意味でいい応用問題。
+- [CPSCO2019 Session4 C.Make a Team](https://atcoder.jp/contests/cpsco2019-s4/tasks/cpsco2019_s4_c)
+  - 簡単な組合せによる数え上げも必要になる。
 
 ## 応用
 
