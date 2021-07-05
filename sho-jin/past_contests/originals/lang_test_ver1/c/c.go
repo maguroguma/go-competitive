@@ -12,16 +12,62 @@ import (
 	"io"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
 var (
 	println = fmt.Println
+
+	B []int
+	n int
+	A [][]rune
+
+	M map[rune]rune
+	C []Value
 )
 
 func main() {
 	defer stdout.Flush()
 
+	B = readis(10)
+	n = readi()
+	for i := 0; i < n; i++ {
+		A = append(A, readrs())
+	}
+
+	M = make(map[rune]rune)
+	for i := 0; i < 10; i++ {
+		M['0'+rune(B[i])] = '0' + rune(i)
+	}
+	// for k, v := range M {
+	// 	debugf("%c: %c\n", k, v)
+	// }
+
+	C = make([]Value, n)
+	for i := 0; i < n; i++ {
+		R := []rune{}
+		for _, a := range A[i] {
+			// R = append(R, a)
+			R = append(R, M[a])
+		}
+
+		str := string(R)
+		v, _ := strconv.Atoi(str)
+		C[i] = Value{v: v, idx: i}
+	}
+
+	sort.Slice(C, func(i, j int) bool {
+		return C[i].v < C[j].v
+	})
+
+	for i := 0; i < n; i++ {
+		printf("%s\n", string(A[C[i].idx]))
+	}
+}
+
+type Value struct {
+	v, idx int
 }
 
 /*******************************************************************/
